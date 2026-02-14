@@ -21,8 +21,9 @@ export default function CourtManager() {
   const { currentUser } = useAuth()
 
   const handleAdd = () => {
+    const now = Date.now()
     const newCase: Case = {
-      id: `case_${Date.now()}`,
+      id: `case_${now}`,
       title: '',
       docket: '',
       court: '',
@@ -35,7 +36,8 @@ export default function CourtManager() {
       order: (cases?.length || 0) + 1,
       visibility: 'private',
       featured: false,
-      lastUpdated: Date.now()
+      lastUpdated: now,
+      createdAt: now
     }
     setEditingCase(newCase)
     setIsDialogOpen(true)

@@ -1,14 +1,14 @@
-# Founder Hub PRD
+# xTx396 Hub PRD
 
-A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a private admin dashboard for complete content control.
+A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a comprehensive Content Control Center for managing projects, court cases, and document libraries with advanced metadata-driven organization.
 
 **Experience Qualities**:
-1. **Calm & Fast** - Smooth scroll-based storytelling with tasteful animations that respect reduced-motion preferences and investor-grade polish
-2. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, and comprehensive keyboard navigation
-3. **Transparent** - Court documentation and accountability are front-and-center with organized case materials and lazy-loaded PDF previews
+1. **Powerful & Organized** - Advanced Content Control Center with batch PDF processing, metadata extraction, automated naming rules, and staging workflows that maintain data integrity
+2. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, responsive two-column admin layout, and comprehensive keyboard navigation
+3. **Transparent & Auditable** - Court documentation with chain-of-custody tracking, comprehensive audit logging, safe review-before-publish workflows, and metadata-driven organization
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a premium dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, content management, media uploads, theme customization, motion/accessibility settings, audit logging, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
+This is a comprehensive dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy, scriptable batch utilities, chain-of-custody tracking, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
 
 ## Essential Features
 

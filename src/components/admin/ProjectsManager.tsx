@@ -20,8 +20,9 @@ export default function ProjectsManager() {
   const { currentUser } = useAuth()
 
   const handleAdd = () => {
+    const now = Date.now()
     const newProject: Project = {
-      id: `proj_${Date.now()}`,
+      id: `proj_${now}`,
       title: '',
       summary: '',
       description: '',
@@ -30,7 +31,10 @@ export default function ProjectsManager() {
       links: [],
       order: (projects?.length || 0) + 1,
       enabled: true,
-      featured: false
+      featured: false,
+      status: 'active',
+      createdAt: now,
+      updatedAt: now
     }
     setEditingProject(newProject)
     setIsDialogOpen(true)

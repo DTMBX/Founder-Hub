@@ -30,17 +30,24 @@ export default function MediaManager() {
   }
 
   const handleSimulateUpload = async () => {
+    const now = Date.now()
     const newPDF: PDFAsset = {
-      id: `pdf_${Date.now()}`,
-      fileUrl: `/pdfs/sample_${Date.now()}.pdf`,
+      id: `pdf_${now}`,
+      fileUrl: `/pdfs/sample_${now}.pdf`,
       title: 'Sample Document',
       description: 'This is a sample PDF document',
       tags: ['sample'],
       visibility: 'private',
+      stage: 'published',
+      ocrStatus: 'none',
       featured: false,
       fileSize: 1024 * 150,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      metadata: {
+        originalFilename: `sample_${now}.pdf`,
+        checksum: `sha256_${now}`
+      },
+      createdAt: now,
+      updatedAt: now
     }
 
     setPdfs(currentPdfs => [...(currentPdfs || []), newPDF])
