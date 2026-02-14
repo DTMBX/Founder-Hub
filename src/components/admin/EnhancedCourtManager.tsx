@@ -367,11 +367,13 @@ export default function EnhancedCourtManager() {
           {editingCase && (
             <div className="flex-1 overflow-hidden">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-                <TabsList className="grid grid-cols-5 w-full">
+                <TabsList className="grid grid-cols-7 w-full">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="details">Details</TabsTrigger>
                   <TabsTrigger value="timeline">Timeline</TabsTrigger>
                   <TabsTrigger value="documents">Documents</TabsTrigger>
+                  <TabsTrigger value="review">Review</TabsTrigger>
+                  <TabsTrigger value="checklist">Checklist</TabsTrigger>
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                 </TabsList>
 
@@ -649,6 +651,182 @@ export default function EnhancedCourtManager() {
 
                     <div className="p-4 bg-muted rounded-md text-xs text-muted-foreground">
                       <strong>Note:</strong> Use the Documents tab to upload and manage PDFs, then reference their IDs here to feature them in this case.
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="review" className="space-y-4 mt-0">
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Attorney review notes designed for counsel triage and contingency evaluation.
+                    </p>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="review-damages">Damages/Injuries</Label>
+                      <Textarea
+                        id="review-damages"
+                        value={editingCase.reviewNotes?.damagesInjuries || ''}
+                        onChange={(e) => setEditingCase({ 
+                          ...editingCase, 
+                          reviewNotes: { ...(editingCase.reviewNotes || {}), damagesInjuries: e.target.value }
+                        })}
+                        placeholder="Describe injuries, damages, or harm alleged"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="review-evidence">Key Evidence Sources</Label>
+                      <Textarea
+                        id="review-evidence"
+                        value={editingCase.reviewNotes?.keyEvidenceSources || ''}
+                        onChange={(e) => setEditingCase({ 
+                          ...editingCase, 
+                          reviewNotes: { ...(editingCase.reviewNotes || {}), keyEvidenceSources: e.target.value }
+                        })}
+                        placeholder="BWC footage, certifications, exhibits, expert reports, etc."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="review-deadlines">Deadlines/Limitations</Label>
+                      <Textarea
+                        id="review-deadlines"
+                        value={editingCase.reviewNotes?.deadlinesLimitations || ''}
+                        onChange={(e) => setEditingCase({ 
+                          ...editingCase, 
+                          reviewNotes: { ...(editingCase.reviewNotes || {}), deadlinesLimitations: e.target.value }
+                        })}
+                        placeholder="Statute of limitations dates, filing deadlines, or time-sensitive considerations"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="review-relief">Relief Sought</Label>
+                      <Textarea
+                        id="review-relief"
+                        value={editingCase.reviewNotes?.reliefSought || ''}
+                        onChange={(e) => setEditingCase({ 
+                          ...editingCase, 
+                          reviewNotes: { ...(editingCase.reviewNotes || {}), reliefSought: e.target.value }
+                        })}
+                        placeholder="Damages requested, injunctive relief, declaratory judgment, etc."
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="review-notes">Additional Review Notes</Label>
+                      <Textarea
+                        id="review-notes"
+                        value={editingCase.reviewNotes?.notes || ''}
+                        onChange={(e) => setEditingCase({ 
+                          ...editingCase, 
+                          reviewNotes: { ...(editingCase.reviewNotes || {}), notes: e.target.value }
+                        })}
+                        placeholder="General notes for attorney review"
+                        rows={4}
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="checklist" className="space-y-4 mt-0">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <Label>Contingency Evaluation Checklist</Label>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Track key factors for contingency case evaluation
+                        </p>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          const newItem = {
+                            id: `checklist_${Date.now()}`,
+                            label: '',
+                            checked: false,
+                            notes: ''
+                          }
+                          setEditingCase({
+                            ...editingCase,
+                            contingencyChecklist: [...(editingCase.contingencyChecklist || []), newItem]
+                          })
+                        }}
+                        className="gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Item
+                      </Button>
+                    </div>
+
+                    {(!editingCase.contingencyChecklist || editingCase.contingencyChecklist.length === 0) ? (
+                      <div className="text-sm text-muted-foreground py-8 text-center border border-dashed rounded-md">
+                        No checklist items yet. Add evaluation criteria for attorney review.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {editingCase.contingencyChecklist.map((item, index) => (
+                          <Card key={item.id} className="p-4">
+                            <div className="space-y-3">
+                              <div className="flex items-start gap-2">
+                                <div className="flex-1 space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <Switch
+                                      checked={item.checked}
+                                      onCheckedChange={(checked) => {
+                                        const updated = [...(editingCase.contingencyChecklist || [])]
+                                        updated[index] = { ...updated[index], checked }
+                                        setEditingCase({ ...editingCase, contingencyChecklist: updated })
+                                      }}
+                                    />
+                                    <Input
+                                      value={item.label}
+                                      onChange={(e) => {
+                                        const updated = [...(editingCase.contingencyChecklist || [])]
+                                        updated[index] = { ...updated[index], label: e.target.value }
+                                        setEditingCase({ ...editingCase, contingencyChecklist: updated })
+                                      }}
+                                      placeholder="Checklist item label"
+                                      className="flex-1"
+                                    />
+                                  </div>
+                                  <Textarea
+                                    value={item.notes || ''}
+                                    onChange={(e) => {
+                                      const updated = [...(editingCase.contingencyChecklist || [])]
+                                      updated[index] = { ...updated[index], notes: e.target.value }
+                                      setEditingCase({ ...editingCase, contingencyChecklist: updated })
+                                    }}
+                                    placeholder="Optional notes for this item"
+                                    rows={2}
+                                    className="text-sm"
+                                  />
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingCase({
+                                      ...editingCase,
+                                      contingencyChecklist: (editingCase.contingencyChecklist || []).filter((_, i) => i !== index)
+                                    })
+                                  }}
+                                  className="text-destructive hover:text-destructive h-9 w-9 p-0"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="p-4 bg-muted rounded-md text-xs text-muted-foreground">
+                      <strong>Suggested items:</strong> Clear liability, Substantial damages, Strong evidence, Statute not expired, Defendant solvency, Case merits vs. costs
                     </div>
                   </TabsContent>
 

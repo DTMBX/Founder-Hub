@@ -27,7 +27,11 @@ import {
   Star,
   Printer,
   Info,
-  CaretRight
+  CaretRight,
+  CheckCircle,
+  Circle,
+  ClipboardText,
+  Warning
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -457,6 +461,12 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
 
             <TabsContent value="details" className="mt-4">
               <DetailsPanel case={selectedCase} />
+              <div className="mt-4">
+                <ReviewNotesPanel case={selectedCase} />
+              </div>
+              <div className="mt-4">
+                <ContingencyChecklistPanel case={selectedCase} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
@@ -465,6 +475,8 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
           <aside className="space-y-4">
             <DetailsPanel case={selectedCase} />
             <TimelinePanel case={selectedCase} />
+            <ReviewNotesPanel case={selectedCase} />
+            <ContingencyChecklistPanel case={selectedCase} />
           </aside>
 
           <main className="space-y-4">
@@ -609,6 +621,117 @@ function TimelinePanel({ case: selectedCase }: { case: Case }) {
           </div>
         ))}
       </div>
+    </GlassCard>
+  )
+}
+
+function ReviewNotesPanel({ case: selectedCase }: { case: Case }) {
+  if (!selectedCase.reviewNotes || Object.keys(selectedCase.reviewNotes).length === 0) {
+    return null
+  }
+
+  const { damagesInjuries, keyEvidenceSources, deadlinesLimitations, reliefSought, notes } = selectedCase.reviewNotes
+
+  return (
+    <GlassCard className="p-6">
+      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+        <ClipboardText size={20} className="text-accent" />
+        Attorney Review Notes
+      </h3>
+      
+      <div className="space-y-4 text-sm">
+        {damagesInjuries && (
+          <div>
+            <dt className="text-muted-foreground mb-1 font-semibold">Damages/Injuries</dt>
+            <dd className="text-foreground leading-relaxed">{damagesInjuries}</dd>
+          </div>
+        )}
+        
+        {keyEvidenceSources && (
+          <div>
+            <dt className="text-muted-foreground mb-1 font-semibold">Key Evidence Sources</dt>
+            <dd className="text-foreground leading-relaxed">{keyEvidenceSources}</dd>
+          </div>
+        )}
+        
+        {deadlinesLimitations && (
+          <div>
+            <dt className="text-muted-foreground mb-1 font-semibold">Deadlines/Limitations</dt>
+            <dd className="text-foreground leading-relaxed">{deadlinesLimitations}</dd>
+          </div>
+        )}
+        
+        {reliefSought && (
+          <div>
+            <dt className="text-muted-foreground mb-1 font-semibold">Relief Sought</dt>
+            <dd className="text-foreground leading-relaxed">{reliefSought}</dd>
+          </div>
+        )}
+        
+        {notes && (
+          <div className="pt-3 border-t border-border">
+            <dt className="text-muted-foreground mb-1 font-semibold">Additional Notes</dt>
+            <dd className="text-muted-foreground leading-relaxed">{notes}</dd>
+          </div>
+        )}
+      </div>
+    </GlassCard>
+  )
+}
+
+function ContingencyChecklistPanel({ case: selectedCase }: { case: Case }) {
+  if (!selectedCase.contingencyChecklist || selectedCase.contingencyChecklist.length === 0) {
+    return null
+  }
+
+  const checkedCount = selectedCase.contingencyChecklist.filter(item => item.checked).length
+  const totalCount = selectedCase.contingencyChecklist.length
+
+  return (
+    <GlassCard className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <CheckCircle size={20} className="text-accent" />
+          Contingency Evaluation
+        </h3>
+        <Badge variant="outline" className="text-xs">
+          {checkedCount}/{totalCount}
+        </Badge>
+      </div>
+      
+      <div className="space-y-3">
+        {selectedCase.contingencyChecklist.map((item) => (
+          <div key={item.id} className="flex items-start gap-3">
+            <div className="shrink-0 mt-0.5">
+              {item.checked ? (
+                <CheckCircle size={18} weight="fill" className="text-accent" />
+              ) : (
+                <Circle size={18} className="text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={cn(
+                "text-sm",
+                item.checked ? "text-foreground font-medium" : "text-muted-foreground"
+              )}>
+                {item.label}
+              </p>
+              {item.notes && (
+                <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {checkedCount < totalCount && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <div className="flex items-start gap-2 text-xs text-muted-foreground">
+            <Warning size={14} className="shrink-0 mt-0.5" />
+            <p>Additional review recommended. {totalCount - checkedCount} item{totalCount - checkedCount !== 1 ? 's' : ''} pending verification.</p>
+          </div>
+        </div>
+      )}
     </GlassCard>
   )
 }

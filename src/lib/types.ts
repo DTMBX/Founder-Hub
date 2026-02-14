@@ -84,6 +84,21 @@ export interface ProjectLink {
 export type CaseStatus = 'active' | 'settled' | 'pending' | 'closed' | 'dismissed'
 export type CaseVisibility = 'public' | 'unlisted' | 'private'
 
+export interface ReviewNotes {
+  damagesInjuries?: string
+  keyEvidenceSources?: string
+  deadlinesLimitations?: string
+  reliefSought?: string
+  notes?: string
+}
+
+export interface ContingencyChecklistItem {
+  id: string
+  label: string
+  checked: boolean
+  notes?: string
+}
+
 export interface Case {
   id: string
   title: string
@@ -107,6 +122,8 @@ export interface Case {
   timeline?: TimelineEvent[]
   overview?: string
   publicDisclosureOverride?: string
+  reviewNotes?: ReviewNotes
+  contingencyChecklist?: ContingencyChecklistItem[]
   lastUpdated: number
   createdAt: number
 }

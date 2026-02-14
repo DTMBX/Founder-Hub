@@ -21,8 +21,6 @@ export default function CourtSection({ investorMode, onNavigateToCase }: CourtSe
     ?.filter(c => c.visibility === 'public' || c.visibility === 'unlisted')
     .sort((a, b) => a.order - b.order) || []
 
-  if (visibleCases.length === 0) return null
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'bg-accent/20 text-accent border-accent/40'
@@ -61,47 +59,59 @@ export default function CourtSection({ investorMode, onNavigateToCase }: CourtSe
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-          {visibleCases.map((courtCase, index) => (
-            <motion.div
-              key={courtCase.id}
-              initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-              animate={isVisible ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: prefersReducedMotion ? 0 : index * 0.1 }}
-            >
-              <GlassCard
-                intensity="medium"
-                className="h-full cursor-pointer group hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1 transition-all duration-300"
-                onClick={() => onNavigateToCase(courtCase.id)}
+        {visibleCases.length === 0 ? (
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+          >
+            <GlassCard intensity="low" className="p-12 text-center">
+              <p className="text-muted-foreground text-lg">No cases available at this time.</p>
+            </GlassCard>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {visibleCases.map((courtCase, index) => (
+              <motion.div
+                key={courtCase.id}
+                initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+                animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: prefersReducedMotion ? 0 : index * 0.1 }}
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-2 mb-3">
-                    <h3 className="text-lg font-semibold leading-tight group-hover:text-accent transition-colors">
-                      {courtCase.title}
-                    </h3>
-                    <Badge className={getStatusColor(courtCase.status)} variant="outline">
-                      {courtCase.status}
-                    </Badge>
+                <GlassCard
+                  intensity="medium"
+                  className="h-full cursor-pointer group hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1 transition-all duration-300"
+                  onClick={() => onNavigateToCase(courtCase.id)}
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <h3 className="text-lg font-semibold leading-tight group-hover:text-accent transition-colors">
+                        {courtCase.title}
+                      </h3>
+                      <Badge className={getStatusColor(courtCase.status)} variant="outline">
+                        {courtCase.status}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1 text-sm mb-4">
+                      <p className="text-muted-foreground">{courtCase.court}</p>
+                      <p className="font-mono text-xs text-accent">{courtCase.docket}</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                      {courtCase.summary}
+                    </p>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/40">
+                      <span>{courtCase.dateRange}</span>
+                      <span className="font-medium flex items-center gap-1">
+                        <Eye size={14} />
+                        View Details
+                      </span>
+                    </div>
                   </div>
-                  <div className="space-y-1 text-sm mb-4">
-                    <p className="text-muted-foreground">{courtCase.court}</p>
-                    <p className="font-mono text-xs text-accent">{courtCase.docket}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                    {courtCase.summary}
-                  </p>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/40">
-                    <span>{courtCase.dateRange}</span>
-                    <span className="font-medium flex items-center gap-1">
-                      <Eye size={14} />
-                      View Details
-                    </span>
-                  </div>
-                </div>
-              </GlassCard>
-            </motion.div>
-          ))}
-        </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
