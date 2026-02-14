@@ -23,6 +23,10 @@ export interface SiteSettings {
   analyticsEnabled: boolean
   indexingEnabled: boolean
   investorModeAvailable: boolean
+  motionLevel?: 'full' | 'reduced' | 'off'
+  glassIntensity?: 'low' | 'medium' | 'high'
+  gradientUsage?: 'off' | 'accent' | 'enhanced'
+  contrastMode?: 'standard' | 'extra'
 }
 
 export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact'

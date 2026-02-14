@@ -5,6 +5,8 @@ import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List } from '@phosphor-icons/react'
 import { Section } from '@/lib/types'
+import { useActiveSection } from '@/hooks/use-active-section'
+import { cn } from '@/lib/utils'
 
 interface NavigationProps {
   sections: Section[]
@@ -31,19 +33,31 @@ export default function Navigation({
 }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  
+  const sectionIds = sections.map(s => s.type)
+  const activeSection = useActiveSection(sectionIds)
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
+      const headerOffset = 80
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY
+      const offsetPosition = elementPosition - headerOffset
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      })
+      
+      window.history.pushState(null, '', `#${sectionId}`)
       setMobileOpen(false)
     }
   }
@@ -59,27 +73,38 @@ export default function Navigation({
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-card/95 backdrop-blur-lg border-b border-border shadow-lg' : 'bg-transparent'
-      }`}
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled 
+          ? 'bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg' 
+          : 'bg-transparent'
+      )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <button
             onClick={() => scrollToSection('hero')}
-            className="text-lg font-bold tracking-tight hover:text-accent transition-colors"
+            className="text-lg font-bold tracking-tight hover:text-accent transition-colors font-mono"
           >
             xTx396
           </button>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-1">
             {navLinks.map(link => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className={cn(
+                  'relative px-4 py-2 text-sm font-medium transition-all duration-200 rounded-md',
+                  activeSection === link.id
+                    ? 'text-foreground bg-accent/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
+                )}
               >
                 {link.label}
+                {activeSection === link.id && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-accent rounded-full" />
+                )}
               </button>
             ))}
 
@@ -100,7 +125,7 @@ export default function Navigation({
               variant="ghost"
               size="sm"
               onClick={onAdminClick}
-              className="text-xs"
+              className="text-xs ml-2"
             >
               Admin
             </Button>
@@ -112,15 +137,21 @@ export default function Navigation({
                 <List className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px]">
-              <div className="flex flex-col gap-4 mt-8">
+            <SheetContent side="right" className="w-[280px] bg-background/95 backdrop-blur-xl">
+              <div className="flex flex-col gap-2 mt-8">
                 {navLinks.map(link => {
                   const Icon = link.icon
+                  const isActive = activeSection === link.id
                   return (
                     <button
                       key={link.id}
                       onClick={() => scrollToSection(link.id)}
-                      className="flex items-center gap-3 text-left px-2 py-2 rounded-lg hover:bg-accent/10 transition-colors"
+                      className={cn(
+                        'flex items-center gap-3 text-left px-3 py-3 rounded-lg transition-all duration-200',
+                        isActive
+                          ? 'bg-accent/20 text-foreground'
+                          : 'hover:bg-accent/10 text-muted-foreground hover:text-foreground'
+                      )}
                     >
                       {Icon && <Icon className="h-5 w-5" />}
                       <span className="font-medium">{link.label}</span>
@@ -129,7 +160,7 @@ export default function Navigation({
                 })}
 
                 {showInvestorToggle && (
-                  <div className="flex items-center justify-between px-2 py-2 mt-4 border-t border-border pt-4">
+                  <div className="flex items-center justify-between px-3 py-3 mt-4 border-t border-border pt-4">
                     <Label htmlFor="investor-mode-mobile" className="text-sm">
                       Investor Mode
                     </Label>

@@ -1,14 +1,14 @@
 # Founder Hub PRD
 
-A professional one-page personal landing site for Devon Tyler Barber (xTx396) with a private admin dashboard for complete content control without code changes.
+A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a private admin dashboard for complete content control.
 
 **Experience Qualities**:
-1. **Confident** - Clean, minimal design that projects authority and credibility to investors and collaborators
-2. **Transparent** - Court documentation and accountability are front-and-center with organized case materials
-3. **Effortless** - Admin can update everything instantly; visitors find what they need in under 2 minutes
+1. **Calm & Fast** - Smooth scroll-based storytelling with tasteful animations that respect reduced-motion preferences and investor-grade polish
+2. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, and comprehensive keyboard navigation
+3. **Transparent** - Court documentation and accountability are front-and-center with organized case materials and lazy-loaded PDF previews
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a dual-interface application with a sophisticated admin dashboard featuring authentication, role-based access control, content management, media uploads, theme customization, audit logging, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
+This is a premium dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, content management, media uploads, theme customization, motion/accessibility settings, audit logging, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
 
 ## Essential Features
 
@@ -95,6 +95,41 @@ This is a dual-interface application with a sophisticated admin dashboard featur
 - **Trigger**: Admin navigates to Audit Log section
 - **Progression**: View log → filter by user/action/date → export if needed
 - **Success criteria**: All actions logged with timestamp and user, filterable, readable format
+
+### Premium Scroll Storytelling
+- **Functionality**: Scroll progress indicator, active section tracking in navigation, smooth anchor scrolling with URL hash updates, back-to-top button
+- **Purpose**: Create engaging scroll-based narrative that guides visitors through content with visual feedback
+- **Trigger**: User scrolls page or clicks navigation anchors
+- **Progression**: Scroll page → progress bar updates → nav highlights active section → back-to-top appears → click anchor → smooth scroll with offset → URL updates
+- **Success criteria**: Progress bar accurate, active section detection works, smooth scrolling respects reduced motion, back-to-top fades appropriately
+
+### Glassmorphism Design System
+- **Functionality**: Glass button variants (Primary, Accent, Ghost, Solid), glass card components with intensity levels, frosted surfaces with blur and translucency
+- **Purpose**: Modern, premium aesthetic with high contrast and readability while maintaining visual sophistication
+- **Trigger**: Rendered throughout UI for buttons, cards, navigation, modals
+- **Progression**: User interacts with glass elements → see hover lift and border brighten → press for scale feedback → focus shows clear ring
+- **Success criteria**: All glass elements maintain high contrast, backdrop blur supported or falls back gracefully, intensity levels configurable
+
+### Motion & Accessibility Controls
+- **Functionality**: Global motion settings (Full/Reduced/Off), respects OS reduced-motion preference, extra contrast mode, GPU-optimized animations
+- **Purpose**: Ensure accessibility for users with motion sensitivity while allowing those who enjoy animations to experience them fully
+- **Trigger**: System preference detection or admin settings application
+- **Progression**: User visits site → motion preference detected → animations adjust accordingly → admin can override in settings
+- **Success criteria**: Reduced motion disables nonessential animations, extra contrast increases legibility, all animations under 400ms, no scroll jank
+
+### Responsive Layout Flow
+- **Functionality**: Distinct desktop vs mobile layouts with different spacing, grids, and interaction patterns; desktop uses wider gutters and sticky nav; mobile uses stacked cards and larger tap targets
+- **Purpose**: Optimize experience for each device class rather than just scaling the same layout
+- **Trigger**: Viewport size detection
+- **Progression**: Load on mobile → see stacked cards and bottom sheet modals → load on desktop → see multi-column grids and centered modals
+- **Success criteria**: Mobile layout feels native with proper tap targets, desktop uses available space effectively, transitions smooth between breakpoints
+
+### Lazy Loading Strategy
+- **Functionality**: Intersection observers for section reveals, lazy-loaded images and PDF previews, skeleton placeholders, viewport-aware loading
+- **Purpose**: Improve initial page load performance while ensuring smooth experience as user scrolls
+- **Trigger**: User scrolls near content that hasn't loaded yet
+- **Progression**: Initial load shows hero and first section → scroll down → intersection observer triggers → content fades in → heavy elements load only when needed
+- **Success criteria**: First content appears quickly, smooth progressive loading, no layout shift, admin can configure preload strategies
 
 ## Edge Case Handling
 

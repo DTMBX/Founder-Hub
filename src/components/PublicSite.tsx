@@ -6,6 +6,8 @@ import ProjectsSection from './sections/ProjectsSection'
 import CourtSection from './sections/CourtSection'
 import ProofSection from './sections/ProofSection'
 import ContactSection from './sections/ContactSection'
+import { ScrollProgress } from './ui/scroll-progress'
+import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings } from '@/lib/types'
 
 interface PublicSiteProps {
@@ -41,6 +43,7 @@ export default function PublicSite({ onAdminClick }: PublicSiteProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <ScrollProgress />
       <Navigation 
         sections={enabledSections}
         investorMode={investorMode}
@@ -69,13 +72,15 @@ export default function PublicSite({ onAdminClick }: PublicSiteProps) {
         )}
       </main>
 
-      <footer className="border-t border-border py-8">
+      <footer className="border-t border-border py-8 bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-muted-foreground">
             © {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.
           </p>
         </div>
       </footer>
+
+      <BackToTop />
     </div>
   )
 }
