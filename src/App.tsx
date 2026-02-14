@@ -4,6 +4,7 @@ import AdminDashboard from './components/admin/AdminDashboard'
 import AdminLogin from './components/admin/AdminLogin'
 import CaseJacket from './components/CaseJacket'
 import { useAuth } from './lib/auth'
+import { useInitializeSampleData } from './lib/initialize-sample-data'
 
 type View = 'public' | 'admin' | 'case-jacket'
 
@@ -11,6 +12,8 @@ function App() {
   const [view, setView] = useState<View>('public')
   const [caseId, setCaseId] = useState<string>('')
   const { isAuthenticated, isLoading } = useAuth()
+  
+  useInitializeSampleData()
 
   useEffect(() => {
     const hash = window.location.hash.slice(1)

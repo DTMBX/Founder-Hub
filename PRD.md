@@ -2,14 +2,16 @@
 
 A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a comprehensive Content Control Center for managing projects, court cases, and document libraries with advanced OCR-powered metadata extraction.
 
+**Latest Update**: Case Jacket now features document organization by filing type with collapsible groups showing date ranges, plus comprehensive attorney review notes and contingency evaluation checklist. Sample data initialization ensures the Court section displays properly on first load.
+
 **Experience Qualities**:
-1. **Intelligent & Automated** - Advanced OCR pipeline with confidence-scored field extraction, automated document classification, court stamp detection, and intelligent field suggestions that accelerate document processing while maintaining human oversight
-2. **Powerful & Organized** - Advanced Content Control Center with batch PDF processing, multi-field metadata extraction, automated naming rules, and staging workflows that maintain data integrity
+1. **Intelligent & Organized** - Advanced document organization by filing type with collapsible groups, date range displays, and lawyer-friendly review workflows that make case materials instantly scannable and professional
+2. **Attorney-Ready** - Comprehensive review notes capturing damages/injuries, key evidence sources, deadlines, and relief sought, plus structured contingency evaluation checklists with progress tracking
 3. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, responsive two-column admin layout, and comprehensive keyboard navigation
 4. **Transparent & Auditable** - Court documentation with chain-of-custody tracking, comprehensive audit logging, safe review-before-publish workflows, and metadata-driven organization
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a comprehensive dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy, scriptable batch utilities, chain-of-custody tracking, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
+This is a comprehensive dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy (filing types), scriptable batch utilities, chain-of-custody tracking, attorney review notes, contingency checklists, and a polished public-facing site with multiple interactive sections, organized document display, and dynamic content rendering.
 
 ## Essential Features
 
