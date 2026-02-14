@@ -3,11 +3,14 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, Globe, ShieldCheck, ClockCounterClockwise, Database, Gear } from '@phosphor-icons/react'
+import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
-import MediaManager from './MediaManager'
+import DocumentsManager from './DocumentsManager'
+import UploadQueueManager from './UploadQueueManager'
+import StagingReviewManager from './StagingReviewManager'
 import ThemeManager from './ThemeManager'
 import SettingsManager from './SettingsManager'
 import AuditLog from './AuditLog'
@@ -19,6 +22,8 @@ interface AdminDashboardProps {
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('content')
+  
+  useInitializeDocumentTypes()
 
   const handleLogout = async () => {
     await logout()
@@ -71,13 +76,9 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <CloudArrowUp className="h-4 w-4" />
                 <span className="hidden sm:inline">Upload</span>
               </TabsTrigger>
-              <TabsTrigger value="metadata" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <ListBullets className="h-4 w-4" />
-                <span className="hidden sm:inline">Metadata</span>
-              </TabsTrigger>
-              <TabsTrigger value="search" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <MagnifyingGlass className="h-4 w-4" />
-                <span className="hidden sm:inline">Search</span>
+              <TabsTrigger value="staging" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Stack className="h-4 w-4" />
+                <span className="hidden sm:inline">Staging</span>
               </TabsTrigger>
               <TabsTrigger value="theme" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Palette className="h-4 w-4" />
@@ -107,34 +108,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">
-            <MediaManager />
+            <DocumentsManager />
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
-            <div className="text-center py-12 text-muted-foreground">
-              <CloudArrowUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Batch Upload Queue</h3>
-              <p className="text-sm mb-4">Advanced batch PDF upload with progress tracking and validation</p>
-              <p className="text-xs">Coming in next iteration</p>
-            </div>
+            <UploadQueueManager />
           </TabsContent>
 
-          <TabsContent value="metadata" className="space-y-4">
-            <div className="text-center py-12 text-muted-foreground">
-              <ListBullets className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Metadata & Naming Rules</h3>
-              <p className="text-sm mb-4">Configure automated naming templates and extraction rules</p>
-              <p className="text-xs">Coming in next iteration</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="search" className="space-y-4">
-            <div className="text-center py-12 text-muted-foreground">
-              <MagnifyingGlass className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">Document Search</h3>
-              <p className="text-sm mb-4">Full-text search across OCR-processed documents</p>
-              <p className="text-xs">Coming in next iteration</p>
-            </div>
+          <TabsContent value="staging" className="space-y-4">
+            <StagingReviewManager />
           </TabsContent>
 
           <TabsContent value="theme" className="space-y-4">
