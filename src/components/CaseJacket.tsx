@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { Case, PDFAsset, TimelineEvent } from '@/lib/types'
+import { Case, PDFAsset, TimelineEvent, FilingType, DocumentAnalysis, CaseAnalysis } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { GlassButton } from '@/components/ui/glass-button'
@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { 
   ArrowLeft, 
@@ -31,11 +33,18 @@ import {
   CheckCircle,
   Circle,
   ClipboardText,
-  Warning
+  Warning,
+  List,
+  ListDashes,
+  CaretDown,
+  CaretUp,
+  Sparkle,
+  Certificate
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { AnalysisGenerator } from '@/lib/analysis-generator'
 
 interface CaseJacketProps {
   caseId: string
@@ -44,11 +53,14 @@ interface CaseJacketProps {
 
 type SortField = 'date' | 'title' | 'type'
 type SortOrder = 'asc' | 'desc'
-type GroupBy = 'none' | 'type' | 'year'
+type ViewMode = 'by-type' | 'chronological'
 
 export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
   const [cases] = useKV<Case[]>('founder-hub-cases', [])
   const [pdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
+  const [filingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
+  const [documentAnalyses] = useKV<DocumentAnalysis[]>('founder-hub-document-analyses', [])
+  const [caseAnalyses] = useKV<CaseAnalysis[]>('founder-hub-case-analyses', [])
   const isMobile = useIsMobile()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -57,12 +69,14 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
   const [featuredOnly, setFeaturedOnly] = useState(false)
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc')
-  const [groupBy, setGroupBy] = useState<GroupBy>('none')
+  const [viewMode, setViewMode] = useState<ViewMode>('by-type')
   const [selectedPDF, setSelectedPDF] = useState<PDFAsset | null>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const [activeTab, setActiveTab] = useState<'docs' | 'timeline' | 'details'>('docs')
+  const [activeTab, setActiveTab] = useState<'docs' | 'timeline' | 'details' | 'analysis'>('docs')
+  const [expandedGroups, setExpandedGroups] = useState<string[]>([])
 
   const selectedCase = cases?.find(c => c.id === caseId)
+  const caseAnalysis = caseAnalyses?.find(a => a.caseId === caseId && a.visibility !== 'private')
 
   useEffect(() => {
     if (!selectedCase) return
@@ -145,27 +159,78 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
   }, [caseDocs, searchQuery, selectedDocType, selectedTag, featuredOnly, sortField, sortOrder])
 
   const groupedDocs = useMemo(() => {
-    if (groupBy === 'none') return { 'All Documents': filteredAndSortedDocs }
+    if (viewMode === 'chronological') {
+      return { 'All Documents': filteredAndSortedDocs }
+    }
 
+    const sortedFilingTypes = [...(filingTypes || [])].sort((a, b) => a.sortOrder - b.sortOrder)
     const groups: Record<string, PDFAsset[]> = {}
 
-    filteredAndSortedDocs.forEach(doc => {
-      let key: string
-      if (groupBy === 'type') {
-        key = doc.documentType || 'Uncategorized'
-      } else if (groupBy === 'year') {
-        const date = doc.filingDate || new Date(doc.createdAt).toISOString()
-        key = date.slice(0, 4)
-      } else {
-        key = 'All Documents'
-      }
+    sortedFilingTypes.forEach(type => {
+      groups[type.id] = []
+    })
+    groups['undated'] = []
+    groups['uncategorized'] = []
 
-      if (!groups[key]) groups[key] = []
-      groups[key].push(doc)
+    filteredAndSortedDocs.forEach(doc => {
+      if (doc.filingTypeId && groups[doc.filingTypeId]) {
+        if (!doc.filingDate) {
+          groups['undated'].push(doc)
+        } else {
+          groups[doc.filingTypeId].push(doc)
+        }
+      } else {
+        groups['uncategorized'].push(doc)
+      }
     })
 
-    return groups
-  }, [filteredAndSortedDocs, groupBy])
+    const nonEmptyGroups: Record<string, PDFAsset[]> = {}
+    Object.entries(groups).forEach(([key, docs]) => {
+      if (docs.length > 0) {
+        nonEmptyGroups[key] = docs
+      }
+    })
+
+    return nonEmptyGroups
+  }, [filteredAndSortedDocs, viewMode, filingTypes])
+
+  const getFilingTypeName = (filingTypeId: string): string => {
+    if (filingTypeId === 'undated') return 'Undated Documents'
+    if (filingTypeId === 'uncategorized') return 'Other Documents'
+    const type = filingTypes?.find(t => t.id === filingTypeId)
+    return type ? `${type.icon || '📄'} ${type.name}` : 'Unknown Type'
+  }
+
+  const getGroupDateRange = (docs: PDFAsset[]): string => {
+    const dates = docs.map(d => d.filingDate).filter(Boolean).sort()
+    if (dates.length === 0) return ''
+    if (dates.length === 1) return new Date(dates[0]!).toLocaleDateString()
+    const first = new Date(dates[0]!).toLocaleDateString()
+    const last = new Date(dates[dates.length - 1]!).toLocaleDateString()
+    return `${first} - ${last}`
+  }
+
+  const toggleGroup = (groupId: string) => {
+    setExpandedGroups(current =>
+      current.includes(groupId)
+        ? current.filter(id => id !== groupId)
+        : [...current, groupId]
+    )
+  }
+
+  const expandAll = () => {
+    setExpandedGroups(Object.keys(groupedDocs))
+  }
+
+  const collapseAll = () => {
+    setExpandedGroups([])
+  }
+
+  useEffect(() => {
+    if (viewMode === 'by-type') {
+      expandAll()
+    }
+  }, [viewMode])
 
   if (!selectedCase) {
     return (
@@ -255,18 +320,37 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
             </SelectContent>
           </Select>
 
-          <Select value={groupBy} onValueChange={(v) => setGroupBy(v as GroupBy)}>
+          <Select value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
             <SelectTrigger className="bg-card/50 border-border">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No Grouping</SelectItem>
-              <SelectItem value="type">Group by Type</SelectItem>
-              <SelectItem value="year">Group by Year</SelectItem>
+              <SelectItem value="by-type">
+                <span className="flex items-center gap-2">
+                  <ListDashes size={16} />
+                  By Filing Type
+                </span>
+              </SelectItem>
+              <SelectItem value="chronological">
+                <span className="flex items-center gap-2">
+                  <List size={16} />
+                  Chronological
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
 
           <div className="flex gap-2">
+            {viewMode === 'by-type' && (
+              <>
+                <GlassButton onClick={expandAll} variant="glass" size="sm" title="Expand all groups">
+                  <CaretDown size={16} />
+                </GlassButton>
+                <GlassButton onClick={collapseAll} variant="glass" size="sm" title="Collapse all groups">
+                  <CaretUp size={16} />
+                </GlassButton>
+              </>
+            )}
             <GlassButton
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
               variant="glass"
@@ -417,10 +501,11 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
       {isMobile ? (
         <div className="p-4 space-y-4">
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-card/50">
-              <TabsTrigger value="docs">Documents</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-4 bg-card/50">
+              <TabsTrigger value="docs">Docs</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="analysis">Analysis</TabsTrigger>
             </TabsList>
 
             <TabsContent value="docs" className="space-y-4 mt-4">
@@ -442,16 +527,53 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
               <FilterBar />
               
               <div className="space-y-2">
-                {Object.entries(groupedDocs).map(([group, docs]) => (
-                  <div key={group}>
-                    {groupBy !== 'none' && (
-                      <h3 className="text-sm font-semibold mb-2 mt-4">{group}</h3>
-                    )}
-                    {docs.map(doc => (
-                      <DocumentRow key={doc.id} doc={doc} />
-                    ))}
-                  </div>
-                ))}
+                {viewMode === 'by-type' ? (
+                  Object.entries(groupedDocs).map(([groupId, docs]) => {
+                    const isExpanded = expandedGroups.includes(groupId)
+                    const groupName = getFilingTypeName(groupId)
+                    const dateRange = getGroupDateRange(docs)
+                    
+                    return (
+                      <div key={groupId} className="mb-4">
+                        <div
+                          className="flex items-center justify-between p-3 bg-card/50 border border-border rounded-lg cursor-pointer hover:border-accent/50 transition-colors"
+                          onClick={() => toggleGroup(groupId)}
+                        >
+                          <div className="flex items-center gap-3">
+                            {isExpanded ? <CaretDown size={18} /> : <CaretRight size={18} />}
+                            <h3 className="text-sm font-semibold">{groupName}</h3>
+                            <Badge variant="outline">{docs.length}</Badge>
+                            {dateRange && (
+                              <span className="text-xs text-muted-foreground">{dateRange}</span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="space-y-2 mt-2"
+                          >
+                            {docs.map(doc => (
+                              <DocumentRow key={doc.id} doc={doc} />
+                            ))}
+                          </motion.div>
+                        )}
+                      </div>
+                    )
+                  })
+                ) : (
+                  Object.entries(groupedDocs).map(([group, docs]) => (
+                    <div key={group}>
+                      {docs.map(doc => (
+                        <DocumentRow key={doc.id} doc={doc} />
+                      ))}
+                    </div>
+                  ))
+                )}
               </div>
             </TabsContent>
 
@@ -468,6 +590,20 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
                 <ContingencyChecklistPanel case={selectedCase} />
               </div>
             </TabsContent>
+
+            <TabsContent value="analysis" className="mt-4 space-y-4">
+              {caseAnalysis ? (
+                <CaseAnalysisPanel analysis={caseAnalysis} case={selectedCase} />
+              ) : (
+                <GlassCard className="p-6 text-center">
+                  <Sparkle size={48} className="mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">No case analysis available yet.</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Case analysis must be generated and reviewed by admin.
+                  </p>
+                </GlassCard>
+              )}
+            </TabsContent>
           </Tabs>
         </div>
       ) : (
@@ -477,6 +613,9 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
             <TimelinePanel case={selectedCase} />
             <ReviewNotesPanel case={selectedCase} />
             <ContingencyChecklistPanel case={selectedCase} />
+            {caseAnalysis && (
+              <CaseAnalysisPanel analysis={caseAnalysis} case={selectedCase} />
+            )}
           </aside>
 
           <main className="space-y-4">
@@ -509,16 +648,53 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
               
               <div className="space-y-2">
                 <AnimatePresence mode="popLayout">
-                  {Object.entries(groupedDocs).map(([group, docs]) => (
-                    <div key={group}>
-                      {groupBy !== 'none' && (
-                        <h3 className="text-sm font-semibold mb-2 mt-4 text-accent">{group}</h3>
-                      )}
-                      {docs.map(doc => (
-                        <DocumentRow key={doc.id} doc={doc} />
-                      ))}
-                    </div>
-                  ))}
+                  {viewMode === 'by-type' ? (
+                    Object.entries(groupedDocs).map(([groupId, docs]) => {
+                      const isExpanded = expandedGroups.includes(groupId)
+                      const groupName = getFilingTypeName(groupId)
+                      const dateRange = getGroupDateRange(docs)
+                      
+                      return (
+                        <div key={groupId} className="mb-4">
+                          <div
+                            className="flex items-center justify-between p-3 bg-card/50 border border-border rounded-lg cursor-pointer hover:border-accent/50 transition-colors"
+                            onClick={() => toggleGroup(groupId)}
+                          >
+                            <div className="flex items-center gap-3">
+                              {isExpanded ? <CaretDown size={18} /> : <CaretRight size={18} />}
+                              <h3 className="text-sm font-semibold text-accent">{groupName}</h3>
+                              <Badge variant="outline">{docs.length}</Badge>
+                              {dateRange && (
+                                <span className="text-xs text-muted-foreground">{dateRange}</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="space-y-2 mt-2"
+                            >
+                              {docs.map(doc => (
+                                <DocumentRow key={doc.id} doc={doc} />
+                              ))}
+                            </motion.div>
+                          )}
+                        </div>
+                      )
+                    })
+                  ) : (
+                    Object.entries(groupedDocs).map(([group, docs]) => (
+                      <div key={group}>
+                        {docs.map(doc => (
+                          <DocumentRow key={doc.id} doc={doc} />
+                        ))}
+                      </div>
+                    ))
+                  )}
                 </AnimatePresence>
               </div>
             </GlassCard>
@@ -732,6 +908,117 @@ function ContingencyChecklistPanel({ case: selectedCase }: { case: Case }) {
           </div>
         </div>
       )}
+    </GlassCard>
+  )
+}
+
+function CaseAnalysisPanel({ analysis, case: selectedCase }: { analysis: CaseAnalysis; case: Case }) {
+  return (
+    <GlassCard className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Sparkle size={20} className="text-accent" />
+          Case Brief
+        </h3>
+        <Badge className={AnalysisGenerator.getStatusColor(analysis.adminReviewStatus)}>
+          {AnalysisGenerator.getStatusLabel(analysis.adminReviewStatus)}
+        </Badge>
+      </div>
+
+      {analysis.adminReviewStatus === 'draft' && (
+        <Alert className="mb-4 border-orange-400/30 bg-orange-400/10">
+          <Warning className="h-4 w-4 text-orange-400" />
+          <AlertDescription className="text-orange-400">
+            DRAFT — This analysis requires admin verification before it can be considered accurate.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="space-y-4 text-sm">
+        <div>
+          <dt className="text-muted-foreground mb-1 font-semibold">Procedural Posture</dt>
+          <dd className="text-foreground leading-relaxed">{analysis.proceduralPosture}</dd>
+        </div>
+
+        {analysis.timelineHighlights.length > 0 && (
+          <div>
+            <dt className="text-muted-foreground mb-2 font-semibold">Timeline Highlights</dt>
+            <dd className="space-y-2">
+              {analysis.timelineHighlights.map((highlight, idx) => (
+                <div key={idx} className="pl-3 border-l-2 border-accent/30">
+                  <div className="text-xs text-muted-foreground">{new Date(highlight.date).toLocaleDateString()}</div>
+                  <div className="font-medium">{highlight.event}</div>
+                  <div className="text-muted-foreground">{highlight.significance}</div>
+                </div>
+              ))}
+            </dd>
+          </div>
+        )}
+
+        {analysis.keyFilingsChecklist.length > 0 && (
+          <div>
+            <dt className="text-muted-foreground mb-2 font-semibold">Key Filings Checklist</dt>
+            <dd className="space-y-1">
+              {analysis.keyFilingsChecklist.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  {item.present ? (
+                    <CheckCircle size={16} className="text-green-400" />
+                  ) : (
+                    <Circle size={16} className="text-muted-foreground" />
+                  )}
+                  <span>{item.filingType}</span>
+                  {item.notes && <span className="text-xs text-muted-foreground">({item.notes})</span>}
+                </div>
+              ))}
+            </dd>
+          </div>
+        )}
+
+        {analysis.missingDocsChecklist.length > 0 && (
+          <div>
+            <dt className="text-muted-foreground mb-2 font-semibold flex items-center gap-2">
+              <Warning size={16} className="text-orange-400" />
+              Missing Documents
+            </dt>
+            <dd>
+              <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                {analysis.missingDocsChecklist.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
+
+        {analysis.counselQuestions.length > 0 && (
+          <div>
+            <dt className="text-muted-foreground mb-2 font-semibold">Questions for Counsel</dt>
+            <dd>
+              <ul className="space-y-1">
+                {analysis.counselQuestions.map((question, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-accent">•</span>
+                    <span>{question}</span>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
+
+        {analysis.damagesInjuriesAnalysis && (
+          <div className="pt-3 border-t border-border">
+            <dt className="text-muted-foreground mb-1 font-semibold">Damages/Injuries</dt>
+            <dd className="text-foreground leading-relaxed">{analysis.damagesInjuriesAnalysis}</dd>
+          </div>
+        )}
+
+        {analysis.adminReviewedBy && analysis.adminReviewedAt && (
+          <div className="pt-3 border-t border-border text-xs text-muted-foreground">
+            Reviewed by admin on {new Date(analysis.adminReviewedAt).toLocaleString()}
+          </div>
+        )}
+      </div>
     </GlassCard>
   )
 }

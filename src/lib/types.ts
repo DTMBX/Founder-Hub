@@ -149,6 +149,108 @@ export interface DocumentType {
   order: number
 }
 
+export interface FilingType {
+  id: string
+  name: string
+  sortOrder: number
+  defaultNamingToken: string
+  icon?: string
+  color?: string
+  defaultVisibility?: PDFVisibility
+  createdAt: number
+  updatedAt: number
+}
+
+export interface ExtractedField {
+  value: string
+  confidence: number
+  source: 'pattern' | 'location' | 'context' | 'stamp' | 'filename'
+  reasoning: string
+  sourceSnippet?: string
+  pageNumber?: number
+  alternativeMatches?: Array<{ value: string; confidence: number }>
+}
+
+export interface ProceduralSignal {
+  type: 'motion_type' | 'relief_requested' | 'hearing_scheduled' | 'deadline_set' | 'order_entered' | 'service_required' | 'response_due' | 'other'
+  value: string
+  confidence: number
+  sourceSnippet?: string
+  pageNumber?: number
+}
+
+export interface KeyDate {
+  date: string
+  label: string
+  confidence: number
+  sourceSnippet?: string
+  pageNumber?: number
+}
+
+export interface KeyEntity {
+  name: string
+  role: 'judge' | 'attorney' | 'party' | 'witness' | 'expert' | 'clerk' | 'other'
+  confidence: number
+}
+
+export type AnalysisStatus = 'none' | 'draft' | 'reviewed' | 'published'
+
+export interface DocumentAnalysis {
+  id: string
+  docId: string
+  version: number
+  generatedAt: number
+  confidence: number
+  summary: string
+  proceduralSignals: ProceduralSignal[]
+  keyDates: KeyDate[]
+  keyEntities: KeyEntity[]
+  issues: string[]
+  suggestedTags: string[]
+  questionsForCounsel: string[]
+  missingContextFlags: string[]
+  adminReviewedBy?: string
+  adminReviewedAt?: number
+  adminNotes?: string
+  status: AnalysisStatus
+  previousVersionId?: string
+}
+
+export interface TimelineHighlight {
+  date: string
+  event: string
+  significance: string
+  linkedDocId?: string
+}
+
+export interface FilingChecklist {
+  filingType: string
+  present: boolean
+  docIds?: string[]
+  notes?: string
+}
+
+export interface CaseAnalysis {
+  id: string
+  caseId: string
+  version: number
+  generatedAt: number
+  postureSummary: string
+  timelineHighlights: TimelineHighlight[]
+  keyFilingsChecklist: FilingChecklist[]
+  missingDocsChecklist: string[]
+  counselQuestions: string[]
+  damagesInjuriesAnalysis?: string
+  keyEvidenceHighlights?: string[]
+  proceduralPosture: string
+  adminReviewStatus: AnalysisStatus
+  adminReviewedBy?: string
+  adminReviewedAt?: number
+  adminNotes?: string
+  visibility: CaseVisibility
+  previousVersionId?: string
+}
+
 export interface PDFMetadata {
   originalFilename: string
   displayFilename?: string
@@ -175,7 +277,9 @@ export interface PDFAsset {
   description: string
   caseId?: string
   documentType?: string
+  filingTypeId?: string
   filingDate?: string
+  filingDateConfirmed: boolean
   tags: string[]
   visibility: PDFVisibility
   stage: PDFStage
@@ -183,10 +287,21 @@ export interface PDFAsset {
   fileSize: number
   pageCount?: number
   ocrStatus: OCRStatus
+  ocrTextRef?: string
+  extractedFields?: {
+    docket?: ExtractedField
+    filingDate?: ExtractedField
+    courtName?: ExtractedField
+    documentType?: ExtractedField
+    parties?: ExtractedField
+    caseNumber?: ExtractedField
+  }
   metadata: PDFMetadata
   sourceNotes?: string
   orderInCase?: number
   shareToken?: string
+  analysisStatus: AnalysisStatus
+  notesVisibility: CaseVisibility
   createdAt: number
   updatedAt: number
   uploadedBy?: string

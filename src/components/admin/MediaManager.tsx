@@ -96,6 +96,7 @@ export default function MediaManager() {
         caseId: uploadForm.caseId || undefined,
         documentType: uploadForm.documentType || undefined,
         filingDate: uploadForm.filingDate || undefined,
+        filingDateConfirmed: false,
         tags: uploadForm.tags.split(',').map(t => t.trim()).filter(Boolean),
         visibility: uploadForm.visibility,
         stage: 'published',
@@ -103,6 +104,8 @@ export default function MediaManager() {
         featured: uploadForm.featured,
         fileSize: selectedFile.size,
         pageCount: undefined,
+        analysisStatus: 'none',
+        notesVisibility: 'private',
         metadata: {
           originalFilename: selectedFile.name,
           checksum: `sha256_${now}_${selectedFile.size}`
