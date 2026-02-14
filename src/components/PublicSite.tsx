@@ -16,7 +16,7 @@ interface PublicSiteProps {
 }
 
 export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSiteProps) {
-  const [sections] = useKV<Section[]>('founder-hub-sections', [])
+  const [sections, setSections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
@@ -28,6 +28,19 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     investorModeAvailable: true
   })
   const [investorMode, setInvestorMode] = useState(false)
+
+  useEffect(() => {
+    if (!sections || sections.length === 0) {
+      const defaultSections: Section[] = [
+        { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
+        { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 1, enabled: true, investorRelevant: true },
+        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 2, enabled: true, investorRelevant: false },
+        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 3, enabled: true, investorRelevant: true },
+        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 4, enabled: true, investorRelevant: true },
+      ]
+      setSections(defaultSections)
+    }
+  }, [])
 
   useEffect(() => {
     if (settings?.analyticsEnabled) {
