@@ -30,8 +30,21 @@ This is a comprehensive dual-interface application featuring advanced scroll sto
 - **Functionality**: Display case cards in grid, open case detail modal with metadata, timeline, and PDF documents
 - **Purpose**: Provide transparent access to court accountability materials
 - **Trigger**: Visitor scrolls to Court section or clicks case card
-- **Progression**: View case grid → click case → modal opens with details → browse PDFs → preview/download → share link
-- **Success criteria**: Cases display with correct metadata, PDFs load in viewer, visibility rules enforced
+- **Progression**: View case grid → click case → navigate to Case Jacket page → explore documents/timeline/details → preview PDFs → share link
+- **Success criteria**: Cases display with correct metadata, Case Jacket loads fast, PDFs load in viewer, visibility rules enforced, stable shareable URLs
+
+### Case Jacket (Dedicated Case Review Workspace)
+- **Functionality**: Full-page professional case review interface with document table, timeline, metadata panel, filters, search, and PDF preview
+- **Purpose**: Provide attorneys and stakeholders with fast, scannable litigation review workspace to understand posture, timeline, and key filings
+- **Trigger**: Click case card from Court section or navigate to shareable case URL
+- **Progression**: Navigate to case → see header with breadcrumb → review featured docs → filter/search document table → sort by date/type → preview PDF in right pane → export case index
+- **Success criteria**: Loads fast (<2s), document table sortable, filters responsive, search works across titles/text, PDF preview doesn't block table, shareable URL stable, keyboard accessible, mobile usable with tab navigation
+
+### Case Jacket Layout
+- **Desktop**: Two-pane layout with left sidebar (metadata + timeline + filters), main pane (document table with featured strip), optional collapsible right pane for PDF preview
+- **Mobile**: Stacked sections with sticky "Docs / Timeline / Details" tab bar for quick navigation
+- **Header**: Case title, court, docket, status badge, last updated, copy link, export buttons, breadcrumb back to Court section
+- **Success criteria**: Responsive layout works on all screens, tabs functional on mobile, sidebar scrollable independently
 
 ### PDF Document System (Public View)
 - **Functionality**: In-app PDF viewer with thumbnails, metadata display, and shareable links
@@ -143,6 +156,12 @@ This is a comprehensive dual-interface application featuring advanced scroll sto
 - **Session Expiration**: Auto-save drafts before logout, graceful redirect to login with return URL
 - **Mobile Admin Usage**: Responsive dashboard layout, touch-friendly controls, simplified mobile nav
 - **Empty States**: Helpful prompts when no projects/cases/PDFs exist yet, guide admin to add first item
+- **Case Jacket Not Found**: Show "Case not found" message with back button if case ID invalid or case is private
+- **Missing Document Metadata**: Handle cases where filing date or doc type is undefined, fall back to upload date with clear label
+- **Large Document Sets**: Lazy-load document rows, paginate or virtualize if >100 documents, maintain scroll position
+- **PDF Preview Failures**: Show fallback "Open in new tab" if preview can't load, never block document table
+- **Search with No Results**: Show clear "No documents match" message with suggestion to clear filters
+- **Duplicate Document Names**: Warn in staging, allow manual override, never silently overwrite
 
 ## Design Direction
 

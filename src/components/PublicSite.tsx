@@ -12,9 +12,10 @@ import { Section, SiteSettings } from '@/lib/types'
 
 interface PublicSiteProps {
   onAdminClick: () => void
+  onNavigateToCase: (caseId: string) => void
 }
 
-export default function PublicSite({ onAdminClick }: PublicSiteProps) {
+export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSiteProps) {
   const [sections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
@@ -60,7 +61,7 @@ export default function PublicSite({ onAdminClick }: PublicSiteProps) {
         )}
         
         {enabledSections.some(s => s.type === 'court') && (
-          <CourtSection investorMode={investorMode} />
+          <CourtSection investorMode={investorMode} onNavigateToCase={onNavigateToCase} />
         )}
         
         {enabledSections.some(s => s.type === 'proof') && (
