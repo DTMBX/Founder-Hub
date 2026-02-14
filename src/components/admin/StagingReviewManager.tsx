@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { PDFAsset, Case, DocumentType } from '@/lib/types'
+import { OCRPipeline } from '@/lib/ocr-pipeline'
 import { Button } from '@/components/ui/button'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Input } from '@/components/ui/input'
@@ -21,7 +22,11 @@ import {
   Trash,
   Star,
   FloppyDisk,
-  ArrowsClockwise
+  ArrowsClockwise,
+  Sparkle,
+  Check,
+  CaretDown,
+  CaretUp
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -35,6 +40,7 @@ export default function StagingReviewManager() {
   const [selectedDoc, setSelectedDoc] = useState<PDFAsset | null>(null)
   const [editedDoc, setEditedDoc] = useState<Partial<PDFAsset>>({})
   const [selectedDocs, setSelectedDocs] = useState<Set<string>>(new Set())
+  const [showOCRSuggestions, setShowOCRSuggestions] = useState(true)
 
   const stagingDocs = useMemo(() => {
     return (pdfs || []).filter(doc => doc.stage === 'staging').sort((a, b) => b.createdAt - a.createdAt)
@@ -63,6 +69,12 @@ export default function StagingReviewManager() {
   const handleSelectDoc = (doc: PDFAsset) => {
     setSelectedDoc(doc)
     setEditedDoc({})
+    setShowOCRSuggestions(true)
+  }
+
+  const handleAcceptSuggestion = (field: string, value: any) => {
+    setEditedDoc({ ...editedDoc, [field]: value })
+    toast.success(`Applied suggested ${field}`)
   }
 
   const handleSaveDoc = () => {
@@ -316,6 +328,181 @@ export default function StagingReviewManager() {
               </div>
 
               <Separator />
+
+              {currentDoc.ocrStatus === 'completed' && (
+                currentDoc.metadata.suggestedDocket || 
+                currentDoc.metadata.suggestedDocType || 
+                currentDoc.metadata.suggestedFilingDate
+              ) && (
+                <>
+                  <div className="space-y-3">
+                    <div 
+                      className="flex items-center justify-between cursor-pointer group" 
+                      onClick={() => setShowOCRSuggestions(!showOCRSuggestions)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkle size={18} className="text-accent group-hover:scale-110 transition-transform" weight="fill" />
+                        <h4 className="font-semibold text-sm">Automated Field Suggestions</h4>
+                        <Badge variant="outline" className="text-xs">
+                          {[
+                            currentDoc.metadata.suggestedDocket,
+                            currentDoc.metadata.suggestedDocType,
+                            currentDoc.metadata.suggestedFilingDate
+                          ].filter(Boolean).length} fields extracted
+                        </Badge>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        {showOCRSuggestions ? <CaretUp size={16} /> : <CaretDown size={16} />}
+                      </Button>
+                    </div>
+
+                    {showOCRSuggestions && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-3"
+                      >
+                        <div className="p-2 bg-muted/30 rounded text-xs text-muted-foreground border border-border/50">
+                          <p className="flex items-center gap-1 mb-1">
+                            <Sparkle size={12} />
+                            <strong>Confidence Scores:</strong>
+                          </p>
+                          <div className="grid grid-cols-3 gap-2 mt-1">
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                              <span>High (85%+)</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
+                              <span>Medium (65-84%)</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <div className="w-2 h-2 rounded-full bg-orange-400"></div>
+                              <span>Low (&lt;65%)</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {currentDoc.metadata.suggestedDocket && (
+                          <div className="p-3 bg-card/80 rounded-lg border border-border/50 hover:border-accent/50 transition-colors">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1">
+                                <p className="text-xs font-medium text-muted-foreground mb-1">Suggested Docket Number</p>
+                                <p className="text-sm font-mono font-semibold">{currentDoc.metadata.suggestedDocket}</p>
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={cn(
+                                  "text-xs shrink-0",
+                                  OCRPipeline.getConfidenceLevel(currentDoc.metadata.suggestedDocketConfidence || 0).color
+                                )}
+                              >
+                                {Math.round((currentDoc.metadata.suggestedDocketConfidence || 0) * 100)}%
+                              </Badge>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={() => {
+                                const matchingCase = cases?.find(c => 
+                                  c.docket === currentDoc.metadata.suggestedDocket
+                                )
+                                if (matchingCase) {
+                                  handleAcceptSuggestion('caseId', matchingCase.id)
+                                  toast.success(`Assigned to case: ${matchingCase.title}`)
+                                } else {
+                                  toast.info('No matching case found for this docket')
+                                }
+                              }}
+                            >
+                              <Check size={14} />
+                              Link to Matching Case
+                            </Button>
+                          </div>
+                        )}
+
+                        {currentDoc.metadata.suggestedDocType && !currentDoc.documentType && (
+                          <div className="p-3 bg-card/80 rounded-lg border border-border/50 hover:border-accent/50 transition-colors">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1">
+                                <p className="text-xs font-medium text-muted-foreground mb-1">Suggested Document Type</p>
+                                <p className="text-sm font-semibold">{currentDoc.metadata.suggestedDocType}</p>
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={cn(
+                                  "text-xs shrink-0",
+                                  OCRPipeline.getConfidenceLevel(currentDoc.metadata.suggestedDocTypeConfidence || 0).color
+                                )}
+                              >
+                                {Math.round((currentDoc.metadata.suggestedDocTypeConfidence || 0) * 100)}%
+                              </Badge>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={() => handleAcceptSuggestion('documentType', currentDoc.metadata.suggestedDocType)}
+                            >
+                              <Check size={14} />
+                              Apply Suggestion
+                            </Button>
+                          </div>
+                        )}
+
+                        {currentDoc.metadata.suggestedFilingDate && !currentDoc.filingDate && (
+                          <div className="p-3 bg-card/80 rounded-lg border border-border/50 hover:border-accent/50 transition-colors">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1">
+                                <p className="text-xs font-medium text-muted-foreground mb-1">Suggested Filing Date</p>
+                                <p className="text-sm font-semibold">{currentDoc.metadata.suggestedFilingDate}</p>
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={cn(
+                                  "text-xs shrink-0",
+                                  OCRPipeline.getConfidenceLevel(currentDoc.metadata.suggestedFilingDateConfidence || 0).color
+                                )}
+                              >
+                                {Math.round((currentDoc.metadata.suggestedFilingDateConfidence || 0) * 100)}%
+                              </Badge>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={() => {
+                                const dateObj = new Date(currentDoc.metadata.suggestedFilingDate!)
+                                const formatted = dateObj.toISOString().split('T')[0]
+                                handleAcceptSuggestion('filingDate', formatted)
+                              }}
+                            >
+                              <Check size={14} />
+                              Apply Suggestion
+                            </Button>
+                          </div>
+                        )}
+
+                        {currentDoc.metadata.courtStampPresent && (
+                          <div className="p-3 bg-accent/10 rounded-lg border border-accent/30">
+                            <div className="flex items-center gap-2">
+                              <CheckCircle size={16} className="text-accent" weight="fill" />
+                              <p className="text-xs font-medium text-accent">Court Stamp Detected</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              This document appears to have an official court filing stamp
+                            </p>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+
+                  <Separator />
+                </>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">

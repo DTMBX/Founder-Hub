@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { PDFAsset, UploadQueueItem, PDFMetadata } from '@/lib/types'
+import { OCRPipeline, OCRExtractionResult } from '@/lib/ocr-pipeline'
 import { Button } from '@/components/ui/button'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Progress } from '@/components/ui/progress'
@@ -17,16 +18,21 @@ import {
   Trash,
   Files,
   Warning,
-  Info
+  Info,
+  Sparkle
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
+interface ExtendedUploadQueueItem extends UploadQueueItem {
+  ocrResult?: OCRExtractionResult
+}
+
 export default function UploadQueueManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [queue, setQueue] = useState<UploadQueueItem[]>([])
-  const [enableOCR, setEnableOCR] = useState(false)
+  const [queue, setQueue] = useState<ExtendedUploadQueueItem[]>([])
+  const [enableOCR, setEnableOCR] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -46,39 +52,7 @@ export default function UploadQueueManager() {
     }
   }
 
-  const simulateOCR = async (item: UploadQueueItem): Promise<Partial<PDFMetadata>> => {
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    const filename = item.file.name.toLowerCase()
-    const extractedText = `Extracted text from ${filename}...`
-    
-    let suggestedDocType: string | undefined = undefined
-    let suggestedDocTypeConfidence: number | undefined = undefined
-    
-    if (filename.includes('complaint')) {
-      suggestedDocType = 'Complaint'
-      suggestedDocTypeConfidence = 0.85
-    } else if (filename.includes('motion')) {
-      suggestedDocType = 'Motion'
-      suggestedDocTypeConfidence = 0.80
-    } else if (filename.includes('order')) {
-      suggestedDocType = 'Order'
-      suggestedDocTypeConfidence = 0.90
-    } else if (filename.includes('certification')) {
-      suggestedDocType = 'Certification'
-      suggestedDocTypeConfidence = 0.75
-    }
-
-    return {
-      extractedText,
-      extractionConfidence: 0.85,
-      suggestedDocType,
-      suggestedDocTypeConfidence,
-      courtStampPresent: Math.random() > 0.5,
-    }
-  }
-
-  const processFile = async (item: UploadQueueItem) => {
+  const processFile = async (item: ExtendedUploadQueueItem) => {
     try {
       setQueue(prev => prev.map(q => 
         q.id === item.id ? { ...q, status: 'uploading', progress: 30 } : q
@@ -90,27 +64,58 @@ export default function UploadQueueManager() {
         q.id === item.id ? { ...q, progress: 50, metadata: basicMetadata } : q
       ))
 
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 300))
 
       setQueue(prev => prev.map(q => 
         q.id === item.id ? { ...q, status: 'processing', progress: 60 } : q
       ))
 
-      let ocrMetadata: Partial<PDFMetadata> = {}
+      let ocrResult: OCRExtractionResult | undefined
+      let suggestedTitle = item.file.name.replace('.pdf', '')
+      let suggestedDocType: string | undefined
+      let suggestedFilingDate: string | undefined
+
       if (enableOCR) {
-        ocrMetadata = await simulateOCR(item)
+        ocrResult = await OCRPipeline.processDocument(item.file, {
+          extractText: true,
+          detectStamp: true,
+          extractFields: true,
+        })
+
+        if (ocrResult.fields.documentType) {
+          suggestedDocType = ocrResult.fields.documentType.value
+        }
+
+        if (ocrResult.fields.filingDate) {
+          suggestedFilingDate = ocrResult.fields.filingDate.value
+        }
+
+        if (ocrResult.fields.docket?.value && ocrResult.fields.documentType?.value) {
+          suggestedTitle = `${ocrResult.fields.docket.value} - ${ocrResult.fields.documentType.value}`
+        }
       }
 
       const fullMetadata: PDFMetadata = {
         ...basicMetadata,
-        ...ocrMetadata,
+        extractedText: ocrResult?.extractedText,
+        extractionConfidence: ocrResult?.extractionConfidence,
+        courtStampPresent: ocrResult?.courtStampDetection.present,
+        courtStampRegion: ocrResult?.courtStampDetection.region,
+        suggestedDocType: ocrResult?.fields.documentType?.value,
+        suggestedDocTypeConfidence: ocrResult?.fields.documentType?.confidence,
+        suggestedFilingDate: ocrResult?.fields.filingDate?.value,
+        suggestedFilingDateConfidence: ocrResult?.fields.filingDate?.confidence,
+        suggestedDocket: ocrResult?.fields.docket?.value,
+        suggestedDocketConfidence: ocrResult?.fields.docket?.confidence,
       } as PDFMetadata
 
       const fileUrl = URL.createObjectURL(item.file)
 
       const stagingData: Partial<PDFAsset> = {
-        title: item.file.name.replace('.pdf', ''),
+        title: suggestedTitle,
         description: '',
+        documentType: suggestedDocType,
+        filingDate: suggestedFilingDate,
         tags: [],
         visibility: 'private',
         stage: 'staging',
@@ -127,7 +132,8 @@ export default function UploadQueueManager() {
           status: 'completed', 
           progress: 100, 
           metadata: fullMetadata,
-          stagingData 
+          stagingData,
+          ocrResult
         } : q
       ))
 
@@ -269,14 +275,15 @@ export default function UploadQueueManager() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 p-2 rounded-lg border border-border/50">
+            <Sparkle size={16} className={enableOCR ? 'text-accent' : 'text-muted-foreground'} weight={enableOCR ? 'fill' : 'regular'} />
             <Switch
               id="ocr-toggle"
               checked={enableOCR}
               onCheckedChange={setEnableOCR}
             />
-            <Label htmlFor="ocr-toggle" className="text-sm">
-              Enable OCR
+            <Label htmlFor="ocr-toggle" className="text-sm cursor-pointer">
+              Advanced OCR Extraction
             </Label>
           </div>
         </div>
@@ -403,35 +410,136 @@ export default function UploadQueueManager() {
                           </div>
                         )}
 
-                        {item.status === 'completed' && item.stagingData && (
-                          <div className="mt-2 p-3 bg-accent/5 rounded border border-accent/20">
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">Pages:</span>
-                                <span className="ml-2 font-semibold">{item.stagingData.pageCount || 'Unknown'}</span>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">OCR:</span>
-                                <span className="ml-2 font-semibold">{item.stagingData.ocrStatus}</span>
-                              </div>
-                              {item.metadata?.suggestedDocType && (
-                                <div className="col-span-2">
-                                  <span className="text-muted-foreground">Suggested Type:</span>
-                                  <span className="ml-2 font-semibold">
-                                    {item.metadata.suggestedDocType}
-                                    <span className="text-muted-foreground ml-1">
-                                      ({Math.round((item.metadata.suggestedDocTypeConfidence || 0) * 100)}%)
-                                    </span>
-                                  </span>
+                        {item.status === 'completed' && item.ocrResult && (
+                          <div className="mt-3 space-y-3">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Sparkle size={14} className="text-accent" weight="fill" />
+                              <span>OCR Extraction Results</span>
+                            </div>
+
+                            <div className="grid grid-cols-1 gap-2">
+                              {item.ocrResult.fields.docket && (
+                                <div className="p-2 bg-card/80 rounded border border-border/50">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="text-xs font-medium text-muted-foreground mb-1">Docket Number</p>
+                                      <p className="text-sm font-mono font-semibold">{item.ocrResult.fields.docket.value}</p>
+                                      <p className="text-xs text-muted-foreground mt-1 italic">
+                                        {item.ocrResult.fields.docket.reasoning}
+                                      </p>
+                                    </div>
+                                    <Badge 
+                                      variant="outline" 
+                                      className={cn(
+                                        "text-xs",
+                                        OCRPipeline.getConfidenceLevel(item.ocrResult.fields.docket.confidence).color
+                                      )}
+                                    >
+                                      {Math.round(item.ocrResult.fields.docket.confidence * 100)}%
+                                    </Badge>
+                                  </div>
                                 </div>
                               )}
-                              {item.metadata?.courtStampPresent && (
-                                <div className="col-span-2 flex items-center gap-1 text-accent">
-                                  <Info size={12} />
-                                  <span>Court stamp detected</span>
+
+                              {item.ocrResult.fields.documentType && (
+                                <div className="p-2 bg-card/80 rounded border border-border/50">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="text-xs font-medium text-muted-foreground mb-1">Document Type</p>
+                                      <p className="text-sm font-semibold">{item.ocrResult.fields.documentType.value}</p>
+                                      <p className="text-xs text-muted-foreground mt-1 italic">
+                                        {item.ocrResult.fields.documentType.reasoning}
+                                      </p>
+                                    </div>
+                                    <Badge 
+                                      variant="outline"
+                                      className={cn(
+                                        "text-xs",
+                                        OCRPipeline.getConfidenceLevel(item.ocrResult.fields.documentType.confidence).color
+                                      )}
+                                    >
+                                      {Math.round(item.ocrResult.fields.documentType.confidence * 100)}%
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {item.ocrResult.fields.filingDate && (
+                                <div className="p-2 bg-card/80 rounded border border-border/50">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="text-xs font-medium text-muted-foreground mb-1">Filing Date</p>
+                                      <p className="text-sm font-semibold">{item.ocrResult.fields.filingDate.value}</p>
+                                      <p className="text-xs text-muted-foreground mt-1 italic">
+                                        {item.ocrResult.fields.filingDate.reasoning}
+                                      </p>
+                                    </div>
+                                    <Badge 
+                                      variant="outline"
+                                      className={cn(
+                                        "text-xs",
+                                        OCRPipeline.getConfidenceLevel(item.ocrResult.fields.filingDate.confidence).color
+                                      )}
+                                    >
+                                      {Math.round(item.ocrResult.fields.filingDate.confidence * 100)}%
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {item.ocrResult.fields.courtName && (
+                                <div className="p-2 bg-card/80 rounded border border-border/50">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="text-xs font-medium text-muted-foreground mb-1">Court Name</p>
+                                      <p className="text-sm font-semibold">{item.ocrResult.fields.courtName.value}</p>
+                                      <p className="text-xs text-muted-foreground mt-1 italic">
+                                        {item.ocrResult.fields.courtName.reasoning}
+                                      </p>
+                                    </div>
+                                    <Badge 
+                                      variant="outline"
+                                      className={cn(
+                                        "text-xs",
+                                        OCRPipeline.getConfidenceLevel(item.ocrResult.fields.courtName.confidence).color
+                                      )}
+                                    >
+                                      {Math.round(item.ocrResult.fields.courtName.confidence * 100)}%
+                                    </Badge>
+                                  </div>
+                                </div>
+                              )}
+
+                              {item.ocrResult.courtStampDetection.present && (
+                                <div className="p-2 bg-accent/10 rounded border border-accent/30">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <p className="text-xs font-medium text-accent mb-1">Court Stamp Detected</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        Type: {item.ocrResult.courtStampDetection.stampType || 'Unknown'}
+                                      </p>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs text-accent">
+                                      {Math.round(item.ocrResult.courtStampDetection.confidence * 100)}%
+                                    </Badge>
+                                  </div>
                                 </div>
                               )}
                             </div>
+
+                            {item.ocrResult.metadata.processingTime && (
+                              <div className="text-xs text-muted-foreground text-right">
+                                Processing time: {(item.ocrResult.metadata.processingTime / 1000).toFixed(2)}s
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {item.status === 'completed' && !item.ocrResult && item.stagingData && (
+                          <div className="mt-2 p-3 bg-muted/30 rounded border border-border/50">
+                            <p className="text-xs text-muted-foreground">
+                              OCR disabled - basic metadata extracted only
+                            </p>
                           </div>
                         )}
 

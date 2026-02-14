@@ -1,11 +1,12 @@
 # xTx396 Hub PRD
 
-A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a comprehensive Content Control Center for managing projects, court cases, and document libraries with advanced metadata-driven organization.
+A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a comprehensive Content Control Center for managing projects, court cases, and document libraries with advanced OCR-powered metadata extraction.
 
 **Experience Qualities**:
-1. **Powerful & Organized** - Advanced Content Control Center with batch PDF processing, metadata extraction, automated naming rules, and staging workflows that maintain data integrity
-2. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, responsive two-column admin layout, and comprehensive keyboard navigation
-3. **Transparent & Auditable** - Court documentation with chain-of-custody tracking, comprehensive audit logging, safe review-before-publish workflows, and metadata-driven organization
+1. **Intelligent & Automated** - Advanced OCR pipeline with confidence-scored field extraction, automated document classification, court stamp detection, and intelligent field suggestions that accelerate document processing while maintaining human oversight
+2. **Powerful & Organized** - Advanced Content Control Center with batch PDF processing, multi-field metadata extraction, automated naming rules, and staging workflows that maintain data integrity
+3. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, responsive two-column admin layout, and comprehensive keyboard navigation
+4. **Transparent & Auditable** - Court documentation with chain-of-custody tracking, comprehensive audit logging, safe review-before-publish workflows, and metadata-driven organization
 
 **Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
 This is a comprehensive dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy, scriptable batch utilities, chain-of-custody tracking, and a polished public-facing site with multiple interactive sections, PDF viewers, and dynamic content rendering.
@@ -82,11 +83,52 @@ This is a comprehensive dual-interface application featuring advanced scroll sto
 - **Success criteria**: Cases display correctly, metadata accurate, PDFs attached, visibility enforced, ordering works
 
 ### Admin PDF Upload & Management
-- **Functionality**: Upload PDFs, set metadata, assign to cases, control visibility (Private/Unlisted/Public)
-- **Purpose**: Control document access and sharing with granular visibility rules
+- **Functionality**: Upload PDFs, set metadata, assign to cases, control visibility (Private/Unlisted/Public), with advanced OCR pipeline for automated field extraction
+- **Purpose**: Control document access and sharing with granular visibility rules while accelerating metadata entry through intelligent suggestions
 - **Trigger**: Admin uploads PDF in Media section or within case editor
-- **Progression**: Select file → validate size/type → upload → set title/description/tags → assign case → set visibility → save
-- **Success criteria**: Upload validates properly, files stored securely, visibility rules enforced, share links generate
+- **Progression**: Select file → validate size/type → upload → OCR extracts fields → review confidence scores → accept/override suggestions → assign case → set visibility → save
+- **Success criteria**: Upload validates properly, OCR processes documents, confidence scores displayed accurately, suggestions are helpful, files stored securely, visibility rules enforced, share links generate
+
+### Advanced OCR Pipeline with Confidence Scores
+- **Functionality**: Automated extraction of docket numbers, document types, filing dates, court names, parties, and court stamp detection with confidence scoring for each field
+- **Purpose**: Accelerate document metadata entry while maintaining accuracy through human oversight and confidence transparency
+- **Trigger**: PDF uploaded with OCR enabled (default on)
+- **Progression**: Upload PDF → OCR processes text → Extract structured fields using pattern matching and context analysis → Assign confidence scores (high 85%+, medium 65-84%, low <65%) → Display suggestions with reasoning → Admin reviews and accepts/overrides → Fields populate form
+- **Success criteria**: 
+  - Docket numbers extracted with 85%+ accuracy for standard formats
+  - Document types classified correctly 80%+ of the time
+  - Filing dates identified with context (near "filed"/"received" keywords)
+  - Court stamps detected with visual region indication
+  - Confidence scores reflect actual reliability
+  - Alternative matches shown when multiple possibilities exist
+  - Processing completes within 2-3 seconds per document
+  - Admin can always override any suggestion
+  - Reasoning/explanation provided for each extraction
+
+### OCR Field Extraction Details
+- **Docket Number Extraction**: Multiple pattern matching (ESX-L-001234-23, etc.), context-aware (near "docket"/"case" keywords), filename analysis, alternative matches displayed
+- **Document Type Classification**: Keyword analysis (complaint, motion, order, certification, etc.), position weighting (header vs body), filename analysis, multi-tier confidence scoring
+- **Filing Date Extraction**: Context patterns ("filed on", "received", "entered"), multiple date format support (MM/DD/YYYY, Month DD, YYYY), proximity to stamp indicators, fallback to generic dates with lower confidence
+- **Court Name Extraction**: Pattern matching (Superior Court, District Court, etc.), jurisdiction identification, header position weighting
+- **Court Stamp Detection**: Multiple indicator keywords (filed, received, clerk, certified), stamp type classification (filed/received/certified), region localization, confidence based on multiple signals
+- **Party Names**: Pattern matching (Plaintiff v. Defendant format), multiple party extraction
+- **Processing Metadata**: Processing time tracking, text density analysis, document quality assessment, page count extraction
+
+### Staging Review with Automated Suggestions
+- **Functionality**: Review extracted OCR fields with confidence scores, one-click acceptance of suggestions, intelligent case linking based on docket matches, collapsible suggestions panel
+- **Purpose**: Provide efficient review workflow that balances automation with human oversight
+- **Trigger**: Documents move from upload queue to staging
+- **Progression**: Open staging document → view automated field suggestions panel → see confidence scores with color coding → read extraction reasoning → click to accept high-confidence suggestions → manually override or refine low-confidence fields → link to matching case by docket → publish
+- **Success criteria**:
+  - All extracted fields visible with confidence scores
+  - Color-coded badges (green/yellow/orange) for quick assessment
+  - Reasoning text explains why field was suggested
+  - One-click apply for each suggestion
+  - Automatic case linking when docket matches existing case
+  - Court stamp indicator clearly visible
+  - Confidence legend explains scoring tiers
+  - Collapsed/expanded state persists per document
+  - Works smoothly on mobile with touch interactions
 
 ### Admin Theme Customization
 - **Functionality**: Edit color palette, typography, spacing, borders, shadows with live preview
