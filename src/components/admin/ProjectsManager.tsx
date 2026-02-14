@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Plus, Pencil, Trash } from '@phosphor-icons/react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Plus, Pencil, Trash, X, GithubLogo, Globe, BookOpen, Link as LinkIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
 
@@ -42,6 +43,11 @@ export default function ProjectsManager() {
 
   const handleSave = async () => {
     if (!editingProject) return
+    
+    if (!editingProject.title.trim()) {
+      toast.error('Project title is required')
+      return
+    }
 
     setProjects(currentProjects => {
       const existing = currentProjects?.find(p => p.id === editingProject.id)
@@ -66,6 +72,46 @@ export default function ProjectsManager() {
     toast.success('Project saved successfully')
     setIsDialogOpen(false)
     setEditingProject(null)
+  }
+
+  const handleAddLink = () => {
+    if (!editingProject) return
+    const newLink: ProjectLink = {
+      label: '',
+      url: '',
+      type: 'other'
+    }
+    setEditingProject({
+      ...editingProject,
+      links: [...editingProject.links, newLink]
+    })
+  }
+
+  const handleUpdateLink = (index: number, field: keyof ProjectLink, value: string) => {
+    if (!editingProject) return
+    const updatedLinks = [...editingProject.links]
+    updatedLinks[index] = { ...updatedLinks[index], [field]: value }
+    setEditingProject({
+      ...editingProject,
+      links: updatedLinks
+    })
+  }
+
+  const handleRemoveLink = (index: number) => {
+    if (!editingProject) return
+    setEditingProject({
+      ...editingProject,
+      links: editingProject.links.filter((_, i) => i !== index)
+    })
+  }
+
+  const getLinkIcon = (type: string) => {
+    switch (type) {
+      case 'repo': return <GithubLogo className="h-4 w-4" />
+      case 'demo': return <Globe className="h-4 w-4" />
+      case 'docs': return <BookOpen className="h-4 w-4" />
+      default: return <LinkIcon className="h-4 w-4" />
+    }
   }
 
   const handleDelete = async (projectId: string) => {
@@ -106,6 +152,25 @@ export default function ProjectsManager() {
                 <div className="flex-1">
                   <CardTitle className="text-lg">{project.title || 'Untitled Project'}</CardTitle>
                   <CardDescription className="mt-1">{project.summary}</CardDescription>
+                  {project.techStack && project.techStack.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {project.techStack.map(tech => (
+                        <span key={tech} className="text-xs px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {project.links && project.links.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {project.links.map((link, i) => (
+                        <span key={i} className="text-xs text-muted-foreground flex items-center gap-1">
+                          {getLinkIcon(link.type)}
+                          {link.label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <Switch checked={project.enabled} onCheckedChange={(checked) => {
                   setProjects(currentProjects =>
@@ -184,6 +249,120 @@ export default function ProjectsManager() {
                   onChange={(e) => setEditingProject({ ...editingProject, techStack: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
                   placeholder="React, TypeScript, Node.js"
                 />
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Links</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={handleAddLink} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Link
+                  </Button>
+                </div>
+                
+                {editingProject.links.length === 0 ? (
+                  <div className="text-sm text-muted-foreground py-4 text-center border border-dashed rounded-md">
+                    No links yet. Add repository, demo, or documentation links.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {editingProject.links.map((link, index) => (
+                      <Card key={index} className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-start gap-2">
+                            <div className="flex-1 space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Type</Label>
+                                  <Select
+                                    value={link.type}
+                                    onValueChange={(value) => handleUpdateLink(index, 'type', value)}
+                                  >
+                                    <SelectTrigger className="h-9">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="repo">
+                                        <div className="flex items-center gap-2">
+                                          <GithubLogo className="h-4 w-4" />
+                                          Repository
+                                        </div>
+                                      </SelectItem>
+                                      <SelectItem value="demo">
+                                        <div className="flex items-center gap-2">
+                                          <Globe className="h-4 w-4" />
+                                          Demo
+                                        </div>
+                                      </SelectItem>
+                                      <SelectItem value="docs">
+                                        <div className="flex items-center gap-2">
+                                          <BookOpen className="h-4 w-4" />
+                                          Docs
+                                        </div>
+                                      </SelectItem>
+                                      <SelectItem value="other">
+                                        <div className="flex items-center gap-2">
+                                          <LinkIcon className="h-4 w-4" />
+                                          Other
+                                        </div>
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-1">
+                                  <Label className="text-xs">Label</Label>
+                                  <Input
+                                    value={link.label}
+                                    onChange={(e) => handleUpdateLink(index, 'label', e.target.value)}
+                                    placeholder="View on GitHub"
+                                    className="h-9"
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">URL</Label>
+                                <Input
+                                  value={link.url}
+                                  onChange={(e) => handleUpdateLink(index, 'url', e.target.value)}
+                                  placeholder="https://github.com/..."
+                                  className="h-9"
+                                />
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveLink(index)}
+                              className="text-destructive hover:text-destructive h-9 w-9 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="project-featured"
+                    checked={editingProject.featured}
+                    onCheckedChange={(checked) => setEditingProject({ ...editingProject, featured: checked })}
+                  />
+                  <Label htmlFor="project-featured" className="text-sm">Featured Project</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Switch
+                    id="project-enabled"
+                    checked={editingProject.enabled}
+                    onCheckedChange={(checked) => setEditingProject({ ...editingProject, enabled: checked })}
+                  />
+                  <Label htmlFor="project-enabled" className="text-sm">Enabled</Label>
+                </div>
               </div>
             </div>
           )}
