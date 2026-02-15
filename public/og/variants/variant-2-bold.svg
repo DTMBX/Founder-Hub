@@ -1,0 +1,33 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0e1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f1423;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="nameGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#9de0ad;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#9de0ad;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <text x="600" y="280" font-family="Space Grotesk, system-ui, sans-serif" font-size="96" font-weight="800" 
+        text-anchor="middle" fill="#f0f3f5" letter-spacing="-2">DEVON TYLER</text>
+  
+  <text x="600" y="370" font-family="Space Grotesk, system-ui, sans-serif" font-size="96" font-weight="800" 
+        text-anchor="middle" fill="#f0f3f5" letter-spacing="-2">BARBER</text>
+  
+  <rect x="400" y="385" width="400" height="3" fill="#9de0ad" opacity="0.6"/>
+  
+  <text x="600" y="450" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="500" 
+        text-anchor="middle" fill="#9de0ad">Founder &amp; Innovator</text>
+  
+  <g opacity="0.4">
+    <text x="950" y="580" font-family="Space Grotesk, system-ui, sans-serif" font-size="32" font-weight="700" 
+          text-anchor="end" fill="#9de0ad">xTx396</text>
+  </g>
+  
+  <text x="600" y="540" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="400" 
+        text-anchor="middle" fill="rgba(240, 243, 245, 0.6)">Technology · Transparency · Justice</text>
+</svg>
