@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { cn } from '@/lib/utils'
-import usFlag50 from '@/assets/images/us-flag-50.svg'
+import usFlag50 from '@/assets/images/us-flag-hd.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
 import gadsdenSvg from '@/assets/images/gadsden.svg'
 import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
@@ -99,6 +99,9 @@ export default function HonorFlagBar({
     alignment === 'right' ? 'justify-end' :
     'justify-center'
 
+  const totalGapSpace = isMobile ? 32 : 48
+  const gapSize = Math.max(8, totalGapSpace / (currentFlags.length - 1))
+
   return (
     <div 
       className="fixed top-0 left-0 right-0 z-[60] bg-background/95 backdrop-blur-sm border-b border-border/20"
@@ -108,12 +111,11 @@ export default function HonorFlagBar({
       <div className="w-full px-4">
         <div 
           className={cn(
-            "flex items-center h-[20px] sm:h-[22px] md:h-[26px] mx-auto max-w-7xl",
+            "flex items-center h-[20px] sm:h-[24px] md:h-[28px] mx-auto max-w-7xl",
             justifyClass
           )}
           style={{
-            gap: `${100 / (currentFlags.length + 1)}px`,
-            justifyContent: 'space-evenly'
+            gap: `${gapSize}px`
           }}
         >
           {currentFlags.map((flag, index) => (
@@ -124,7 +126,7 @@ export default function HonorFlagBar({
                 loadedFlags.has(flag.src) && "opacity-100"
               )}
               style={{
-                height: isMobile ? '16px' : '22px',
+                height: isMobile ? '18px' : '24px',
                 transitionDelay: shouldAnimate ? `${index * 80}ms` : '0ms'
               }}
             >
@@ -140,7 +142,7 @@ export default function HonorFlagBar({
                   imageRendering: flag.type === 'svg' ? 'auto' : 'crisp-edges',
                   animationDelay: shouldAnimate ? `${index * 0.3}s` : '0s',
                   animationDuration: shouldAnimate ? '8s' : '0s'
-                }}
+                } as React.CSSProperties}
                 onLoad={() => handleImageLoad(flag.src)}
                 onError={() => handleImageError(flag.src)}
                 loading="eager"

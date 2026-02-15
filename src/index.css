@@ -212,3 +212,9 @@
   animation: subtle-wave 8s ease-in-out infinite;
   transform-origin: center center;
 }
+
+img[src*=".svg"] {
+  shape-rendering: geometricPrecision;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
