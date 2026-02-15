@@ -6,13 +6,14 @@ export const getImageAssetUrl = (filename: string) => {
   return new URL(`../assets/images/${filename}`, import.meta.url).href
 }
 
+// Use Vite-resolved URLs so assets work in both dev and production builds
 export const ASSET_PATHS = {
   videos: {
-    usaFlag: '/src/assets/video/flag.mp4',
+    usaFlag: getVideoAssetUrl('flag-video.mp4'),
   },
   images: {
-    usFlag50: '/src/assets/images/us-flag-50.png',
-    betsyRoss: '/src/assets/images/betsy-ross-13-star.png',
-    gadsden: '/src/assets/images/gadsden.png',
+    usFlag50: getImageAssetUrl('us-flag-50.png'),
+    betsyRoss: getImageAssetUrl('betsy-ross-13-star.png'),
+    gadsden: getImageAssetUrl('gadsden.png'),
   }
 } as const

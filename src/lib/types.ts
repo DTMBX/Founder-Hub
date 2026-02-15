@@ -4,9 +4,10 @@ export interface User {
   id: string
   email: string
   passwordHash: string
+  passwordSalt?: string          // PBKDF2 salt — absent = legacy SHA-256
   role: UserRole
   twoFactorEnabled?: boolean
-  twoFactorSecret?: string
+  twoFactorSecret?: string       // AES-256-GCM encrypted ('enc:' prefix)
   twoFactorBackupCodes?: string[]
   lastLogin: number
   createdAt: number

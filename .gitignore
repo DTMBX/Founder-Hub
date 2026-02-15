@@ -32,3 +32,9 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+build_log.txt
+build_out.txt
+
+# Private docs (credentials, security details, internal notes)
+/*.md
+!LICENSE.md

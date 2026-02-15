@@ -1,10 +1,16 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, Image, Flag, Sparkle } from '@phosphor-icons/react'
+import { 
+  SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
+  MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
+  Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
+  Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
+  UserCircle, LinkSimple, IdentificationBadge
+} from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
@@ -22,14 +28,57 @@ import AuditLog from './AuditLog'
 import AssetScanner from './AssetScanner'
 import AssetUsagePolicyManager from './AssetUsagePolicyManager'
 import VisualModulesManager from './VisualModulesManager'
+import CaseJacketManager from './CaseJacketManager'
+import AboutManager from './AboutManager'
+import LinksManager from './LinksManager'
+import ProfileManager from './ProfileManager'
+import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
   onExit: () => void
 }
 
+interface NavItem {
+  id: string
+  label: string
+  icon: any
+  category: string
+}
+
+const navItems: NavItem[] = [
+  // Content
+  { id: 'content', label: 'Content', icon: Article, category: 'Content' },
+  { id: 'about', label: 'About / Updates', icon: UserCircle, category: 'Content' },
+  { id: 'links', label: 'Links', icon: LinkSimple, category: 'Content' },
+  { id: 'profile', label: 'Profile & Emails', icon: IdentificationBadge, category: 'Content' },
+  { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'Content' },
+  { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Content' },
+  // Projects & Cases
+  { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Management' },
+  { id: 'court', label: 'Court Cases', icon: Scales, category: 'Management' },
+  { id: 'documents', label: 'Documents', icon: FilePdf, category: 'Management' },
+  { id: 'case-jackets', label: 'Case Jackets', icon: Briefcase, category: 'Management' },
+  { id: 'filing-types', label: 'Filing Types', icon: Certificate, category: 'Management' },
+  { id: 'templates', label: 'Templates', icon: ClipboardText, category: 'Management' },
+  // Assets & Uploads
+  { id: 'inbox', label: 'Inbox', icon: Tray, category: 'Assets' },
+  { id: 'upload', label: 'Upload Queue', icon: CloudArrowUp, category: 'Assets' },
+  { id: 'staging', label: 'Staging Review', icon: Stack, category: 'Assets' },
+  { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets' },
+  { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets' },
+  // Settings
+  { id: 'theme', label: 'Theme', icon: Palette, category: 'Settings' },
+  { id: 'settings', label: 'Site Settings', icon: Gear, category: 'Settings' },
+  { id: 'security', label: 'Security', icon: ShieldCheck, category: 'Settings' },
+  { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'Settings' },
+]
+
+const categories = ['Content', 'Management', 'Assets', 'Settings']
+
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('content')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   
   useInitializeDocumentTypes()
 
@@ -38,172 +87,156 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
     onExit()
   }
 
+  const activeItem = navItems.find(item => item.id === activeTab)
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'content': return <ContentManager />
+      case 'about': return <AboutManager />
+      case 'links': return <LinksManager />
+      case 'profile': return <ProfileManager />
+      case 'projects': return <EnhancedProjectsManager />
+      case 'court': return <EnhancedCourtManager />
+      case 'inbox': return <AdminInbox />
+      case 'documents': return <DocumentsManager />
+      case 'case-jackets': return <CaseJacketManager />
+      case 'upload': return <UploadQueueManager />
+      case 'staging': return <StagingReviewManager />
+      case 'filing-types': return <FilingTypesManager />
+      case 'templates': return <TemplatesManager />
+      case 'hero-media': return <HeroMediaManager />
+      case 'assets': return <AssetScanner />
+      case 'asset-policy': return <AssetUsagePolicyManager />
+      case 'visual-modules': return <VisualModulesManager />
+      case 'theme': return <ThemeManager />
+      case 'settings': return <SettingsManager />
+      case 'security': return <SecurityManager />
+      case 'audit': return <AuditLog />
+      default: return <ContentManager />
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div>
-              <h1 className="text-lg font-bold">Content Control Center</h1>
-              <p className="text-xs text-muted-foreground">{currentUser?.email}</p>
+    <div className="min-h-screen bg-background flex">
+      {/* Sidebar */}
+      <aside className={cn(
+        'sticky top-0 h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex flex-col transition-all duration-300',
+        sidebarCollapsed ? 'w-16' : 'w-64'
+      )}>
+        {/* Sidebar header */}
+        <div className="p-4 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            {!sidebarCollapsed && (
+              <div className="min-w-0">
+                <h1 className="text-sm font-bold tracking-tight truncate">Control Center</h1>
+                <p className="text-[10px] text-muted-foreground truncate">{currentUser?.email}</p>
+              </div>
+            )}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 shrink-0"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            >
+              <CaretRight className={cn('h-4 w-4 transition-transform', sidebarCollapsed ? '' : 'rotate-180')} />
+            </Button>
+          </div>
+        </div>
+
+        {/* Nav items */}
+        <ScrollArea className="flex-1 py-2">
+          <div className="px-2 space-y-4">
+            {categories.map(category => {
+              const items = navItems.filter(item => item.category === category)
+              return (
+                <div key={category}>
+                  {!sidebarCollapsed && (
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold px-3 mb-1">
+                      {category}
+                    </p>
+                  )}
+                  <div className="space-y-0.5">
+                    {items.map(item => {
+                      const Icon = item.icon
+                      const isActive = activeTab === item.id
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveTab(item.id)}
+                          className={cn(
+                            'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm',
+                            sidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2',
+                            isActive 
+                              ? 'bg-primary text-primary-foreground shadow-sm' 
+                              : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                          )}
+                          title={sidebarCollapsed ? item.label : undefined}
+                        >
+                          <Icon className="h-4 w-4 shrink-0" weight={isActive ? 'fill' : 'regular'} />
+                          {!sidebarCollapsed && <span className="truncate font-medium">{item.label}</span>}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  {category !== 'Settings' && !sidebarCollapsed && (
+                    <Separator className="mt-3 opacity-50" />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </ScrollArea>
+
+        {/* Sidebar footer */}
+        <div className="p-3 border-t border-border/50 space-y-1.5">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onExit}
+            className={cn('w-full gap-2 text-xs', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+          >
+            <House className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && 'Public Site'}
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleLogout}
+            className={cn('w-full gap-2 text-xs text-muted-foreground', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+          >
+            <SignOut className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && 'Logout'}
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0">
+        {/* Top bar */}
+        <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl">
+          <div className="flex items-center justify-between h-14 px-6">
+            <div className="flex items-center gap-3">
+              {activeItem && (
+                <>
+                  <activeItem.icon className="h-5 w-5 text-primary" weight="duotone" />
+                  <h2 className="text-base font-semibold">{activeItem.label}</h2>
+                </>
+              )}
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={onExit}>
-                View Public Site
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleLogout} className="gap-2">
-                <SignOut className="h-4 w-4" />
-                Logout
+              <Button variant="outline" size="sm" onClick={onExit} className="text-xs gap-1.5">
+                <ArrowLeft className="h-3.5 w-3.5" />
+                View Site
               </Button>
             </div>
           </div>
+        </header>
+
+        {/* Page content */}
+        <div className="p-6 lg:p-8 max-w-6xl">
+          {renderContent()}
         </div>
-      </header>
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <ScrollArea className="w-full">
-            <TabsList className="inline-flex gap-1 h-auto p-2 bg-card">
-              <TabsTrigger value="content" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Article className="h-4 w-4" />
-                <span className="hidden sm:inline">Content</span>
-              </TabsTrigger>
-              <TabsTrigger value="projects" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <FolderOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Projects</span>
-              </TabsTrigger>
-              <TabsTrigger value="court" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Scales className="h-4 w-4" />
-                <span className="hidden sm:inline">Cases</span>
-              </TabsTrigger>
-              <TabsTrigger value="inbox" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Tray className="h-4 w-4" />
-                <span className="hidden sm:inline">Inbox</span>
-              </TabsTrigger>
-              <TabsTrigger value="documents" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <FilePdf className="h-4 w-4" />
-                <span className="hidden sm:inline">Documents</span>
-              </TabsTrigger>
-              <TabsTrigger value="upload" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <CloudArrowUp className="h-4 w-4" />
-                <span className="hidden sm:inline">Upload</span>
-              </TabsTrigger>
-              <TabsTrigger value="staging" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Stack className="h-4 w-4" />
-                <span className="hidden sm:inline">Staging</span>
-              </TabsTrigger>
-              <TabsTrigger value="filing-types" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Certificate className="h-4 w-4" />
-                <span className="hidden sm:inline">Filing Types</span>
-              </TabsTrigger>
-              <TabsTrigger value="templates" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <ClipboardText className="h-4 w-4" />
-                <span className="hidden sm:inline">Templates</span>
-              </TabsTrigger>
-              <TabsTrigger value="hero-media" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <VideoCamera className="h-4 w-4" />
-                <span className="hidden sm:inline">Hero Media</span>
-              </TabsTrigger>
-              <TabsTrigger value="assets" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Image className="h-4 w-4" />
-                <span className="hidden sm:inline">Assets</span>
-              </TabsTrigger>
-              <TabsTrigger value="asset-policy" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Flag className="h-4 w-4" />
-                <span className="hidden sm:inline">Usage Policy</span>
-              </TabsTrigger>
-              <TabsTrigger value="visual-modules" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Sparkle className="h-4 w-4" />
-                <span className="hidden sm:inline">Visual Modules</span>
-              </TabsTrigger>
-              <TabsTrigger value="theme" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Palette className="h-4 w-4" />
-                <span className="hidden sm:inline">Theme</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Gear className="h-4 w-4" />
-                <span className="hidden sm:inline">Settings</span>
-              </TabsTrigger>
-              <TabsTrigger value="security" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <ShieldCheck className="h-4 w-4" />
-                <span className="hidden sm:inline">Security</span>
-              </TabsTrigger>
-              <TabsTrigger value="audit" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <ClockCounterClockwise className="h-4 w-4" />
-                <span className="hidden sm:inline">Audit</span>
-              </TabsTrigger>
-            </TabsList>
-          </ScrollArea>
-
-          <TabsContent value="content" className="space-y-4">
-            <ContentManager />
-          </TabsContent>
-
-          <TabsContent value="projects" className="space-y-4">
-            <EnhancedProjectsManager />
-          </TabsContent>
-
-          <TabsContent value="court" className="space-y-4">
-            <EnhancedCourtManager />
-          </TabsContent>
-
-          <TabsContent value="inbox" className="space-y-4">
-            <AdminInbox />
-          </TabsContent>
-
-          <TabsContent value="documents" className="space-y-4">
-            <DocumentsManager />
-          </TabsContent>
-
-          <TabsContent value="upload" className="space-y-4">
-            <UploadQueueManager />
-          </TabsContent>
-
-          <TabsContent value="staging" className="space-y-4">
-            <StagingReviewManager />
-          </TabsContent>
-
-          <TabsContent value="filing-types" className="space-y-4">
-            <FilingTypesManager />
-          </TabsContent>
-
-          <TabsContent value="templates" className="space-y-4">
-            <TemplatesManager />
-          </TabsContent>
-
-          <TabsContent value="hero-media" className="space-y-4">
-            <HeroMediaManager />
-          </TabsContent>
-
-          <TabsContent value="assets" className="space-y-4">
-            <AssetScanner />
-          </TabsContent>
-
-          <TabsContent value="asset-policy" className="space-y-4">
-            <AssetUsagePolicyManager />
-          </TabsContent>
-
-          <TabsContent value="visual-modules" className="space-y-4">
-            <VisualModulesManager />
-          </TabsContent>
-
-          <TabsContent value="theme" className="space-y-4">
-            <ThemeManager />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-4">
-            <SettingsManager />
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-4">
-            <SecurityManager />
-          </TabsContent>
-
-          <TabsContent value="audit" className="space-y-4">
-            <AuditLog />
-          </TabsContent>
-        </Tabs>
-      </div>
+      </main>
     </div>
   )
 }

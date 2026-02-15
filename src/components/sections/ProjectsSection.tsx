@@ -3,7 +3,7 @@ import { Project } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassButton } from '@/components/ui/glass-button'
 import { GlassCard } from '@/components/ui/glass-card'
-import { GithubLogo, Globe, BookOpen } from '@phosphor-icons/react'
+import { GithubLogo, Globe, BookOpen, FolderOpen } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 
@@ -19,8 +19,6 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
   const enabledProjects = projects
     ?.filter(p => p.enabled)
     .sort((a, b) => a.order - b.order) || []
-
-  if (enabledProjects.length === 0) return null
 
   const linkIcon = (type: string) => {
     switch (type) {
@@ -47,7 +45,9 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
       }
 
   return (
-    <section id="projects" className="py-16 sm:py-20 lg:py-32 px-4 sm:px-6 lg:px-8" ref={ref}>
+    <section id="projects" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref}>
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />
+      <div className="section-separator absolute top-0 left-0 right-0" />
       <div className="container mx-auto max-w-7xl">
         <motion.div
           initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
@@ -56,10 +56,24 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">What I Build</h2>
           <p className="text-lg sm:text-xl text-muted-foreground mb-12 lg:mb-16 max-w-3xl leading-relaxed">
-            Transformative solutions at the intersection of technology, governance, and justice.
+            Transformative solutions at the intersection of technology, home improvement, transparency, and justice.
           </p>
         </motion.div>
 
+        {enabledProjects.length === 0 ? (
+          <motion.div
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            <GlassCard intensity="medium" className="text-center py-12">
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit mx-auto mb-4">
+                <FolderOpen className="h-6 w-6 text-emerald-400" weight="duotone" />
+              </div>
+              <p className="text-muted-foreground text-base">Projects launching soon. Check back for updates.</p>
+            </GlassCard>
+          </motion.div>
+        ) : (
         <motion.div
           variants={containerVariants}
           initial="initial"
@@ -74,11 +88,11 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             >
               <GlassCard 
                 intensity="medium"
-                className="h-full group hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
+                className="h-full group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300"
               >
                 <div className="p-6 flex flex-col h-full">
                   <div className="mb-4">
-                    <h3 className="text-xl font-semibold mb-3 group-hover:text-accent transition-colors">
+                    <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
                       {project.title}
                     </h3>
                     <p className="text-base text-muted-foreground leading-relaxed">
@@ -118,6 +132,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             </motion.div>
           ))}
         </motion.div>
+        )}
       </div>
     </section>
   )

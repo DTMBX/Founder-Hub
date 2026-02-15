@@ -1,12 +1,21 @@
+import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { AuditEvent } from '@/lib/types'
+import { decryptAuditLog } from '@/lib/auth'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
 export default function AuditLog() {
-  const [auditLog] = useKV<AuditEvent[]>('founder-hub-audit-log', [])
+  const [rawLog] = useKV<(AuditEvent | string)[]>('founder-hub-audit-log', [])
+  const [events, setEvents] = useState<AuditEvent[]>([])
 
-  const events = auditLog || []
+  useEffect(() => {
+    if (rawLog && rawLog.length > 0) {
+      decryptAuditLog(rawLog).then(setEvents)
+    } else {
+      setEvents([])
+    }
+  }, [rawLog])
 
   return (
     <div className="space-y-6">

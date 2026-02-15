@@ -1,9 +1,10 @@
 import { useKV } from '@github/spark/hooks'
 import { Section, SiteSettings } from '@/lib/types'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
 import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown } from '@phosphor-icons/react'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { ASSET_PATHS } from '@/lib/asset-helpers'
 
 interface HeroSectionProps {
   investorMode: boolean
@@ -32,10 +33,24 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
   const heroSection = sections?.find(s => s.type === 'hero')
   const heroMedia = settings?.heroMedia
 
-  const shouldPlayVideo = heroMedia?.videoUrl && 
-    (!prefersReducedMotion || heroMedia.motionMode === 'full') && 
-    heroMedia.motionMode !== 'off' &&
+  // Resolve video URL: use admin setting first, fall back to built-in flag-video asset
+  const resolvedVideoUrl = heroMedia?.videoUrl || ASSET_PATHS.videos.usaFlag
+  const resolvedPosterUrl = heroMedia?.posterUrl || ASSET_PATHS.images.usFlag50
+
+  const shouldPlayVideo = resolvedVideoUrl && 
+    (!prefersReducedMotion || heroMedia?.motionMode === 'full') && 
+    heroMedia?.motionMode !== 'off' &&
     !videoError
+
+  const handleVideoLoad = useCallback(() => {
+    setVideoLoaded(true)
+    setVideoError(false)
+  }, [])
+
+  const handleVideoError = useCallback(() => {
+    setVideoError(true)
+    setVideoLoaded(false)
+  }, [])
 
   useEffect(() => {
     if (videoRef.current && shouldPlayVideo) {
@@ -44,6 +59,7 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
         setIsVideoPaused(true)
       } else {
         videoRef.current.play().catch(() => {
+          // Autoplay may be blocked — show poster fallback instead of crashing
           setVideoError(true)
         })
       }
@@ -52,14 +68,9 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 100) {
-        setScrollIndicatorVisible(false)
-      } else {
-        setScrollIndicatorVisible(true)
-      }
+      setScrollIndicatorVisible(window.scrollY <= 100)
     }
-
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -77,168 +88,160 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
 
   if (!heroSection || !heroSection.enabled) return null
 
-  const animationVariants = prefersReducedMotion
-    ? {}
-    : {
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-      }
-
-  const overlayIntensity = heroMedia?.overlayIntensity ?? 0.5
+  const overlayIntensity = heroMedia?.overlayIntensity ?? 0.55
   const vignetteEnabled = heroMedia?.vignetteEnabled ?? true
   const textAlignment = heroMedia?.textAlignment ?? 'center'
-  const autoContrast = heroMedia?.autoContrast ?? false
-
-  const adjustedOverlayIntensity = autoContrast ? Math.max(overlayIntensity, 0.6) : overlayIntensity
+  const autoContrast = heroMedia?.autoContrast ?? true
+  const adjustedOverlayIntensity = autoContrast ? Math.max(overlayIntensity, 0.55) : overlayIntensity
 
   return (
     <section 
       id="hero" 
-      className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-16 overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
+      {/* Video / Poster Background */}
       {shouldPlayVideo ? (
         <>
           <video
             ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover -z-20"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ zIndex: 0 }}
             autoPlay
             muted
             loop
             playsInline
-            poster={heroMedia?.posterUrl}
-            onLoadedData={() => setVideoLoaded(true)}
-            onError={() => setVideoError(true)}
+            poster={resolvedPosterUrl}
+            onLoadedData={handleVideoLoad}
+            onError={handleVideoError}
           >
-            <source src={heroMedia?.videoUrl} type="video/mp4" />
+            <source src={resolvedVideoUrl} type="video/mp4" />
           </video>
 
+          {/* Dark overlay */}
           <div 
-            className="absolute inset-0 -z-10 bg-black transition-opacity duration-300"
-            style={{ opacity: adjustedOverlayIntensity }}
+            className="absolute inset-0 bg-black/60 transition-opacity duration-500"
+            style={{ zIndex: 1, opacity: adjustedOverlayIntensity }}
           />
 
+          {/* Vignette */}
           {vignetteEnabled && (
             <div 
-              className="absolute inset-0 -z-10"
+              className="absolute inset-0"
               style={{
+                zIndex: 2,
                 background: `
-                  radial-gradient(ellipse 100% 100% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%),
-                  linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.3) 100%)
+                  radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%),
+                  linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.4) 100%)
                 `
               }}
             />
           )}
 
-          {(shouldPlayVideo && heroMedia?.motionMode !== 'off') && (
-            <button
-              onClick={toggleVideoPlayback}
-              className="fixed bottom-8 right-8 z-50 backdrop-blur-xl bg-card/90 border border-border hover:border-accent/50 rounded-full p-3 transition-all hover:scale-105"
-              aria-label={isVideoPaused ? "Play video" : "Pause video"}
-            >
-              {isVideoPaused ? (
-                <Play className="h-5 w-5" weight="fill" />
-              ) : (
-                <Pause className="h-5 w-5" weight="fill" />
-              )}
-            </button>
-          )}
+          {/* Play/Pause control */}
+          <button
+            onClick={toggleVideoPlayback}
+            className="fixed bottom-6 right-6 z-50 backdrop-blur-xl bg-white/10 border border-white/20 hover:bg-white/20 rounded-full p-3 transition-all duration-200 hover:scale-105 shadow-lg"
+            aria-label={isVideoPaused ? "Play video" : "Pause video"}
+          >
+            {isVideoPaused ? (
+              <Play className="h-4 w-4 text-white" weight="fill" />
+            ) : (
+              <Pause className="h-4 w-4 text-white" weight="fill" />
+            )}
+          </button>
         </>
       ) : (
         <>
-          {heroMedia?.posterUrl ? (
+          {resolvedPosterUrl ? (
             <>
               <img
-                src={heroMedia.posterUrl}
+                src={resolvedPosterUrl}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover -z-20"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ zIndex: 0 }}
               />
               <div 
-                className="absolute inset-0 -z-10 bg-black transition-opacity duration-300"
-                style={{ opacity: adjustedOverlayIntensity }}
+                className="absolute inset-0 bg-black/60 transition-opacity duration-500"
+                style={{ zIndex: 1, opacity: adjustedOverlayIntensity }}
               />
               {vignetteEnabled && (
                 <div 
-                  className="absolute inset-0 -z-10"
+                  className="absolute inset-0"
                   style={{
+                    zIndex: 2,
                     background: `
-                      radial-gradient(ellipse 100% 100% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%),
-                      linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.3) 100%)
+                      radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%),
+                      linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.4) 100%)
                     `
                   }}
                 />
               )}
             </>
           ) : (
-            <>
-              <div 
-                className="absolute inset-0 -z-10"
-                style={{
-                  background: `
-                    radial-gradient(ellipse 80% 50% at 50% 20%, oklch(0.25 0.12 250) 0%, transparent 60%),
-                    radial-gradient(ellipse 60% 40% at 20% 80%, oklch(0.20 0.08 200) 0%, transparent 60%),
-                    radial-gradient(ellipse 50% 50% at 80% 70%, oklch(0.18 0.06 280) 0%, transparent 60%)
-                  `,
-                }}
-              />
-              <div 
-                className="absolute inset-0 -z-10 opacity-30"
-                style={{
-                  backgroundImage: `
-                    repeating-linear-gradient(0deg, transparent, transparent 2px, oklch(0.3 0.05 250) 2px, oklch(0.3 0.05 250) 3px),
-                    repeating-linear-gradient(90deg, transparent, transparent 2px, oklch(0.3 0.05 250) 2px, oklch(0.3 0.05 250) 3px)
-                  `,
-                  backgroundSize: '100px 100px',
-                }}
-              />
-            </>
+            <div 
+              className="absolute inset-0"
+              style={{
+                zIndex: 0,
+                background: `linear-gradient(135deg, #0f0d0a 0%, #1a1610 40%, #0d1a12 70%, #1a1025 100%)`,
+              }}
+            />
           )}
         </>
       )}
 
+      {/* Content */}
       <div 
-        className={`container mx-auto max-w-6xl relative z-10 px-8 ${
+        className={`relative z-10 w-full max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 py-24 ${
           textAlignment === 'left' ? 'text-left' : 'text-center'
         }`}
-        style={{
-          maxWidth: '1100px',
-          padding: '0 clamp(1.5rem, 5vw, 4rem)'
-        }}
       >
         <motion.div
-          {...animationVariants}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          initial={prefersReducedMotion ? {} : { opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
+          {/* Overline */}
+          <motion.p
+            initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-sm sm:text-base tracking-[0.25em] uppercase font-medium text-white/70 mb-6"
+          >
+            {settings?.primaryDomain || 'xTx396.online'}
+          </motion.p>
+
+          {/* Headline */}
           <h1 
-            className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 text-white" 
+            className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 text-white leading-[1.05]" 
             style={{ 
-              letterSpacing: '-0.02em',
-              textShadow: '0 2px 20px rgba(0,0,0,0.5), 0 4px 40px rgba(0,0,0,0.3)',
-              fontWeight: '700'
+              letterSpacing: '-0.025em',
+              textShadow: '0 2px 30px rgba(0,0,0,0.4)',
             }}
           >
             {heroMedia?.headlineText || settings?.siteName || 'Devon Tyler Barber'}
           </h1>
           
+          {/* Subhead */}
           <p 
-            className="text-xl sm:text-2xl lg:text-3xl mb-12 leading-relaxed max-w-3xl text-white/95" 
+            className="text-lg sm:text-xl lg:text-2xl mb-14 leading-relaxed max-w-2xl text-white/90 font-light" 
             style={{
-              textShadow: '0 2px 15px rgba(0,0,0,0.5), 0 4px 30px rgba(0,0,0,0.3)',
-              fontWeight: '500',
-              letterSpacing: '0.01em',
+              textShadow: '0 1px 15px rgba(0,0,0,0.4)',
+              letterSpacing: '0.02em',
               ...(textAlignment === 'left' ? {} : { marginLeft: 'auto', marginRight: 'auto' })
             }}
           >
             {heroMedia?.subheadText || settings?.tagline || 'Founder & Innovator'}
           </p>
 
+          {/* CTA Buttons (if configured) */}
           <motion.div
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="space-y-8"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="space-y-10"
           >
             {(heroMedia?.ctaPrimary || heroMedia?.ctaSecondary) && (
-              <div className={`flex flex-wrap gap-4 mb-8 ${textAlignment === 'center' ? 'justify-center' : 'justify-start'}`}>
+              <div className={`flex flex-wrap gap-4 mb-4 ${textAlignment === 'center' ? 'justify-center' : 'justify-start'}`}>
                 {heroMedia.ctaPrimary && (
                   <GlassButton
                     variant="glassPrimary"
@@ -262,72 +265,62 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
               </div>
             )}
 
-            <div className={`flex flex-col sm:flex-row gap-4 sm:gap-6 max-w-4xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
-              <GlassButton
-                variant="glassPrimary"
-                size="lg"
-                className="flex-1 min-h-[120px] sm:min-h-[140px] flex flex-col items-center justify-center gap-3 text-base sm:text-lg"
-                onClick={() => onSelectPathway?.('investors')}
-              >
-                <ChartLineUp className="h-10 w-10 sm:h-12 sm:w-12" />
-                <div>
-                  <div className="font-bold">Investors</div>
-                  <div className="text-xs sm:text-sm opacity-80 mt-1">Projects, Roadmap & Traction</div>
-                </div>
-              </GlassButton>
-
-              <GlassButton
-                variant="glass"
-                size="lg"
-                className="flex-1 min-h-[120px] sm:min-h-[140px] flex flex-col items-center justify-center gap-3 text-base sm:text-lg"
-                onClick={() => onSelectPathway?.('legal')}
-              >
-                <Scales className="h-10 w-10 sm:h-12 sm:w-12" />
-                <div>
-                  <div className="font-bold">Legal / Court</div>
-                  <div className="text-xs sm:text-sm opacity-80 mt-1">Case Materials & Documentation</div>
-                </div>
-              </GlassButton>
-
-              <GlassButton
-                variant="glass"
-                size="lg"
-                className="flex-1 min-h-[120px] sm:min-h-[140px] flex flex-col items-center justify-center gap-3 text-base sm:text-lg"
-                onClick={() => onSelectPathway?.('about')}
-              >
-                <UsersFour className="h-10 w-10 sm:h-12 sm:w-12" />
-                <div>
-                  <div className="font-bold">About / Friends</div>
-                  <div className="text-xs sm:text-sm opacity-80 mt-1">Mission, Updates & Contact</div>
-                </div>
-              </GlassButton>
-            </div>
-
-            <div className={`text-sm ${textAlignment === 'center' ? 'text-center' : 'text-left'}`} style={{ color: 'rgba(255,255,255,0.8)' }}>
-              Choose your pathway to explore relevant content
+            {/* Trinity Pathway Cards */}
+            <div className={`flex flex-col sm:flex-row gap-4 max-w-3xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
+              {[
+                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor Mode', desc: 'Projects, Roadmap & Proof', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
+                { key: 'legal' as const, icon: Scales, label: 'Court Mode', desc: 'Cases, Filings & Documents', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
+                { key: 'about' as const, icon: UsersFour, label: 'Connect Mode', desc: 'Mission, Values & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
+              ].map((pathway, idx) => (
+                <motion.div
+                  key={pathway.key}
+                  initial={prefersReducedMotion ? {} : { opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 + idx * 0.1 }}
+                  className="flex-1"
+                >
+                  <button
+                    onClick={() => onSelectPathway?.(pathway.key)}
+                    className={`w-full group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 ${pathway.border} transition-all duration-300 p-6 sm:p-8 hover:shadow-lg hover:-translate-y-1`}
+                  >
+                    <div className={`absolute inset-0 bg-gradient-to-br ${pathway.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div className="relative z-10 flex flex-col items-center gap-3">
+                      <pathway.icon className="h-8 w-8 sm:h-10 sm:w-10 text-white/80 group-hover:text-white transition-colors" weight="duotone" />
+                      <div className="text-center">
+                        <div className="text-white font-semibold text-base">{pathway.label}</div>
+                        <div className="text-white/60 text-xs mt-1">{pathway.desc}</div>
+                      </div>
+                    </div>
+                  </button>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </motion.div>
 
-        {!prefersReducedMotion && scrollIndicatorVisible && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
-          >
+        {/* Scroll indicator */}
+        <AnimatePresence>
+          {!prefersReducedMotion && scrollIndicatorVisible && (
             <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-colors cursor-pointer"
-              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute bottom-10 left-1/2 -translate-x-1/2"
             >
-              <span className="text-xs uppercase tracking-wider font-medium">Scroll</span>
-              <CaretDown className="h-6 w-6" weight="bold" />
+              <motion.button
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="flex flex-col items-center gap-2 text-white/40 hover:text-white/70 transition-colors"
+                onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                aria-label="Scroll down"
+              >
+                <span className="text-[10px] uppercase tracking-[0.2em] font-medium">Explore</span>
+                <CaretDown className="h-5 w-5" weight="bold" />
+              </motion.button>
             </motion.div>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
       </div>
     </section>
   )

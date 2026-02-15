@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
-import { PDFAsset, UploadQueueItem, PDFMetadata } from '@/lib/types'
+import { PDFAsset, UploadQueueItem, PDFMetadata, Case, FilingType } from '@/lib/types'
 import { OCRPipeline, OCRExtractionResult } from '@/lib/ocr-pipeline'
 import { Button } from '@/components/ui/button'
 import { GlassCard } from '@/components/ui/glass-card'
@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   CloudArrowUp, 
   FileText, 
@@ -19,7 +20,9 @@ import {
   Files,
   Warning,
   Info,
-  Sparkle
+  Sparkle,
+  Folder,
+  Tag,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -31,9 +34,13 @@ interface ExtendedUploadQueueItem extends UploadQueueItem {
 
 export default function UploadQueueManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
+  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [filingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [queue, setQueue] = useState<ExtendedUploadQueueItem[]>([])
   const [enableOCR, setEnableOCR] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
+  const [preAssignCaseId, setPreAssignCaseId] = useState<string>('')
+  const [preAssignFilingTypeId, setPreAssignFilingTypeId] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const calculateChecksum = async (file: File): Promise<string> => {
@@ -114,7 +121,9 @@ export default function UploadQueueManager() {
       const stagingData: Partial<PDFAsset> = {
         title: suggestedTitle,
         description: '',
+        caseId: preAssignCaseId || undefined,
         documentType: suggestedDocType,
+        filingTypeId: preAssignFilingTypeId || undefined,
         filingDate: suggestedFilingDate,
         tags: [],
         visibility: 'private',
@@ -287,6 +296,47 @@ export default function UploadQueueManager() {
             </Label>
           </div>
         </div>
+      </div>
+
+      {/* Pre-assignment selectors */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <Folder size={14} className="text-muted-foreground shrink-0" />
+          <Select value={preAssignCaseId} onValueChange={setPreAssignCaseId}>
+            <SelectTrigger className="h-8 text-xs w-52">
+              <SelectValue placeholder="Pre-assign to case…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No case (assign later)</SelectItem>
+              {cases.map(c => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.title} — {c.docket}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <Tag size={14} className="text-muted-foreground shrink-0" />
+          <Select value={preAssignFilingTypeId} onValueChange={setPreAssignFilingTypeId}>
+            <SelectTrigger className="h-8 text-xs w-44">
+              <SelectValue placeholder="Pre-assign type…" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">No type (assign later)</SelectItem>
+              {filingTypes.map(ft => (
+                <SelectItem key={ft.id} value={ft.id}>
+                  {ft.icon} {ft.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {(preAssignCaseId || preAssignFilingTypeId) && (
+          <span className="text-[10px] text-muted-foreground">
+            New uploads will be auto-assigned
+          </span>
+        )}
       </div>
 
       <GlassCard

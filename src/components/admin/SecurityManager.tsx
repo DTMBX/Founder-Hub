@@ -121,21 +121,28 @@ export default function SecurityManager() {
               <Lock className="h-4 w-4 mt-0.5 text-green-500" />
               <div>
                 <p className="text-sm font-medium">Password Hashing</p>
-                <p className="text-xs text-muted-foreground">SHA-256 cryptographic hash</p>
+                <p className="text-xs text-muted-foreground">PBKDF2 · 100k iterations · per-user salt</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <Lock className="h-4 w-4 mt-0.5 text-green-500" />
+              <div>
+                <p className="text-sm font-medium">E2E Encryption</p>
+                <p className="text-xs text-muted-foreground">AES-256-GCM · 2FA secrets, audit logs encrypted at rest</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Lock className="h-4 w-4 mt-0.5 text-green-500" />
               <div>
                 <p className="text-sm font-medium">Rate Limiting</p>
-                <p className="text-xs text-muted-foreground">5 attempts per 15 minutes</p>
+                <p className="text-xs text-muted-foreground">3 attempts per 30 minutes</p>
               </div>
             </div>
             <div className="flex items-start gap-2">
               <Lock className="h-4 w-4 mt-0.5 text-green-500" />
               <div>
                 <p className="text-sm font-medium">Session Management</p>
-                <p className="text-xs text-muted-foreground">8-hour expiration</p>
+                <p className="text-xs text-muted-foreground">4-hour expiration · single owner access</p>
               </div>
             </div>
             <div className="flex items-start gap-2">

@@ -4,9 +4,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { useAuth } from '@/lib/auth'
-import { ArrowLeft, ShieldCheck } from '@phosphor-icons/react'
+import { ArrowLeft, ShieldCheck, Lock, EnvelopeSimple, Key } from '@phosphor-icons/react'
 import { toast } from 'sonner'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface AdminLoginProps {
   onBack: () => void
@@ -39,101 +38,103 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          className="mb-4 gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Site
-        </Button>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-card p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
+            <ShieldCheck className="h-7 w-7 text-primary" weight="duotone" />
+          </div>
+          <h1 className="text-xl font-bold tracking-tight">Admin Portal</h1>
+          <p className="text-sm text-muted-foreground mt-1">Secure access to your control center</p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="h-6 w-6 text-primary" />
-              <CardTitle className="text-2xl">Admin Portal</CardTitle>
-            </div>
-            <CardDescription>
-              Secure authentication with rate limiting and audit logging
-            </CardDescription>
-          </CardHeader>
+        <Card className="border-border/50 shadow-xl shadow-black/5">
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <Alert>
-                <AlertDescription className="text-sm">
-                  <strong>Default credentials:</strong><br />
-                  Email: admin@xtx396.online<br />
-                  Password: SecureAdmin2024!
-                  <div className="mt-2 text-xs text-muted-foreground">
-                    Change your password immediately after first login.
-                  </div>
-                </AlertDescription>
-              </Alert>
-              
+            <CardContent className="space-y-4 pt-6">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@xtx396.online"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={isLoading || requires2FA}
-                  autoComplete="email"
-                />
+                <Label htmlFor="email" className="text-xs font-medium">Email</Label>
+                <div className="relative">
+                  <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="dTb33@pm.me"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading || requires2FA}
+                    autoComplete="email"
+                    className="pl-9"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={isLoading || requires2FA}
-                  autoComplete="current-password"
-                />
+                <Label htmlFor="password" className="text-xs font-medium">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading || requires2FA}
+                    autoComplete="current-password"
+                    className="pl-9"
+                  />
+                </div>
               </div>
 
               {requires2FA && (
                 <div className="space-y-2">
-                  <Label htmlFor="totp-code">Authentication Code</Label>
-                  <Input
-                    id="totp-code"
-                    type="text"
-                    placeholder="000000"
-                    value={totpCode}
-                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    required
-                    disabled={isLoading}
-                    autoComplete="one-time-code"
-                    maxLength={6}
-                    pattern="[0-9]{6}"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Enter the 6-digit code from your authenticator app or use a backup code.
+                  <Label htmlFor="totp-code" className="text-xs font-medium">Authentication Code</Label>
+                  <div className="relative">
+                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="totp-code"
+                      type="text"
+                      placeholder="000000"
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      required
+                      disabled={isLoading}
+                      autoComplete="one-time-code"
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      className="pl-9 font-mono tracking-widest text-center"
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Enter the 6-digit code from your authenticator app
                   </p>
                 </div>
               )}
-              
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>🔒 Passwords are hashed with SHA-256</p>
-                <p>🛡️ Rate limiting: 5 attempts per 15 minutes</p>
-                <p>📝 All login attempts are logged</p>
-                <p>⏱️ Sessions expire after 8 hours</p>
-              </div>
             </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+            <CardFooter className="flex-col gap-3 pb-6">
+              <Button type="submit" className="w-full" disabled={isLoading} size="lg">
                 {isLoading ? 'Signing in...' : 'Sign In'}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onBack}
+                className="text-xs text-muted-foreground gap-1.5"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back to site
               </Button>
             </CardFooter>
           </form>
         </Card>
+
+        <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-muted-foreground/60">
+          <span>PBKDF2 + AES-256-GCM</span>
+          <span>·</span>
+          <span>Rate limited</span>
+          <span>·</span>
+          <span>Audit encrypted</span>
+        </div>
       </div>
     </div>
   )

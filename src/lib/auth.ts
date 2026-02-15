@@ -2,15 +2,25 @@ import { useKV } from '@github/spark/hooks'
 import { User, Session, AuditEvent, AuditAction } from './types'
 import { useState, useEffect } from 'react'
 import { generateSecret, verifyTOTP, generateQRCodeURL } from './totp'
+import {
+  hashPasswordPBKDF2,
+  hashPasswordLegacy,
+  encryptField,
+  decryptField,
+  encryptData,
+  decryptData,
+  isEncrypted,
+  initEncryption
+} from './crypto'
 
 const SESSION_KEY = 'founder-hub-session'
 const USERS_KEY = 'founder-hub-users'
 const LOGIN_ATTEMPTS_KEY = 'founder-hub-login-attempts'
 const AUDIT_LOG_KEY = 'founder-hub-audit-log'
 const PENDING_2FA_KEY = 'founder-hub-pending-2fa'
-const LOCKOUT_DURATION = 15 * 60 * 1000
-const MAX_ATTEMPTS = 5
-const SESSION_DURATION = 8 * 60 * 60 * 1000
+const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout (was 15)
+const MAX_ATTEMPTS = 3                     // 3 attempts before lockout (was 5)
+const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions (was 8)
 
 interface LoginAttempt {
   count: number
@@ -23,31 +33,69 @@ interface Pending2FA {
   expiresAt: number
 }
 
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(password)
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+// ─── Password Hashing (PBKDF2 with legacy SHA-256 fallback) ──────
+
+/**
+ * Hash password with PBKDF2 + random salt.
+ * If salt is provided, re-derive using that salt (for verification).
+ */
+async function hashPassword(password: string, salt?: string): Promise<{ hash: string; salt: string }> {
+  return hashPasswordPBKDF2(password, salt)
+}
+
+/**
+ * Verify a password against a stored hash.
+ * Detects legacy (unsalted SHA-256) vs modern (PBKDF2 + salt) automatically.
+ * Returns { valid, needsMigration } — caller should re-hash if migration needed.
+ */
+async function verifyPassword(
+  password: string,
+  storedHash: string,
+  storedSalt?: string
+): Promise<{ valid: boolean; needsMigration: boolean }> {
+  if (storedSalt) {
+    // Modern PBKDF2 path
+    const { hash } = await hashPasswordPBKDF2(password, storedSalt)
+    return { valid: hash === storedHash, needsMigration: false }
+  }
+  // Legacy SHA-256 path (no salt)
+  const legacyHash = await hashPasswordLegacy(password)
+  return { valid: legacyHash === storedHash, needsMigration: true }
 }
 
 async function initializeDefaultAdmin(): Promise<void> {
+  await initEncryption()
   const users = await window.spark.kv.get<User[]>(USERS_KEY)
   
   if (!users || users.length === 0) {
-    const defaultPasswordHash = await hashPassword('SecureAdmin2024!')
+    const { hash, salt } = await hashPassword('SecureAdmin2024!')
     
     const defaultAdmin: User = {
       id: `user_${Date.now()}`,
-      email: 'admin@xtx396.online',
-      passwordHash: defaultPasswordHash,
+      email: 'dTb33@pm.me',
+      passwordHash: hash,
+      passwordSalt: salt,
       role: 'owner',
       createdAt: Date.now(),
       lastLogin: 0
     }
     
     await window.spark.kv.set(USERS_KEY, [defaultAdmin])
-    console.log('Default admin account created')
+    console.log('Default admin account created (PBKDF2 + AES-256-GCM)')
+  } else {
+    // Migrate existing admin email if needed
+    let changed = false
+    const migrated = users.map(u => {
+      if (u.email === 'admin@xtx396.online') {
+        changed = true
+        return { ...u, email: 'dTb33@pm.me' }
+      }
+      return u
+    })
+    if (changed) {
+      await window.spark.kv.set(USERS_KEY, migrated)
+      console.log('Admin email migrated to dTb33@pm.me')
+    }
   }
 }
 
@@ -117,9 +165,14 @@ export function useAuth() {
         return { success: false, error: 'Invalid email or password' }
       }
 
-      const passwordHash = await hashPassword(password)
+      // PBKDF2 verification with automatic legacy SHA-256 migration
+      const { valid, needsMigration } = await verifyPassword(
+        password,
+        user.passwordHash,
+        user.passwordSalt
+      )
       
-      if (passwordHash !== user.passwordHash) {
+      if (!valid) {
         const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
         currentAttempt.count++
         currentAttempt.lastAttempt = now
@@ -135,19 +188,38 @@ export function useAuth() {
         return { success: false, error: 'Invalid email or password' }
       }
 
+      // Auto-migrate legacy SHA-256 passwords to PBKDF2
+      if (needsMigration) {
+        const { hash: newHash, salt: newSalt } = await hashPassword(password)
+        const migratedUsers = allUsers.map(u =>
+          u.id === user.id ? { ...u, passwordHash: newHash, passwordSalt: newSalt } : u
+        )
+        await window.spark.kv.set(USERS_KEY, migratedUsers)
+        setUsers(migratedUsers)
+        user.passwordHash = newHash
+        user.passwordSalt = newSalt
+        await logAudit(user.id, user.email, 'password_migrated', 'Password hash upgraded from SHA-256 to PBKDF2', 'auth', user.id)
+      }
+
       if (user.twoFactorEnabled && user.twoFactorSecret) {
         if (!totpCode) {
-          const pending2FA: Pending2FA = {
+          const pending: Pending2FA = {
             userId: user.id,
             expiresAt: now + 5 * 60 * 1000
           }
-          await window.spark.kv.set(PENDING_2FA_KEY, pending2FA)
+          // Encrypt pending 2FA data at rest
+          await window.spark.kv.set(PENDING_2FA_KEY, await encryptData(pending))
           await logAudit(user.id, user.email, 'login_2fa_required', 'Password verified, awaiting 2FA', 'auth', user.id)
           return { success: false, requires2FA: true }
         }
 
+        // Decrypt 2FA secret for verification
+        const decryptedSecret = isEncrypted(user.twoFactorSecret)
+          ? await decryptField(user.twoFactorSecret)
+          : user.twoFactorSecret
+
         const isBackupCode = user.twoFactorBackupCodes?.includes(totpCode)
-        const isValidTOTP = await verifyTOTP(user.twoFactorSecret, totpCode)
+        const isValidTOTP = await verifyTOTP(decryptedSecret, totpCode)
 
         if (!isValidTOTP && !isBackupCode) {
           const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
@@ -216,22 +288,28 @@ export function useAuth() {
       return { success: false, error: 'Password must be at least 12 characters long' }
     }
 
-    const currentHash = await hashPassword(currentPassword)
-    if (currentHash !== currentUser.passwordHash) {
+    // Verify current password (supports both legacy and PBKDF2)
+    const { valid } = await verifyPassword(
+      currentPassword,
+      currentUser.passwordHash,
+      currentUser.passwordSalt
+    )
+    if (!valid) {
       await logAudit(currentUser.id, currentUser.email, 'password_change_failed', 'Invalid current password', 'auth', currentUser.id)
       return { success: false, error: 'Current password is incorrect' }
     }
 
-    const newHash = await hashPassword(newPassword)
+    // Always use PBKDF2 for new passwords
+    const { hash: newHash, salt: newSalt } = await hashPassword(newPassword)
     const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
-      u.id === currentUser.id ? { ...u, passwordHash: newHash } : u
+      u.id === currentUser.id ? { ...u, passwordHash: newHash, passwordSalt: newSalt } : u
     )
     
     await window.spark.kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
-    await logAudit(currentUser.id, currentUser.email, 'password_changed', 'Password changed successfully', 'auth', currentUser.id)
+    await logAudit(currentUser.id, currentUser.email, 'password_changed', 'Password changed successfully (PBKDF2)', 'auth', currentUser.id)
     
     return { success: true }
   }
@@ -273,13 +351,16 @@ export function useAuth() {
       return { success: false, error: 'Invalid verification code. Please try again.' }
     }
 
+    // Encrypt 2FA secret before storage (E2E — AES-256-GCM)
+    const encryptedSecret = await encryptField(secret)
+
     const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id 
         ? { 
             ...u, 
             twoFactorEnabled: true, 
-            twoFactorSecret: secret,
+            twoFactorSecret: encryptedSecret,
             twoFactorBackupCodes: backupCodes
           } 
         : u
@@ -288,7 +369,7 @@ export function useAuth() {
     await window.spark.kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
-    await logAudit(currentUser.id, currentUser.email, '2fa_enabled', 'Two-factor authentication enabled', 'auth', currentUser.id)
+    await logAudit(currentUser.id, currentUser.email, '2fa_enabled', 'Two-factor authentication enabled (secret encrypted)', 'auth', currentUser.id)
     
     return { success: true }
   }
@@ -302,8 +383,8 @@ export function useAuth() {
       return { success: false, error: 'Two-factor authentication is not enabled' }
     }
 
-    const passwordHash = await hashPassword(password)
-    if (passwordHash !== currentUser.passwordHash) {
+    const { valid } = await verifyPassword(password, currentUser.passwordHash, currentUser.passwordSalt)
+    if (!valid) {
       await logAudit(currentUser.id, currentUser.email, 'password_change_failed', 'Invalid password during 2FA disable', 'auth', currentUser.id)
       return { success: false, error: 'Invalid password' }
     }
@@ -337,8 +418,8 @@ export function useAuth() {
       return { success: false, error: 'Two-factor authentication is not enabled' }
     }
 
-    const passwordHash = await hashPassword(password)
-    if (passwordHash !== currentUser.passwordHash) {
+    const { valid } = await verifyPassword(password, currentUser.passwordHash, currentUser.passwordSalt)
+    if (!valid) {
       return { success: false, error: 'Invalid password' }
     }
 
@@ -384,7 +465,7 @@ export async function logAudit(
   entityType?: string,
   entityId?: string
 ) {
-  const log = await window.spark.kv.get<AuditEvent[]>(AUDIT_LOG_KEY) || []
+  const log = await window.spark.kv.get<(AuditEvent | string)[]>(AUDIT_LOG_KEY) || []
   
   const event: AuditEvent = {
     id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -397,13 +478,37 @@ export async function logAudit(
     timestamp: Date.now()
   }
 
-  log.unshift(event)
+  // Encrypt the audit entry at rest (E2E — AES-256-GCM)
+  const encryptedEvent = await encryptData(event)
+  log.unshift(encryptedEvent)
   
   if (log.length > 1000) {
     log.splice(1000)
   }
 
   await window.spark.kv.set(AUDIT_LOG_KEY, log)
+}
+
+/**
+ * Decrypt audit log entries for display.
+ * Handles both encrypted and legacy plaintext entries.
+ */
+export async function decryptAuditLog(
+  rawLog: (AuditEvent | string)[]
+): Promise<AuditEvent[]> {
+  const decrypted: AuditEvent[] = []
+  for (const entry of rawLog) {
+    try {
+      if (typeof entry === 'string' && isEncrypted(entry)) {
+        decrypted.push(await decryptData<AuditEvent>(entry))
+      } else if (typeof entry === 'object' && entry !== null) {
+        decrypted.push(entry as AuditEvent)
+      }
+    } catch {
+      // Skip corrupted entries
+    }
+  }
+  return decrypted
 }
 
 export function useRequireAuth() {

@@ -7,7 +7,6 @@ import CourtSection from './sections/CourtSection'
 import ProofSection from './sections/ProofSection'
 import ContactSection from './sections/ContactSection'
 import AboutSection from './sections/AboutSection'
-import HeritageFlagsSection from './sections/HeritageFlagsSection'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings } from '@/lib/types'
@@ -27,13 +26,14 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
-    description: 'Building transformative solutions at the intersection of technology and justice.',
-    primaryDomain: 'xTx396.online',
+    description: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
+    primaryDomain: 'xTx396.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,
     investorModeAvailable: true
   })
+  const [profile] = useKV<{ catchAllEmail?: string; domain?: string }>('founder-hub-profile', null)
   const [pathway, setPathway] = useState<TrinityPathway>('all')
   const [, setAudienceMode] = useKV<string>('current-audience-mode', 'all')
 
@@ -79,7 +79,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       
       const element = document.getElementById(targetSection)
       if (element) {
-        const headerOffset = 80
+        const headerOffset = 72
         const elementPosition = element.getBoundingClientRect().top + window.scrollY
         const offsetPosition = elementPosition - headerOffset
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
@@ -89,48 +89,30 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
   const getVisibleSections = () => {
     const enabled = sections?.filter(s => s.enabled).sort((a, b) => a.order - b.order) || []
-    
     if (pathway === 'all') return enabled
-
     if (pathway === 'investors') {
-      return enabled.filter(s => 
-        s.type === 'hero' || 
-        s.type === 'projects' || 
-        s.type === 'proof' || 
-        s.type === 'contact'
-      )
+      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'proof' || s.type === 'contact')
     }
-
     if (pathway === 'legal') {
-      return enabled.filter(s => 
-        s.type === 'hero' || 
-        s.type === 'court' || 
-        s.type === 'contact'
-      )
+      return enabled.filter(s => s.type === 'hero' || s.type === 'court' || s.type === 'contact')
     }
-
     if (pathway === 'about') {
-      return enabled.filter(s => 
-        s.type === 'hero' || 
-        s.type === 'about' || 
-        s.type === 'contact'
-      )
+      return enabled.filter(s => s.type === 'hero' || s.type === 'about' || s.type === 'contact')
     }
-
     return enabled
   }
 
   const enabledSections = getVisibleSections()
   const showAboutSection = enabledSections.some(s => s.type === 'about')
 
-  const pathwayLabels = {
-    investors: 'Investors',
-    legal: 'Legal / Court',
-    about: 'About / Friends'
+  const pathwayLabels: Record<string, { label: string; color: string }> = {
+    investors: { label: 'Investor Mode', color: 'border-emerald-500/40 text-emerald-400' },
+    legal: { label: 'Court Mode', color: 'border-amber-500/40 text-amber-400' },
+    about: { label: 'Connect Mode', color: 'border-purple-500/40 text-purple-400' }
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground antialiased">
       <ScrollProgress />
       <Navigation 
         sections={enabledSections}
@@ -141,19 +123,19 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         activePathway={pathway}
       />
 
+      {/* Pathway mode indicator */}
       {pathway !== 'all' && (
-        <div className="fixed top-20 right-4 z-40 flex items-center gap-2">
-          <Badge variant="secondary" className="backdrop-blur-xl bg-card/90 border-accent/50 text-foreground px-4 py-2">
-            {pathwayLabels[pathway]} Mode
+        <div className="fixed top-20 right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+          <Badge variant="secondary" className={`backdrop-blur-xl bg-card/90 border px-3 py-1.5 text-xs font-medium shadow-lg ${pathwayLabels[pathway]?.color}`}>
+            {pathwayLabels[pathway]?.label}
           </Badge>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setPathway('all')}
-            className="backdrop-blur-xl bg-card/90 border border-border hover:border-accent/50"
+            className="backdrop-blur-xl bg-card/90 border border-border/50 hover:border-accent/30 h-8 px-2 shadow-lg"
           >
-            <X className="h-4 w-4 mr-1" />
-            Return to Overview
+            <X className="h-3.5 w-3.5" />
           </Button>
         </div>
       )}
@@ -172,8 +154,6 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
           <AboutSection pathway={pathway} />
         )}
         
-        <HeritageFlagsSection />
-        
         {enabledSections.some(s => s.type === 'court') && (
           <CourtSection investorMode={false} onNavigateToCase={onNavigateToCase} />
         )}
@@ -187,11 +167,70 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         )}
       </main>
 
-      <footer className="border-t border-border py-8 bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.
-          </p>
+      {/* Professional footer */}
+      <footer className="relative border-t border-border/30 bg-card/40 backdrop-blur-xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            <div className="text-center md:text-left">
+              <p className="font-mono text-sm font-bold tracking-tight text-foreground">
+                {profile?.domain || settings?.primaryDomain || 'xTx396.com'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {settings?.siteName || 'Devon Tyler Barber'}
+              </p>
+            </div>
+            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('projects')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
+              >
+                Projects
+              </button>
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('court')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
+              >
+                Court
+              </button>
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('about')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('contact')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
+              >
+                Contact
+              </button>
+            </div>
+            <div className="text-center md:text-right">
+              <a href={`mailto:${profile?.catchAllEmail || 'x@xtx396.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
+                {profile?.catchAllEmail || 'x@xtx396.com'}
+              </a>
+              <p className="text-[11px] text-muted-foreground/50 mt-1">
+                &copy; {new Date().getFullYear()} All rights reserved.
+              </p>
+            </div>
+          </div>
+          <div className="mt-8 pt-6 border-t border-border/20 text-center">
+            <p className="text-[11px] text-muted-foreground/40 max-w-3xl mx-auto leading-relaxed">
+              This site is for informational purposes only and does not constitute legal advice. Court documents referenced are public records obtained through lawful channels. All trademarks and third-party content belong to their respective owners.
+            </p>
+          </div>
         </div>
       </footer>
 

@@ -2,7 +2,7 @@ import { useKV } from '@github/spark/hooks'
 import { Case, PDFAsset } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassCard } from '@/components/ui/glass-card'
-import { Eye } from '@phosphor-icons/react'
+import { Eye, Files, Calendar, Gavel, MapPin } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 
@@ -70,8 +70,10 @@ export default function CourtSection({ investorMode, onNavigateToCase }: CourtSe
             </GlassCard>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {visibleCases.map((courtCase, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+            {visibleCases.map((courtCase, index) => {
+              const docCount = getCasePDFs(courtCase.id).length
+              return (
               <motion.div
                 key={courtCase.id}
                 initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
@@ -79,37 +81,62 @@ export default function CourtSection({ investorMode, onNavigateToCase }: CourtSe
                 transition={{ duration: 0.5, delay: prefersReducedMotion ? 0 : index * 0.1 }}
               >
                 <GlassCard
-                  intensity="medium"
-                  className="h-full cursor-pointer group hover:shadow-2xl hover:shadow-accent/10 hover:-translate-y-1 transition-all duration-300"
+                  intensity="high"
+                  className="h-full cursor-pointer group hover:shadow-2xl hover:shadow-amber-500/10 hover:-translate-y-1 transition-all duration-300 hover:border-amber-500/30"
                   onClick={() => onNavigateToCase(courtCase.id)}
                 >
                   <div className="p-6">
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <h3 className="text-lg font-semibold leading-tight group-hover:text-accent transition-colors">
+                    {/* Header: Title + Status */}
+                    <div className="flex items-start justify-between gap-3 mb-4">
+                      <h3 className="text-lg font-bold leading-tight group-hover:text-amber-400 transition-colors line-clamp-2">
                         {courtCase.title}
                       </h3>
-                      <Badge className={getStatusColor(courtCase.status)} variant="outline">
+                      <Badge className={`${getStatusColor(courtCase.status)} shrink-0 text-[11px] font-semibold uppercase tracking-wide`} variant="outline">
                         {courtCase.status}
                       </Badge>
                     </div>
-                    <div className="space-y-1 text-sm mb-4">
-                      <p className="text-muted-foreground">{courtCase.court}</p>
-                      <p className="font-mono text-xs text-accent">{courtCase.docket}</p>
+
+                    {/* Court + Docket info row */}
+                    <div className="space-y-2 mb-4 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin size={14} className="shrink-0 text-amber-500/60" />
+                        <span className="truncate">{courtCase.court}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Gavel size={14} className="shrink-0 text-amber-500/60" />
+                        <span className="font-mono text-xs text-amber-400/80">{courtCase.docket}</span>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+
+                    {/* Summary */}
+                    <p className="text-sm text-muted-foreground mb-4 leading-relaxed line-clamp-3">
                       {courtCase.summary}
                     </p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/40">
-                      <span>{courtCase.dateRange}</span>
-                      <span className="font-medium flex items-center gap-1">
+
+                    {/* Footer: Date + Doc count + View */}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border/30">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Calendar size={12} />
+                          {courtCase.dateRange}
+                        </span>
+                        {docCount > 0 && (
+                          <span className="flex items-center gap-1 text-amber-400/70">
+                            <Files size={12} />
+                            {docCount} doc{docCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-semibold flex items-center gap-1 group-hover:text-amber-400 transition-colors">
                         <Eye size={14} />
-                        View Details
+                        Details
                       </span>
                     </div>
                   </div>
                 </GlassCard>
               </motion.div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
