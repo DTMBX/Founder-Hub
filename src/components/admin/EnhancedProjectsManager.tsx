@@ -386,20 +386,20 @@ export default function EnhancedProjectsManager() {
       </Tabs>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingProject?.title ? 'Edit Project' : 'New Project'}</DialogTitle>
           </DialogHeader>
           {editingProject && (
-            <div className="flex-1 overflow-hidden">
-              <Tabs defaultValue="editor" className="h-full flex flex-col">
+            <div>
+              <Tabs defaultValue="editor">
                 <TabsList className="grid grid-cols-3 w-full">
                   <TabsTrigger value="editor">Editor</TabsTrigger>
                   <TabsTrigger value="preview">Live Preview</TabsTrigger>
                   <TabsTrigger value="customization">Customization</TabsTrigger>
                 </TabsList>
 
-                <div className="flex-1 overflow-y-auto mt-4">
+                <div className="mt-4">
                   <TabsContent value="editor" className="space-y-4 mt-0">
                     <div className="space-y-2">
                       <Label htmlFor="project-title">Title</Label>
@@ -707,7 +707,7 @@ export default function EnhancedProjectsManager() {
               </Tabs>
             </div>
           )}
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save Project</Button>
           </DialogFooter>

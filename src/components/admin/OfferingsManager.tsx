@@ -326,7 +326,7 @@ export default function OfferingsManager() {
 
       {/* Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingOffering && offerings?.find(o => o.id === editingOffering.id)
@@ -337,8 +337,7 @@ export default function OfferingsManager() {
           </DialogHeader>
           
           {editingOffering && (
-            <ScrollArea className="flex-1 pr-4">
-              <div className="space-y-6 py-4">
+            <div className="space-y-6 py-4">
                 {/* Basic Info */}
                 <div className="grid gap-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -674,10 +673,9 @@ export default function OfferingsManager() {
                   </div>
                 </div>
               </div>
-            </ScrollArea>
           )}
 
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
