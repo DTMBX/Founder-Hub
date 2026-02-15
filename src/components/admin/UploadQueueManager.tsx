@@ -34,7 +34,7 @@ interface ExtendedUploadQueueItem extends UploadQueueItem {
 
 export default function UploadQueueManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [filingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [queue, setQueue] = useState<ExtendedUploadQueueItem[]>([])
   const [enableOCR, setEnableOCR] = useState(true)

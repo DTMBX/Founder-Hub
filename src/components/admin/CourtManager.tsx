@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
 
 export default function CourtManager() {
-  const [cases, setCases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases, setCases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [editingCase, setEditingCase] = useState<Case | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { currentUser } = useAuth()

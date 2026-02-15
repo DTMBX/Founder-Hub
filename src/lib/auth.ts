@@ -316,10 +316,15 @@ export function useAuth() {
   }
 
   const logout = async () => {
+    console.log('[auth] Logging out...')
     if (currentUser) {
       await logAudit(currentUser.id, currentUser.email, 'logout', 'User logged out', 'auth', currentUser.id)
     }
+    // Clear session from localStorage directly to ensure it's removed
+    localStorage.removeItem('xtx396:' + SESSION_KEY)
     setSession(null)
+    setCurrentUser(null)
+    console.log('[auth] Logout complete')
   }
 
   const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> => {

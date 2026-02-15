@@ -11,7 +11,7 @@ import {
 } from '@/lib/types'
 
 export function useInitializeSampleData() {
-  const [cases, setCases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases, setCases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
   const [filingTypes, setFilingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [sections, setSections] = useKV<Section[]>('founder-hub-sections', [])

@@ -30,7 +30,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function DocumentsManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [documentTypes] = useKV<DocumentType[]>('founder-hub-document-types', [])
   
   const [searchQuery, setSearchQuery] = useState('')
@@ -50,10 +50,10 @@ export default function DocumentsManager() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(doc =>
-        doc.title.toLowerCase().includes(query) ||
-        doc.description.toLowerCase().includes(query) ||
-        doc.metadata?.originalFilename.toLowerCase().includes(query) ||
-        doc.tags.some(tag => tag.toLowerCase().includes(query))
+        (doc.title || '').toLowerCase().includes(query) ||
+        (doc.description || '').toLowerCase().includes(query) ||
+        (doc.metadata?.originalFilename || '').toLowerCase().includes(query) ||
+        (doc.tags || []).some(tag => tag.toLowerCase().includes(query))
       )
     }
 
@@ -86,8 +86,8 @@ export default function DocumentsManager() {
           compareB = b.filingDate || b.createdAt
           break
         case 'title':
-          compareA = a.title.toLowerCase()
-          compareB = b.title.toLowerCase()
+          compareA = (a.title || '').toLowerCase()
+          compareB = (b.title || '').toLowerCase()
           break
         case 'type':
           compareA = a.documentType || ''

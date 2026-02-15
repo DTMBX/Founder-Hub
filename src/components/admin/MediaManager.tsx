@@ -15,7 +15,7 @@ import { useAuth, logAudit } from '@/lib/auth'
 
 export default function MediaManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingPDF, setEditingPDF] = useState<PDFAsset | null>(null)
