@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useKV } from '@/lib/local-storage-kv'
-import { Offering, OfferingCategory } from '@/lib/types'
+import { Offering, OfferingCategory, OfferingPriceTier } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassButton } from '@/components/ui/glass-button'
 import { GlassCard } from '@/components/ui/glass-card'
@@ -18,11 +18,14 @@ import {
   CurrencyDollar,
   Envelope,
   Funnel,
-  X
+  X,
+  CircleNotch
 } from '@phosphor-icons/react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 import { cn } from '@/lib/utils'
+import { redirectToCheckout, hasPriceTierPayment } from '@/lib/stripe'
+import { toast } from 'sonner'
 
 interface OfferingsSectionProps {
   investorMode?: boolean
@@ -90,6 +93,28 @@ export default function OfferingsSection({ investorMode }: OfferingsSectionProps
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true })
   const prefersReducedMotion = useReducedMotion()
   const [selectedCategory, setSelectedCategory] = useState<OfferingCategory | 'all'>('all')
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+
+  // Handle Stripe checkout
+  const handleCheckout = async (offering: Offering, tier: OfferingPriceTier) => {
+    setCheckoutLoading(`${offering.id}-${tier.id}`)
+    
+    const result = await redirectToCheckout(tier, offering.title)
+    
+    if (!result.success) {
+      toast.error(result.error || 'Checkout failed')
+      setCheckoutLoading(null)
+    }
+    // If success, the page will redirect
+  }
+
+  // Get first purchasable tier for an offering
+  const getPurchaseTier = (offering: Offering): OfferingPriceTier | null => {
+    if (offering.pricingType === 'contact' || offering.pricingType === 'donation') {
+      return null
+    }
+    return offering.priceTiers.find(t => hasPriceTierPayment(t) && t.price > 0) || null
+  }
 
   // Get all public offerings sorted
   const allPublicOfferings = (offerings || [])
@@ -309,42 +334,87 @@ export default function OfferingsSection({ investorMode }: OfferingsSectionProps
 
                       {/* CTA */}
                       <div className="mt-auto pt-4 border-t border-border/30">
-                        {offering.pricingType === 'contact' ? (
-                          <GlassButton 
-                            variant="glassAccent" 
-                            className="w-full justify-center gap-2"
-                            onClick={() => window.location.href = `mailto:contact@xtx396.com?subject=${encodeURIComponent(offering.title)}`}
-                          >
-                            <Envelope className="h-4 w-4" />
-                            {offering.contactCTA || 'Get in Touch'}
-                          </GlassButton>
-                        ) : offering.downloadUrl ? (
-                          <GlassButton 
-                            variant="glassAccent" 
-                            className="w-full justify-center gap-2"
-                            onClick={() => window.open(offering.downloadUrl, '_blank')}
-                          >
-                            <Package className="h-4 w-4" />
-                            Download
-                          </GlassButton>
-                        ) : offering.externalUrl ? (
-                          <GlassButton 
-                            variant="glassAccent" 
-                            className="w-full justify-center gap-2"
-                            onClick={() => window.open(offering.externalUrl, '_blank')}
-                          >
-                            <ShoppingCart className="h-4 w-4" />
-                            Get Started
-                          </GlassButton>
-                        ) : (
-                          <GlassButton 
-                            variant="glassAccent" 
-                            className="w-full justify-center gap-2"
-                          >
-                            Learn More
-                            <ArrowRight className="h-4 w-4" />
-                          </GlassButton>
-                        )}
+                        {(() => {
+                          const purchaseTier = getPurchaseTier(offering)
+                          const isLoading = purchaseTier && checkoutLoading === `${offering.id}-${purchaseTier.id}`
+                          
+                          // Contact for quote
+                          if (offering.pricingType === 'contact') {
+                            return (
+                              <GlassButton 
+                                variant="glassAccent" 
+                                className="w-full justify-center gap-2"
+                                onClick={() => window.location.href = `mailto:contact@xtx396.com?subject=${encodeURIComponent(offering.title)}`}
+                              >
+                                <Envelope className="h-4 w-4" />
+                                {offering.contactCTA || 'Get in Touch'}
+                              </GlassButton>
+                            )
+                          }
+                          
+                          // Downloadable product
+                          if (offering.downloadUrl) {
+                            return (
+                              <GlassButton 
+                                variant="glassAccent" 
+                                className="w-full justify-center gap-2"
+                                onClick={() => window.open(offering.downloadUrl, '_blank')}
+                              >
+                                <Package className="h-4 w-4" />
+                                Download
+                              </GlassButton>
+                            )
+                          }
+                          
+                          // Purchasable with Stripe
+                          if (purchaseTier) {
+                            return (
+                              <GlassButton 
+                                variant="glassAccent" 
+                                className="w-full justify-center gap-2"
+                                onClick={() => handleCheckout(offering, purchaseTier)}
+                                disabled={!!checkoutLoading}
+                              >
+                                {isLoading ? (
+                                  <>
+                                    <CircleNotch className="h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <ShoppingCart className="h-4 w-4" />
+                                    {offering.priceTiers.length > 1 ? 'Select Plan' : 'Buy Now'}
+                                  </>
+                                )}
+                              </GlassButton>
+                            )
+                          }
+                          
+                          // External link
+                          if (offering.externalUrl) {
+                            return (
+                              <GlassButton 
+                                variant="glassAccent" 
+                                className="w-full justify-center gap-2"
+                                onClick={() => window.open(offering.externalUrl, '_blank')}
+                              >
+                                <ShoppingCart className="h-4 w-4" />
+                                Get Started
+                              </GlassButton>
+                            )
+                          }
+                          
+                          // Default - Learn More
+                          return (
+                            <GlassButton 
+                              variant="glassAccent" 
+                              className="w-full justify-center gap-2"
+                            >
+                              Learn More
+                              <ArrowRight className="h-4 w-4" />
+                            </GlassButton>
+                          )
+                        })()}
                       </div>
                     </div>
                   </GlassCard>

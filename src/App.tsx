@@ -3,10 +3,11 @@ import PublicSite from './components/PublicSite'
 import AdminDashboard from './components/admin/AdminDashboard'
 import AdminLogin from './components/admin/AdminLogin'
 import CaseJacket from './components/CaseJacket'
+import CheckoutResult from './components/CheckoutResult'
 import { useAuth } from './lib/auth'
 import { useInitializeSampleData } from './lib/initialize-sample-data'
 
-type View = 'public' | 'admin' | 'case-jacket'
+type View = 'public' | 'admin' | 'case-jacket' | 'checkout-success' | 'checkout-cancel'
 
 function App() {
   const [view, setView] = useState<View>('public')
@@ -17,6 +18,19 @@ function App() {
 
   useEffect(() => {
     const hash = window.location.hash.slice(1)
+    const pathname = window.location.pathname
+    
+    // Handle checkout redirects (path-based for Stripe compatibility)
+    if (pathname === '/checkout/success' || pathname.includes('checkout/success')) {
+      setView('checkout-success')
+      return
+    }
+    if (pathname === '/checkout/cancel' || pathname.includes('checkout/cancel')) {
+      setView('checkout-cancel')
+      return
+    }
+    
+    // Handle hash-based routes
     if (hash.startsWith('case/')) {
       const id = hash.split('/')[1]
       if (id) {
@@ -25,6 +39,10 @@ function App() {
       }
     } else if (hash === 'admin') {
       setView('admin')
+    } else if (hash === 'checkout/success') {
+      setView('checkout-success')
+    } else if (hash === 'checkout/cancel') {
+      setView('checkout-cancel')
     }
   }, [])
 
@@ -42,6 +60,14 @@ function App() {
   const handleNavigateToAdmin = () => {
     setView('admin')
     window.location.hash = 'admin'
+  }
+
+  if (view === 'checkout-success') {
+    return <CheckoutResult status="success" onBack={handleBackToPublic} />
+  }
+
+  if (view === 'checkout-cancel') {
+    return <CheckoutResult status="cancel" onBack={handleBackToPublic} />
   }
 
   if (view === 'case-jacket' && caseId) {

@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
-import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle } from '@phosphor-icons/react'
+import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle, CreditCard } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
 import { 
   getGitHubToken, 
@@ -357,6 +357,95 @@ export default function SettingsManager() {
                 Clear
               </Button>
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stripe Integration */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <CreditCard className="h-4 w-4 text-primary" weight="duotone" />
+            Stripe Payments
+          </CardTitle>
+          <CardDescription>Enable secure checkout for offerings. Payments are processed through Stripe.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={settings?.stripeEnabled || false}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev!, stripeEnabled: checked }))}
+              />
+              <div>
+                <p className="text-sm font-medium">Enable Stripe Checkout</p>
+                <p className="text-xs text-muted-foreground">Allow customers to pay directly on your site</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="stripe-pk">Publishable Key</Label>
+            <Input
+              id="stripe-pk"
+              type="password"
+              placeholder="pk_live_xxxxxxxxxxxxxxxxxxxx"
+              value={settings?.stripePublishableKey || ''}
+              onChange={(e) => setSettings(prev => ({ ...prev!, stripePublishableKey: e.target.value }))}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Find this in your{' '}
+              <a 
+                href="https://dashboard.stripe.com/apikeys" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Stripe Dashboard → API Keys
+              </a>
+              . Use your <strong>Publishable key</strong> (starts with pk_).
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="stripe-success">Success URL</Label>
+              <Input
+                id="stripe-success"
+                placeholder="/checkout/success"
+                value={settings?.stripeSuccessUrl || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, stripeSuccessUrl: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Redirect after successful payment</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stripe-cancel">Cancel URL</Label>
+              <Input
+                id="stripe-cancel"
+                placeholder="/checkout/cancel"
+                value={settings?.stripeCancelUrl || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, stripeCancelUrl: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Redirect if checkout is cancelled</p>
+            </div>
+          </div>
+
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <p className="text-xs text-amber-200">
+              <strong>Important:</strong> For each offering price tier, add the Stripe Price ID from your{' '}
+              <a 
+                href="https://dashboard.stripe.com/products" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-amber-400 hover:underline"
+              >
+                Stripe Products
+              </a>
+              . Create products in Stripe Dashboard → Products, then copy the Price ID (price_xxx).
+            </p>
           </div>
         </CardContent>
       </Card>

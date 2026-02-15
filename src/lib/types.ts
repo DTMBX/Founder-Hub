@@ -47,6 +47,11 @@ export interface SiteSettings {
   gradientUsage?: 'off' | 'accent' | 'enhanced'
   contrastMode?: 'standard' | 'extra'
   heroMedia?: HeroMediaSettings
+  // Stripe Integration
+  stripePublishableKey?: string
+  stripeEnabled?: boolean
+  stripeSuccessUrl?: string
+  stripeCancelUrl?: string
 }
 
 export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact' | 'about' | 'offerings'
@@ -161,7 +166,8 @@ export interface OfferingPriceTier {
   currency: 'USD' | 'EUR' | 'GBP'
   description?: string
   features?: string[]
-  stripePaymentLink?: string
+  stripePaymentLink?: string // Legacy: direct payment link
+  stripePriceId?: string // Stripe Price ID for Checkout API (e.g., price_xxx)
   isRecurring?: boolean
   recurringInterval?: 'month' | 'year'
 }
