@@ -3,10 +3,9 @@
 # Builds the Vite/React app and deploys dist/ to Pages.
 #
 # IMPORTANT: This deploys the STATIC frontend only.
-# The @github/spark proxy.js (KV backend) does NOT run on
-# Pages. Public site renders with default KV values.
-# Admin panel / KV writes require the Spark runtime or a
-# separate Node.js host running `node dist/proxy.js`.
+# Public site renders with localStorage KV values backed
+# by static JSON defaults from /data/*.json.
+# Admin panel writes persist to localStorage.
 # ──────────────────────────────────────────────────────────
 
 name: Deploy to GitHub Pages
