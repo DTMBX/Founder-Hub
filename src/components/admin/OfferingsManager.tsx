@@ -497,13 +497,23 @@ export default function OfferingsManager() {
                         </Button>
                       </div>
 
-                      <div className="mt-3 space-y-1">
-                        <Label className="text-xs">Stripe Payment Link (optional)</Label>
-                        <Input
-                          value={tier.stripePaymentLink || ''}
-                          onChange={(e) => handleUpdatePriceTier(tier.id, { stripePaymentLink: e.target.value })}
-                          placeholder="https://buy.stripe.com/..."
-                        />
+                      <div className="mt-3 grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                          <Label className="text-xs">Stripe Price ID (recommended)</Label>
+                          <Input
+                            value={tier.stripePriceId || ''}
+                            onChange={(e) => handleUpdatePriceTier(tier.id, { stripePriceId: e.target.value })}
+                            placeholder="price_xxxxxxxxxxxxx"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-xs">Payment Link (fallback)</Label>
+                          <Input
+                            value={tier.stripePaymentLink || ''}
+                            onChange={(e) => handleUpdatePriceTier(tier.id, { stripePaymentLink: e.target.value })}
+                            placeholder="https://buy.stripe.com/..."
+                          />
+                        </div>
                       </div>
                     </Card>
                   ))}
