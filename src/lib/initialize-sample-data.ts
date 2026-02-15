@@ -161,16 +161,16 @@ export function useInitializeSampleData() {
   }, [sections, setSections])
 
   useEffect(() => {
-    if (!aboutContent || (!aboutContent.mission && aboutContent.values.length === 0)) {
+    if (!aboutContent || !aboutContent.mission || aboutContent.values.length === 0) {
       const defaultAboutContent = {
         mission: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
         currentFocus: 'Building civic technology, home improvement platforms, and legal infrastructure that increase transparency and empower communities.',
         values: ['Integrity', 'Stewardship', 'Fortitude', 'Veracity'],
         updates: [
           {
-            date: '2024-01',
-            title: 'New Project Launch',
-            content: 'Launching Essential Goods Ledger to track public accountability.'
+            date: '2025-02',
+            title: 'Foundation Launch',
+            content: 'Establishing xTx396 as a comprehensive founder hub showcasing projects, court accountability, and investment opportunities.'
           }
         ]
       }

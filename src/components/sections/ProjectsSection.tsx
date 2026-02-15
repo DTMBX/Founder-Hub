@@ -84,12 +84,81 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
           >
-            <GlassCard intensity="medium" className="text-center py-12">
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit mx-auto mb-4">
-                <FolderOpen className="h-6 w-6 text-emerald-400" weight="duotone" />
+            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
+              <div className="p-6 flex flex-col h-full">
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
+                    Evident Technologies®
+                  </h3>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    AI-powered litigation support and evidence analysis platform for legal professionals
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs font-medium">Legal Tech</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">AI/ML</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">Document Intelligence</Badge>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mt-auto pt-4">
+                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
+                    In Development
+                  </Badge>
+                </div>
               </div>
-              <p className="text-muted-foreground text-base">Projects launching soon. Check back for updates.</p>
+            </GlassCard>
+
+            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
+              <div className="p-6 flex flex-col h-full">
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
+                    Essential Goods Ledger
+                  </h3>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    Blockchain-based platform for tracking public accountability and transparency
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs font-medium">Civic Tech</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">Blockchain</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">Transparency</Badge>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mt-auto pt-4">
+                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
+                    In Development
+                  </Badge>
+                </div>
+              </div>
+            </GlassCard>
+
+            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
+              <div className="p-6 flex flex-col h-full">
+                <div className="mb-4">
+                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
+                    Contractor Command Center
+                  </h3>
+                  <p className="text-base text-muted-foreground leading-relaxed">
+                    Comprehensive platform for home improvement project management and contractor coordination
+                  </p>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <Badge variant="secondary" className="text-xs font-medium">Home Tech</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">SaaS</Badge>
+                  <Badge variant="secondary" className="text-xs font-medium">Project Management</Badge>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mt-auto pt-4">
+                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
+                    In Development
+                  </Badge>
+                </div>
+              </div>
             </GlassCard>
           </motion.div>
         ) : (
