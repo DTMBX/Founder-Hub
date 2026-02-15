@@ -26,7 +26,7 @@ export function FlagBadge({ asset, size = 'md', colorTreatment = 'original', cla
     <div className={cn('relative inline-block overflow-hidden rounded', sizeClasses[size], className)}>
       <img
         src={asset.filePath}
-        alt={asset.tags.join(', ')}
+        alt={(asset.tags || []).join(', ')}
         className={cn('w-full h-full object-cover', filterClasses[colorTreatment])}
         loading="lazy"
       />

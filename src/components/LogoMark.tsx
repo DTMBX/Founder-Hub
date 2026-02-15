@@ -26,7 +26,7 @@ export function LogoMark({ asset, size = 'md', colorTreatment = 'original', clas
   return (
     <img
       src={asset.filePath}
-      alt={asset.tags.join(' ')}
+      alt={(asset.tags || []).join(' ')}
       className={cn('object-contain', sizeClasses[size], filterClasses[colorTreatment], className)}
       loading="lazy"
     />

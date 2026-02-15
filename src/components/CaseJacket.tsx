@@ -104,7 +104,7 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
   }, [caseDocs])
 
   const allTags = useMemo(() => {
-    const tags = new Set(caseDocs.flatMap(doc => doc.tags))
+    const tags = new Set(caseDocs.flatMap(doc => doc.tags || []))
     return Array.from(tags)
   }, [caseDocs])
 
@@ -125,7 +125,7 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
     }
 
     if (selectedTag !== 'all') {
-      filtered = filtered.filter(doc => doc.tags.includes(selectedTag))
+      filtered = filtered.filter(doc => (doc.tags || []).includes(selectedTag))
     }
 
     if (featuredOnly) {
@@ -435,7 +435,7 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
               {doc.pageCount && (
                 <span>{doc.pageCount} pages</span>
               )}
-              {doc.tags.slice(0, 3).map(tag => (
+              {(doc.tags || []).slice(0, 3).map(tag => (
                 <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
               ))}
             </div>
@@ -1101,7 +1101,7 @@ function PDFPreviewSheet({ pdf, isOpen, onClose }: { pdf: PDFAsset | null; isOpe
             </div>
           </div>
 
-          {pdf.tags.length > 0 && (
+          {pdf.tags && pdf.tags.length > 0 && (
             <div className="mt-4">
               <h4 className="text-sm font-semibold mb-2">Tags</h4>
               <div className="flex flex-wrap gap-2">

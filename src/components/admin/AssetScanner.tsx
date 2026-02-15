@@ -67,7 +67,7 @@ export default function AssetScanner() {
   const filteredAssets = (assets || []).filter(asset => {
     const matchesSearch = searchQuery === '' || 
       asset.fileName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      asset.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      (asset.tags || []).some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     
     const matchesCategory = categoryFilter === 'all' || asset.category === categoryFilter
     
@@ -210,9 +210,9 @@ export default function AssetScanner() {
                         {(asset.fileSize / 1024).toFixed(1)} KB
                       </div>
                       
-                      {asset.tags.length > 0 && (
+                      {(asset.tags || []).length > 0 && (
                         <div className="flex gap-1 flex-wrap">
-                          {asset.tags.slice(0, 3).map(tag => (
+                          {(asset.tags || []).slice(0, 3).map(tag => (
                             <Badge key={tag} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
@@ -362,7 +362,7 @@ function AssetEditor({ asset, onSave }: AssetEditorProps) {
               <div>
                 <Label>Tags (comma separated)</Label>
                 <Input
-                  value={editedAsset.tags.join(', ')}
+                  value={(editedAsset.tags || []).join(', ')}
                   onChange={(e) => setEditedAsset(prev => ({
                     ...prev,
                     tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean)

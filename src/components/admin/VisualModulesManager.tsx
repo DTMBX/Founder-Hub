@@ -246,7 +246,7 @@ export default function VisualModulesManager() {
                         <div className="flex-1">
                           <p className="text-sm font-medium">{asset.fileName}</p>
                           <div className="flex gap-1 mt-1">
-                            {asset.tags.slice(0, 2).map(tag => (
+                            {(asset.tags || []).slice(0, 2).map(tag => (
                               <Badge key={tag} variant="secondary" className="text-xs">
                                 {tag}
                               </Badge>
