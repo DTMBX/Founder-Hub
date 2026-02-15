@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "id": "evident-tech",
+    "title": "Evident Technologies",
+    "summary": "AI-powered litigation support and evidence analysis platform",
+    "description": "Advanced document intelligence system for legal professionals, featuring OCR, automated metadata extraction, and case management tools.",
+    "tags": [
+      "Legal Tech",
+      "AI",
+      "Document Analysis"
+    ],
+    "techStack": [
+      "TypeScript",
+      "React",
+      "Node.js",
+      "OpenAI",
+      "PostgreSQL"
+    ],
+    "links": [
+      {
+        "label": "Documentation",
+        "url": "#",
+        "type": "docs"
+      }
+    ],
+    "order": 0,
+    "enabled": true,
+    "featured": true,
+    "status": "active",
+    "createdAt": 1771186711961,
+    "updatedAt": 1771186711961
+  }
+]
