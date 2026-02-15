@@ -3,29 +3,38 @@
  * 
  * Commits data changes directly to GitHub repo via API.
  * Admin panel changes → GitHub commit → Auto-deploy via Actions.
+ * 
+ * Supports multi-site publishing for worktree repositories.
  */
 
 const GITHUB_TOKEN_KEY = 'xtx396:github-pat'
-const REPO_OWNER = 'DTMBX'
-const REPO_NAME = 'XTX396'
+
+// Default repo (for backward compatibility)
+const DEFAULT_REPO_OWNER = 'DTMBX'
+const DEFAULT_REPO_NAME = 'XTX396'
 const BRANCH = 'main'
 
-// Data files to sync to repo
+// Data files to sync to repo (relative to dataPath)
 const DATA_FILES: Record<string, string> = {
-  'founder-hub-settings': 'public/data/settings.json',
-  'founder-hub-sections': 'public/data/sections.json',
-  'founder-hub-projects': 'public/data/projects.json',
-  'founder-hub-court-cases': 'public/data/court-cases.json',
-  'founder-hub-proof-links': 'public/data/links.json',
-  'founder-hub-profile': 'public/data/profile.json',
-  'founder-hub-about': 'public/data/about.json',
-  'founder-hub-pdfs': 'public/data/documents.json',
-  'founder-hub-document-types': 'public/data/document-types.json',
-  'founder-hub-offerings': 'public/data/offerings.json',
-  'founder-hub-investor': 'public/data/investor.json',
+  'founder-hub-settings': 'settings.json',
+  'founder-hub-sections': 'sections.json',
+  'founder-hub-projects': 'projects.json',
+  'founder-hub-court-cases': 'court-cases.json',
+  'founder-hub-proof-links': 'links.json',
+  'founder-hub-profile': 'profile.json',
+  'founder-hub-about': 'about.json',
+  'founder-hub-pdfs': 'documents.json',
+  'founder-hub-document-types': 'document-types.json',
+  'founder-hub-offerings': 'offerings.json',
+  'founder-hub-investor': 'investor.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'
+
+// Site-specific storage prefix for multi-site data
+function getSiteStoragePrefix(siteId?: string): string {
+  return siteId ? `site:${siteId}:` : STORAGE_PREFIX
+}
 
 interface GitHubFileResponse {
   sha: string
@@ -67,13 +76,19 @@ export function hasGitHubToken(): boolean {
   return !!token && token.length > 0
 }
 
+interface RepoConfig {
+  owner: string
+  repo: string
+  dataPath: string  // e.g., "public/data" or "apps/civics-hierarchy/public/data"
+}
+
 /**
  * Get file SHA from GitHub (needed for updates)
  */
-async function getFileSha(token: string, path: string): Promise<string | null> {
+async function getFileSha(token: string, path: string, config: RepoConfig): Promise<string | null> {
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${BRANCH}`,
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${BRANCH}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -99,11 +114,12 @@ async function updateFile(
   token: string, 
   path: string, 
   content: string, 
-  message: string
+  message: string,
+  config: RepoConfig
 ): Promise<{ success: boolean; error?: string }> {
   try {
     // Get current file SHA (required for updates)
-    const sha = await getFileSha(token, path)
+    const sha = await getFileSha(token, path, config)
     
     const body: any = {
       message,
@@ -116,7 +132,7 @@ async function updateFile(
     }
     
     const response = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`,
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`,
       {
         method: 'PUT',
         headers: {
@@ -142,19 +158,41 @@ async function updateFile(
 /**
  * Publish all local data to GitHub repo.
  * This commits all data files and triggers auto-deploy.
+ * 
+ * @param siteConfig Optional site config for multi-site publishing
  */
-export async function publishToGitHub(): Promise<CommitResult> {
+export async function publishToGitHub(siteConfig?: {
+  owner: string
+  repo: string
+  dataPath: string
+  siteId?: string
+}): Promise<CommitResult> {
   const token = getGitHubToken()
   
   if (!token) {
     return { success: false, error: 'GitHub token not configured. Go to Settings to add your PAT.' }
   }
+
+  // Use default config if not provided
+  const config: RepoConfig = siteConfig ? {
+    owner: siteConfig.owner,
+    repo: siteConfig.repo,
+    dataPath: siteConfig.dataPath,
+  } : {
+    owner: DEFAULT_REPO_OWNER,
+    repo: DEFAULT_REPO_NAME,
+    dataPath: 'public/data',
+  }
+  
+  const storagePrefix = siteConfig?.siteId 
+    ? getSiteStoragePrefix(siteConfig.siteId) 
+    : STORAGE_PREFIX
   
   const errors: string[] = []
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19)
   
-  for (const [kvKey, filePath] of Object.entries(DATA_FILES)) {
-    const data = localStorage.getItem(STORAGE_PREFIX + kvKey)
+  for (const [kvKey, fileName] of Object.entries(DATA_FILES)) {
+    const data = localStorage.getItem(storagePrefix + kvKey)
     
     if (data) {
       // Pretty-print JSON for readability in repo
@@ -165,15 +203,19 @@ export async function publishToGitHub(): Promise<CommitResult> {
         prettyJson = data
       }
       
+      // Construct full path: dataPath + fileName
+      const fullPath = `${config.dataPath}/${fileName}`.replace(/^\//, '')
+      
       const result = await updateFile(
         token,
-        filePath,
+        fullPath,
         prettyJson,
-        `Update ${filePath.split('/').pop()} via admin panel [${timestamp}]`
+        `Update ${fileName} via admin panel [${timestamp}]`,
+        config
       )
       
       if (!result.success) {
-        errors.push(`${filePath}: ${result.error}`)
+        errors.push(`${fullPath}: ${result.error}`)
       }
     }
   }
@@ -187,17 +229,24 @@ export async function publishToGitHub(): Promise<CommitResult> {
   
   return { 
     success: true, 
-    commitUrl: `https://github.com/${REPO_OWNER}/${REPO_NAME}/commits/${BRANCH}`
+    commitUrl: `https://github.com/${config.owner}/${config.repo}/commits/${BRANCH}`
   }
 }
 
 /**
  * Test GitHub token by fetching repo info
  */
-export async function testGitHubToken(token: string): Promise<{ valid: boolean; error?: string }> {
+export async function testGitHubToken(
+  token: string, 
+  repoPath?: string
+): Promise<{ valid: boolean; error?: string }> {
+  const [owner, repo] = repoPath 
+    ? repoPath.split('/') 
+    : [DEFAULT_REPO_OWNER, DEFAULT_REPO_NAME]
+    
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`,
+      `https://api.github.com/repos/${owner}/${repo}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
