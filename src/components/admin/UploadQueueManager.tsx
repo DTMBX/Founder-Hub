@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { PDFAsset, UploadQueueItem, PDFMetadata, Case, FilingType } from '@/lib/types'
 import { OCRPipeline, OCRExtractionResult } from '@/lib/ocr-pipeline'
 import { Button } from '@/components/ui/button'

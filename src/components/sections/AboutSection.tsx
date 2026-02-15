@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Badge } from '../ui/badge'
 import { GlassCard } from '../ui/glass-card'
 import { motion, useReducedMotion } from 'framer-motion'

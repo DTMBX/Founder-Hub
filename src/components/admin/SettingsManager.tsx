@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { SiteSettings } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -10,7 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
-import { Info, Globe, Eye, Gauge, Palette } from '@phosphor-icons/react'
+import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle } from '@phosphor-icons/react'
+import { useState, useEffect } from 'react'
+import { 
+  getGitHubToken, 
+  setGitHubToken, 
+  clearGitHubToken, 
+  hasGitHubToken, 
+  testGitHubToken 
+} from '@/lib/github-sync'
 
 export default function SettingsManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
@@ -24,6 +32,50 @@ export default function SettingsManager() {
     investorModeAvailable: true
   })
   const { currentUser } = useAuth()
+  
+  // GitHub integration state
+  const [githubToken, setGithubTokenState] = useState('')
+  const [tokenStatus, setTokenStatus] = useState<'unchecked' | 'valid' | 'invalid'>('unchecked')
+  const [isTestingToken, setIsTestingToken] = useState(false)
+  
+  useEffect(() => {
+    const existing = getGitHubToken()
+    if (existing) {
+      setGithubTokenState('••••••••••••••••') // Masked
+      setTokenStatus('valid') // Assume valid if exists
+    }
+  }, [])
+  
+  const handleTestToken = async () => {
+    const tokenToTest = githubToken.startsWith('••') ? getGitHubToken() : githubToken
+    if (!tokenToTest) {
+      toast.error('Please enter a token')
+      return
+    }
+    
+    setIsTestingToken(true)
+    const result = await testGitHubToken(tokenToTest)
+    setIsTestingToken(false)
+    
+    if (result.valid) {
+      setTokenStatus('valid')
+      if (!githubToken.startsWith('••')) {
+        setGitHubToken(tokenToTest)
+        setGithubTokenState('••••••••••••••••')
+      }
+      toast.success('GitHub token is valid!')
+    } else {
+      setTokenStatus('invalid')
+      toast.error(result.error || 'Invalid token')
+    }
+  }
+  
+  const handleClearToken = () => {
+    clearGitHubToken()
+    setGithubTokenState('')
+    setTokenStatus('unchecked')
+    toast.success('GitHub token removed')
+  }
 
   const handleSave = async () => {
     if (currentUser) {
@@ -247,6 +299,64 @@ export default function SettingsManager() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* GitHub Integration */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <GithubLogo className="h-4 w-4 text-primary" weight="duotone" />
+            GitHub Integration
+          </CardTitle>
+          <CardDescription>Configure auto-publish to GitHub. Changes will be committed directly to your repo.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="github-token">Personal Access Token</Label>
+            <div className="flex gap-2">
+              <Input
+                id="github-token"
+                type={githubToken.startsWith('••') ? 'text' : 'password'}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                value={githubToken}
+                onChange={(e) => {
+                  setGithubTokenState(e.target.value)
+                  setTokenStatus('unchecked')
+                }}
+                className="font-mono text-sm"
+              />
+              <Button 
+                variant="outline" 
+                onClick={handleTestToken}
+                disabled={isTestingToken || !githubToken}
+              >
+                {isTestingToken ? 'Testing...' : 'Test'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Create a token at GitHub Settings → Developer settings → Personal access tokens (classic). 
+              Requires <code className="bg-muted px-1 rounded">repo</code> scope.
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-2">
+              {tokenStatus === 'valid' && <CheckCircle className="h-4 w-4 text-green-500" weight="fill" />}
+              {tokenStatus === 'invalid' && <XCircle className="h-4 w-4 text-red-500" weight="fill" />}
+              {tokenStatus === 'unchecked' && <div className="h-4 w-4 rounded-full bg-muted-foreground/30" />}
+              <span className="text-sm">
+                {tokenStatus === 'valid' && 'Token configured and valid'}
+                {tokenStatus === 'invalid' && 'Token is invalid or expired'}
+                {tokenStatus === 'unchecked' && 'Token not verified'}
+              </span>
+            </div>
+            {tokenStatus === 'valid' && (
+              <Button variant="ghost" size="sm" onClick={handleClearToken}>
+                Clear
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>

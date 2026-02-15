@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { DocumentType } from '@/lib/types'
 
 export function useInitializeDocumentTypes() {

@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Project } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassButton } from '@/components/ui/glass-button'

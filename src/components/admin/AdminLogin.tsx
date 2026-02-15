@@ -19,22 +19,48 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  console.log('[AdminLogin] Component rendering, isLoading:', isLoading)
 
-    const result = await login(email, password, totpCode || undefined)
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    console.log('[AdminLogin] Form submit event triggered')
+    e?.preventDefault()
+    console.log('[AdminLogin] preventDefault called, email:', email, 'isLoading:', isLoading)
     
-    if (!result.success) {
-      if (result.requires2FA) {
-        setRequires2FA(true)
-        toast.info('Please enter your authentication code')
+    if (isLoading) {
+      console.log('[AdminLogin] Already loading, skipping')
+      return
+    }
+    
+    if (!email || !password) {
+      toast.error('Please enter email and password')
+      return
+    }
+    
+    setIsLoading(true)
+    console.log('[AdminLogin] setIsLoading(true) called')
+
+    try {
+      console.log('[AdminLogin] Calling login...')
+      const result = await login(email, password, totpCode || undefined)
+      console.log('[AdminLogin] Login result:', result)
+      
+      if (!result.success) {
+        if (result.requires2FA) {
+          setRequires2FA(true)
+          toast.info('Please enter your authentication code')
+        } else {
+          toast.error(result.error || 'Login failed')
+        }
       } else {
-        toast.error(result.error || 'Login failed')
+        console.log('[AdminLogin] Login successful!')
       }
+    } catch (err) {
+      console.error('[AdminLogin] Login error:', err)
+      toast.error('An unexpected error occurred')
     }
 
     setIsLoading(false)
+    console.log('[AdminLogin] setIsLoading(false) called')
   }
 
   return (
@@ -110,7 +136,13 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
               )}
             </CardContent>
             <CardFooter className="flex-col gap-3 pb-6">
-              <Button type="submit" className="w-full" disabled={isLoading} size="lg">
+              <Button 
+                type="button"
+                className="w-full" 
+                disabled={isLoading} 
+                size="lg"
+                onClick={handleSubmit}
+              >
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
               <Button

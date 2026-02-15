@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { PDFAsset, Case, DocumentType } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { GlassCard } from '@/components/ui/glass-card'

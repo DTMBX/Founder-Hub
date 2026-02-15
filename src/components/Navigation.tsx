@@ -11,7 +11,7 @@ interface NavigationProps {
   investorMode: boolean
   onToggleInvestorMode: () => void
   showInvestorToggle?: boolean
-  onAdminClick: () => void
+  onAdminClick?: () => void
   activePathway?: string
 }
 
@@ -121,19 +121,21 @@ export default function Navigation({
               </button>
             ))}
 
-            <div className="ml-3 pl-3 border-l border-border/30">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onAdminClick}
-                className={cn(
-                  'text-xs font-medium',
-                  isScrolled ? '' : 'text-white/60 hover:text-white hover:bg-white/10'
-                )}
-              >
-                Admin
-              </Button>
-            </div>
+            {onAdminClick && (
+              <div className="ml-3 pl-3 border-l border-border/30">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onAdminClick}
+                  className={cn(
+                    'text-xs font-medium',
+                    isScrolled ? '' : 'text-white/60 hover:text-white hover:bg-white/10'
+                  )}
+                >
+                  Admin
+                </Button>
+              </div>
+            )}
           </div>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -166,16 +168,18 @@ export default function Navigation({
                   )
                 })}
 
-                <div className="mt-4 pt-4 border-t border-border/50">
-                  <Button
-                    variant="outline"
-                    onClick={onAdminClick}
-                    className="w-full"
-                    size="sm"
-                  >
-                    Admin Portal
-                  </Button>
-                </div>
+                {onAdminClick && (
+                  <div className="mt-4 pt-4 border-t border-border/50">
+                    <Button
+                      variant="outline"
+                      onClick={onAdminClick}
+                      className="w-full"
+                      size="sm"
+                    >
+                      Admin Portal
+                    </Button>
+                  </div>
+                )}
               </div>
             </SheetContent>
           </Sheet>

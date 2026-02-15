@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import Navigation from './Navigation'
 import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
@@ -16,7 +16,7 @@ import { Button } from './ui/button'
 import { X } from '@phosphor-icons/react'
 
 interface PublicSiteProps {
-  onAdminClick: () => void
+  onAdminClick?: () => void
   onNavigateToCase: (caseId: string) => void
 }
 
