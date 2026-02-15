@@ -1,19 +1,40 @@
-# xTx396 Hub PRD
+# xTx396 Hub PRD — Trinity Layout Edition
 
-A premium one-page personal landing site for Devon Tyler Barber (xTx396) with sophisticated scroll storytelling, glassmorphism design system, and a comprehensive Content Control Center for managing projects, court cases, and document libraries with advanced OCR-powered metadata extraction.
+A premium one-page personal landing site for Devon Tyler Barber (xTx396) with **Trinity Layout** — an intelligent audience-triage navigation system that instantly routes three distinct audiences (Investors, Lawyers, Friends/Supporters) into tailored content pathways while preserving a single, elegant landing page experience.
 
-**Latest Update**: Case Jacket now features document organization by filing type with collapsible groups showing date ranges, plus comprehensive attorney review notes and contingency evaluation checklist. Sample data initialization ensures the Court section displays properly on first load.
+**Latest Update**: Implemented Trinity Layout refactor with three distinct audience pathways accessible from the hero section. Visitors click large, prominent glass buttons (Investors | Legal/Court | About/Friends) to instantly filter content to their needs. Active pathway displays as a badge with "Return to Overview" option. Navigation dynamically updates to show only relevant sections per pathway.
 
 **Experience Qualities**:
-1. **Intelligent & Organized** - Advanced document organization by filing type with collapsible groups, date range displays, and lawyer-friendly review workflows that make case materials instantly scannable and professional
-2. **Attorney-Ready** - Comprehensive review notes capturing damages/injuries, key evidence sources, deadlines, and relief sought, plus structured contingency evaluation checklists with progress tracking
-3. **Accessible & Responsive** - Distinct desktop/mobile layouts with high-contrast dark theme, glassmorphism buttons, responsive two-column admin layout, and comprehensive keyboard navigation
-4. **Transparent & Auditable** - Court documentation with chain-of-custody tracking, comprehensive audit logging, safe review-before-publish workflows, and metadata-driven organization
+1. **Triage-Driven & Intentional** - Within 5 seconds, visitors identify which pathway applies to them and access focused, relevant content without wading through irrelevant sections
+2. **Audience-Specific** - Investors see Projects + Roadmap + Traction; Lawyers see Court section with organized documentation; Friends see personal mission + updates + simple contact
+3. **Elegant & Reversible** - Switching between pathways is simple with visual mode indicators; "Return to Overview" button allows exploration of full site
+4. **Clean & Professional** - Maximum content width ~1000px, generous vertical spacing, dark high-contrast theme with glassmorphism buttons, restrained typography
 
-**Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a comprehensive dual-interface application featuring advanced scroll storytelling, sophisticated motion controls, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy (filing types), scriptable batch utilities, chain-of-custody tracking, attorney review notes, contingency checklists, and a polished public-facing site with multiple interactive sections, organized document display, and dynamic content rendering.
+**Complexity Level**: Complex Application (advanced functionality with audience-driven content routing)
+This comprehensive dual-interface application now features Trinity Layout audience triage, sophisticated scroll storytelling, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy (filing types), scriptable batch utilities, chain-of-custody tracking, attorney review notes, contingency checklists, and a polished public-facing site with pathway-driven content filtering and dynamic section rendering.
 
 ## Essential Features
+
+### Trinity Selector (Audience Triage)
+- **Functionality**: Three large, prominent glass buttons in hero section for instant audience routing: Investors | Legal/Court | About/Friends
+- **Purpose**: Enable visitors to identify their pathway and access focused, relevant content within 5 seconds
+- **Trigger**: Visitor lands on hero section and sees three clear pathway options
+- **Progression**: Read positioning → identify relevant pathway → click Trinity button → scroll to focused content section → explore pathway-specific materials → optional "Return to Overview" to see full site
+- **Success criteria**: Trinity buttons obvious within first screen, mobile stacked layout, clicking filters visible sections, active pathway badge displays, return to overview works
+
+### Pathway Content Filtering
+- **Functionality**: Dynamic section visibility based on selected pathway: Investors (Projects + Proof + Contact), Legal (Court + Contact), About (Contact only beyond hero)
+- **Purpose**: Reduce cognitive load by showing only relevant sections per audience type while maintaining single-page architecture
+- **Trigger**: User clicks Trinity selector button
+- **Progression**: Select pathway → content filters instantly → navigation updates to show only visible sections → mode indicator badge appears in corner → browse focused content → click "Return to Overview" to reset
+- **Success criteria**: Filtering instant, navigation updates, sections hide/show correctly, mode is reversible, no separate sites created
+
+### Visual Mode Indicators
+- **Functionality**: Small badge near top-right shows active pathway (e.g., "Investors Mode", "Legal / Court Mode") with "Return to Overview" button
+- **Purpose**: Maintain context awareness and provide easy pathway exit
+- **Trigger**: User selects a pathway from Trinity selector
+- **Progression**: Pathway selected → badge appears with mode name → user sees filtered content → clicks "Return to Overview" → badge disappears, all sections visible
+- **Success criteria**: Badge visible but unobtrusive, clearly labeled, return button works, badge disappears in overview mode
 
 ### Public Landing Page
 - **Functionality**: Single-page scrolling site with sections for Hero, Projects, Court Cases, Proof/Press, and Contact/CTA

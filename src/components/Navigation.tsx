@@ -14,6 +14,7 @@ interface NavigationProps {
   onToggleInvestorMode: () => void
   showInvestorToggle?: boolean
   onAdminClick: () => void
+  activePathway?: string
 }
 
 const sectionIcons: Record<string, any> = {
