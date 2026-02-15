@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray } from '@phosphor-icons/react'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
@@ -16,6 +16,7 @@ import FilingTypesManager from './FilingTypesManager'
 import TemplatesManager from './TemplatesManager'
 import ThemeManager from './ThemeManager'
 import SettingsManager from './SettingsManager'
+import SecurityManager from './SecurityManager'
 import AuditLog from './AuditLog'
 
 interface AdminDashboardProps {
@@ -103,6 +104,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <Gear className="h-4 w-4" />
                 <span className="hidden sm:inline">Settings</span>
               </TabsTrigger>
+              <TabsTrigger value="security" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <ShieldCheck className="h-4 w-4" />
+                <span className="hidden sm:inline">Security</span>
+              </TabsTrigger>
               <TabsTrigger value="audit" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <ClockCounterClockwise className="h-4 w-4" />
                 <span className="hidden sm:inline">Audit</span>
@@ -152,6 +157,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
           <TabsContent value="settings" className="space-y-4">
             <SettingsManager />
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-4">
+            <SecurityManager />
           </TabsContent>
 
           <TabsContent value="audit" className="space-y-4">

@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { useAuth } from '@/lib/auth'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeft, ShieldCheck } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface AdminLoginProps {
   onBack: () => void
@@ -44,13 +45,27 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Admin Portal</CardTitle>
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck className="h-6 w-6 text-primary" />
+              <CardTitle className="text-2xl">Admin Portal</CardTitle>
+            </div>
             <CardDescription>
-              Sign in to manage your Founder Hub
+              Secure authentication with rate limiting and audit logging
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              <Alert>
+                <AlertDescription className="text-sm">
+                  <strong>Default credentials:</strong><br />
+                  Email: admin@xtx396.online<br />
+                  Password: SecureAdmin2024!
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Change your password immediately after first login.
+                  </div>
+                </AlertDescription>
+              </Alert>
+              
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -61,6 +76,7 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={isLoading}
+                  autoComplete="email"
                 />
               </div>
               <div className="space-y-2">
@@ -72,11 +88,16 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
+                  autoComplete="current-password"
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Demo credentials: Any email / admin123
-              </p>
+              
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>🔒 Passwords are hashed with SHA-256</p>
+                <p>🛡️ Rate limiting: 5 attempts per 15 minutes</p>
+                <p>📝 All login attempts are logged</p>
+                <p>⏱️ Sessions expire after 8 hours</p>
+              </div>
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full" disabled={isLoading}>

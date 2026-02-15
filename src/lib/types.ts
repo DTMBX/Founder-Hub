@@ -3,8 +3,10 @@ export type UserRole = 'owner' | 'editor' | 'viewer'
 export interface User {
   id: string
   email: string
+  passwordHash: string
   role: UserRole
-  twoFactorEnabled: boolean
+  twoFactorEnabled?: boolean
+  lastLogin: number
   createdAt: number
 }
 
@@ -328,6 +330,9 @@ export interface PageViewEvent {
 export type AuditAction = 
   | 'login'
   | 'logout'
+  | 'login_failed'
+  | 'password_changed'
+  | 'password_change_failed'
   | 'create_project'
   | 'update_project'
   | 'delete_project'
