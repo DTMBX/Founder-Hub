@@ -40,6 +40,14 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const [pathway, setPathway] = useState<TrinityPathway>('all')
   const [, setAudienceMode] = useKV<string>('current-audience-mode', 'all')
 
+  const [barEnabled] = useKV<boolean>('honor-flag-bar-enabled', true)
+  const [animationEnabled] = useKV<boolean>('honor-flag-bar-animation', true)
+  const [parallaxEnabled] = useKV<boolean>('honor-flag-bar-parallax', true)
+  const [rotationCadence] = useKV<number>('honor-flag-bar-rotation', 20)
+  const [maxFlagsDesktop] = useKV<number>('honor-flag-bar-max-desktop', 7)
+  const [maxFlagsMobile] = useKV<number>('honor-flag-bar-max-mobile', 3)
+  const [alignment] = useKV<'left' | 'center' | 'right'>('honor-flag-bar-alignment', 'center')
+
   useEffect(() => {
     const audienceMapping: Record<TrinityPathway, string> = {
       'all': 'all',
@@ -140,12 +148,13 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       />
       <ScrollProgress />
       <HonorFlagBar 
-        enabled={true}
-        rotationCadence={20000}
-        maxFlagsDesktop={7}
-        maxFlagsMobile={3}
-        animationEnabled={true}
-        alignment="center"
+        enabled={barEnabled ?? true}
+        rotationCadence={(rotationCadence ?? 20) * 1000}
+        maxFlagsDesktop={maxFlagsDesktop ?? 7}
+        maxFlagsMobile={maxFlagsMobile ?? 3}
+        animationEnabled={animationEnabled ?? true}
+        alignment={alignment ?? 'center'}
+        parallaxEnabled={parallaxEnabled ?? true}
       />
       <Navigation 
         sections={enabledSections}
