@@ -19,7 +19,9 @@ import {
   Envelope,
   Funnel,
   X,
-  CircleNotch
+  CircleNotch,
+  Handshake,
+  Swap
 } from '@phosphor-icons/react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
@@ -29,6 +31,7 @@ import { toast } from 'sonner'
 
 interface OfferingsSectionProps {
   investorMode?: boolean
+  tradeMode?: boolean
 }
 
 const categoryLabels: Record<string, { label: string; color: string }> = {
@@ -36,6 +39,7 @@ const categoryLabels: Record<string, { label: string; color: string }> = {
   service: { label: 'Professional Service', color: 'bg-violet-500/15 text-violet-400 border-violet-500/30' },
   whitelabel: { label: 'White-Label', color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
   subscription: { label: 'Subscription', color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
+  barter: { label: 'Barter / Trade', color: 'bg-rose-500/15 text-rose-400 border-rose-500/30' },
 }
 
 const categoryIcons: Record<string, React.ReactNode> = {
@@ -43,6 +47,7 @@ const categoryIcons: Record<string, React.ReactNode> = {
   service: <FileText className="h-5 w-5" weight="duotone" />,
   whitelabel: <Globe className="h-5 w-5" weight="duotone" />,
   subscription: <Headset className="h-5 w-5" weight="duotone" />,
+  barter: <Handshake className="h-5 w-5" weight="duotone" />,
 }
 
 function formatPrice(cents: number, currency: string = 'USD'): string {
@@ -88,7 +93,7 @@ function getPriceDisplay(offering: Offering): { primary: string; secondary?: str
   }
 }
 
-export default function OfferingsSection({ investorMode }: OfferingsSectionProps) {
+export default function OfferingsSection({ investorMode, tradeMode }: OfferingsSectionProps) {
   const [offerings] = useKV<Offering[]>('founder-hub-offerings', [])
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true })
   const prefersReducedMotion = useReducedMotion()
@@ -161,10 +166,13 @@ export default function OfferingsSection({ investorMode }: OfferingsSectionProps
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
-            Offerings & Services
+            {tradeMode ? 'Trade & Barter' : 'Offerings & Services'}
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl leading-relaxed">
-            Professional services, digital products, and solutions available for individuals, businesses, and agencies.
+            {tradeMode 
+              ? 'Open to trades, barter arrangements, and creative exchanges. Cash-free solutions for mutual benefit.'
+              : 'Professional services, digital products, and solutions available for individuals, businesses, and agencies.'
+            }
             {investorMode && ' All services can be white-labeled for your brand.'}
           </p>
 

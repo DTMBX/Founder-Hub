@@ -22,7 +22,7 @@ interface PublicSiteProps {
   onNavigateToCase: (caseId: string) => void
 }
 
-type TrinityPathway = 'all' | 'investors' | 'legal' | 'about'
+type TrinityPathway = 'all' | 'investors' | 'legal' | 'about' | 'marketplace'
 
 export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSiteProps) {
   const [sections, setSections] = useKV<Section[]>('founder-hub-sections', [])
@@ -83,12 +83,13 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     }
   }, [settings])
 
-  const handleSelectPathway = (selectedPathway: 'investors' | 'legal' | 'about') => {
+  const handleSelectPathway = (selectedPathway: 'investors' | 'legal' | 'about' | 'marketplace') => {
     setPathway(selectedPathway)
     setTimeout(() => {
       const targetSection = 
         selectedPathway === 'investors' ? 'projects' :
         selectedPathway === 'legal' ? 'court' :
+        selectedPathway === 'marketplace' ? 'offerings' :
         'about'
       
       const element = document.getElementById(targetSection)
@@ -117,6 +118,9 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (pathway === 'about') {
       return enabled.filter(s => s.type === 'hero' || s.type === 'about' || s.type === 'contact')
     }
+    if (pathway === 'marketplace') {
+      return enabled.filter(s => s.type === 'hero' || s.type === 'offerings' || s.type === 'contact')
+    }
     return enabled
   }
 
@@ -126,7 +130,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const pathwayLabels: Record<string, { label: string; color: string }> = {
     investors: { label: 'Investor Mode', color: 'border-emerald-500/40 text-emerald-400' },
     legal: { label: 'Court Mode', color: 'border-amber-500/40 text-amber-400' },
-    about: { label: 'Connect Mode', color: 'border-purple-500/40 text-purple-400' }
+    about: { label: 'Connect Mode', color: 'border-purple-500/40 text-purple-400' },
+    marketplace: { label: 'Trade Mode', color: 'border-rose-500/40 text-rose-400' }
   }
 
   const socialLinks = contactLinks?.filter(l => l.category === 'social') || []
@@ -203,7 +208,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         {pathway === 'investors' && <InvestorSection />}
         
         {enabledSections.some(s => s.type === 'offerings') && (
-          <OfferingsSection />
+          <OfferingsSection tradeMode={pathway === 'marketplace'} />
         )}
         
         {enabledSections.some(s => s.type === 'court') && (
