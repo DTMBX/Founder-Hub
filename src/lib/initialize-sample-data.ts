@@ -16,6 +16,17 @@ export function useInitializeSampleData() {
   const [filingTypes, setFilingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [sections, setSections] = useKV<Section[]>('founder-hub-sections', [])
   const [projects, setProjects] = useKV<Project[]>('founder-hub-projects', [])
+  const [aboutContent, setAboutContent] = useKV<{
+    mission: string
+    currentFocus: string
+    values: string[]
+    updates: Array<{ date: string; title: string; content: string }>
+  }>('founder-hub-about', {
+    mission: '',
+    currentFocus: '',
+    values: [],
+    updates: []
+  })
 
   useEffect(() => {
     if (!filingTypes || filingTypes.length === 0) {
@@ -139,14 +150,33 @@ export function useInitializeSampleData() {
     if (!sections || sections.length === 0) {
       const defaultSections: Section[] = [
         { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
-        { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 1, enabled: true, investorRelevant: true },
-        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 2, enabled: true, investorRelevant: false },
-        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 3, enabled: true, investorRelevant: true },
-        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 4, enabled: true, investorRelevant: true },
+        { id: 'about', type: 'about', title: 'About', content: '', order: 1, enabled: true, investorRelevant: false },
+        { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 2, enabled: true, investorRelevant: true },
+        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 3, enabled: true, investorRelevant: false },
+        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 4, enabled: true, investorRelevant: true },
+        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 5, enabled: true, investorRelevant: true },
       ]
       setSections(defaultSections)
     }
   }, [sections, setSections])
+
+  useEffect(() => {
+    if (!aboutContent || (!aboutContent.mission && aboutContent.values.length === 0)) {
+      const defaultAboutContent = {
+        mission: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
+        currentFocus: 'Building civic technology, home improvement platforms, and legal infrastructure that increase transparency and empower communities.',
+        values: ['Integrity', 'Stewardship', 'Fortitude', 'Veracity'],
+        updates: [
+          {
+            date: '2024-01',
+            title: 'New Project Launch',
+            content: 'Launching Essential Goods Ledger to track public accountability.'
+          }
+        ]
+      }
+      setAboutContent(defaultAboutContent)
+    }
+  }, [aboutContent, setAboutContent])
 
   useEffect(() => {
     if (!projects || projects.length === 0) {
