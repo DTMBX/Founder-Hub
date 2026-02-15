@@ -3,13 +3,48 @@ import { Project } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassButton } from '@/components/ui/glass-button'
 import { GlassCard } from '@/components/ui/glass-card'
-import { GithubLogo, Globe, BookOpen, FolderOpen } from '@phosphor-icons/react'
+import { GithubLogo, Globe, BookOpen, FolderOpen, ArrowSquareOut, Star } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
 
 interface ProjectsSectionProps {
   investorMode: boolean
 }
+
+const accentClasses: Record<string, { card: string; text: string; badge: string; shadow: string }> = {
+  emerald: {
+    card: 'hover:border-emerald-500/30',
+    text: 'group-hover:text-emerald-400',
+    badge: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30',
+    shadow: 'hover:shadow-emerald-500/10',
+  },
+  amber: {
+    card: 'hover:border-amber-500/30',
+    text: 'group-hover:text-amber-400',
+    badge: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
+    shadow: 'hover:shadow-amber-500/10',
+  },
+  blue: {
+    card: 'hover:border-blue-500/30',
+    text: 'group-hover:text-blue-400',
+    badge: 'bg-blue-500/15 text-blue-400 border border-blue-500/30',
+    shadow: 'hover:shadow-blue-500/10',
+  },
+  teal: {
+    card: 'hover:border-teal-500/30',
+    text: 'group-hover:text-teal-400',
+    badge: 'bg-teal-500/15 text-teal-400 border border-teal-500/30',
+    shadow: 'hover:shadow-teal-500/10',
+  },
+  rose: {
+    card: 'hover:border-rose-500/30',
+    text: 'group-hover:text-rose-400',
+    badge: 'bg-rose-500/15 text-rose-400 border border-rose-500/30',
+    shadow: 'hover:shadow-rose-500/10',
+  },
+}
+
+const defaultAccent = accentClasses.emerald
 
 export default function ProjectsSection({ investorMode }: ProjectsSectionProps) {
   const [projects] = useKV<Project[]>('founder-hub-projects', [])
@@ -23,7 +58,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
   const linkIcon = (type: string) => {
     switch (type) {
       case 'repo': return <GithubLogo className="h-4 w-4" />
-      case 'demo': return <Globe className="h-4 w-4" />
+      case 'demo': return <ArrowSquareOut className="h-4 w-4" />
       case 'docs': return <BookOpen className="h-4 w-4" />
       default: return <Globe className="h-4 w-4" />
     }
@@ -84,82 +119,10 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+            className="text-center py-16"
           >
-            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
-              <div className="p-6 flex flex-col h-full">
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
-                    Evident Technologies®
-                  </h3>
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    AI-powered litigation support and evidence analysis platform for legal professionals
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="secondary" className="text-xs font-medium">Legal Tech</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">AI/ML</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">Document Intelligence</Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-auto pt-4">
-                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
-                    In Development
-                  </Badge>
-                </div>
-              </div>
-            </GlassCard>
-
-            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
-              <div className="p-6 flex flex-col h-full">
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
-                    Essential Goods Ledger
-                  </h3>
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    Blockchain-based platform for tracking public accountability and transparency
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="secondary" className="text-xs font-medium">Civic Tech</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">Blockchain</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">Transparency</Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-auto pt-4">
-                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
-                    In Development
-                  </Badge>
-                </div>
-              </div>
-            </GlassCard>
-
-            <GlassCard intensity="medium" className="group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300">
-              <div className="p-6 flex flex-col h-full">
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
-                    Contractor Command Center
-                  </h3>
-                  <p className="text-base text-muted-foreground leading-relaxed">
-                    Comprehensive platform for home improvement project management and contractor coordination
-                  </p>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <Badge variant="secondary" className="text-xs font-medium">Home Tech</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">SaaS</Badge>
-                  <Badge variant="secondary" className="text-xs font-medium">Project Management</Badge>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-auto pt-4">
-                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-3 py-1">
-                    In Development
-                  </Badge>
-                </div>
-              </div>
-            </GlassCard>
+            <FolderOpen className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
+            <p className="text-muted-foreground">Projects loading or not yet configured.</p>
           </motion.div>
         ) : (
         <motion.div
@@ -168,7 +131,10 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
           animate={isVisible ? 'animate' : 'initial'}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
         >
-          {enabledProjects.map((project, index) => (
+          {enabledProjects.map((project, index) => {
+            const accent = accentClasses[project.customization?.accentColor || ''] || defaultAccent
+
+            return (
             <motion.div
               key={project.id}
               variants={itemVariants}
@@ -176,49 +142,72 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             >
               <GlassCard 
                 intensity="medium"
-                className="h-full group hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 transition-all duration-300"
+                className={`h-full group hover:shadow-2xl ${accent.shadow} hover:-translate-y-1 ${accent.card} transition-all duration-300`}
               >
                 <div className="p-6 flex flex-col h-full">
                   <div className="mb-4">
-                    <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
-                      {project.title}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <h3 className={`text-xl font-semibold ${accent.text} transition-colors`}>
+                        {project.title}
+                      </h3>
+                      {project.featured && (
+                        <Star className="h-5 w-5 text-amber-400 flex-shrink-0 mt-0.5" weight="fill" />
+                      )}
+                    </div>
                     <p className="text-base text-muted-foreground leading-relaxed">
-                      {project.summary}
+                      {investorMode ? project.description : project.summary}
                     </p>
                   </div>
-                  
-                  {project.techStack && project.techStack.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {project.techStack.map(tech => (
-                        <Badge key={tech} variant="secondary" className="text-xs font-medium">
-                          {tech}
+
+                  {project.tags && project.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {project.tags.map(tag => (
+                        <Badge key={tag} variant="secondary" className="text-[11px] font-medium px-2 py-0.5">
+                          {tag}
                         </Badge>
                       ))}
                     </div>
                   )}
                   
-                  {project.links && project.links.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-auto pt-4">
-                      {project.links.map((link, i) => (
-                        <GlassButton
-                          key={i}
-                          variant="glassGhost"
-                          size="sm"
-                          asChild
-                        >
-                          <a href={link.url} target="_blank" rel="noopener noreferrer">
-                            {linkIcon(link.type)}
-                            {link.label}
-                          </a>
-                        </GlassButton>
+                  {project.techStack && project.techStack.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {project.techStack.map(tech => (
+                        <span key={tech} className="text-[10px] font-mono text-muted-foreground/70 bg-muted/30 rounded px-1.5 py-0.5">
+                          {tech}
+                        </span>
                       ))}
                     </div>
                   )}
+                  
+                  <div className="flex flex-wrap items-center gap-2 mt-auto pt-4 border-t border-border/30">
+                    {project.customization?.badgeText && (
+                      <Badge className={`${accent.badge} text-[11px] px-2.5 py-0.5`}>
+                        {project.customization.badgeText}
+                      </Badge>
+                    )}
+                    {project.links && project.links.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 ml-auto">
+                        {project.links.map((link, i) => (
+                          <GlassButton
+                            key={i}
+                            variant="glassGhost"
+                            size="sm"
+                            asChild
+                          >
+                            <a href={link.url} target="_blank" rel="noopener noreferrer" className="gap-1.5">
+                              {linkIcon(link.type)}
+                              <span className="text-xs">{link.label}</span>
+                            </a>
+                          </GlassButton>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </GlassCard>
             </motion.div>
-          ))}
+            )
+          })}
         </motion.div>
         )}
       </div>
