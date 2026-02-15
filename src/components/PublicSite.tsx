@@ -7,6 +7,7 @@ import CourtSection from './sections/CourtSection'
 import ProofSection from './sections/ProofSection'
 import ContactSection from './sections/ContactSection'
 import AboutSection from './sections/AboutSection'
+import HeritageFlagsSection from './sections/HeritageFlagsSection'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings } from '@/lib/types'
@@ -34,6 +35,17 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     investorModeAvailable: true
   })
   const [pathway, setPathway] = useState<TrinityPathway>('all')
+  const [, setAudienceMode] = useKV<string>('current-audience-mode', 'all')
+
+  useEffect(() => {
+    const audienceMapping: Record<TrinityPathway, string> = {
+      'all': 'all',
+      'investors': 'investors',
+      'legal': 'legal',
+      'about': 'friends'
+    }
+    setAudienceMode(audienceMapping[pathway])
+  }, [pathway, setAudienceMode])
 
   useEffect(() => {
     if (!sections || sections.length === 0) {
@@ -159,6 +171,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         {showAboutSection && (
           <AboutSection pathway={pathway} />
         )}
+        
+        <HeritageFlagsSection />
         
         {enabledSections.some(s => s.type === 'court') && (
           <CourtSection investorMode={false} onNavigateToCase={onNavigateToCase} />
