@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
+import { useKV } from '@github/spark/hooks'
 import { cn } from '@/lib/utils'
 import usFlagOfficial from '@/assets/images/us-flag-official.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
@@ -31,6 +32,7 @@ interface HonorFlagBarProps {
   maxFlagsMobile?: number
   animationEnabled?: boolean
   alignment?: 'left' | 'center' | 'right'
+  parallaxEnabled?: boolean
 }
 
 export default function HonorFlagBar({
@@ -39,14 +41,25 @@ export default function HonorFlagBar({
   maxFlagsDesktop = 7,
   maxFlagsMobile = 3,
   animationEnabled = true,
-  alignment = 'center'
+  alignment = 'center',
+  parallaxEnabled = true
 }: HonorFlagBarProps) {
   const prefersReducedMotion = useReducedMotion()
   const [currentSet, setCurrentSet] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [loadedFlags, setLoadedFlags] = useState<Set<string>>(new Set())
+  const [scrollY, setScrollY] = useState(0)
+  const [flagSettings] = useKV<Record<string, boolean>>('honor-flag-bar-settings', {
+    'us-flag-official': true,
+    'betsy-ross': true,
+    'gadsden': true,
+    'appeal-to-heaven': true,
+    'gonzales': true,
+    'pow-mia': true
+  })
 
   const shouldAnimate = animationEnabled && !prefersReducedMotion
+  const shouldParallax = parallaxEnabled && !prefersReducedMotion
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -55,10 +68,39 @@ export default function HonorFlagBar({
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
+  useEffect(() => {
+    if (!shouldParallax) return
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [shouldParallax])
+
   const maxFlags = isMobile ? maxFlagsMobile : maxFlagsDesktop
   
+  const filteredAssets = useMemo(() => {
+    const flagMap: Record<string, FlagAsset> = {
+      'us-flag-official': FLAG_ASSETS[0],
+      'betsy-ross': FLAG_ASSETS[1],
+      'gadsden': FLAG_ASSETS[2],
+      'appeal-to-heaven': FLAG_ASSETS[3],
+      'gonzales': FLAG_ASSETS[4],
+      'pow-mia': FLAG_ASSETS[5]
+    }
+    
+    return Object.entries(flagSettings || {})
+      .filter(([_, enabled]) => enabled)
+      .map(([key]) => flagMap[key])
+      .filter(Boolean)
+  }, [flagSettings])
+  
   const flagSets = useMemo(() => {
-    const sorted = [...FLAG_ASSETS].sort((a, b) => a.priority - b.priority)
+    if (filteredAssets.length === 0) return []
+    
+    const sorted = [...filteredAssets].sort((a, b) => a.priority - b.priority)
     const sets: FlagAsset[][] = []
     
     for (let i = 0; i < sorted.length; i += maxFlags) {
@@ -69,7 +111,7 @@ export default function HonorFlagBar({
     }
     
     return sets.length > 0 ? sets : [[sorted[0]]]
-  }, [maxFlags])
+  }, [filteredAssets, maxFlags])
 
   useEffect(() => {
     if (!shouldAnimate || flagSets.length <= 1) return
@@ -103,6 +145,8 @@ export default function HonorFlagBar({
   const gapSize = currentFlags.length <= 1 ? 0 : baseGap
 
   const flagHeight = isMobile ? 16 : 20
+  
+  const parallaxOffset = shouldParallax ? Math.min(scrollY * 0.15, 30) : 0
 
   return (
     <div 
@@ -119,7 +163,9 @@ export default function HonorFlagBar({
           style={{
             gap: `${gapSize}px`,
             height: `${flagHeight + 8}px`,
-            minHeight: `${flagHeight + 8}px`
+            minHeight: `${flagHeight + 8}px`,
+            transform: shouldParallax ? `translateY(${parallaxOffset}px)` : 'none',
+            opacity: shouldParallax ? Math.max(1 - (scrollY / 400), 0.7) : 1
           }}
         >
           {currentFlags.map((flag, index) => (
@@ -143,7 +189,7 @@ export default function HonorFlagBar({
                 )}
                 style={{
                   filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))',
-                  imageRendering: flag.type === 'svg' ? 'crisp-edges' : '-webkit-optimize-contrast',
+                  imageRendering: flag.type === 'svg' ? 'crisp-edges' : 'auto',
                   WebkitFontSmoothing: 'antialiased',
                   shapeRendering: flag.type === 'svg' ? 'geometricPrecision' : 'auto',
                   animationDelay: shouldAnimate ? `${index * 0.3}s` : '0s',
@@ -155,6 +201,7 @@ export default function HonorFlagBar({
                 onError={() => handleImageError(flag.src)}
                 loading="eager"
                 draggable={false}
+                srcSet={flag.type === 'png' ? `${flag.src} 2x` : undefined}
               />
             </div>
           ))}

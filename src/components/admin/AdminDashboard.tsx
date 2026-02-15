@@ -9,7 +9,7 @@ import {
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -32,6 +32,7 @@ import CaseJacketManager from './CaseJacketManager'
 import AboutManager from './AboutManager'
 import LinksManager from './LinksManager'
 import ProfileManager from './ProfileManager'
+import HonorFlagBarManager from './HonorFlagBarManager'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -53,6 +54,7 @@ const navItems: NavItem[] = [
   { id: 'profile', label: 'Profile & Emails', icon: IdentificationBadge, category: 'Content' },
   { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'Content' },
   { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Content' },
+  { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'Content' },
   // Projects & Cases
   { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Management' },
   { id: 'court', label: 'Court Cases', icon: Scales, category: 'Management' },
@@ -95,6 +97,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'about': return <AboutManager />
       case 'links': return <LinksManager />
       case 'profile': return <ProfileManager />
+      case 'honor-flag-bar': return <HonorFlagBarManager />
       case 'projects': return <EnhancedProjectsManager />
       case 'court': return <EnhancedCourtManager />
       case 'inbox': return <AdminInbox />
