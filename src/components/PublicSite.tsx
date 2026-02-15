@@ -52,8 +52,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (!sections || sections.length === 0) {
       const defaultSections: Section[] = [
         { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
-        { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 1, enabled: true, investorRelevant: true },
-        { id: 'about', type: 'about', title: 'About', content: '', order: 2, enabled: true, investorRelevant: false },
+        { id: 'about', type: 'about', title: 'About', content: '', order: 1, enabled: true, investorRelevant: false },
+        { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 2, enabled: true, investorRelevant: true },
         { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 3, enabled: true, investorRelevant: false },
         { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 4, enabled: true, investorRelevant: true },
         { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 5, enabled: true, investorRelevant: true },
@@ -88,8 +88,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     }, 100)
   }
 
+  // Hide proof section from nav + layout when no proof links exist
+  const hasProofContent = (proofLinks?.filter(l => l.category === 'proof').length ?? 0) > 0
+
   const getVisibleSections = () => {
-    const enabled = sections?.filter(s => s.enabled).sort((a, b) => a.order - b.order) || []
+    let enabled = sections?.filter(s => s.enabled).sort((a, b) => a.order - b.order) || []
+    if (!hasProofContent) enabled = enabled.filter(s => s.type !== 'proof')
     if (pathway === 'all') return enabled
     if (pathway === 'investors') {
       return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'proof' || s.type === 'contact')
@@ -165,12 +169,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
           onSelectPathway={handleSelectPathway}
         />
         
-        {enabledSections.some(s => s.type === 'projects') && (
-          <ProjectsSection investorMode={pathway === 'investors'} />
-        )}
-        
         {showAboutSection && (
           <AboutSection pathway={pathway} />
+        )}
+        
+        {enabledSections.some(s => s.type === 'projects') && (
+          <ProjectsSection investorMode={pathway === 'investors'} />
         )}
         
         {enabledSections.some(s => s.type === 'court') && (
@@ -182,7 +186,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         )}
         
         {enabledSections.some(s => s.type === 'contact') && (
-          <ContactSection investorMode={false} />
+          <ContactSection investorMode={pathway === 'investors'} />
         )}
       </main>
 
@@ -201,6 +205,15 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
             <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
               <button 
                 onClick={() => {
+                  const el = document.getElementById('about')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
+              >
+                About
+              </button>
+              <button 
+                onClick={() => {
                   const el = document.getElementById('projects')
                   if (el) el.scrollIntoView({ behavior: 'smooth' })
                 }}
@@ -208,6 +221,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               >
                 Projects
               </button>
+              <a 
+                href="mailto:invest@xtx396.com"
+                className="hover:text-emerald-400 transition-colors"
+              >
+                Invest
+              </a>
               <button 
                 onClick={() => {
                   const el = document.getElementById('court')
@@ -216,15 +235,6 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 className="hover:text-foreground transition-colors"
               >
                 Court
-              </button>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('about')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hover:text-foreground transition-colors"
-              >
-                About
               </button>
               <button 
                 onClick={() => {
