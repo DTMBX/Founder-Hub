@@ -1,32 +1,92 @@
 [
   {
-    "id": "evident-tech",
+    "id": "evident-platform",
     "title": "Evident Technologies",
-    "summary": "AI-powered litigation support and evidence analysis platform",
-    "description": "Advanced document intelligence system for legal professionals, featuring OCR, automated metadata extraction, and case management tools.",
-    "tags": [
-      "Legal Tech",
-      "AI",
-      "Document Analysis"
-    ],
-    "techStack": [
-      "TypeScript",
-      "React",
-      "Node.js",
-      "OpenAI",
-      "PostgreSQL"
-    ],
+    "summary": "Forensic evidence integrity platform with OCR pipeline, document hashing, chain-of-custody audit logs, and case jacket management.",
+    "description": "Full-stack legal technology system built to preserve evidentiary admissibility. Features immutable document processing, SHA-256 hashing at every stage, append-only audit logs, and a multi-app satellite architecture hosting four specialized applications under one domain.",
+    "tags": ["Legal Tech", "Forensic", "Evidence Integrity", "Platform"],
+    "techStack": ["TypeScript", "React 18", "Vite", "Tailwind CSS", "GitHub Pages"],
     "links": [
-      {
-        "label": "Documentation",
-        "url": "#",
-        "type": "docs"
-      }
+      { "label": "Live Site", "url": "https://evident.icu", "type": "demo" },
+      { "label": "Repository", "url": "https://github.com/DTMBX/EVIDENT", "type": "repo" }
     ],
     "order": 0,
     "enabled": true,
     "featured": true,
     "status": "active",
+    "customization": { "accentColor": "emerald", "badgeText": "Flagship" },
+    "createdAt": 1771186711961,
+    "updatedAt": 1771186711961
+  },
+  {
+    "id": "epstein-library",
+    "title": "Epstein Library",
+    "summary": "DOJ evidence analysis platform with multi-engine document processing, source verification scoring, and chronological timeline reconstruction.",
+    "description": "Research-grade application for analyzing publicly released DOJ documents. Features three processing engines (forensic, intelligence, academic), automated source verification with confidence scoring, entity and relationship extraction, and full-text search across thousands of exhibits.",
+    "tags": ["Document Analysis", "OSINT", "Research", "Evidence"],
+    "techStack": ["TypeScript", "React 18", "Vite", "Radix UI", "Phosphor Icons"],
+    "links": [
+      { "label": "Live App", "url": "https://evident.icu/apps/epstein-library/", "type": "demo" }
+    ],
+    "order": 1,
+    "enabled": true,
+    "featured": true,
+    "status": "active",
+    "customization": { "accentColor": "amber", "badgeText": "Evident Satellite" },
+    "createdAt": 1771186711961,
+    "updatedAt": 1771186711961
+  },
+  {
+    "id": "civics-hierarchy",
+    "title": "Civics Hierarchy",
+    "summary": "Constitutional law reference platform mapping the hierarchy of legal authority from Natural Law through federal, state, and local jurisdictions.",
+    "description": "Interactive legal education tool with 13 navigable views covering the full spectrum of American constitutional governance. Features structured category navigation, detailed source citations, and responsive design optimized for research workflows.",
+    "tags": ["Civic Tech", "Legal Education", "Constitutional Law"],
+    "techStack": ["TypeScript", "React 18", "Vite", "Tailwind CSS", "Hash Routing"],
+    "links": [
+      { "label": "Live App", "url": "https://evident.icu/apps/civics-hierarchy/", "type": "demo" }
+    ],
+    "order": 2,
+    "enabled": true,
+    "featured": true,
+    "status": "active",
+    "customization": { "accentColor": "blue", "badgeText": "Evident Satellite" },
+    "createdAt": 1771186711961,
+    "updatedAt": 1771186711961
+  },
+  {
+    "id": "essential-goods-ledger",
+    "title": "Essential Goods Ledger",
+    "summary": "Economic analysis platform tracking commodity pricing, supply chain metrics, and cost-of-living indicators with historical trend visualization.",
+    "description": "Data-driven economic insights application (codename Chronos) providing transparency into essential goods pricing. Features tab-driven category navigation, trend analysis with interactive charts, and household budget impact scoring across food, energy, housing, and healthcare sectors.",
+    "tags": ["Economics", "Data Visualization", "Transparency", "Commodity Tracking"],
+    "techStack": ["TypeScript", "React 18", "Vite", "Recharts", "Radix UI"],
+    "links": [
+      { "label": "Live App", "url": "https://evident.icu/apps/essential-goods/", "type": "demo" }
+    ],
+    "order": 3,
+    "enabled": true,
+    "featured": false,
+    "status": "active",
+    "customization": { "accentColor": "teal", "badgeText": "Evident Satellite" },
+    "createdAt": 1771186711961,
+    "updatedAt": 1771186711961
+  },
+  {
+    "id": "geneva-bible-study",
+    "title": "Geneva Bible Study",
+    "summary": "Offline-capable Bible study application with full-text search, marginal notes, cross-references, bookmarks, and reading plans.",
+    "description": "Comprehensive Scripture study tool featuring the Geneva Bible text with original marginal annotations. Includes verse-by-verse navigation, keyword search, personal notes and highlights, customizable reading plans, and Capacitor-based native mobile deployment. The largest application in the Evident ecosystem with 38 interactive views.",
+    "tags": ["Education", "Scripture", "Offline-First", "Mobile"],
+    "techStack": ["TypeScript", "React 18", "Vite", "Capacitor", "Radix UI", "IndexedDB"],
+    "links": [
+      { "label": "Live App", "url": "https://evident.icu/apps/geneva-bible-study/", "type": "demo" }
+    ],
+    "order": 4,
+    "enabled": true,
+    "featured": false,
+    "status": "active",
+    "customization": { "accentColor": "amber", "badgeText": "Evident Satellite" },
     "createdAt": 1771186711961,
     "updatedAt": 1771186711961
   }
