@@ -2,7 +2,7 @@
 
 A premium one-page personal landing site for Devon Tyler Barber (xTx396) with **Trinity Layout** — an intelligent audience-triage navigation system that instantly routes three distinct audiences (Investors, Lawyers, Friends/Supporters) into tailored content pathways while preserving a single, elegant landing page experience.
 
-**Latest Update**: Implemented Trinity Layout refactor with three distinct audience pathways accessible from the hero section. Visitors click large, prominent glass buttons (Investors | Legal/Court | About/Friends) to instantly filter content to their needs. Active pathway displays as a badge with "Return to Overview" option. Navigation dynamically updates to show only relevant sections per pathway.
+**Latest Update**: Implemented comprehensive Hero Video Background system with USA-flag.mp4 support. Features include: full-bleed background video with configurable dark overlay and gradient vignette for text readability, crisp white typography with text shadows, optional CTA buttons with glassmorphism styling, responsive behavior (centered-left on desktop, stacked on mobile), motion & accessibility controls (respects reduced-motion preferences with pause/play toggle), optimized lazy loading with poster fallback, and complete admin control panel for video URL, poster image, overlay intensity, vignette, text alignment, headline/subhead copy, CTA configuration, and motion modes. Trinity Layout audience triage preserved with three distinct pathways (Investors | Legal/Court | About/Friends).
 
 **Experience Qualities**:
 1. **Triage-Driven & Intentional** - Within 5 seconds, visitors identify which pathway applies to them and access focused, relevant content without wading through irrelevant sections
@@ -21,6 +21,24 @@ This comprehensive dual-interface application now features Trinity Layout audien
 - **Trigger**: Visitor lands on hero section and sees three clear pathway options
 - **Progression**: Read positioning → identify relevant pathway → click Trinity button → scroll to focused content section → explore pathway-specific materials → optional "Return to Overview" to see full site
 - **Success criteria**: Trinity buttons obvious within first screen, mobile stacked layout, clicking filters visible sections, active pathway badge displays, return to overview works
+
+### Hero Video Background System
+- **Functionality**: Full-bleed background video (e.g., USA-flag.mp4) with layered system: Video layer → dark contrast overlay → optional gradient vignette → text/content layer → CTA buttons and Trinity selector
+- **Purpose**: Create premium, memorable first impression while maintaining excellent text readability and accessibility for all users including those with motion sensitivity
+- **Trigger**: Page load with video autoplay (muted, looped) or poster display based on motion preferences
+- **Progression**: Load poster instantly → video buffers in background → autoplay begins (if allowed) → user sees crisp white text over darkened video → optional pause/play control → CTA buttons and Trinity selector remain highly readable throughout
+- **Success criteria**: 
+  - White text remains readable across entire video loop on all devices
+  - Video never blocks initial content display (poster shows immediately)
+  - Reduced-motion users see static poster with same text styling
+  - Video optimized for web (<2MB, efficient encoding, fast buffering)
+  - Overlay intensity configurable (40-70% recommended)
+  - Vignette provides additional edge darkening for text safety
+  - Admin can configure all aspects without code changes
+  - Pause/play button visible and accessible
+  - Fallback to poster if video fails to load
+  - Mobile: increased overlay strength for smaller screens
+  - All animations disabled in reduced-motion mode
 
 ### Pathway Content Filtering
 - **Functionality**: Dynamic section visibility based on selected pathway: Investors (Projects + Proof + Contact), Legal (Court + Contact), About (Contact only beyond hero)
@@ -159,6 +177,24 @@ This comprehensive dual-interface application now features Trinity Layout audien
 - **Trigger**: Admin navigates to Theme section
 - **Progression**: Select color token → pick color → see preview → adjust fonts → tweak spacing → restore defaults or publish
 - **Success criteria**: Changes preview instantly, all tokens editable, restore defaults works, changes persist
+
+### Admin Hero Media Controls
+- **Functionality**: Comprehensive admin panel for hero section background video configuration with controls for: video URL upload/selection, poster image URL, overlay intensity slider (0-100%), vignette toggle, text alignment (left/center), headline and subhead text editing, primary and secondary CTA button configuration (label + URL), motion mode selection (Full/Reduced/Off), and auto-contrast assist toggle
+- **Purpose**: Enable complete control over hero video presentation, readability, and accessibility without touching code while providing clear guidance on best practices
+- **Trigger**: Admin navigates to Hero Media section in dashboard
+- **Progression**: Enter video URL → set poster image → adjust overlay intensity with live slider → toggle vignette on/off → configure text alignment → edit headline/subhead copy → add optional CTA buttons with labels and URLs → select motion mode → toggle auto-contrast → save settings → preview on public site
+- **Success criteria**:
+  - All hero media settings accessible in admin dashboard
+  - Overlay intensity slider with percentage display (0-100%)
+  - Vignette and auto-contrast toggles clearly labeled
+  - Text alignment selector (left vs center)
+  - CTA button configuration optional (can be left empty)
+  - Motion mode dropdown: Full (always play) / Reduced (pause if reduced motion) / Off (never play)
+  - Best practices guide displayed with recommendations
+  - Warning shown when auto-contrast overrides manual overlay setting
+  - Save/Reset buttons functional
+  - Changes immediately reflected on public site
+  - Mobile-friendly admin interface
 
 ### Admin Domain & SEO Controls
 - **Functionality**: Set primary domain, configure redirects, edit meta tags, upload social preview image

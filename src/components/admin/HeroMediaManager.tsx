@@ -1,0 +1,369 @@
+import { useState } from 'react'
+import { useKV } from '@github/spark/hooks'
+import { SiteSettings } from '@/lib/types'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Slider } from '@/components/ui/slider'
+import { toast } from 'sonner'
+import { VideoCamera, Image as ImageIcon, Check, Warning } from '@phosphor-icons/react'
+
+export default function HeroMediaManager() {
+  const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
+    siteName: 'Devon Tyler Barber',
+    tagline: 'Founder & Innovator',
+    description: 'Building transformative solutions at the intersection of technology and justice.',
+    primaryDomain: 'xTx396.online',
+    domainRedirects: [],
+    analyticsEnabled: true,
+    indexingEnabled: true,
+    investorModeAvailable: true
+  })
+
+  const [videoUrl, setVideoUrl] = useState(settings?.heroMedia?.videoUrl || '')
+  const [posterUrl, setPosterUrl] = useState(settings?.heroMedia?.posterUrl || '')
+  const [overlayIntensity, setOverlayIntensity] = useState(settings?.heroMedia?.overlayIntensity ?? 0.5)
+  const [vignetteEnabled, setVignetteEnabled] = useState(settings?.heroMedia?.vignetteEnabled ?? true)
+  const [textAlignment, setTextAlignment] = useState<'left' | 'center'>(settings?.heroMedia?.textAlignment ?? 'center')
+  const [headlineText, setHeadlineText] = useState(settings?.heroMedia?.headlineText || settings?.siteName || '')
+  const [subheadText, setSubheadText] = useState(settings?.heroMedia?.subheadText || settings?.tagline || '')
+  const [ctaPrimaryLabel, setCtaPrimaryLabel] = useState(settings?.heroMedia?.ctaPrimary?.label || '')
+  const [ctaPrimaryUrl, setCtaPrimaryUrl] = useState(settings?.heroMedia?.ctaPrimary?.url || '')
+  const [ctaSecondaryLabel, setCtaSecondaryLabel] = useState(settings?.heroMedia?.ctaSecondary?.label || '')
+  const [ctaSecondaryUrl, setCtaSecondaryUrl] = useState(settings?.heroMedia?.ctaSecondary?.url || '')
+  const [motionMode, setMotionMode] = useState<'full' | 'reduced' | 'off'>(settings?.heroMedia?.motionMode ?? 'full')
+  const [autoContrast, setAutoContrast] = useState(settings?.heroMedia?.autoContrast ?? false)
+
+  const handleSave = () => {
+    setSettings((current) => {
+      const updated: SiteSettings = {
+        siteName: current?.siteName || 'Devon Tyler Barber',
+        tagline: current?.tagline || 'Founder & Innovator',
+        description: current?.description || '',
+        primaryDomain: current?.primaryDomain || 'xTx396.online',
+        domainRedirects: current?.domainRedirects || [],
+        analyticsEnabled: current?.analyticsEnabled ?? true,
+        indexingEnabled: current?.indexingEnabled ?? true,
+        investorModeAvailable: current?.investorModeAvailable ?? true,
+        heroMedia: {
+          videoUrl: videoUrl.trim() || undefined,
+          posterUrl: posterUrl.trim() || undefined,
+          overlayIntensity,
+          vignetteEnabled,
+          textAlignment,
+          headlineText: headlineText.trim(),
+          subheadText: subheadText.trim(),
+          ctaPrimary: ctaPrimaryLabel.trim() && ctaPrimaryUrl.trim() 
+            ? { label: ctaPrimaryLabel.trim(), url: ctaPrimaryUrl.trim() }
+            : undefined,
+          ctaSecondary: ctaSecondaryLabel.trim() && ctaSecondaryUrl.trim()
+            ? { label: ctaSecondaryLabel.trim(), url: ctaSecondaryUrl.trim() }
+            : undefined,
+          motionMode,
+          autoContrast
+        }
+      }
+      return updated
+    })
+    toast.success('Hero media settings saved')
+  }
+
+  const handleReset = () => {
+    setVideoUrl('')
+    setPosterUrl('')
+    setOverlayIntensity(0.5)
+    setVignetteEnabled(true)
+    setTextAlignment('center')
+    setHeadlineText(settings?.siteName || '')
+    setSubheadText(settings?.tagline || '')
+    setCtaPrimaryLabel('')
+    setCtaPrimaryUrl('')
+    setCtaSecondaryLabel('')
+    setCtaSecondaryUrl('')
+    setMotionMode('full')
+    setAutoContrast(false)
+    toast.info('Form reset to defaults')
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-2">Hero Media Settings</h2>
+        <p className="text-muted-foreground">
+          Configure background video, overlay intensity, text styling, and CTAs for the hero section.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <VideoCamera className="h-5 w-5" />
+            Video & Poster
+          </CardTitle>
+          <CardDescription>
+            Set the background video and fallback poster image. Video must be optimized for web (MP4, reasonable bitrate).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="video-url">Video URL (MP4)</Label>
+            <Input
+              id="video-url"
+              type="url"
+              placeholder="https://example.com/USA-flag.mp4 or /assets/video/flag.mp4"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Leave empty to use gradient background. If provided, video will autoplay muted and loop.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="poster-url">Poster Image URL</Label>
+            <Input
+              id="poster-url"
+              type="url"
+              placeholder="https://example.com/poster.jpg or /assets/images/poster.jpg"
+              value={posterUrl}
+              onChange={(e) => setPosterUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Shown while video loads or if video fails. Also shown for reduced-motion users when motion is off.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Overlay & Readability</CardTitle>
+          <CardDescription>
+            Control dark overlay intensity and vignette to ensure white text remains readable.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="overlay-intensity">Overlay Intensity</Label>
+              <span className="text-sm text-muted-foreground">{Math.round(overlayIntensity * 100)}%</span>
+            </div>
+            <Slider
+              id="overlay-intensity"
+              min={0}
+              max={1}
+              step={0.05}
+              value={[overlayIntensity]}
+              onValueChange={([value]) => setOverlayIntensity(value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Higher values darken the background more. Recommended: 0.4-0.7 for video backgrounds.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="vignette-enabled">Gradient Vignette</Label>
+              <p className="text-xs text-muted-foreground">
+                Adds subtle darkening at edges for better text readability
+              </p>
+            </div>
+            <Switch
+              id="vignette-enabled"
+              checked={vignetteEnabled}
+              onCheckedChange={setVignetteEnabled}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <Label htmlFor="auto-contrast">Auto-Contrast Boost</Label>
+              <p className="text-xs text-muted-foreground">
+                Automatically increases overlay for brighter backgrounds
+              </p>
+            </div>
+            <Switch
+              id="auto-contrast"
+              checked={autoContrast}
+              onCheckedChange={setAutoContrast}
+            />
+          </div>
+
+          {autoContrast && overlayIntensity < 0.6 && (
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-accent/10 border border-accent/30">
+              <Warning className="h-5 w-5 text-accent mt-0.5" />
+              <div className="text-sm">
+                <strong>Auto-contrast active:</strong> Minimum overlay of 60% will be enforced for readability.
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Text Content & Layout</CardTitle>
+          <CardDescription>
+            Customize headline, subhead, and text alignment for the hero section.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="headline-text">Headline Text</Label>
+            <Input
+              id="headline-text"
+              type="text"
+              placeholder="Devon Tyler Barber"
+              value={headlineText}
+              onChange={(e) => setHeadlineText(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="subhead-text">Subhead Text</Label>
+            <Input
+              id="subhead-text"
+              type="text"
+              placeholder="Founder & Innovator"
+              value={subheadText}
+              onChange={(e) => setSubheadText(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="text-alignment">Text Alignment</Label>
+            <Select value={textAlignment} onValueChange={(value: 'left' | 'center') => setTextAlignment(value)}>
+              <SelectTrigger id="text-alignment">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="center">Center</SelectItem>
+                <SelectItem value="left">Left (Desktop: center-left, Mobile: left)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Call-to-Action Buttons</CardTitle>
+          <CardDescription>
+            Optional CTA buttons displayed above the Trinity selector. Leave empty to hide.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-3">
+            <h4 className="font-medium">Primary CTA</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="cta-primary-label">Button Label</Label>
+                <Input
+                  id="cta-primary-label"
+                  type="text"
+                  placeholder="Download Packet"
+                  value={ctaPrimaryLabel}
+                  onChange={(e) => setCtaPrimaryLabel(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cta-primary-url">Button URL</Label>
+                <Input
+                  id="cta-primary-url"
+                  type="url"
+                  placeholder="https://example.com/packet.pdf"
+                  value={ctaPrimaryUrl}
+                  onChange={(e) => setCtaPrimaryUrl(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="font-medium">Secondary CTA</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="cta-secondary-label">Button Label</Label>
+                <Input
+                  id="cta-secondary-label"
+                  type="text"
+                  placeholder="Schedule Call"
+                  value={ctaSecondaryLabel}
+                  onChange={(e) => setCtaSecondaryLabel(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cta-secondary-url">Button URL</Label>
+                <Input
+                  id="cta-secondary-url"
+                  type="url"
+                  placeholder="https://calendly.com/..."
+                  value={ctaSecondaryUrl}
+                  onChange={(e) => setCtaSecondaryUrl(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Motion & Accessibility</CardTitle>
+          <CardDescription>
+            Control video playback behavior for users with motion sensitivity.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="motion-mode">Motion Mode</Label>
+            <Select value={motionMode} onValueChange={(value: 'full' | 'reduced' | 'off') => setMotionMode(value)}>
+              <SelectTrigger id="motion-mode">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="full">Full — Always autoplay video</SelectItem>
+                <SelectItem value="reduced">Reduced — Pause video if user prefers reduced motion</SelectItem>
+                <SelectItem value="off">Off — Always show poster, never play video</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Users will see a pause/play button to control playback regardless of setting.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-accent/30 bg-accent/5">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3 mb-4">
+            <Check className="h-5 w-5 text-accent mt-0.5" />
+            <div className="space-y-1 flex-1">
+              <h4 className="font-medium">Best Practices</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Optimize video for web: MP4, H.264 codec, ~1-2 Mbps bitrate, 1080p max</li>
+                <li>• Keep videos short (10-30 seconds) and loopable</li>
+                <li>• Always provide a poster image for fast initial display</li>
+                <li>• Test text readability: overlay 50-70% works for most videos</li>
+                <li>• Use white text with strong weight (700) and generous letter spacing</li>
+                <li>• Respect reduced motion: users with motion sensitivity see poster only</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex gap-3 justify-end">
+        <Button variant="outline" onClick={handleReset}>
+          Reset to Defaults
+        </Button>
+        <Button onClick={handleSave}>
+          Save Hero Media Settings
+        </Button>
+      </div>
+    </div>
+  )
+}

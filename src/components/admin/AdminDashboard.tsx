@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck } from '@phosphor-icons/react'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
@@ -14,6 +14,7 @@ import UploadQueueManager from './UploadQueueManager'
 import StagingReviewManager from './StagingReviewManager'
 import FilingTypesManager from './FilingTypesManager'
 import TemplatesManager from './TemplatesManager'
+import HeroMediaManager from './HeroMediaManager'
 import ThemeManager from './ThemeManager'
 import SettingsManager from './SettingsManager'
 import SecurityManager from './SecurityManager'
@@ -96,6 +97,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <ClipboardText className="h-4 w-4" />
                 <span className="hidden sm:inline">Templates</span>
               </TabsTrigger>
+              <TabsTrigger value="hero-media" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <VideoCamera className="h-4 w-4" />
+                <span className="hidden sm:inline">Hero Media</span>
+              </TabsTrigger>
               <TabsTrigger value="theme" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Palette className="h-4 w-4" />
                 <span className="hidden sm:inline">Theme</span>
@@ -149,6 +154,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
           <TabsContent value="templates" className="space-y-4">
             <TemplatesManager />
+          </TabsContent>
+
+          <TabsContent value="hero-media" className="space-y-4">
+            <HeroMediaManager />
           </TabsContent>
 
           <TabsContent value="theme" className="space-y-4">

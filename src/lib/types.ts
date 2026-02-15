@@ -17,6 +17,20 @@ export interface Session {
   expiresAt: number
 }
 
+export interface HeroMediaSettings {
+  videoUrl?: string
+  posterUrl?: string
+  overlayIntensity: number
+  vignetteEnabled: boolean
+  textAlignment: 'left' | 'center'
+  headlineText: string
+  subheadText: string
+  ctaPrimary?: { label: string; url: string }
+  ctaSecondary?: { label: string; url: string }
+  motionMode: 'full' | 'reduced' | 'off'
+  autoContrast: boolean
+}
+
 export interface SiteSettings {
   siteName: string
   tagline: string
@@ -31,6 +45,7 @@ export interface SiteSettings {
   glassIntensity?: 'low' | 'medium' | 'high'
   gradientUsage?: 'off' | 'accent' | 'enhanced'
   contrastMode?: 'standard' | 'extra'
+  heroMedia?: HeroMediaSettings
 }
 
 export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact'
