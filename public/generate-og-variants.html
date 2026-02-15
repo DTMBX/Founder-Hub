@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OG Variant Generator - xTx396</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #0a0e1a;
+            color: #f0f3f5;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #9de0ad;
+            letter-spacing: -1px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: rgba(240, 243, 245, 0.7);
+            margin-bottom: 12px;
+        }
+        
+        .instructions {
+            max-width: 800px;
+            margin: 0 auto 40px;
+            padding: 24px;
+            background: rgba(157, 224, 173, 0.05);
+            border: 1px solid rgba(157, 224, 173, 0.2);
+            border-radius: 12px;
+        }
+        
+        .instructions h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: #9de0ad;
+        }
+        
+        .instructions ol {
+            margin-left: 24px;
+            line-height: 1.8;
+        }
+        
+        .instructions code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #9de0ad;
+        }
+        
+        .variants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .variant-card {
+            background: rgba(18, 23, 43, 0.8);
+            border: 1px solid rgba(157, 224, 173, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .variant-card:hover {
+            border-color: rgba(157, 224, 173, 0.5);
+            box-shadow: 0 8px 32px rgba(157, 224, 173, 0.1);
+        }
+        
+        .variant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .variant-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: #f0f3f5;
+            margin-bottom: 4px;
+        }
+        
+        .variant-description {
+            font-size: 14px;
+            color: rgba(240, 243, 245, 0.6);
+            margin-bottom: 8px;
+        }
+        
+        .variant-use {
+            font-size: 13px;
+            color: #9de0ad;
+            font-weight: 500;
+        }
+        
+        .variant-badge {
+            background: rgba(157, 224, 173, 0.15);
+            color: #9de0ad;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .variant-badge.default {
+            background: rgba(157, 224, 173, 0.3);
+        }
+        
+        .preview-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1200 / 630;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid rgba(157, 224, 173, 0.1);
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .canvas-hidden {
+            display: none;
+        }
+        
+        .variant-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #9de0ad;
+            color: #0a0e1a;
+        }
+        
+        .btn-primary:hover {
+            background: #b0f0c0;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: rgba(157, 224, 173, 0.1);
+            color: #9de0ad;
+            border: 1px solid rgba(157, 224, 173, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(157, 224, 173, 0.2);
+            border-color: rgba(157, 224, 173, 0.5);
+        }
+        
+        .status {
+            text-align: center;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: rgba(157, 224, 173, 0.15);
+            color: #9de0ad;
+            border: 1px solid rgba(157, 224, 173, 0.3);
+        }
+        
+        .status.error {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(157, 224, 173, 0.1);
+            color: rgba(240, 243, 245, 0.5);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .variants-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 36px;
+            }
+            
+            .variant-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OG Variant Generator</h1>
+            <p class="subtitle">xTx396 Founder Hub — Social Media Preview Images</p>
+        </header>
+        
+        <div class="instructions">
+            <h2>📸 How to Generate Your OG Image</h2>
+            <ol>
+                <li>Preview all variants below (they load automatically)</li>
+                <li>Click <strong>"Download PNG"</strong> on your chosen variant</li>
+                <li>Rename the downloaded file to <code>og-preview.png</code></li>
+                <li>Place it in the <code>/public</code> directory of your project</li>
+                <li>Test at <a href="https://www.linkedin.com/post-inspector/" target="_blank" style="color: #9de0ad;">LinkedIn Post Inspector</a></li>
+            </ol>
+        </div>
+        
+        <div class="variants-grid" id="variants-container">
+            <!-- Variants will be injected here -->
+        </div>
+        
+        <footer>
+            <p>xTx396 Founder Hub — Devon Tyler Barber</p>
+            <p style="margin-top: 8px;">All variants: 1200×630px PNG | Dark theme | High contrast</p>
+        </footer>
+    </div>
+
+    <script>
+        const variants = [
+            {
+                id: 'variant-1-minimal',
+                title: 'Clean Minimal',
+                description: 'Professional default presentation with balanced composition',
+                use: 'Best for: LinkedIn shares, formal contexts, first impressions',
+                default: true
+            },
+            {
+                id: 'variant-2-bold',
+                title: 'Bold Headline',
+                description: 'Name-dominant power layout with strong visual hierarchy',
+                use: 'Best for: Personal brand emphasis, speaking engagements',
+                default: false
+            },
+            {
+                id: 'variant-3-tech-grid',
+                title: 'Tech Grid',
+                description: 'Developer-focused with circuit pattern background',
+                use: 'Best for: GitHub projects, technical blog posts, dev community',
+                default: false
+            },
+            {
+                id: 'variant-4-patriotic',
+                title: 'Patriotic Accent',
+                description: 'Subtle flag-inspired stripes and star field pattern',
+                use: 'Best for: Court transparency content, civic projects',
+                default: false
+            },
+            {
+                id: 'variant-5-forensics',
+                title: 'Evidence/Forensics',
+                description: 'Legal document aesthetic with scanlines and verification motif',
+                use: 'Best for: Case jacket shares, legal documentation',
+                default: false
+            },
+            {
+                id: 'variant-6-investor',
+                title: 'Investor Focus',
+                description: 'Growth-oriented layout with venture emphasis',
+                use: 'Best for: Pitch deck shares, investor outreach',
+                default: false
+            }
+        ];
+
+        const container = document.getElementById('variants-container');
+
+        variants.forEach(variant => {
+            const card = document.createElement('div');
+            card.className = 'variant-card';
+            card.innerHTML = `
+                <div class="variant-header">
+                    <div>
+                        <div class="variant-title">${variant.title}</div>
+                        <div class="variant-description">${variant.description}</div>
+                        <div class="variant-use">${variant.use}</div>
+                    </div>
+                    ${variant.default ? '<div class="variant-badge default">Default</div>' : '<div class="variant-badge">Variant</div>'}
+                </div>
+                <div class="preview-container">
+                    <img class="preview-image" id="preview-${variant.id}" alt="${variant.title} preview">
+                </div>
+                <canvas class="canvas-hidden" id="canvas-${variant.id}" width="1200" height="630"></canvas>
+                <div class="variant-actions">
+                    <button class="btn btn-primary" onclick="downloadVariant('${variant.id}')">
+                        <span>⬇</span> Download PNG (1200×630)
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('${variant.id}')">
+                        <span>📋</span> Copy to Clipboard
+                    </button>
+                </div>
+                <div id="status-${variant.id}"></div>
+            `;
+            container.appendChild(card);
+            
+            loadVariant(variant.id);
+        });
+
+        async function loadVariant(variantId) {
+            try {
+                const response = await fetch(`/og/variants/${variantId}.svg`);
+                const svgText = await response.text();
+                
+                const canvas = document.getElementById(`canvas-${variantId}`);
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    ctx.clearRect(0, 0, 1200, 630);
+                    ctx.drawImage(img, 0, 0, 1200, 630);
+                    
+                    const dataUrl = canvas.toDataURL('image/png');
+                    document.getElementById(`preview-${variantId}`).src = dataUrl;
+                };
+                
+                const blob = new Blob([svgText], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                img.src = url;
+                
+            } catch (error) {
+                console.error(`Error loading ${variantId}:`, error);
+                showStatus(variantId, 'error', `Failed to load variant: ${error.message}`);
+            }
+        }
+
+        function downloadVariant(variantId) {
+            const canvas = document.getElementById(`canvas-${variantId}`);
+            const link = document.createElement('a');
+            link.download = `${variantId}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            showStatus(variantId, 'success', `✓ Downloaded! Rename to "og-preview.png" and place in /public`);
+            
+            setTimeout(() => {
+                const statusEl = document.getElementById(`status-${variantId}`);
+                if (statusEl) statusEl.innerHTML = '';
+            }, 5000);
+        }
+
+        async function copyToClipboard(variantId) {
+            try {
+                const canvas = document.getElementById(`canvas-${variantId}`);
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                await navigator.clipboard.write([
+                    new ClipboardItem({ 'image/png': blob })
+                ]);
+                showStatus(variantId, 'success', '✓ Copied to clipboard! You can paste it directly.');
+                
+                setTimeout(() => {
+                    const statusEl = document.getElementById(`status-${variantId}`);
+                    if (statusEl) statusEl.innerHTML = '';
+                }, 3000);
+            } catch (error) {
+                showStatus(variantId, 'error', 'Clipboard not supported. Use Download button instead.');
+            }
+        }
+
+        function showStatus(variantId, type, message) {
+            const statusEl = document.getElementById(`status-${variantId}`);
+            if (statusEl) {
+                statusEl.className = `status ${type}`;
+                statusEl.textContent = message;
+            }
+        }
+    </script>
+</body>
+</html>
