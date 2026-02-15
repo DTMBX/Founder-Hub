@@ -192,3 +192,23 @@
     transparent 100%
   );
 }
+
+@keyframes subtle-wave {
+  0%, 100% {
+    transform: translateY(0) rotateZ(0deg);
+  }
+  25% {
+    transform: translateY(-0.5px) rotateZ(0.3deg);
+  }
+  50% {
+    transform: translateY(0) rotateZ(0deg);
+  }
+  75% {
+    transform: translateY(0.5px) rotateZ(-0.3deg);
+  }
+}
+
+.animate-subtle-wave {
+  animation: subtle-wave 8s ease-in-out infinite;
+  transform-origin: center center;
+}

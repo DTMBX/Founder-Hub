@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import Navigation from './Navigation'
+import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
 import ProjectsSection from './sections/ProjectsSection'
 import CourtSection from './sections/CourtSection'
@@ -138,6 +139,14 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ScrollProgress />
+      <HonorFlagBar 
+        enabled={true}
+        rotationCadence={20000}
+        maxFlagsDesktop={7}
+        maxFlagsMobile={3}
+        animationEnabled={true}
+        alignment="center"
+      />
       <Navigation 
         sections={enabledSections}
         investorMode={false}
@@ -149,7 +158,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
       {/* Pathway mode indicator */}
       {pathway !== 'all' && (
-        <div className="fixed top-20 right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+        <div className="fixed top-[104px] sm:top-[108px] md:top-[112px] right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
           <Badge variant="secondary" className={`backdrop-blur-xl bg-card/90 border px-3 py-1.5 text-xs font-medium shadow-lg ${pathwayLabels[pathway]?.color}`}>
             {pathwayLabels[pathway]?.label}
           </Badge>
