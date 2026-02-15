@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { toast } from 'sonner'
-import { VideoCamera, Image as ImageIcon, Check, Warning } from '@phosphor-icons/react'
+import { VideoCamera, Image as ImageIcon, Check, Warning, FlagBanner } from '@phosphor-icons/react'
 
 export default function HeroMediaManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
@@ -88,6 +88,15 @@ export default function HeroMediaManager() {
     toast.info('Form reset to defaults')
   }
 
+  const applyUSAFlagPreset = () => {
+    setOverlayIntensity(0.65)
+    setVignetteEnabled(true)
+    setAutoContrast(true)
+    setTextAlignment('center')
+    setMotionMode('full')
+    toast.success('USA Flag optimal settings applied - 65% overlay, vignette & auto-contrast enabled')
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -96,6 +105,40 @@ export default function HeroMediaManager() {
           Configure background video, overlay intensity, text styling, and CTAs for the hero section.
         </p>
       </div>
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <CardTitle className="flex items-center gap-2">
+                <FlagBanner className="h-5 w-5 text-primary" />
+                USA Flag Video Quick Setup
+              </CardTitle>
+              <CardDescription>
+                Using USA-flag.mp4? Apply optimized overlay settings for bright patriotic content.
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={applyUSAFlagPreset}
+              className="shrink-0"
+            >
+              Apply USA Flag Preset
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p>
+              <strong>Recommended for bright flag videos:</strong> 65% overlay, vignette enabled, auto-contrast on, centered text.
+            </p>
+            <p className="text-xs">
+              Place your USA-flag.mp4 file in <code className="px-1 py-0.5 rounded bg-muted">/src/assets/video/</code> and reference it below, or use a CDN URL.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -113,7 +156,7 @@ export default function HeroMediaManager() {
             <Input
               id="video-url"
               type="url"
-              placeholder="https://example.com/USA-flag.mp4 or /assets/video/flag.mp4"
+              placeholder="https://example.com/USA-flag.mp4 or /src/assets/video/USA-flag.mp4"
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
             />
@@ -127,7 +170,7 @@ export default function HeroMediaManager() {
             <Input
               id="poster-url"
               type="url"
-              placeholder="https://example.com/poster.jpg or /assets/images/poster.jpg"
+              placeholder="https://example.com/poster.jpg or /src/assets/images/poster.jpg"
               value={posterUrl}
               onChange={(e) => setPosterUrl(e.target.value)}
             />
@@ -160,8 +203,14 @@ export default function HeroMediaManager() {
               onValueChange={([value]) => setOverlayIntensity(value)}
             />
             <p className="text-xs text-muted-foreground">
-              Higher values darken the background more. Recommended: 0.4-0.7 for video backgrounds.
+              Higher values darken the background more. Recommended: 0.4-0.5 for dark videos, 0.65-0.7 for bright content like USA flag.
             </p>
+            {overlayIntensity >= 0.6 && overlayIntensity <= 0.7 && (
+              <div className="flex items-center gap-2 text-xs text-primary">
+                <Check className="h-4 w-4" />
+                <span>Optimal range for bright patriotic content</span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -347,7 +396,8 @@ export default function HeroMediaManager() {
                 <li>• Optimize video for web: MP4, H.264 codec, ~1-2 Mbps bitrate, 1080p max</li>
                 <li>• Keep videos short (10-30 seconds) and loopable</li>
                 <li>• Always provide a poster image for fast initial display</li>
-                <li>• Test text readability: overlay 50-70% works for most videos</li>
+                <li>• Test text readability: 40-50% for dark videos, 65-70% for bright content</li>
+                <li>• USA flag video? Use the preset above for optimal settings (65% overlay)</li>
                 <li>• Use white text with strong weight (700) and generous letter spacing</li>
                 <li>• Respect reduced motion: users with motion sensitivity see poster only</li>
               </ul>
