@@ -5,7 +5,6 @@ import AdminLogin from './components/admin/AdminLogin'
 import CaseJacket from './components/CaseJacket'
 import { useAuth } from './lib/auth'
 import { useInitializeSampleData } from './lib/initialize-sample-data'
-import { isLocalhost } from './lib/local-storage-kv'
 
 type View = 'public' | 'admin' | 'case-jacket'
 
@@ -13,7 +12,6 @@ function App() {
   const [view, setView] = useState<View>('public')
   const [caseId, setCaseId] = useState<string>('')
   const { isAuthenticated, isLoading } = useAuth()
-  const adminAllowed = isLocalhost()
   
   useInitializeSampleData()
 
@@ -25,10 +23,10 @@ function App() {
         setCaseId(id)
         setView('case-jacket')
       }
-    } else if (hash === 'admin' && adminAllowed) {
+    } else if (hash === 'admin') {
       setView('admin')
     }
-  }, [adminAllowed])
+  }, [])
 
   const handleNavigateToCase = (id: string) => {
     setCaseId(id)
@@ -42,10 +40,6 @@ function App() {
   }
 
   const handleNavigateToAdmin = () => {
-    if (!adminAllowed) {
-      console.warn('Admin panel is only available on localhost')
-      return
-    }
     setView('admin')
     window.location.hash = 'admin'
   }
@@ -54,7 +48,7 @@ function App() {
     return <CaseJacket caseId={caseId} onBack={handleBackToPublic} />
   }
 
-  if (view === 'admin' && adminAllowed) {
+  if (view === 'admin') {
     if (isLoading) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background">
@@ -70,7 +64,7 @@ function App() {
     return <AdminDashboard onExit={handleBackToPublic} />
   }
 
-  return <PublicSite onAdminClick={adminAllowed ? handleNavigateToAdmin : undefined} onNavigateToCase={handleNavigateToCase} />
+  return <PublicSite onAdminClick={handleNavigateToAdmin} onNavigateToCase={handleNavigateToCase} />
 }
 
 export default App
