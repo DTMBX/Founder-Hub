@@ -6,13 +6,14 @@ import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
 import { downloadDataFiles } from '@/lib/local-storage-kv'
 import { publishToGitHub, hasGitHubToken } from '@/lib/github-sync'
+import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
 import { 
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -38,6 +39,8 @@ import ProfileManager from './ProfileManager'
 import HonorFlagBarManager from './HonorFlagBarManager'
 import OfferingsManager from './OfferingsManager'
 import InvestorManager from './InvestorManager'
+import SitePicker from './SitePicker'
+import SitesManager from './SitesManager'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -76,6 +79,7 @@ const navItems: NavItem[] = [
   { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets' },
   { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets' },
   // Settings
+  { id: 'sites', label: 'Sites', icon: TreeStructure, category: 'Settings' },
   { id: 'theme', label: 'Theme', icon: Palette, category: 'Settings' },
   { id: 'settings', label: 'Site Settings', icon: Gear, category: 'Settings' },
   { id: 'security', label: 'Security', icon: ShieldCheck, category: 'Settings' },
@@ -86,6 +90,7 @@ const categories = ['Content', 'Management', 'Assets', 'Settings']
 
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
+  const { activeSite, activeSatellite } = useSite()
   const [activeTab, setActiveTab] = useState('content')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
@@ -104,12 +109,30 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       return
     }
     
+    if (!activeSite) {
+      toast.error('No site selected')
+      return
+    }
+    
     setIsPublishing(true)
-    const result = await publishToGitHub()
+    
+    // Build site config for the active site/satellite
+    const [owner, repo] = activeSite.repo.split('/')
+    const dataPath = activeSatellite 
+      ? `${activeSatellite.path}${activeSatellite.dataPath}`
+      : activeSite.dataPath
+    const siteId = activeSatellite?.id || activeSite.id
+    
+    const result = await publishToGitHub({
+      owner,
+      repo,
+      dataPath,
+      siteId
+    })
     setIsPublishing(false)
     
     if (result.success) {
-      toast.success(result.message || 'Published to GitHub!')
+      toast.success(`Published to ${activeSatellite?.name || activeSite.name}!`)
     } else {
       toast.error(result.error || 'Failed to publish')
     }
@@ -139,6 +162,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'assets': return <AssetScanner />
       case 'asset-policy': return <AssetUsagePolicyManager />
       case 'visual-modules': return <VisualModulesManager />
+      case 'sites': return <SitesManager />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />
@@ -172,6 +196,11 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               <CaretRight className={cn('h-4 w-4 transition-transform', sidebarCollapsed ? '' : 'rotate-180')} />
             </Button>
           </div>
+        </div>
+
+        {/* Site Picker */}
+        <div className="p-2 border-b border-border/50">
+          <SitePicker collapsed={sidebarCollapsed} />
         </div>
 
         {/* Nav items */}

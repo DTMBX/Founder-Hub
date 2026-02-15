@@ -594,3 +594,31 @@ export interface InvestorData {
   investorEmail?: string
   investorPhone?: string
 }
+
+// ─── Multi-Site Management ──────────────────────────────────────
+
+export interface SatelliteApp {
+  id: string
+  name: string
+  path: string           // Relative path within worktree (e.g., "apps/civics-hierarchy")
+  dataPath: string       // Data folder path (e.g., "/public/data")
+  enabled: boolean
+  description?: string
+}
+
+export interface ManagedSite {
+  id: string
+  name: string
+  description?: string
+  repo: string           // GitHub repo (e.g., "DTMBX/EVIDENT")
+  dataPath: string       // Data folder path (e.g., "/public/data")
+  localPath: string      // Local filesystem path
+  type: 'primary' | 'worktree'
+  enabled: boolean
+  satellites?: SatelliteApp[]
+}
+
+export interface SitesConfig {
+  sites: ManagedSite[]
+  activeSiteId: string
+}
