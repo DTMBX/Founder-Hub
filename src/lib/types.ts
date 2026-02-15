@@ -166,7 +166,8 @@ export interface OfferingPriceTier {
   currency: 'USD' | 'EUR' | 'GBP'
   description?: string
   features?: string[]
-  stripePaymentLink?: string // Legacy: direct payment link
+  stripePaymentLink?: string // Direct payment link (recommended for static sites)
+  stripeProductId?: string // Stripe Product ID (e.g., prod_xxx)
   stripePriceId?: string // Stripe Price ID for Checkout API (e.g., price_xxx)
   isRecurring?: boolean
   recurringInterval?: 'month' | 'year'
