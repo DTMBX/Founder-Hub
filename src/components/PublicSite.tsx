@@ -35,6 +35,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   })
   const [profile] = useKV<{ catchAllEmail?: string; domain?: string }>('founder-hub-profile', {})
   const [contactLinks] = useKV<Link[]>('founder-hub-contact-links', [])
+  const [proofLinks] = useKV<Link[]>('founder-hub-proof-links', [])
   const [pathway, setPathway] = useState<TrinityPathway>('all')
   const [, setAudienceMode] = useKV<string>('current-audience-mode', 'all')
 
