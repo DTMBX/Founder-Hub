@@ -1,5 +1,5 @@
 import { useKV } from '@github/spark/hooks'
-import { Section } from '@/lib/types'
+import { Section, SiteSettings } from '@/lib/types'
 import { motion, useReducedMotion } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
 
@@ -9,6 +9,16 @@ interface HeroSectionProps {
 
 export default function HeroSection({ investorMode }: HeroSectionProps) {
   const [sections] = useKV<Section[]>('founder-hub-sections', [])
+  const [settings] = useKV<SiteSettings>('founder-hub-settings', {
+    siteName: 'Devon Tyler Barber',
+    tagline: 'Founder & Innovator',
+    description: 'Building transformative solutions at the intersection of technology and justice.',
+    primaryDomain: 'xTx396.online',
+    domainRedirects: [],
+    analyticsEnabled: true,
+    indexingEnabled: true,
+    investorModeAvailable: true
+  })
   const prefersReducedMotion = useReducedMotion()
   
   const heroSection = sections?.find(s => s.type === 'hero')
@@ -55,11 +65,11 @@ export default function HeroSection({ investorMode }: HeroSectionProps) {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6" style={{ letterSpacing: '-0.02em' }}>
-            {heroSection.title || 'Devon Tyler Barber'}
+            {settings?.siteName || 'Devon Tyler Barber'}
           </h1>
           
           <p className="text-xl sm:text-2xl lg:text-3xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto">
-            {heroSection.content || 'Founder & Innovator'}
+            {settings?.tagline || 'Founder & Innovator'}
           </p>
 
           <motion.div
