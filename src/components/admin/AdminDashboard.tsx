@@ -4,11 +4,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText } from '@phosphor-icons/react'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
 import DocumentsManager from './DocumentsManager'
+import AdminInbox from './AdminInbox'
 import UploadQueueManager from './UploadQueueManager'
 import StagingReviewManager from './StagingReviewManager'
 import FilingTypesManager from './FilingTypesManager'
@@ -70,6 +71,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <Scales className="h-4 w-4" />
                 <span className="hidden sm:inline">Cases</span>
               </TabsTrigger>
+              <TabsTrigger value="inbox" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Tray className="h-4 w-4" />
+                <span className="hidden sm:inline">Inbox</span>
+              </TabsTrigger>
               <TabsTrigger value="documents" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FilePdf className="h-4 w-4" />
                 <span className="hidden sm:inline">Documents</span>
@@ -115,6 +120,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
           <TabsContent value="court" className="space-y-4">
             <EnhancedCourtManager />
+          </TabsContent>
+
+          <TabsContent value="inbox" className="space-y-4">
+            <AdminInbox />
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">
