@@ -366,13 +366,13 @@ export default function EnhancedCourtManager() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingCase?.title ? 'Edit Case' : 'New Case'}</DialogTitle>
           </DialogHeader>
           {editingCase && (
-            <div className="flex-1 overflow-hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <div>
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid grid-cols-7 w-full">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="details">Details</TabsTrigger>
@@ -383,7 +383,7 @@ export default function EnhancedCourtManager() {
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                 </TabsList>
 
-                <div className="flex-1 overflow-y-auto mt-4">
+                <div className="mt-4">
                   <TabsContent value="overview" className="space-y-4 mt-0">
                     <div className="space-y-2">
                       <Label htmlFor="case-title">Case Title</Label>
@@ -906,7 +906,7 @@ export default function EnhancedCourtManager() {
               </Tabs>
             </div>
           )}
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pt-4 border-t">
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleSave}>Save Case</Button>
           </DialogFooter>
