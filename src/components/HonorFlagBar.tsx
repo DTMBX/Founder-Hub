@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import usFlagOfficial from '@/assets/images/us-flag-official.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'

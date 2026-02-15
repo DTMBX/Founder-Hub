@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
