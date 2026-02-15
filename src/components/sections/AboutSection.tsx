@@ -112,14 +112,21 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
                 <h3 className="text-xl font-bold mb-6 text-center">Core Values</h3>
                 <div className="flex flex-wrap gap-3 justify-center">
                   {(aboutContent.values || []).map((value, index) => (
-                    <Badge 
+                    <a
                       key={index}
-                      variant="secondary"
-                      className="text-base px-5 py-2.5 bg-purple-500/15 text-purple-300 border border-purple-500/30 backdrop-blur-sm"
+                      href={`https://www.etymonline.com/word/${value.toLowerCase()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group"
                     >
-                      <Sparkle className="h-3.5 w-3.5 mr-1.5" weight="fill" />
-                      {value}
-                    </Badge>
+                      <Badge 
+                        variant="secondary"
+                        className="text-base px-5 py-2.5 bg-purple-500/15 text-purple-300 border border-purple-500/30 backdrop-blur-sm cursor-pointer hover:bg-purple-500/25 hover:border-purple-400/50 transition-all duration-200"
+                      >
+                        <Sparkle className="h-3.5 w-3.5 mr-1.5" weight="fill" />
+                        {value}
+                      </Badge>
+                    </a>
                   ))}
                 </div>
               </div>
