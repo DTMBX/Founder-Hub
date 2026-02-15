@@ -5,9 +5,9 @@ import { cn } from '@/lib/utils'
 import usFlagOfficial from '@/assets/images/us-flag-official.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
 import gadsdenSvg from '@/assets/images/gadsden.svg'
-import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
+import appealToHeavenSvg from '@/assets/images/appeal-to-heaven.svg'
 import gonzalesSvg from '@/assets/images/gonzales-come-and-take-it.svg'
-import powMiaPng from '@/assets/images/pow-mia.png'
+import powMiaSvg from '@/assets/images/pow-mia.svg'
 
 interface FlagAsset {
   src: string
@@ -20,9 +20,9 @@ const FLAG_ASSETS: FlagAsset[] = [
   { src: usFlagOfficial, alt: 'United States Flag', priority: 1, type: 'svg' },
   { src: betsyRossSvg, alt: 'Betsy Ross Flag', priority: 2, type: 'svg' },
   { src: gadsdenSvg, alt: 'Gadsden Flag', priority: 2, type: 'svg' },
-  { src: appealToHeavenPng, alt: 'Appeal to Heaven Flag', priority: 3, type: 'png' },
+  { src: appealToHeavenSvg, alt: 'Appeal to Heaven Flag', priority: 3, type: 'svg' },
   { src: gonzalesSvg, alt: 'Gonzales Come and Take It Flag', priority: 3, type: 'svg' },
-  { src: powMiaPng, alt: 'POW/MIA Flag', priority: 3, type: 'png' },
+  { src: powMiaSvg, alt: 'POW/MIA Flag', priority: 3, type: 'svg' },
 ]
 
 interface HonorFlagBarProps {
