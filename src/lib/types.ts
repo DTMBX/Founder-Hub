@@ -9,6 +9,10 @@ export interface User {
   twoFactorEnabled?: boolean
   twoFactorSecret?: string       // AES-256-GCM encrypted ('enc:' prefix)
   twoFactorBackupCodes?: string[]
+  // Hardware keyfile authentication
+  keyfileEnabled?: boolean       // Require keyfile for login
+  keyfileHash?: string           // Hash of keyfile secret for verification
+  keyfileId?: string             // ID of active keyfile
   lastLogin: number
   createdAt: number
 }

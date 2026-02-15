@@ -12,6 +12,7 @@ import {
   isEncrypted,
   initEncryption
 } from './crypto'
+import { AdminKeyfile, verifyKeyfile } from './keyfile'
 
 const SESSION_KEY = 'founder-hub-session'
 const USERS_KEY = 'founder-hub-users'
@@ -156,7 +157,7 @@ export function useAuth() {
     }
   }, [session, users, setSession])
 
-  const login = async (email: string, password: string, totpCode?: string): Promise<{ success: boolean; error?: string; requires2FA?: boolean }> => {
+  const login = async (email: string, password: string, totpCode?: string, keyfile?: AdminKeyfile): Promise<{ success: boolean; error?: string; requires2FA?: boolean; requiresKeyfile?: boolean }> => {
     console.log('[auth.login] Starting login for:', email)
     try {
       const attemptsData = await kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
@@ -233,6 +234,29 @@ export function useAuth() {
         user.passwordHash = newHash
         user.passwordSalt = newSalt
         await logAudit(user.id, user.email, 'password_migrated', 'Password hash upgraded from SHA-256 to PBKDF2', 'auth', user.id)
+      }
+
+      // Hardware keyfile verification (if enabled for this user)
+      if (user.keyfileEnabled && user.keyfileHash) {
+        if (!keyfile) {
+          await logAudit(user.id, user.email, 'login_keyfile_required', 'Password verified, awaiting hardware key', 'auth', user.id)
+          return { success: false, requiresKeyfile: true }
+        }
+        
+        const keyResult = await verifyKeyfile(keyfile, password, user.keyfileHash, user.id)
+        if (!keyResult.valid) {
+          const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
+          currentAttempt.count++
+          currentAttempt.lastAttempt = now
+          if (currentAttempt.count >= MAX_ATTEMPTS) {
+            currentAttempt.lockedUntil = now + LOCKOUT_DURATION
+          }
+          attemptsData[email] = currentAttempt
+          await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+          await logAudit(user.id, user.email, 'login_keyfile_failed', keyResult.error || 'Invalid keyfile', 'auth', user.id)
+          return { success: false, error: keyResult.error || 'Invalid hardware key', requiresKeyfile: true }
+        }
+        console.log('[auth.login] Hardware keyfile verified successfully')
       }
 
       if (user.twoFactorEnabled && user.twoFactorSecret) {

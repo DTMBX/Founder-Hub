@@ -8,6 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { ShieldCheck, Key, Lock, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import TwoFactorSetup from './TwoFactorSetup'
+import HardwareKeySetup from './HardwareKeySetup'
 
 export default function SecurityManager() {
   const { currentUser, changePassword } = useAuth()
@@ -165,11 +166,26 @@ export default function SecurityManager() {
                 </p>
               </div>
             </div>
+            <div className="flex items-start gap-2">
+              {currentUser?.keyfileEnabled ? (
+                <Lock className="h-4 w-4 mt-0.5 text-amber-500" />
+              ) : (
+                <Lock className="h-4 w-4 mt-0.5 text-muted-foreground" />
+              )}
+              <div>
+                <p className="text-sm font-medium">Hardware Key</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentUser?.keyfileEnabled ? 'USB keyfile required' : 'Not configured'}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       <TwoFactorSetup />
+
+      <HardwareKeySetup />
 
       <Card>
         <CardHeader>
