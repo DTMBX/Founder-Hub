@@ -26,7 +26,7 @@ This document outlines the security features, best practices, and security consi
 #### Session Management
 - **Session Duration**: 8 hours from login
 - **Automatic Expiration**: Sessions expire and require re-authentication
-- **Session Storage**: Secure key-value storage via Spark KV
+- **Session Storage**: Secure browser key-value storage
 - **Session Validation**: Checked on every protected route access
 
 ### Role-Based Access Control (RBAC)
@@ -167,7 +167,7 @@ If you discover a security vulnerability in this application:
 
 ## Compliance & Privacy
 
-- **Data Storage**: All data stored locally in browser via Spark KV
+- **Data Storage**: All data stored locally in browser storage
 - **Analytics**: Privacy-friendly, minimal analytics (can be disabled)
 - **Third-Party Services**: No third-party tracking by default
 - **Document Visibility**: Admin-controlled three-tier visibility system

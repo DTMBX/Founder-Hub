@@ -1,23 +1,30 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# xTx396
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+Personal portfolio and accountability platform by Devon Tyler Barber.
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+## Features
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+- Modern React-based web application
+- Court case tracking and transparency system
+- Project portfolio showcase
+- Investor and legal pathway modes
+- Admin dashboard with 2FA authentication
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+## Tech Stack
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+- React 18 + TypeScript
+- Vite
+- Tailwind CSS
+- Framer Motion
+- Radix UI Components
 
-📄 License For Spark Template Resources 
+## Development
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+```bash
+npm install
+npm run dev
+```
+
+## License
+
+MIT License
