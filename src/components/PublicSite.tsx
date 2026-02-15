@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useKV, kv } from '@/lib/local-storage-kv'
 import Navigation from './Navigation'
 import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
@@ -74,8 +74,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
   useEffect(() => {
     if (settings?.analyticsEnabled) {
-      window.spark.kv.get<number>('founder-hub-page-views').then(views => {
-        window.spark.kv.set('founder-hub-page-views', (views || 0) + 1)
+      kv.get<number>('founder-hub-page-views').then(views => {
+        kv.set('founder-hub-page-views', (views || 0) + 1)
       })
     }
   }, [settings])

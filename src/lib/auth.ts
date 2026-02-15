@@ -1,4 +1,4 @@
-import { useKV } from '@/lib/local-storage-kv'
+import { useKV, kv } from '@/lib/local-storage-kv'
 import { User, Session, AuditEvent, AuditAction } from './types'
 import { useState, useEffect } from 'react'
 import { generateSecret, verifyTOTP, generateQRCodeURL } from './totp'
@@ -67,7 +67,7 @@ async function initializeDefaultAdmin(): Promise<void> {
   console.log('[auth] initializeDefaultAdmin starting...')
   try {
     await initEncryption()
-    const users = await window.spark.kv.get<User[]>(USERS_KEY)
+    const users = await kv.get<User[]>(USERS_KEY)
     console.log('[auth] existing users:', users?.length || 0)
   
     if (!users || users.length === 0) {
@@ -83,7 +83,7 @@ async function initializeDefaultAdmin(): Promise<void> {
       lastLogin: 0
     }
     
-    await window.spark.kv.set(USERS_KEY, [defaultAdmin])
+    await kv.set(USERS_KEY, [defaultAdmin])
     console.log('Default admin account created (PBKDF2 + AES-256-GCM)')
   } else {
     // Migrate existing admin email if needed
@@ -96,7 +96,7 @@ async function initializeDefaultAdmin(): Promise<void> {
       return u
     })
     if (changed) {
-      await window.spark.kv.set(USERS_KEY, migrated)
+      await kv.set(USERS_KEY, migrated)
       console.log('Admin email migrated to dTb33@pm.me')
     }
   }
@@ -117,7 +117,7 @@ export function useAuth() {
     console.log('[useAuth] Initializing default admin...')
     initializeDefaultAdmin().then(async () => {
       // After init, load the users into state
-      const latestUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      const latestUsers = await kv.get<User[]>(USERS_KEY) || []
       console.log('[useAuth] Post-init users:', latestUsers.length)
       if (latestUsers.length > 0 && (!users || users.length === 0)) {
         setUsers(latestUsers)
@@ -159,7 +159,7 @@ export function useAuth() {
   const login = async (email: string, password: string, totpCode?: string): Promise<{ success: boolean; error?: string; requires2FA?: boolean }> => {
     console.log('[auth.login] Starting login for:', email)
     try {
-      const attemptsData = await window.spark.kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
+      const attemptsData = await kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
       const attempt = attemptsData[email]
       const now = Date.now()
 
@@ -173,10 +173,10 @@ export function useAuth() {
 
       if (attempt?.lockedUntil && attempt.lockedUntil <= now) {
         delete attemptsData[email]
-        await window.spark.kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
       }
 
-      const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      const allUsers = await kv.get<User[]>(USERS_KEY) || []
       console.log('[auth.login] Found users:', allUsers.length, allUsers.map(u => u.email))
       const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
       console.log('[auth.login] User lookup result:', user ? user.email : 'NOT FOUND')
@@ -191,7 +191,7 @@ export function useAuth() {
         }
 
         attemptsData[email] = currentAttempt
-        await window.spark.kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
         
         await logAudit('system', 'system', 'login_failed', `Failed login attempt for ${email}`, 'auth', email)
         return { success: false, error: 'Invalid email or password' }
@@ -216,7 +216,7 @@ export function useAuth() {
         }
 
         attemptsData[email] = currentAttempt
-        await window.spark.kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
         
         await logAudit(user.id, user.email, 'login_failed', 'Invalid password attempt', 'auth', user.id)
         return { success: false, error: 'Invalid email or password' }
@@ -228,7 +228,7 @@ export function useAuth() {
         const migratedUsers = allUsers.map(u =>
           u.id === user.id ? { ...u, passwordHash: newHash, passwordSalt: newSalt } : u
         )
-        await window.spark.kv.set(USERS_KEY, migratedUsers)
+        await kv.set(USERS_KEY, migratedUsers)
         setUsers(migratedUsers)
         user.passwordHash = newHash
         user.passwordSalt = newSalt
@@ -242,7 +242,7 @@ export function useAuth() {
             expiresAt: now + 5 * 60 * 1000
           }
           // Encrypt pending 2FA data at rest
-          await window.spark.kv.set(PENDING_2FA_KEY, await encryptData(pending))
+          await kv.set(PENDING_2FA_KEY, await encryptData(pending))
           await logAudit(user.id, user.email, 'login_2fa_required', 'Password verified, awaiting 2FA', 'auth', user.id)
           return { success: false, requires2FA: true }
         }
@@ -265,7 +265,7 @@ export function useAuth() {
           }
 
           attemptsData[email] = currentAttempt
-          await window.spark.kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+          await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
           
           await logAudit(user.id, user.email, 'login_2fa_failed', 'Invalid 2FA code', 'auth', user.id)
           return { success: false, error: 'Invalid authentication code', requires2FA: true }
@@ -276,19 +276,19 @@ export function useAuth() {
           const updatedUsers = allUsers.map(u => 
             u.id === user.id ? { ...u, twoFactorBackupCodes: updatedBackupCodes } : u
           )
-          await window.spark.kv.set(USERS_KEY, updatedUsers)
+          await kv.set(USERS_KEY, updatedUsers)
           setUsers(updatedUsers)
           await logAudit(user.id, user.email, 'backup_code_used', `Backup code used. ${updatedBackupCodes.length} remaining`, 'auth', user.id)
         }
       }
 
       delete attemptsData[email]
-      await window.spark.kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
-      await window.spark.kv.delete(PENDING_2FA_KEY)
+      await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+      await kv.delete(PENDING_2FA_KEY)
 
       user.lastLogin = now
       const updatedUsers = allUsers.map(u => u.id === user.id ? user : u)
-      await window.spark.kv.set(USERS_KEY, updatedUsers)
+      await kv.set(USERS_KEY, updatedUsers)
       setUsers(updatedUsers)
 
       const newSession: Session = {
@@ -300,7 +300,7 @@ export function useAuth() {
       setSession(newSession)
       
       // Force update the users state to ensure effect finds the user
-      const latestUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      const latestUsers = await kv.get<User[]>(USERS_KEY) || []
       console.log('[auth.login] Force updating users state with:', latestUsers.length, 'users')
       setUsers(latestUsers)
       
@@ -349,12 +349,12 @@ export function useAuth() {
 
     // Always use PBKDF2 for new passwords
     const { hash: newHash, salt: newSalt } = await hashPassword(newPassword)
-    const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id ? { ...u, passwordHash: newHash, passwordSalt: newSalt } : u
     )
     
-    await window.spark.kv.set(USERS_KEY, updatedUsers)
+    await kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
     await logAudit(currentUser.id, currentUser.email, 'password_changed', 'Password changed successfully (PBKDF2)', 'auth', currentUser.id)
@@ -402,7 +402,7 @@ export function useAuth() {
     // Encrypt 2FA secret before storage (E2E — AES-256-GCM)
     const encryptedSecret = await encryptField(secret)
 
-    const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id 
         ? { 
@@ -414,7 +414,7 @@ export function useAuth() {
         : u
     )
     
-    await window.spark.kv.set(USERS_KEY, updatedUsers)
+    await kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
     await logAudit(currentUser.id, currentUser.email, '2fa_enabled', 'Two-factor authentication enabled (secret encrypted)', 'auth', currentUser.id)
@@ -437,7 +437,7 @@ export function useAuth() {
       return { success: false, error: 'Invalid password' }
     }
 
-    const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id 
         ? { 
@@ -449,7 +449,7 @@ export function useAuth() {
         : u
     )
     
-    await window.spark.kv.set(USERS_KEY, updatedUsers)
+    await kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
     await logAudit(currentUser.id, currentUser.email, '2fa_disabled', 'Two-factor authentication disabled', 'auth', currentUser.id)
@@ -476,14 +476,14 @@ export function useAuth() {
       return code.slice(0, 4) + '-' + code.slice(4)
     })
 
-    const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id 
         ? { ...u, twoFactorBackupCodes: backupCodes } 
         : u
     )
     
-    await window.spark.kv.set(USERS_KEY, updatedUsers)
+    await kv.set(USERS_KEY, updatedUsers)
     setUsers(updatedUsers)
     
     await logAudit(currentUser.id, currentUser.email, 'backup_codes_regenerated', 'Backup codes regenerated', 'auth', currentUser.id)
@@ -513,7 +513,7 @@ export async function logAudit(
   entityType?: string,
   entityId?: string
 ) {
-  const log = await window.spark.kv.get<(AuditEvent | string)[]>(AUDIT_LOG_KEY) || []
+  const log = await kv.get<(AuditEvent | string)[]>(AUDIT_LOG_KEY) || []
   
   const event: AuditEvent = {
     id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -534,7 +534,7 @@ export async function logAudit(
     log.splice(1000)
   }
 
-  await window.spark.kv.set(AUDIT_LOG_KEY, log)
+  await kv.set(AUDIT_LOG_KEY, log)
 }
 
 /**
