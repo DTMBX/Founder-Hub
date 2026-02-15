@@ -159,8 +159,8 @@ export interface Case {
 
 // ─── Offerings / Mercantile ───────────────────────────────────
 
-export type OfferingCategory = 'digital' | 'service' | 'whitelabel' | 'subscription'
-export type OfferingPricing = 'free' | 'paid' | 'donation' | 'contact'
+export type OfferingCategory = 'digital' | 'service' | 'whitelabel' | 'subscription' | 'barter'
+export type OfferingPricing = 'free' | 'paid' | 'donation' | 'contact' | 'trade'
 export type OfferingVisibility = 'public' | 'unlisted' | 'private'
 
 export interface OfferingPriceTier {

@@ -36,7 +36,7 @@ export default function Navigation({
   const sectionIds = (sections || []).map(s => s.type)
   const activeSection = useActiveSection(sectionIds)
 
-  const pathwayAccent = activePathway === 'investors' ? 'emerald' : activePathway === 'legal' ? 'amber' : activePathway === 'about' ? 'purple' : null
+  const pathwayAccent = activePathway === 'investors' ? 'emerald' : activePathway === 'legal' ? 'amber' : activePathway === 'about' ? 'purple' : activePathway === 'marketplace' ? 'rose' : null
 
   useEffect(() => {
     const handleScroll = () => {

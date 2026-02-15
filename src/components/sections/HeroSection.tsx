@@ -2,7 +2,7 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Section, SiteSettings } from '@/lib/types'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
-import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown } from '@phosphor-icons/react'
+import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown, Storefront } from '@phosphor-icons/react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 // Direct Vite static imports — guaranteed to resolve in dev and production
@@ -11,7 +11,7 @@ import flagPosterSrc from '@/assets/images/us-flag-50.png'
 
 interface HeroSectionProps {
   investorMode: boolean
-  onSelectPathway?: (pathway: 'investors' | 'legal' | 'about') => void
+  onSelectPathway?: (pathway: 'investors' | 'legal' | 'about' | 'marketplace') => void
 }
 
 export default function HeroSection({ investorMode, onSelectPathway }: HeroSectionProps) {
@@ -216,12 +216,13 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
               </div>
             )}
 
-            {/* Trinity Pathway Cards */}
-            <div className={`flex flex-col sm:flex-row gap-4 max-w-3xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
+            {/* Quad Pathway Cards - 2x2 Grid */}
+            <div className={`grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
               {[
-                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor Mode', desc: 'Projects, Roadmap & Proof', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
-                { key: 'legal' as const, icon: Scales, label: 'Court Mode', desc: 'Cases, Filings & Documents', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
-                { key: 'about' as const, icon: UsersFour, label: 'Connect Mode', desc: 'Mission, Values & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
+                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor', desc: 'Projects & Roadmap', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
+                { key: 'legal' as const, icon: Scales, label: 'Court', desc: 'Cases & Filings', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
+                { key: 'marketplace' as const, icon: Storefront, label: 'Trade', desc: 'Barter & Exchange', accent: 'from-rose-500/20 to-rose-700/5', border: 'hover:border-rose-400/40' },
+                { key: 'about' as const, icon: UsersFour, label: 'Connect', desc: 'Mission & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
               ].map((pathway, idx) => (
                 <motion.div
                   key={pathway.key}
@@ -232,14 +233,14 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
                 >
                   <button
                     onClick={() => onSelectPathway?.(pathway.key)}
-                    className={`w-full group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 ${pathway.border} transition-all duration-300 p-6 sm:p-8 hover:shadow-lg hover:-translate-y-1`}
+                    className={`w-full group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 ${pathway.border} transition-all duration-300 p-4 sm:p-6 hover:shadow-lg hover:-translate-y-1`}
                   >
                     <div className={`absolute inset-0 bg-gradient-to-br ${pathway.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                    <div className="relative z-10 flex flex-col items-center gap-3">
-                      <pathway.icon className="h-8 w-8 sm:h-10 sm:w-10 text-white/80 group-hover:text-white transition-colors" weight="duotone" />
+                    <div className="relative z-10 flex flex-col items-center gap-2">
+                      <pathway.icon className="h-7 w-7 sm:h-9 sm:w-9 text-white/80 group-hover:text-white transition-colors" weight="duotone" />
                       <div className="text-center">
-                        <div className="text-white font-semibold text-base">{pathway.label}</div>
-                        <div className="text-white/60 text-xs mt-1">{pathway.desc}</div>
+                        <div className="text-white font-semibold text-sm sm:text-base">{pathway.label}</div>
+                        <div className="text-white/60 text-[10px] sm:text-xs mt-0.5">{pathway.desc}</div>
                       </div>
                     </div>
                   </button>
