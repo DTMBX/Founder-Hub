@@ -27,4 +27,4 @@ npm run dev
 
 ## License
 
-MIT License
+All Rights Reserved © Devon Tyler Barber
