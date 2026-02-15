@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { cn } from '@/lib/utils'
-import usFlag50 from '@/assets/images/us-flag-hd.svg'
+import usFlagOfficial from '@/assets/images/us-flag-official.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
 import gadsdenSvg from '@/assets/images/gadsden.svg'
 import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
@@ -16,7 +16,7 @@ interface FlagAsset {
 }
 
 const FLAG_ASSETS: FlagAsset[] = [
-  { src: usFlag50, alt: 'United States Flag', priority: 1, type: 'svg' },
+  { src: usFlagOfficial, alt: 'United States Flag', priority: 1, type: 'svg' },
   { src: betsyRossSvg, alt: 'Betsy Ross Flag', priority: 2, type: 'svg' },
   { src: gadsdenSvg, alt: 'Gadsden Flag', priority: 2, type: 'svg' },
   { src: appealToHeavenPng, alt: 'Appeal to Heaven Flag', priority: 3, type: 'png' },
@@ -99,8 +99,10 @@ export default function HonorFlagBar({
     alignment === 'right' ? 'justify-end' :
     'justify-center'
 
-  const totalGapSpace = isMobile ? 32 : 48
-  const gapSize = Math.max(8, totalGapSpace / (currentFlags.length - 1))
+  const baseGap = isMobile ? 16 : 24
+  const gapSize = currentFlags.length <= 1 ? 0 : baseGap
+
+  const flagHeight = isMobile ? 16 : 20
 
   return (
     <div 
@@ -108,14 +110,16 @@ export default function HonorFlagBar({
       role="presentation"
       aria-hidden="true"
     >
-      <div className="w-full px-4">
+      <div className="w-full px-4 sm:px-6">
         <div 
           className={cn(
-            "flex items-center h-[20px] sm:h-[24px] md:h-[28px] mx-auto max-w-7xl",
+            "flex items-center mx-auto max-w-7xl transition-all duration-300",
             justifyClass
           )}
           style={{
-            gap: `${gapSize}px`
+            gap: `${gapSize}px`,
+            height: `${flagHeight + 8}px`,
+            minHeight: `${flagHeight + 8}px`
           }}
         >
           {currentFlags.map((flag, index) => (
@@ -126,7 +130,7 @@ export default function HonorFlagBar({
                 loadedFlags.has(flag.src) && "opacity-100"
               )}
               style={{
-                height: isMobile ? '18px' : '24px',
+                height: `${flagHeight}px`,
                 transitionDelay: shouldAnimate ? `${index * 80}ms` : '0ms'
               }}
             >
@@ -134,18 +138,23 @@ export default function HonorFlagBar({
                 src={flag.src}
                 alt=""
                 className={cn(
-                  "h-full w-auto object-contain",
+                  "h-full w-auto object-contain select-none",
                   shouldAnimate && "animate-subtle-wave"
                 )}
                 style={{
-                  filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))',
-                  imageRendering: flag.type === 'svg' ? 'auto' : 'crisp-edges',
+                  filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35))',
+                  imageRendering: flag.type === 'svg' ? 'crisp-edges' : '-webkit-optimize-contrast',
+                  WebkitFontSmoothing: 'antialiased',
+                  shapeRendering: flag.type === 'svg' ? 'geometricPrecision' : 'auto',
                   animationDelay: shouldAnimate ? `${index * 0.3}s` : '0s',
-                  animationDuration: shouldAnimate ? '8s' : '0s'
+                  animationDuration: shouldAnimate ? '8s' : '0s',
+                  maxWidth: '100%',
+                  height: '100%'
                 } as React.CSSProperties}
                 onLoad={() => handleImageLoad(flag.src)}
                 onError={() => handleImageError(flag.src)}
                 loading="eager"
+                draggable={false}
               />
             </div>
           ))}
