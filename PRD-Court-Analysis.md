@@ -2,15 +2,18 @@
 
 Building a professional legal document analysis system for the xTx396 Founder Hub that transforms court case management from basic document storage into an intelligent triage and review platform—always with strict human validation before anything becomes visible.
 
+**Current Implementation Status**: Core architecture complete with filing type taxonomy, document organization by type with collapsible groups, OCR pipeline with confidence scoring, automated field extraction, review notes generation, case brief analysis, and comprehensive admin management interfaces. System successfully organizes documents by filing type with date ranges, provides attorney review notes and contingency checklists, and maintains strict visibility controls with audit trails.
+
 ## Experience Qualities
 
 1. **Trustworthy and Validated** - Every AI-generated insight is clearly marked as draft and requires explicit admin review, ensuring attorneys never see unverified analysis presented as fact.
-2. **Attorney-grade Organization** - Documents are grouped by filing type with deterministic sorting, making case review feel like working with a well-organized litigation file.
+2. **Attorney-grade Organization** - Documents are grouped by filing type with deterministic sorting, collapsible groups showing date ranges, and featured document highlighting, making case review feel like working with a well-organized litigation file.
 3. **Transparent and Traceable** - OCR confidence scores, snippet evidence, and admin approval trails make the provenance of every data point clear and auditable.
+4. **Attorney-Ready Review Workflow** - Comprehensive review notes capture damages/injuries, key evidence sources, deadlines, relief sought, plus structured contingency evaluation checklists with progress tracking.
 
 ## Complexity Level
 
-**Complex Application** (advanced functionality with multiple views and workflows) - This extends beyond content showcase into intelligent document processing with OCR pipelines, confidence scoring, multi-stage review workflows, structured analysis generation, and strict visibility controls. The system must handle asynchronous processing, maintain audit trails, and provide both admin curation interfaces and attorney-facing presentation views.
+**Complex Application** (advanced functionality with multiple views and workflows) - This extends beyond content showcase into intelligent document processing with OCR pipelines, confidence scoring, multi-stage review workflows, structured analysis generation, attorney review notes with contingency checklists, and strict visibility controls. The system must handle asynchronous processing, maintain audit trails, and provide both admin curation interfaces and attorney-facing presentation views with professional case jacket layouts.
 
 ## Essential Features
 
@@ -50,11 +53,18 @@ Building a professional legal document analysis system for the xTx396 Founder Hu
 **Success**: Suggestions never auto-publish; high-confidence suggestions (>85%) save clicks; low-confidence flagged for manual review; snippet evidence builds trust.
 
 ### Attorney Review Notes Generation (Draft)
-**Functionality**: For each OCR'd document, generate structured "Review Notes (Draft)" with summary, procedural signals, key dates, entities, questions for counsel, and flags.
-**Purpose**: Gives attorneys a starting point for case evaluation without manual note-taking.
-**Trigger**: Admin enables analysis generation for a document with OCR text.
-**Progression**: Admin clicks "Generate Review Notes" → system processes → draft notes appear with "DRAFT—requires verification" banner → admin reviews/edits → marks as Reviewed → optionally publishes per visibility rules.
-**Success**: Notes clearly marked as unverified until admin review; structured sections make scanning easy; questions highlight gaps.
+**Functionality**: For each OCR'd document, generate structured "Review Notes (Draft)" with summary, procedural signals, key dates, entities, questions for counsel, and flags. Additionally, provides case-level review notes panel capturing damages/injuries, key evidence sources (BWC, PDFs, testimony), deadlines/limitations dates (admin-entered, never auto-calculated), relief sought, and general attorney notes.
+**Purpose**: Gives attorneys a starting point for case evaluation without manual note-taking and provides structured fields for contingency assessment.
+**Trigger**: Admin enables analysis generation for a document with OCR text, or manually enters review notes in Case Manager.
+**Progression**: Admin clicks "Generate Review Notes" → system processes → draft notes appear with "DRAFT—requires verification" banner → admin reviews/edits → marks as Reviewed → optionally publishes per visibility rules. Alternatively, admin manually completes Review Notes fields in Case Manager (damages/injuries, key evidence, deadlines, relief sought) and saves for attorney visibility.
+**Success**: Notes clearly marked as unverified until admin review; structured sections make scanning easy; questions highlight gaps; case-level review notes display prominently in Case Jacket for attorney triage.
+
+### Contingency Evaluation Checklist
+**Functionality**: Admin-configurable checklist template for each case with items covering jurisdiction verification, procedural posture assessment, key evidence availability, damages calculation readiness, statute of limitations compliance, and other contingency factors. Each item has checkbox status, optional notes field, and progress tracking.
+**Purpose**: Provides attorneys with a structured framework for evaluating whether a case is suitable for contingency representation, ensuring no critical factor is overlooked during triage.
+**Trigger**: Admin creates or opens a case in Case Manager.
+**Progression**: Admin navigates to Contingency Checklist tab → views template items or adds custom checklist items → checks off completed evaluations → adds notes per item → saves progress → checklist displays in Case Jacket for attorney review with clear progress indicator.
+**Success**: Checklist visible in Case Jacket with progress percentage; attorneys can quickly see evaluation status; admin can customize checklist per case; items track completion state; notes field allows detailed reasoning per item.
 
 ### Case-Level Brief Generation (Draft)
 **Functionality**: Compile case-wide analysis: posture overview, timeline highlights, key filings checklist, "what's missing" list.
