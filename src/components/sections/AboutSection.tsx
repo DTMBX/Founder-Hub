@@ -111,7 +111,7 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
               <div className="p-8">
                 <h3 className="text-xl font-bold mb-6 text-center">Core Values</h3>
                 <div className="flex flex-wrap gap-3 justify-center">
-                  {aboutContent.values.map((value, index) => (
+                  {(aboutContent.values || []).map((value, index) => (
                     <Badge 
                       key={index}
                       variant="secondary"
