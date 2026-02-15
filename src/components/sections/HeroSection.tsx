@@ -2,7 +2,7 @@ import { useKV } from '@github/spark/hooks'
 import { Section, SiteSettings } from '@/lib/types'
 import { motion, useReducedMotion } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
-import { ChartLineUp, Scales, UsersFour, Pause, Play } from '@phosphor-icons/react'
+import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown } from '@phosphor-icons/react'
 import { useState, useRef, useEffect } from 'react'
 
 interface HeroSectionProps {
@@ -27,6 +27,7 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
   const [isVideoPaused, setIsVideoPaused] = useState(false)
   const [videoError, setVideoError] = useState(false)
   const [videoLoaded, setVideoLoaded] = useState(false)
+  const [scrollIndicatorVisible, setScrollIndicatorVisible] = useState(true)
   
   const heroSection = sections?.find(s => s.type === 'hero')
   const heroMedia = settings?.heroMedia
@@ -48,6 +49,19 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
       }
     }
   }, [shouldPlayVideo, prefersReducedMotion, heroMedia?.motionMode])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 100) {
+        setScrollIndicatorVisible(false)
+      } else {
+        setScrollIndicatorVisible(true)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const toggleVideoPlayback = () => {
     if (videoRef.current) {
@@ -295,20 +309,23 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
           </motion.div>
         </motion.div>
 
-        {!prefersReducedMotion && (
+        {!prefersReducedMotion && scrollIndicatorVisible && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
           >
-            <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full p-1 backdrop-blur-sm">
-              <motion.div
-                animate={{ y: [0, 12, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-1.5 h-1.5 bg-accent rounded-full mx-auto"
-              />
-            </div>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex flex-col items-center gap-2 text-white/60 hover:text-white/90 transition-colors cursor-pointer"
+              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            >
+              <span className="text-xs uppercase tracking-wider font-medium">Scroll</span>
+              <CaretDown className="h-6 w-6" weight="bold" />
+            </motion.div>
           </motion.div>
         )}
       </div>

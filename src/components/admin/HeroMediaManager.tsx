@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { toast } from 'sonner'
 import { VideoCamera, Image as ImageIcon, Check, Warning, FlagBanner } from '@phosphor-icons/react'
+import { ASSET_PATHS } from '@/lib/asset-helpers'
 
 export default function HeroMediaManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
@@ -89,12 +90,14 @@ export default function HeroMediaManager() {
   }
 
   const applyUSAFlagPreset = () => {
+    setVideoUrl(ASSET_PATHS.videos.usaFlag)
+    setPosterUrl(ASSET_PATHS.images.usFlag50)
     setOverlayIntensity(0.65)
     setVignetteEnabled(true)
     setAutoContrast(true)
     setTextAlignment('center')
     setMotionMode('full')
-    toast.success('USA Flag optimal settings applied - 65% overlay, vignette & auto-contrast enabled')
+    toast.success('USA Flag preset applied - video, poster, and optimal overlay settings configured')
   }
 
   return (
@@ -134,7 +137,8 @@ export default function HeroMediaManager() {
               <strong>Recommended for bright flag videos:</strong> 65% overlay, vignette enabled, auto-contrast on, centered text.
             </p>
             <p className="text-xs">
-              Place your USA-flag.mp4 file in <code className="px-1 py-0.5 rounded bg-muted">/src/assets/video/</code> and reference it below, or use a CDN URL.
+              The USA flag video (flag-video.mp4) is already in <code className="px-1 py-0.5 rounded bg-muted">/src/assets/video/</code>. 
+              Click "Apply USA Flag Preset" to automatically configure all settings including video URL and poster image.
             </p>
           </div>
         </CardContent>
@@ -153,13 +157,27 @@ export default function HeroMediaManager() {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="video-url">Video URL (MP4)</Label>
-            <Input
-              id="video-url"
-              type="url"
-              placeholder="https://example.com/USA-flag.mp4 or /src/assets/video/USA-flag.mp4"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="video-url"
+                type="text"
+                placeholder="https://example.com/video.mp4 or /src/assets/video/flag-video.mp4"
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setVideoUrl(ASSET_PATHS.videos.usaFlag)
+                  toast.info('USA Flag video path inserted')
+                }}
+                className="shrink-0"
+              >
+                Use Flag Video
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               Leave empty to use gradient background. If provided, video will autoplay muted and loop.
             </p>
@@ -167,13 +185,27 @@ export default function HeroMediaManager() {
 
           <div className="space-y-2">
             <Label htmlFor="poster-url">Poster Image URL</Label>
-            <Input
-              id="poster-url"
-              type="url"
-              placeholder="https://example.com/poster.jpg or /src/assets/images/poster.jpg"
-              value={posterUrl}
-              onChange={(e) => setPosterUrl(e.target.value)}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="poster-url"
+                type="text"
+                placeholder="https://example.com/poster.jpg or /src/assets/images/us-flag-50.png"
+                value={posterUrl}
+                onChange={(e) => setPosterUrl(e.target.value)}
+                className="flex-1"
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setPosterUrl(ASSET_PATHS.images.usFlag50)
+                  toast.info('USA Flag poster path inserted')
+                }}
+                className="shrink-0"
+              >
+                Use Flag Poster
+              </Button>
+            </div>
             <p className="text-xs text-muted-foreground">
               Shown while video loads or if video fails. Also shown for reduced-motion users when motion is off.
             </p>
