@@ -212,7 +212,7 @@ export function downloadDataFiles(): void {
   }
 }
 
-// Make kv available globally for compatibility
+// Make kv available globally for backward compatibility
 if (typeof window !== 'undefined') {
   (window as any).spark = { kv }
 }
