@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { ArrowSquareOut, Newspaper } from '@phosphor-icons/react'
 import { GlassCard } from '../ui/glass-card'
 
+// Note: GlassCard kept for link cards below
+
 interface ProofSectionProps {
   investorMode: boolean
 }
@@ -12,6 +14,9 @@ export default function ProofSection({ investorMode }: ProofSectionProps) {
   const [links] = useKV<Link[]>('founder-hub-proof-links', [])
 
   const proofLinks = links?.filter(l => l.category === 'proof').sort((a, b) => a.order - b.order) || []
+
+  // Hide entirely when empty — nav link is also hidden by PublicSite
+  if (proofLinks.length === 0) return null
 
   return (
     <section id="proof" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -32,22 +37,7 @@ export default function ProofSection({ investorMode }: ProofSectionProps) {
           </p>
         </motion.div>
 
-        {proofLinks.length === 0 ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <GlassCard intensity="medium" className="text-center py-12">
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit mx-auto mb-4">
-                <Newspaper className="h-6 w-6 text-emerald-400" weight="duotone" />
-              </div>
-              <p className="text-muted-foreground text-base">Press coverage and proof materials coming soon.</p>
-            </GlassCard>
-          </motion.div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {proofLinks.map((link, index) => (
               <motion.a
                 key={link.id}
@@ -76,7 +66,6 @@ export default function ProofSection({ investorMode }: ProofSectionProps) {
               </motion.a>
             ))}
           </div>
-        )}
       </div>
     </section>
   )
