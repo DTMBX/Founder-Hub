@@ -58,8 +58,7 @@ async function fetchStaticData<T>(key: string): Promise<T | null> {
 
 /**
  * React hook for hybrid storage.
- * - Localhost: localStorage (read/write)
- * - Production: static JSON (read-only)
+ * Uses localStorage with static JSON fallback for content files.
  */
 export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] {
   const storageKey = STORAGE_PREFIX + key
@@ -69,40 +68,29 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] 
   // Initialize value from appropriate source
   useEffect(() => {
     const loadData = async () => {
-      if (isLocalhost()) {
-        // Localhost: use localStorage
-        try {
-          const item = localStorage.getItem(storageKey)
-          if (item !== null) {
-            setValue(JSON.parse(item) as T)
-          } else {
-            // Try loading from static data as initial value
-            const staticData = await fetchStaticData<T>(key)
-            if (staticData !== null) {
-              setValue(staticData)
-              // Also save to localStorage for editing
-              localStorage.setItem(storageKey, JSON.stringify(staticData))
-            }
+      try {
+        const item = localStorage.getItem(storageKey)
+        if (item !== null) {
+          setValue(JSON.parse(item) as T)
+        } else {
+          // Try loading from static data as initial value
+          const staticData = await fetchStaticData<T>(key)
+          if (staticData !== null) {
+            setValue(staticData)
+            // Also save to localStorage for editing
+            localStorage.setItem(storageKey, JSON.stringify(staticData))
           }
-        } catch (error) {
-          console.warn(`[useKV] Error reading ${key}:`, error)
         }
-      } else {
-        // Production: fetch from static JSON
-        const staticData = await fetchStaticData<T>(key)
-        if (staticData !== null) {
-          setValue(staticData)
-        }
+      } catch (error) {
+        console.warn(`[useKV] Error reading ${key}:`, error)
       }
       setInitialized(true)
     }
     loadData()
   }, [key, storageKey])
 
-  // Sync with localStorage changes (localhost only)
+  // Sync with localStorage changes
   useEffect(() => {
-    if (!isLocalhost()) return
-    
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === storageKey) {
         setValue(e.newValue ? JSON.parse(e.newValue) : defaultValue)
@@ -113,10 +101,6 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] 
   }, [storageKey, defaultValue])
 
   const setStoredValue = useCallback((newValue: T) => {
-    if (!isLocalhost()) {
-      console.warn('[useKV] Cannot write data in production mode')
-      return
-    }
     try {
       localStorage.setItem(storageKey, JSON.stringify(newValue))
       setValue(newValue)
@@ -133,28 +117,21 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] 
  */
 export const kv = {
   async get<T>(key: string): Promise<T | null> {
-    if (isLocalhost()) {
-      try {
-        const item = localStorage.getItem(STORAGE_PREFIX + key)
-        if (item !== null) {
-          return JSON.parse(item) as T
-        }
-        // Fall back to static data
-        return await fetchStaticData<T>(key)
-      } catch (error) {
-        console.warn(`[kv.get] Error reading ${key}:`, error)
+    try {
+      // Always check localStorage first (for auth data, preferences, etc.)
+      const item = localStorage.getItem(STORAGE_PREFIX + key)
+      if (item !== null) {
+        return JSON.parse(item) as T
       }
-    } else {
+      // Fall back to static data for content files
       return await fetchStaticData<T>(key)
+    } catch (error) {
+      console.warn(`[kv.get] Error reading ${key}:`, error)
     }
     return null
   },
 
   async set<T>(key: string, value: T): Promise<void> {
-    if (!isLocalhost()) {
-      console.warn('[kv.set] Cannot write data in production mode')
-      return
-    }
     try {
       localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
     } catch (error) {
@@ -163,7 +140,6 @@ export const kv = {
   },
 
   async delete(key: string): Promise<void> {
-    if (!isLocalhost()) return
     try {
       localStorage.removeItem(STORAGE_PREFIX + key)
     } catch (error) {
@@ -183,7 +159,6 @@ export const kv = {
   },
 
   async clear(): Promise<void> {
-    if (!isLocalhost()) return
     const keysToRemove: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
