@@ -12,7 +12,7 @@ import {
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -37,6 +37,7 @@ import LinksManager from './LinksManager'
 import ProfileManager from './ProfileManager'
 import HonorFlagBarManager from './HonorFlagBarManager'
 import OfferingsManager from './OfferingsManager'
+import InvestorManager from './InvestorManager'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -60,6 +61,7 @@ const navItems: NavItem[] = [
   { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Content' },
   { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'Content' },
   { id: 'offerings', label: 'Offerings', icon: ShoppingBag, category: 'Content' },
+  { id: 'investor', label: 'Investor Section', icon: TrendUp, category: 'Content' },
   // Projects & Cases
   { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Management' },
   { id: 'court', label: 'Court Cases', icon: Scales, category: 'Management' },
@@ -123,6 +125,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'profile': return <ProfileManager />
       case 'honor-flag-bar': return <HonorFlagBarManager />
       case 'offerings': return <OfferingsManager />
+      case 'investor': return <InvestorManager />
       case 'projects': return <EnhancedProjectsManager />
       case 'court': return <EnhancedCourtManager />
       case 'inbox': return <AdminInbox />
