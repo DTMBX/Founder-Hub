@@ -6,6 +6,7 @@ import './lib/local-storage-kv'
 
 import App from './App.tsx'
 import { ErrorFallback } from './ErrorFallback.tsx'
+import { Toaster } from './components/ui/sonner'
 
 import "./main.css"
 import "./styles/theme.css"
@@ -14,5 +15,6 @@ import "./index.css"
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
     <App />
+    <Toaster position="top-right" richColors />
    </ErrorBoundary>
 )
