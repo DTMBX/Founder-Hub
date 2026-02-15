@@ -9,7 +9,7 @@ import ContactSection from './sections/ContactSection'
 import AboutSection from './sections/AboutSection'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
-import { Section, SiteSettings } from '@/lib/types'
+import { Section, SiteSettings, Link } from '@/lib/types'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { X } from '@phosphor-icons/react'
@@ -33,7 +33,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     indexingEnabled: true,
     investorModeAvailable: true
   })
-  const [profile] = useKV<{ catchAllEmail?: string; domain?: string }>('founder-hub-profile', null)
+  const [profile] = useKV<{ catchAllEmail?: string; domain?: string }>('founder-hub-profile', {})
+  const [contactLinks] = useKV<Link[]>('founder-hub-contact-links', [])
   const [pathway, setPathway] = useState<TrinityPathway>('all')
   const [, setAudienceMode] = useKV<string>('current-audience-mode', 'all')
 
@@ -111,8 +112,26 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     about: { label: 'Connect Mode', color: 'border-purple-500/40 text-purple-400' }
   }
 
+  const socialLinks = contactLinks?.filter(l => l.category === 'social') || []
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": settings?.siteName || "Devon Tyler Barber",
+    "alternateName": "xTx396",
+    "description": settings?.description || "Founder & Innovator",
+    "url": `https://${settings?.primaryDomain || 'xtx396.com'}`,
+    "image": settings?.socialPreviewImage || "/og-preview.png",
+    "sameAs": socialLinks.map(link => link.url).filter(Boolean),
+    "jobTitle": settings?.tagline || "Founder & Innovator",
+    "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ScrollProgress />
       <Navigation 
         sections={enabledSections}
