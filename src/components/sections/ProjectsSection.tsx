@@ -54,10 +54,29 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">What I Build</h2>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-12 lg:mb-16 max-w-3xl leading-relaxed">
-            Transformative solutions at the intersection of technology, home improvement, transparency, and justice.
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+            {investorMode ? 'Investment Opportunities' : 'What I Build'}
+          </h2>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-4 max-w-3xl leading-relaxed">
+            {investorMode 
+              ? 'Active projects seeking funding and partnership. Each initiative is designed for measurable impact and sustainable growth.'
+              : 'Transformative solutions at the intersection of technology, home improvement, transparency, and justice.'
+            }
           </p>
+          {investorMode && (
+            <div className="flex flex-wrap items-center gap-3 mb-12 lg:mb-16">
+              <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-sm px-4 py-1.5">
+                Open to Investment
+              </Badge>
+              <a 
+                href="mailto:invest@xtx396.com" 
+                className="text-sm text-emerald-400 hover:text-emerald-300 underline underline-offset-4 decoration-emerald-500/40 hover:decoration-emerald-400 transition-colors"
+              >
+                invest@xtx396.com
+              </a>
+            </div>
+          )}
+          {!investorMode && <div className="mb-12 lg:mb-16" />}
         </motion.div>
 
         {enabledProjects.length === 0 ? (
