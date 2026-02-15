@@ -45,11 +45,20 @@
     "investorRelevant": true
   },
   {
+    "id": "offerings",
+    "type": "offerings",
+    "title": "Offerings & Services",
+    "content": "",
+    "order": 5,
+    "enabled": true,
+    "investorRelevant": true
+  },
+  {
     "id": "contact",
     "type": "contact",
     "title": "Contact",
     "content": "",
-    "order": 5,
+    "order": 6,
     "enabled": true,
     "investorRelevant": true
   }
