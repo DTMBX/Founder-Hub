@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate } from '@phosphor-icons/react'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
@@ -12,6 +12,7 @@ import DocumentsManager from './DocumentsManager'
 import UploadQueueManager from './UploadQueueManager'
 import StagingReviewManager from './StagingReviewManager'
 import FilingTypesManager from './FilingTypesManager'
+import TemplatesManager from './TemplatesManager'
 import ThemeManager from './ThemeManager'
 import SettingsManager from './SettingsManager'
 import AuditLog from './AuditLog'
@@ -85,6 +86,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <Certificate className="h-4 w-4" />
                 <span className="hidden sm:inline">Filing Types</span>
               </TabsTrigger>
+              <TabsTrigger value="templates" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <ClipboardText className="h-4 w-4" />
+                <span className="hidden sm:inline">Templates</span>
+              </TabsTrigger>
               <TabsTrigger value="theme" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Palette className="h-4 w-4" />
                 <span className="hidden sm:inline">Theme</span>
@@ -126,6 +131,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
           <TabsContent value="filing-types" className="space-y-4">
             <FilingTypesManager />
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <TemplatesManager />
           </TabsContent>
 
           <TabsContent value="theme" className="space-y-4">

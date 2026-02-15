@@ -40,7 +40,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       ]
       setSections(defaultSections)
     }
-  }, [])
+  }, [sections, setSections])
 
   useEffect(() => {
     if (settings?.analyticsEnabled) {

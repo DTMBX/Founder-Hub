@@ -12,9 +12,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Pencil, Trash, X, FunnelSimple, ArrowsDownUp, Calendar } from '@phosphor-icons/react'
+import { Plus, Pencil, Trash, X, FunnelSimple, ArrowsDownUp, Calendar, ClipboardText } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
+import { 
+  DEFAULT_REVIEW_NOTES_TEMPLATES, 
+  DEFAULT_CONTINGENCY_CHECKLIST_TEMPLATES,
+  applyReviewNotesTemplate,
+  applyContingencyChecklistTemplate
+} from '@/lib/templates'
 
 export default function EnhancedCourtManager() {
   const [cases, setCases] = useKV<Case[]>('founder-hub-cases', [])
@@ -655,9 +661,39 @@ export default function EnhancedCourtManager() {
                   </TabsContent>
 
                   <TabsContent value="review" className="space-y-4 mt-0">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Attorney review notes designed for counsel triage and contingency evaluation.
-                    </p>
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground">
+                          Attorney review notes designed for counsel triage and contingency evaluation.
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-xs">Apply Template</Label>
+                        <Select
+                          onValueChange={(templateId) => {
+                            const template = applyReviewNotesTemplate(templateId)
+                            if (template) {
+                              setEditingCase({
+                                ...editingCase,
+                                reviewNotes: template
+                              })
+                              toast.success('Review notes template applied')
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-[200px] h-9">
+                            <SelectValue placeholder="Choose template..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEFAULT_REVIEW_NOTES_TEMPLATES.map(template => (
+                              <SelectItem key={template.id} value={template.id}>
+                                {template.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="review-damages">Damages/Injuries</Label>
@@ -738,27 +774,52 @@ export default function EnhancedCourtManager() {
                           Track key factors for contingency case evaluation
                         </p>
                       </div>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => {
-                          const newItem = {
-                            id: `checklist_${Date.now()}`,
-                            label: '',
-                            checked: false,
-                            notes: ''
-                          }
-                          setEditingCase({
-                            ...editingCase,
-                            contingencyChecklist: [...(editingCase.contingencyChecklist || []), newItem]
-                          })
-                        }}
-                        className="gap-2"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Add Item
-                      </Button>
+                      <div className="flex gap-2">
+                        <Select
+                          onValueChange={(templateId) => {
+                            const items = applyContingencyChecklistTemplate(templateId)
+                            if (items) {
+                              setEditingCase({
+                                ...editingCase,
+                                contingencyChecklist: items
+                              })
+                              toast.success('Checklist template applied')
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-[200px] h-9">
+                            <SelectValue placeholder="Apply template..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEFAULT_CONTINGENCY_CHECKLIST_TEMPLATES.map(template => (
+                              <SelectItem key={template.id} value={template.id}>
+                                {template.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => {
+                            const newItem = {
+                              id: `checklist_${Date.now()}`,
+                              label: '',
+                              checked: false,
+                              notes: ''
+                            }
+                            setEditingCase({
+                              ...editingCase,
+                              contingencyChecklist: [...(editingCase.contingencyChecklist || []), newItem]
+                            })
+                          }}
+                          className="gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add Item
+                        </Button>
+                      </div>
                     </div>
 
                     {(!editingCase.contingencyChecklist || editingCase.contingencyChecklist.length === 0) ? (
@@ -824,10 +885,6 @@ export default function EnhancedCourtManager() {
                         ))}
                       </div>
                     )}
-
-                    <div className="p-4 bg-muted rounded-md text-xs text-muted-foreground">
-                      <strong>Suggested items:</strong> Clear liability, Substantial damages, Strong evidence, Statute not expired, Defendant solvency, Case merits vs. costs
-                    </div>
                   </TabsContent>
 
                   <TabsContent value="notes" className="space-y-4 mt-0">
