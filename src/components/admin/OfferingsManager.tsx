@@ -460,6 +460,21 @@ export default function OfferingsManager() {
                           />
                         </div>
                       </div>
+
+                      {/* Features list */}
+                      <div className="space-y-1">
+                        <Label className="text-xs">Features (one per line)</Label>
+                        <Textarea
+                          value={(tier.features || []).join('\n')}
+                          onChange={(e) => {
+                            const features = e.target.value.split('\n').filter(f => f.trim())
+                            handleUpdatePriceTier(tier.id, { features })
+                          }}
+                          placeholder="Unlimited projects&#10;Priority support&#10;Custom branding"
+                          rows={3}
+                          className="text-xs"
+                        />
+                      </div>
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -497,22 +512,40 @@ export default function OfferingsManager() {
                         </Button>
                       </div>
 
-                      <div className="mt-3 grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Stripe Price ID (recommended)</Label>
-                          <Input
-                            value={tier.stripePriceId || ''}
-                            onChange={(e) => handleUpdatePriceTier(tier.id, { stripePriceId: e.target.value })}
-                            placeholder="price_xxxxxxxxxxxxx"
-                          />
+                      {/* Stripe Integration Fields */}
+                      <div className="mt-3 space-y-3 p-3 bg-accent/5 rounded-lg border border-accent/20">
+                        <p className="text-xs font-medium text-accent">Stripe Integration</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Product ID</Label>
+                            <Input
+                              value={tier.stripeProductId || ''}
+                              onChange={(e) => handleUpdatePriceTier(tier.id, { stripeProductId: e.target.value })}
+                              placeholder="prod_xxxxxxxxxxxxx"
+                              className="font-mono text-xs"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <Label className="text-xs">Price ID</Label>
+                            <Input
+                              value={tier.stripePriceId || ''}
+                              onChange={(e) => handleUpdatePriceTier(tier.id, { stripePriceId: e.target.value })}
+                              placeholder="price_xxxxxxxxxxxxx"
+                              className="font-mono text-xs"
+                            />
+                          </div>
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs">Payment Link (fallback)</Label>
+                          <Label className="text-xs">Payment Link (recommended for static sites)</Label>
                           <Input
                             value={tier.stripePaymentLink || ''}
                             onChange={(e) => handleUpdatePriceTier(tier.id, { stripePaymentLink: e.target.value })}
                             placeholder="https://buy.stripe.com/..."
+                            className="font-mono text-xs"
                           />
+                          <p className="text-[10px] text-muted-foreground">
+                            Create at Stripe Dashboard → Payment Links. Works without backend.
+                          </p>
                         </div>
                       </div>
                     </Card>
