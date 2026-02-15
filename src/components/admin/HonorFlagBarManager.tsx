@@ -41,9 +41,8 @@ const FLAG_CONFIGS: FlagConfig[] = [
   {
     id: 'appeal-to-heaven',
     label: 'Appeal to Heaven Flag',
-    description: 'Pine tree flag (PNG - Optimized 2x)',
-    type: 'png',
-    resolution: '2x retina'
+    description: 'Pine tree flag (SVG - High Resolution)',
+    type: 'svg'
   },
   {
     id: 'gonzales',
@@ -54,9 +53,8 @@ const FLAG_CONFIGS: FlagConfig[] = [
   {
     id: 'pow-mia',
     label: 'POW/MIA Flag',
-    description: 'Prisoner of War/Missing in Action (PNG - Optimized 2x)',
-    type: 'png',
-    resolution: '2x retina'
+    description: 'Prisoner of War/Missing in Action (SVG - High Resolution)',
+    type: 'svg'
   }
 ]
 
