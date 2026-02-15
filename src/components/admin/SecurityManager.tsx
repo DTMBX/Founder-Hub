@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/lib/auth'
 import { ShieldCheck, Key, Lock, Info } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import TwoFactorSetup from './TwoFactorSetup'
 
 export default function SecurityManager() {
   const { currentUser, changePassword } = useAuth()
@@ -144,9 +145,24 @@ export default function SecurityManager() {
                 <p className="text-xs text-muted-foreground">All actions tracked</p>
               </div>
             </div>
+            <div className="flex items-start gap-2">
+              {currentUser?.twoFactorEnabled ? (
+                <Lock className="h-4 w-4 mt-0.5 text-green-500" />
+              ) : (
+                <Lock className="h-4 w-4 mt-0.5 text-muted-foreground" />
+              )}
+              <div>
+                <p className="text-sm font-medium">Two-Factor Authentication</p>
+                <p className="text-xs text-muted-foreground">
+                  {currentUser?.twoFactorEnabled ? 'Enabled with TOTP' : 'Not configured'}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      <TwoFactorSetup />
 
       <Card>
         <CardHeader>
@@ -239,11 +255,19 @@ export default function SecurityManager() {
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-primary">•</span>
+              <span>Enable two-factor authentication for maximum security</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
               <span>Change your password regularly (every 90 days recommended)</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary">•</span>
-              <span>Never share your credentials with anyone</span>
+              <span>Store backup codes in a secure location</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-primary">•</span>
+              <span>Never share your credentials or 2FA codes with anyone</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary">•</span>

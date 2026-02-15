@@ -6,6 +6,8 @@ export interface User {
   passwordHash: string
   role: UserRole
   twoFactorEnabled?: boolean
+  twoFactorSecret?: string
+  twoFactorBackupCodes?: string[]
   lastLogin: number
   createdAt: number
 }
@@ -331,8 +333,14 @@ export type AuditAction =
   | 'login'
   | 'logout'
   | 'login_failed'
+  | 'login_2fa_required'
+  | 'login_2fa_failed'
   | 'password_changed'
   | 'password_change_failed'
+  | '2fa_enabled'
+  | '2fa_disabled'
+  | 'backup_code_used'
+  | 'backup_codes_regenerated'
   | 'create_project'
   | 'update_project'
   | 'delete_project'
