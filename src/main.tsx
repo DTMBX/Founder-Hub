@@ -1,6 +1,8 @@
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
-import "@github/spark/spark"
+
+// Initialize localStorage-based KV storage (replaces Spark)
+import './lib/local-storage-kv'
 
 import App from './App.tsx'
 import { ErrorFallback } from './ErrorFallback.tsx'

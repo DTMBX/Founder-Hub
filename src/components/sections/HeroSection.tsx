@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Section, SiteSettings } from '@/lib/types'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
@@ -72,7 +72,10 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
     }
   }
 
-  if (!heroSection || !heroSection.enabled) return null
+  // Always render hero - don't depend on KV sections being initialized
+  const isEnabled = heroSection?.enabled ?? true
+
+  if (!isEnabled) return null
 
   const textAlignment = heroMedia?.textAlignment ?? 'center'
 

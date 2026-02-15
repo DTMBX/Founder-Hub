@@ -4,12 +4,15 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
+import { downloadDataFiles } from '@/lib/local-storage-kv'
+import { publishToGitHub, hasGitHubToken } from '@/lib/github-sync'
+import { toast } from 'sonner'
 import { 
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge, FlagBanner
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -81,12 +84,31 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
   const [activeTab, setActiveTab] = useState('content')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
   
   useInitializeDocumentTypes()
 
   const handleLogout = async () => {
     await logout()
     onExit()
+  }
+
+  const handlePublish = async () => {
+    if (!hasGitHubToken()) {
+      toast.error('Configure GitHub token in Settings first')
+      setActiveTab('settings')
+      return
+    }
+    
+    setIsPublishing(true)
+    const result = await publishToGitHub()
+    setIsPublishing(false)
+    
+    if (result.success) {
+      toast.success(result.message || 'Published to GitHub!')
+    } else {
+      toast.error(result.error || 'Failed to publish')
+    }
   }
 
   const activeItem = navItems.find(item => item.id === activeTab)
@@ -192,6 +214,28 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
         {/* Sidebar footer */}
         <div className="p-3 border-t border-border/50 space-y-1.5">
+          <Button 
+            variant="default" 
+            size="sm" 
+            onClick={handlePublish}
+            disabled={isPublishing}
+            className={cn('w-full gap-2 text-xs', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+          >
+            <GithubLogo className="h-4 w-4 shrink-0" weight={isPublishing ? 'light' : 'bold'} />
+            {!sidebarCollapsed && (isPublishing ? 'Publishing...' : 'Publish to Live')}
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => {
+              downloadDataFiles()
+              toast.success('Data files downloaded! Copy to public/data/ and commit to deploy.')
+            }}
+            className={cn('w-full gap-2 text-xs border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+          >
+            <Export className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && 'Export Data'}
+          </Button>
           <Button 
             variant="ghost" 
             size="sm" 

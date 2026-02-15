@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { User, Session, AuditEvent, AuditAction } from './types'
 import { useState, useEffect } from 'react'
 import { generateSecret, verifyTOTP, generateQRCodeURL } from './totp'
@@ -64,8 +64,10 @@ async function verifyPassword(
 }
 
 async function initializeDefaultAdmin(): Promise<void> {
+  console.log('[auth] initializeDefaultAdmin starting...')
   await initEncryption()
   const users = await window.spark.kv.get<User[]>(USERS_KEY)
+  console.log('[auth] existing users:', users?.length || 0)
   
   if (!users || users.length === 0) {
     const { hash, salt } = await hashPassword('SecureAdmin2024!')
@@ -105,29 +107,53 @@ export function useAuth() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  console.log('[useAuth] Hook called, session:', session, 'users:', users?.length, 'isLoading:', isLoading)
+
   useEffect(() => {
-    initializeDefaultAdmin()
+    console.log('[useAuth] Initializing default admin...')
+    initializeDefaultAdmin().then(async () => {
+      // After init, load the users into state
+      const latestUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      console.log('[useAuth] Post-init users:', latestUsers.length)
+      if (latestUsers.length > 0 && (!users || users.length === 0)) {
+        setUsers(latestUsers)
+      }
+    })
   }, [])
 
   useEffect(() => {
+    console.log('[useAuth] Session effect triggered - session:', session, 'users:', users?.length)
     if (session && session.expiresAt > Date.now()) {
+      console.log('[useAuth] Valid session found, looking for user:', session.userId)
       const user = users?.find(u => u.id === session.userId)
       if (user) {
+        console.log('[useAuth] User found:', user.email)
         setCurrentUser(user)
-      } else {
+        setIsLoading(false)
+      } else if (users && users.length > 0) {
+        // Only clear session if we have users loaded but can't find this user
+        console.log('[useAuth] User not found in users array, clearing session')
         setSession(null)
         setCurrentUser(null)
+        setIsLoading(false)
+      } else {
+        // Users not loaded yet, keep waiting
+        console.log('[useAuth] Users not loaded yet, waiting...')
       }
     } else if (session) {
+      console.log('[useAuth] Session expired, clearing')
       setSession(null)
       setCurrentUser(null)
+      setIsLoading(false)
     } else {
+      console.log('[useAuth] No session')
       setCurrentUser(null)
+      setIsLoading(false)
     }
-    setIsLoading(false)
   }, [session, users, setSession])
 
   const login = async (email: string, password: string, totpCode?: string): Promise<{ success: boolean; error?: string; requires2FA?: boolean }> => {
+    console.log('[auth.login] Starting login for:', email)
     try {
       const attemptsData = await window.spark.kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
       const attempt = attemptsData[email]
@@ -147,7 +173,9 @@ export function useAuth() {
       }
 
       const allUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      console.log('[auth.login] Found users:', allUsers.length, allUsers.map(u => u.email))
       const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
+      console.log('[auth.login] User lookup result:', user ? user.email : 'NOT FOUND')
       
       if (!user) {
         const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
@@ -166,11 +194,13 @@ export function useAuth() {
       }
 
       // PBKDF2 verification with automatic legacy SHA-256 migration
+      console.log('[auth.login] Verifying password, user has salt:', !!user.passwordSalt)
       const { valid, needsMigration } = await verifyPassword(
         password,
         user.passwordHash,
         user.passwordSalt
       )
+      console.log('[auth.login] Password verification result - valid:', valid, 'needsMigration:', needsMigration)
       
       if (!valid) {
         const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
@@ -262,8 +292,17 @@ export function useAuth() {
         expiresAt: now + SESSION_DURATION
       }
 
+      console.log('[auth.login] Creating session:', newSession)
       setSession(newSession)
+      
+      // Force update the users state to ensure effect finds the user
+      const latestUsers = await window.spark.kv.get<User[]>(USERS_KEY) || []
+      console.log('[auth.login] Force updating users state with:', latestUsers.length, 'users')
+      setUsers(latestUsers)
+      
+      console.log('[auth.login] Session set, logging audit...')
       await logAudit(user.id, user.email, 'login', 'User logged in successfully', 'auth', user.id)
+      console.log('[auth.login] Login complete, returning success')
 
       return { success: true }
     } catch (error) {

@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Card } from '@/components/ui/card'
 import type { AssetMetadata, FlagGallerySettings } from '@/lib/asset-types'
 import { motion } from 'framer-motion'

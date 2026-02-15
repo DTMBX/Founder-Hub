@@ -1,4 +1,4 @@
-import { useKV } from '@github/spark/hooks'
+import { useKV } from '@/lib/local-storage-kv'
 import { Link } from '@/lib/types'
 import { motion } from 'framer-motion'
 import { ArrowSquareOut, Newspaper } from '@phosphor-icons/react'
