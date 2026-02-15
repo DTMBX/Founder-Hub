@@ -8,6 +8,7 @@ import CourtSection from './sections/CourtSection'
 import ProofSection from './sections/ProofSection'
 import ContactSection from './sections/ContactSection'
 import AboutSection from './sections/AboutSection'
+import OfferingsSection from './sections/OfferingsSection'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings, Link } from '@/lib/types'
@@ -64,9 +65,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
         { id: 'about', type: 'about', title: 'About', content: '', order: 1, enabled: true, investorRelevant: false },
         { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 2, enabled: true, investorRelevant: true },
-        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 3, enabled: true, investorRelevant: false },
-        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 4, enabled: true, investorRelevant: true },
-        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 5, enabled: true, investorRelevant: true },
+        { id: 'offerings', type: 'offerings', title: 'Offerings', content: '', order: 3, enabled: true, investorRelevant: true },
+        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 4, enabled: true, investorRelevant: false },
+        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 5, enabled: true, investorRelevant: true },
+        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 6, enabled: true, investorRelevant: true },
       ]
       setSections(defaultSections)
     }
@@ -106,7 +108,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (!hasProofContent) enabled = enabled.filter(s => s.type !== 'proof')
     if (pathway === 'all') return enabled
     if (pathway === 'investors') {
-      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'proof' || s.type === 'contact')
+      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'offerings' || s.type === 'proof' || s.type === 'contact')
     }
     if (pathway === 'legal') {
       return enabled.filter(s => s.type === 'hero' || s.type === 'court' || s.type === 'contact')
@@ -194,6 +196,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         
         {enabledSections.some(s => s.type === 'projects') && (
           <ProjectsSection investorMode={pathway === 'investors'} />
+        )}
+        
+        {enabledSections.some(s => s.type === 'offerings') && (
+          <OfferingsSection />
         )}
         
         {enabledSections.some(s => s.type === 'court') && (

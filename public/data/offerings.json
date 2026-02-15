@@ -1,0 +1,144 @@
+[
+  {
+    "id": "web-creator-whitelabel",
+    "title": "White-Label Web Creator",
+    "slug": "web-creator",
+    "summary": "Professional agency-grade websites built for your brand",
+    "description": "Full-service web development with your branding. Modern React/Next.js architecture, mobile-first design, SEO optimized. Perfect for agencies and entrepreneurs who need quality without the overhead.",
+    "category": "whitelabel",
+    "pricingType": "contact",
+    "priceTiers": [
+      {
+        "id": "starter",
+        "name": "Starter Site",
+        "price": 150000,
+        "currency": "USD",
+        "description": "5-page responsive website",
+        "features": ["Mobile responsive", "SEO basics", "Contact form", "30-day support"]
+      },
+      {
+        "id": "business",
+        "name": "Business Package",
+        "price": 350000,
+        "currency": "USD",
+        "description": "Full business presence",
+        "features": ["Up to 15 pages", "Blog integration", "Analytics", "CMS admin", "90-day support"]
+      }
+    ],
+    "tags": ["web development", "white-label", "agency"],
+    "icon": "Globe",
+    "deliverables": ["Source code", "Deployment", "Documentation", "Training session"],
+    "turnaround": "2-4 weeks",
+    "featured": true,
+    "order": 1,
+    "visibility": "public",
+    "contactCTA": "Request Quote",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "document-drafting",
+    "title": "Document Drafting Services",
+    "slug": "document-drafting",
+    "summary": "Professional legal document preparation and drafting",
+    "description": "Expert document preparation for motions, responses, briefs, contracts, and correspondence. Formatted to court specifications with proper citations and exhibits. Not legal advice - document preparation only.",
+    "category": "service",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "basic",
+        "name": "Basic Document",
+        "price": 7500,
+        "currency": "USD",
+        "description": "Single document, 1-5 pages",
+        "features": ["Professional formatting", "1 revision round"]
+      },
+      {
+        "id": "complex",
+        "name": "Complex Filing",
+        "price": 25000,
+        "currency": "USD",
+        "description": "Multi-document filing package",
+        "features": ["Multiple documents", "Exhibit preparation", "2 revision rounds", "Rush available"]
+      }
+    ],
+    "gratuityEnabled": true,
+    "donationSuggestions": [500, 1000, 2500],
+    "tags": ["documents", "legal", "drafting"],
+    "icon": "FileText",
+    "turnaround": "3-7 business days",
+    "featured": true,
+    "order": 2,
+    "visibility": "public",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "automation-scripts",
+    "title": "Automation Script Library",
+    "slug": "automation-scripts",
+    "summary": "PowerShell and Python scripts for productivity",
+    "description": "Battle-tested automation scripts for file management, data processing, API integrations, and workflow automation. Includes documentation and usage examples.",
+    "category": "digital",
+    "pricingType": "donation",
+    "priceTiers": [
+      {
+        "id": "free",
+        "name": "Free Download",
+        "price": 0,
+        "currency": "USD",
+        "description": "Download with optional contribution"
+      }
+    ],
+    "donationSuggestions": [500, 1000, 2500, 5000],
+    "gratuityEnabled": true,
+    "tags": ["scripts", "automation", "PowerShell", "Python"],
+    "icon": "Code",
+    "includes": ["Source code", "Documentation", "Example configs"],
+    "featured": false,
+    "order": 3,
+    "visibility": "public",
+    "downloadUrl": "#",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "retainer-assistant",
+    "title": "Virtual Assistant Retainer",
+    "slug": "assistant-retainer",
+    "summary": "Ongoing support for your business operations",
+    "description": "Dedicated assistant hours for administrative tasks, research, document management, scheduling, and project coordination. Flexible monthly hours with rollover.",
+    "category": "subscription",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "starter",
+        "name": "10 Hours/Month",
+        "price": 35000,
+        "currency": "USD",
+        "description": "Entry-level support",
+        "features": ["10 hours monthly", "Email support", "Task tracking"],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      },
+      {
+        "id": "professional",
+        "name": "25 Hours/Month",
+        "price": 75000,
+        "currency": "USD",
+        "description": "Professional support",
+        "features": ["25 hours monthly", "Priority response", "Rollover hours", "Weekly check-in"],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      }
+    ],
+    "tags": ["assistant", "retainer", "support"],
+    "icon": "Headset",
+    "featured": true,
+    "order": 4,
+    "visibility": "public",
+    "contactCTA": "Start Retainer",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  }
+]

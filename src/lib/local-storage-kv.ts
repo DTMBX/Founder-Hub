@@ -22,6 +22,7 @@ const STATIC_DATA_MAP: Record<string, string> = {
   'founder-hub-about': '/data/about.json',
   'founder-hub-pdfs': '/data/documents.json',
   'founder-hub-document-types': '/data/document-types.json',
+  'founder-hub-offerings': '/data/offerings.json',
 }
 
 // Check if running on localhost (admin allowed)

@@ -49,7 +49,7 @@ export interface SiteSettings {
   heroMedia?: HeroMediaSettings
 }
 
-export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact' | 'about'
+export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact' | 'about' | 'offerings'
 
 export interface Section {
   id: string
@@ -146,6 +146,54 @@ export interface Case {
   contingencyChecklist?: ContingencyChecklistItem[]
   lastUpdated: number
   createdAt: number
+}
+
+// ─── Offerings / Mercantile ───────────────────────────────────
+
+export type OfferingCategory = 'digital' | 'service' | 'whitelabel' | 'subscription'
+export type OfferingPricing = 'free' | 'paid' | 'donation' | 'contact'
+export type OfferingVisibility = 'public' | 'unlisted' | 'private'
+
+export interface OfferingPriceTier {
+  id: string
+  name: string
+  price: number // in cents, 0 for free
+  currency: 'USD' | 'EUR' | 'GBP'
+  description?: string
+  features?: string[]
+  stripePaymentLink?: string
+  isRecurring?: boolean
+  recurringInterval?: 'month' | 'year'
+}
+
+export interface Offering {
+  id: string
+  title: string
+  slug: string
+  summary: string
+  description: string
+  category: OfferingCategory
+  pricingType: OfferingPricing
+  priceTiers: OfferingPriceTier[]
+  donationSuggestions?: number[] // suggested donation amounts in cents
+  gratuityEnabled?: boolean
+  tags: string[]
+  icon?: string
+  coverImage?: string
+  gallery?: string[]
+  deliverables?: string[]
+  includes?: string[]
+  requirements?: string
+  turnaround?: string
+  featured: boolean
+  order: number
+  visibility: OfferingVisibility
+  externalUrl?: string // link to external checkout/landing page
+  downloadUrl?: string // for digital products
+  contactCTA?: string // custom contact button text
+  stripeProductId?: string
+  createdAt: number
+  updatedAt: number
 }
 
 export interface TimelineEvent {
@@ -382,6 +430,9 @@ export type AuditAction =
   | 'update_section'
   | 'create_document_type'
   | 'update_document_type'
+  | 'create_offering'
+  | 'update_offering'
+  | 'delete_offering'
 
 export interface AuditEvent {
   id: string

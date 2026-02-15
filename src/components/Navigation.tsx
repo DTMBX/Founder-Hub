@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
-import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle } from '@phosphor-icons/react'
+import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle, ShoppingBag } from '@phosphor-icons/react'
 import { Section } from '@/lib/types'
 import { useActiveSection } from '@/hooks/use-active-section'
 import { cn } from '@/lib/utils'
@@ -18,6 +18,7 @@ interface NavigationProps {
 const sectionIcons: Record<string, any> = {
   hero: House,
   projects: FolderOpen,
+  offerings: ShoppingBag,
   about: UserCircle,
   court: Scales,
   proof: Newspaper,
