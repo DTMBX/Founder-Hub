@@ -1,67 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<head>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OG Image Generator - xTx396</title>
-    <style>
+           
         body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: #0a0e1a;
-            color: #fff;
+            max-width:
         }
-        
-        #canvas-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
         #og-canvas {
-            width: 100%;
-            border: 2px solid oklch(0.62 0.17 155);
-            border-radius: 8px;
-            display: block;
+            border: 2px solid ok
+            display: blo
         }
         
-        .controls {
-            margin-top: 20px;
-            text-align: center;
         }
-        
         button {
-            background: oklch(0.62 0.17 155);
-            color: oklch(0.13 0.02 155);
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            margin: 0 8px;
+            color: oklch(0.
+         
+        
+            cursor: 
         }
+        button:hover {
+        }
+        .instructions {
+        }
+        
+            line-he
+    </style>
+<body>
+        <
+    
+        <button 
+        <button onclick="downloadAppleIcon()"
+    
+        <h2>Instructions<
+        <p><strong>2.</strong> 
+        <p><strong>4.</stron
+
+        const canvas = document
+
+            // Dark backgr
+         
         
         button:hover {
-            background: oklch(0.72 0.17 155);
+            // Dot pattern background
         }
         
-        .instructions {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: oklch(0.18 0.015 50);
-            border-radius: 8px;
-            line-height: 1.6;
-        }
+                    ctx
+                }
+            
+            ctx.fillStyle 
+            ctx.textAlign = 'center';
+            
+            const accentGradi
+         
     </style>
-</head>
+       
 <body>
-    <div id="canvas-container">
-        <canvas id="og-canvas" width="1200" height="630"></canvas>
-    </div>
+            ctx.textAlign = 'ce
+            
+          
     
-    <div class="controls">
+            // Description
         <button onclick="downloadImage()">Download OG Image (1200x630)</button>
         <button onclick="downloadFavicon32()">Download Favicon 32x32</button>
         <button onclick="downloadAppleIcon()">Download Apple Touch Icon 180x180</button>
@@ -126,84 +126,84 @@
             
             // Description
             ctx.fillStyle = 'rgba(240, 243, 245, 0.75)';
-            ctx.font = '400 24px Space Grotesk, sans-serif';
-            ctx.fillText('Transformative solutions at the intersection', 600, 460);
-            ctx.fillText('of technology, transparency, and justice', 600, 495);
-            
-            // Domain
-            ctx.fillStyle = 'rgba(157, 224, 173, 0.8)';
-            ctx.font = '500 22px JetBrains Mono, monospace';
-            ctx.fillText('xTx396.com', 600, 560);
-        }
 
-        function downloadImage() {
-            const link = document.createElement('a');
-            link.download = 'og-preview.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        }
 
-        function downloadFavicon32() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 32;
-            tempCanvas.height = 32;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Dark background
-            tempCtx.fillStyle = '#0a0e1a';
-            tempCtx.fillRect(0, 0, 32, 32);
-            
-            // xTx mark
-            tempCtx.fillStyle = '#9de0ad';
-            tempCtx.font = 'bold 18px sans-serif';
-            tempCtx.textAlign = 'center';
-            tempCtx.textBaseline = 'middle';
-            tempCtx.fillText('xTx', 16, 16);
-            
-            const link = document.createElement('a');
-            link.download = 'favicon-32x32.png';
-            link.href = tempCanvas.toDataURL('image/png');
-            link.click();
-        }
 
-        function downloadAppleIcon() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 180;
-            tempCanvas.height = 180;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Dark background with gradient
-            const gradient = tempCtx.createLinearGradient(0, 0, 180, 180);
-            gradient.addColorStop(0, '#0a0e1a');
-            gradient.addColorStop(1, '#12172b');
-            tempCtx.fillStyle = gradient;
-            tempCtx.fillRect(0, 0, 180, 180);
-            
-            // Border accent
-            tempCtx.strokeStyle = '#9de0ad';
-            tempCtx.lineWidth = 2;
-            tempCtx.strokeRect(10, 10, 160, 160);
-            
-            // xTx mark
-            tempCtx.fillStyle = '#9de0ad';
-            tempCtx.font = 'bold 48px sans-serif';
-            tempCtx.textAlign = 'center';
-            tempCtx.textBaseline = 'middle';
-            tempCtx.fillText('xTx', 90, 75);
-            
-            // Subtext
-            tempCtx.fillStyle = 'rgba(157, 224, 173, 0.6)';
-            tempCtx.font = '500 18px sans-serif';
-            tempCtx.fillText('396', 90, 115);
-            
-            const link = document.createElement('a');
-            link.download = 'apple-touch-icon.png';
-            link.href = tempCanvas.toDataURL('image/png');
-            link.click();
-        }
 
-        // Initial draw
-        drawOGImage();
-    </script>
-</body>
-</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
