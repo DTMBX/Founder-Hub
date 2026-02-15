@@ -1,33 +1,34 @@
-# 🎥 USA Flag Video - Quick Start Guide
+# 🎥 Flag Video - Quick Start Guide
 
 ## ✅ System Status
 
-Your xTx396 Founder Hub is **fully ready** for the USA-flag.mp4 video:
+Your xTx396 Founder Hub is **fully ready** with flag-video.mp4:
 
 - ✅ Hero video system implemented
+- ✅ Flag video (flag-video.mp4) already in place
 - ✅ Admin dashboard with Hero Media Manager
-- ✅ USA Flag preset with optimal overlay settings (65%)
+- ✅ Flag preset with optimal overlay settings (65%)
 - ✅ Video controls (pause/play, reduced motion support)
 - ✅ Responsive design (desktop + mobile)
 - ✅ Accessibility features built-in
 
-## 📁 Where to Place Your Video
+## 📁 Video File Location
 
 ```
-/workspaces/spark-template/src/assets/video/USA-flag.mp4
+/workspaces/spark-template/src/assets/video/flag-video.mp4
 ```
 
 **Current directory status:**
 - ✅ `/src/assets/video/` directory exists
-- ⏳ Waiting for USA-flag.mp4 file
+- ✅ flag-video.mp4 file in place
 
-## 🚀 Three Simple Steps
+## 🚀 Quick Configuration
 
-### 1️⃣ Upload Your Video File
+### 1️⃣ Video File Status
 
-Place your `USA-flag.mp4` file in:
+Your video file `flag-video.mp4` is already in:
 ```
-/workspaces/spark-template/src/assets/video/USA-flag.mp4
+/workspaces/spark-template/src/assets/video/flag-video.mp4
 ```
 
 **Recommended video specs:**
@@ -44,6 +45,7 @@ Place your `USA-flag.mp4` file in:
 3. Go to **Settings** → **Hero Media** (left sidebar)
 4. Click **"Apply USA Flag Preset"** button (at the top)
    - This automatically sets:
+     - Video path: `/src/assets/video/flag-video.mp4`
      - Overlay: 65%
      - Vignette: Enabled
      - Auto-Contrast: Enabled

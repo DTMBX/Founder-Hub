@@ -118,7 +118,7 @@ export default function HeroMediaManager() {
                 USA Flag Video Quick Setup
               </CardTitle>
               <CardDescription>
-                Using USA-flag.mp4? Apply optimized overlay settings for bright patriotic content.
+                Using flag-video.mp4? Apply optimized overlay settings for bright patriotic content.
               </CardDescription>
             </div>
             <Button 
@@ -429,7 +429,7 @@ export default function HeroMediaManager() {
                 <li>• Keep videos short (10-30 seconds) and loopable</li>
                 <li>• Always provide a poster image for fast initial display</li>
                 <li>• Test text readability: 40-50% for dark videos, 65-70% for bright content</li>
-                <li>• USA flag video? Use the preset above for optimal settings (65% overlay)</li>
+                <li>• Flag video? Use the preset above for optimal settings (65% overlay)</li>
                 <li>• Use white text with strong weight (700) and generous letter spacing</li>
                 <li>• Respect reduced motion: users with motion sensitivity see poster only</li>
               </ul>
