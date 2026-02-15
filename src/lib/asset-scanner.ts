@@ -1,14 +1,14 @@
 import type { AssetMetadata, AssetCategory, AssetSuggestion, AssetUsageReport } from './asset-types'
 
-const IMAGE_ASSETS = import.meta.glob('/src/assets/images/*.(svg|png|jpg|jpeg|webp)', { eager: false })
-const VIDEO_ASSETS = import.meta.glob('/src/assets/video/*.(mp4|webm)', { eager: false })
+const IMAGE_ASSETS = import.meta.glob('../assets/images/*.{svg,png,jpg,jpeg,webp}', { eager: true, import: 'default' }) as Record<string, string>
+const VIDEO_ASSETS = import.meta.glob('../assets/video/*.{mp4,webm}', { eager: true, import: 'default' }) as Record<string, string>
 
 export async function scanAssets(): Promise<AssetMetadata[]> {
   const assets: AssetMetadata[] = []
   
   const allAssets = { ...IMAGE_ASSETS, ...VIDEO_ASSETS }
   
-  for (const [path, loader] of Object.entries(allAssets)) {
+  for (const [path, url] of Object.entries(allAssets)) {
     const fileName = path.split('/').pop() || ''
     const format = fileName.split('.').pop()?.toLowerCase() as AssetMetadata['format']
     
@@ -30,9 +30,6 @@ export async function scanAssets(): Promise<AssetMetadata[]> {
     }
     
     try {
-      const module = await loader() as { default: string }
-      const url = module.default
-      
       if (format && format !== 'mp4') {
         const dimensions = await getImageDimensions(url)
         asset.dimensions = dimensions

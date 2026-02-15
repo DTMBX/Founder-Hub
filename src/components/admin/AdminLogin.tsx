@@ -58,7 +58,6 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="dTb33@pm.me"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

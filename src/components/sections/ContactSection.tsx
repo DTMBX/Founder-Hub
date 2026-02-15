@@ -73,11 +73,46 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">Let's Connect</h2>
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4">
+            {investorMode ? 'Investor Relations' : 'Let\'s Connect'}
+          </h2>
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Interested in collaborating or learning more? Reach out through the right channel.
+            {investorMode 
+              ? 'Ready to discuss funding, partnerships, or project collaboration? Let\'s talk.'
+              : 'Interested in collaborating or learning more? Reach out through the right channel.'
+            }
           </p>
         </motion.div>
+
+        {/* Investor CTA — prominent when in investor mode */}
+        {investorMode && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.05 }}
+            className="mb-10"
+          >
+            <GlassCard intensity="high" className="border-emerald-500/30 bg-emerald-500/5 hover:shadow-2xl hover:shadow-emerald-500/15 transition-all duration-300">
+              <div className="p-8 sm:p-10 text-center">
+                <ChartLineUp className="h-10 w-10 text-emerald-400 mx-auto mb-4" weight="duotone" />
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Open to Investment</h3>
+                <p className="text-muted-foreground max-w-lg mx-auto mb-6 leading-relaxed">
+                  I'm actively seeking investment partners for web development projects and technology ventures. 
+                  Every project is built with transparency, measurable milestones, and long-term growth in mind.
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <GlassButton variant="glassPrimary" size="lg" asChild className="bg-emerald-600/20 border-emerald-500/40 hover:bg-emerald-600/30">
+                    <a href="mailto:invest@xtx396.com">
+                      <EnvelopeSimple className="h-5 w-5 mr-2" />
+                      invest@xtx396.com
+                    </a>
+                  </GlassButton>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
+        )}
 
         {/* Professional email grid */}
         <motion.div

@@ -4,7 +4,10 @@ import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
 import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown } from '@phosphor-icons/react'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { ASSET_PATHS } from '@/lib/asset-helpers'
+
+// Direct Vite static imports — guaranteed to resolve in dev and production
+import flagVideoSrc from '@/assets/video/flag-video.mp4'
+import flagPosterSrc from '@/assets/images/us-flag-50.png'
 
 interface HeroSectionProps {
   investorMode: boolean
@@ -26,45 +29,28 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
   const prefersReducedMotion = useReducedMotion()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isVideoPaused, setIsVideoPaused] = useState(false)
-  const [videoError, setVideoError] = useState(false)
-  const [videoLoaded, setVideoLoaded] = useState(false)
+  const [videoReady, setVideoReady] = useState(false)
   const [scrollIndicatorVisible, setScrollIndicatorVisible] = useState(true)
   
   const heroSection = sections?.find(s => s.type === 'hero')
   const heroMedia = settings?.heroMedia
 
-  // Resolve video URL: use admin setting first, fall back to built-in flag-video asset
-  const resolvedVideoUrl = heroMedia?.videoUrl || ASSET_PATHS.videos.usaFlag
-  const resolvedPosterUrl = heroMedia?.posterUrl || ASSET_PATHS.images.usFlag50
+  // Use admin-configured video if set, otherwise always use built-in flag video
+  const videoUrl = heroMedia?.videoUrl || flagVideoSrc
+  const posterUrl = heroMedia?.posterUrl || flagPosterSrc
 
-  const shouldPlayVideo = resolvedVideoUrl && 
-    (!prefersReducedMotion || heroMedia?.motionMode === 'full') && 
-    heroMedia?.motionMode !== 'off' &&
-    !videoError
-
-  const handleVideoLoad = useCallback(() => {
-    setVideoLoaded(true)
-    setVideoError(false)
+  const handleVideoReady = useCallback(() => {
+    setVideoReady(true)
   }, [])
 
-  const handleVideoError = useCallback(() => {
-    setVideoError(true)
-    setVideoLoaded(false)
-  }, [])
-
+  // Attempt autoplay; if blocked, pause gracefully (poster/first frame stays visible)
   useEffect(() => {
-    if (videoRef.current && shouldPlayVideo) {
-      if (prefersReducedMotion && heroMedia?.motionMode === 'reduced') {
-        videoRef.current.pause()
-        setIsVideoPaused(true)
-      } else {
-        videoRef.current.play().catch(() => {
-          // Autoplay may be blocked — show poster fallback instead of crashing
-          setVideoError(true)
-        })
-      }
-    }
-  }, [shouldPlayVideo, prefersReducedMotion, heroMedia?.motionMode])
+    const video = videoRef.current
+    if (!video) return
+    video.play().catch(() => {
+      setIsVideoPaused(true)
+    })
+  }, [videoReady])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,119 +61,81 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
   }, [])
 
   const toggleVideoPlayback = () => {
-    if (videoRef.current) {
-      if (isVideoPaused) {
-        videoRef.current.play()
-        setIsVideoPaused(false)
-      } else {
-        videoRef.current.pause()
-        setIsVideoPaused(true)
-      }
+    const video = videoRef.current
+    if (!video) return
+    if (isVideoPaused) {
+      video.play()
+      setIsVideoPaused(false)
+    } else {
+      video.pause()
+      setIsVideoPaused(true)
     }
   }
 
   if (!heroSection || !heroSection.enabled) return null
 
-  const overlayIntensity = heroMedia?.overlayIntensity ?? 0.55
-  const vignetteEnabled = heroMedia?.vignetteEnabled ?? true
   const textAlignment = heroMedia?.textAlignment ?? 'center'
-  const autoContrast = heroMedia?.autoContrast ?? true
-  const adjustedOverlayIntensity = autoContrast ? Math.max(overlayIntensity, 0.55) : overlayIntensity
 
   return (
     <section 
       id="hero" 
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Video / Poster Background */}
-      {shouldPlayVideo ? (
-        <>
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ zIndex: 0 }}
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={resolvedPosterUrl}
-            onLoadedData={handleVideoLoad}
-            onError={handleVideoError}
-          >
-            <source src={resolvedVideoUrl} type="video/mp4" />
-          </video>
+      {/* ── Flag Video Background ── */}
+      <video
+        ref={videoRef}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ zIndex: 0 }}
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster={posterUrl}
+        onCanPlayThrough={handleVideoReady}
+      >
+        <source src={videoUrl} type="video/mp4" />
+      </video>
 
-          {/* Dark overlay */}
-          <div 
-            className="absolute inset-0 bg-black/60 transition-opacity duration-500"
-            style={{ zIndex: 1, opacity: adjustedOverlayIntensity }}
-          />
+      {/* Cinematic overlay — subtle warm tone to honor the flag */}
+      <div 
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{ 
+          zIndex: 1, 
+          background: `linear-gradient(
+            180deg, 
+            rgba(10, 8, 6, 0.45) 0%, 
+            rgba(10, 8, 6, 0.35) 30%, 
+            rgba(10, 8, 6, 0.30) 50%, 
+            rgba(10, 8, 6, 0.40) 75%, 
+            rgba(10, 8, 6, 0.55) 100%
+          )`
+        }}
+      />
 
-          {/* Vignette */}
-          {vignetteEnabled && (
-            <div 
-              className="absolute inset-0"
-              style={{
-                zIndex: 2,
-                background: `
-                  radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%),
-                  linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.4) 100%)
-                `
-              }}
-            />
-          )}
+      {/* Soft vignette — cinematic depth */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          zIndex: 2,
+          background: `
+            radial-gradient(ellipse 130% 90% at 50% 45%, transparent 40%, rgba(0,0,0,0.45) 100%),
+            linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.35) 100%)
+          `
+        }}
+      />
 
-          {/* Play/Pause control */}
-          <button
-            onClick={toggleVideoPlayback}
-            className="fixed bottom-6 right-6 z-50 backdrop-blur-xl bg-white/10 border border-white/20 hover:bg-white/20 rounded-full p-3 transition-all duration-200 hover:scale-105 shadow-lg"
-            aria-label={isVideoPaused ? "Play video" : "Pause video"}
-          >
-            {isVideoPaused ? (
-              <Play className="h-4 w-4 text-white" weight="fill" />
-            ) : (
-              <Pause className="h-4 w-4 text-white" weight="fill" />
-            )}
-          </button>
-        </>
-      ) : (
-        <>
-          {resolvedPosterUrl ? (
-            <>
-              <img
-                src={resolvedPosterUrl}
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover"
-                style={{ zIndex: 0 }}
-              />
-              <div 
-                className="absolute inset-0 bg-black/60 transition-opacity duration-500"
-                style={{ zIndex: 1, opacity: adjustedOverlayIntensity }}
-              />
-              {vignetteEnabled && (
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    zIndex: 2,
-                    background: `
-                      radial-gradient(ellipse 120% 80% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%),
-                      linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.4) 100%)
-                    `
-                  }}
-                />
-              )}
-            </>
-          ) : (
-            <div 
-              className="absolute inset-0"
-              style={{
-                zIndex: 0,
-                background: `linear-gradient(135deg, #0f0d0a 0%, #1a1610 40%, #0d1a12 70%, #1a1025 100%)`,
-              }}
-            />
-          )}
-        </>
-      )}
+      {/* Play/Pause — minimal & respectful */}
+      <button
+        onClick={toggleVideoPlayback}
+        className="fixed bottom-6 right-6 z-50 backdrop-blur-xl bg-white/8 border border-white/15 hover:bg-white/15 rounded-full p-3 transition-all duration-300 hover:scale-105 shadow-lg group"
+        aria-label={isVideoPaused ? "Play video" : "Pause video"}
+      >
+        {isVideoPaused ? (
+          <Play className="h-4 w-4 text-white/70 group-hover:text-white transition-colors" weight="fill" />
+        ) : (
+          <Pause className="h-4 w-4 text-white/70 group-hover:text-white transition-colors" weight="fill" />
+        )}
+      </button>
 
       {/* Content */}
       <div 
