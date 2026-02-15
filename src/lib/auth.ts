@@ -65,14 +65,15 @@ async function verifyPassword(
 
 async function initializeDefaultAdmin(): Promise<void> {
   console.log('[auth] initializeDefaultAdmin starting...')
-  await initEncryption()
-  const users = await window.spark.kv.get<User[]>(USERS_KEY)
-  console.log('[auth] existing users:', users?.length || 0)
+  try {
+    await initEncryption()
+    const users = await window.spark.kv.get<User[]>(USERS_KEY)
+    console.log('[auth] existing users:', users?.length || 0)
   
-  if (!users || users.length === 0) {
-    const { hash, salt } = await hashPassword('SecureAdmin2024!')
+    if (!users || users.length === 0) {
+      const { hash, salt } = await hashPassword('SecureAdmin2024!')
     
-    const defaultAdmin: User = {
+      const defaultAdmin: User = {
       id: `user_${Date.now()}`,
       email: 'dTb33@pm.me',
       passwordHash: hash,
@@ -98,6 +99,9 @@ async function initializeDefaultAdmin(): Promise<void> {
       await window.spark.kv.set(USERS_KEY, migrated)
       console.log('Admin email migrated to dTb33@pm.me')
     }
+  }
+  } catch (error) {
+    console.error('[auth] initializeDefaultAdmin failed:', error)
   }
 }
 
