@@ -69,7 +69,7 @@ export default function CaseJacketManager() {
   const { currentUser } = useAuth()
 
   // KV stores
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
   const [filingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [namingRules, setNamingRules] = useKV<NamingRule[]>('founder-hub-naming-rules', DEFAULT_NAMING_RULES)

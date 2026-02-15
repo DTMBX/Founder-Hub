@@ -37,7 +37,7 @@ interface ExtendedUploadQueueItem extends UploadQueueItem {
 
 export default function AdminInbox() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [cases, setCases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases, setCases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [queue, setQueue] = useState<ExtendedUploadQueueItem[]>([])
   const [enableOCR, setEnableOCR] = useState(true)
   const [isDragging, setIsDragging] = useState(false)
@@ -68,18 +68,19 @@ export default function AdminInbox() {
     const lowerFilename = filename.toLowerCase()
     
     if (docket) {
-      const matchedCase = cases.find(c => 
-        c.docket.toLowerCase().includes(docket.toLowerCase()) ||
-        docket.toLowerCase().includes(c.docket.toLowerCase())
-      )
+      const matchedCase = cases.find(c => {
+        const caseDocket = (c.docket || '').toLowerCase()
+        const searchDocket = docket.toLowerCase()
+        return caseDocket.includes(searchDocket) || searchDocket.includes(caseDocket)
+      })
       if (matchedCase) return matchedCase.id
     }
 
     for (const c of cases) {
-      const docketSimple = c.docket.replace(/[^a-z0-9]/gi, '').toLowerCase()
+      const docketSimple = (c.docket || '').replace(/[^a-z0-9]/gi, '').toLowerCase()
       const filenameSimple = lowerFilename.replace(/[^a-z0-9]/gi, '')
       
-      if (filenameSimple.includes(docketSimple) && docketSimple.length > 3) {
+      if (docketSimple.length > 3 && filenameSimple.includes(docketSimple)) {
         return c.id
       }
     }
@@ -341,12 +342,12 @@ export default function AdminInbox() {
   const activeCount = queue.filter(q => q.status === 'uploading' || q.status === 'processing').length
   const assignedCount = queue.filter(q => q.status === 'completed' && q.assignedCaseId).length
 
-  const filteredCases = cases?.filter(c => 
+  const filteredCases = (cases || []).filter(c => 
     !searchQuery || 
-    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.docket.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.court.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || []
+    (c.title || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.docket || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.court || '').toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <div className="space-y-6">

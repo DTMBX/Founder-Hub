@@ -57,7 +57,7 @@ type SortOrder = 'asc' | 'desc'
 type ViewMode = 'by-type' | 'chronological'
 
 export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [pdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
   const [filingTypes] = useKV<FilingType[]>('founder-hub-filing-types', [])
   const [documentAnalyses] = useKV<DocumentAnalysis[]>('founder-hub-document-analyses', [])

@@ -19,6 +19,8 @@ const DATA_FILES: Record<string, string> = {
   'founder-hub-proof-links': 'public/data/links.json',
   'founder-hub-profile': 'public/data/profile.json',
   'founder-hub-about': 'public/data/about.json',
+  'founder-hub-pdfs': 'public/data/documents.json',
+  'founder-hub-document-types': 'public/data/document-types.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'

@@ -12,7 +12,7 @@ interface CourtSectionProps {
 }
 
 export default function CourtSection({ investorMode, onNavigateToCase }: CourtSectionProps) {
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [pdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true })
   const prefersReducedMotion = useReducedMotion()

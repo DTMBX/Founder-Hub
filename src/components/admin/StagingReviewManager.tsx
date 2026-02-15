@@ -34,7 +34,7 @@ import { motion } from 'framer-motion'
 
 export default function StagingReviewManager() {
   const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
-  const [cases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [documentTypes] = useKV<DocumentType[]>('founder-hub-document-types', [])
   
   const [selectedDoc, setSelectedDoc] = useState<PDFAsset | null>(null)

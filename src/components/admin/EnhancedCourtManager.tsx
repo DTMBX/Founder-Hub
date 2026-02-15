@@ -23,7 +23,7 @@ import {
 } from '@/lib/templates'
 
 export default function EnhancedCourtManager() {
-  const [cases, setCases] = useKV<Case[]>('founder-hub-cases', [])
+  const [cases, setCases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [editingCase, setEditingCase] = useState<Case | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
