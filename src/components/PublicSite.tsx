@@ -9,6 +9,7 @@ import ProofSection from './sections/ProofSection'
 import ContactSection from './sections/ContactSection'
 import AboutSection from './sections/AboutSection'
 import OfferingsSection from './sections/OfferingsSection'
+import InvestorSection from './sections/InvestorSection'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings, Link } from '@/lib/types'
@@ -197,6 +198,9 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         {enabledSections.some(s => s.type === 'projects') && (
           <ProjectsSection investorMode={pathway === 'investors'} />
         )}
+        
+        {/* Investor section - only visible when in investor mode AND has content */}
+        {pathway === 'investors' && <InvestorSection />}
         
         {enabledSections.some(s => s.type === 'offerings') && (
           <OfferingsSection />

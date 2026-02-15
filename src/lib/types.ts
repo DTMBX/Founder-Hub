@@ -511,3 +511,86 @@ export interface ContentDraft {
   content: any
   lastSaved: number
 }
+
+// ─── Investor Section ─────────────────────────────────────────
+
+export interface InvestorMetric {
+  id: string
+  label: string
+  value: string
+  trend?: 'up' | 'down' | 'neutral'
+  trendValue?: string
+  icon?: string
+  order: number
+}
+
+export interface InvestorMilestone {
+  id: string
+  date: string
+  title: string
+  description?: string
+  status: 'completed' | 'in-progress' | 'upcoming'
+  order: number
+}
+
+export interface InvestorDocument {
+  id: string
+  title: string
+  description?: string
+  type: 'pitch-deck' | 'executive-summary' | 'financials' | 'one-pager' | 'media-kit' | 'other'
+  url: string
+  fileSize?: string
+  updatedAt: number
+  order: number
+}
+
+export interface InvestorFAQ {
+  id: string
+  question: string
+  answer: string
+  order: number
+}
+
+export interface InvestmentTier {
+  id: string
+  name: string
+  minAmount: number
+  maxAmount?: number
+  equity?: string
+  perks: string[]
+  available: boolean
+  order: number
+}
+
+export interface InvestorData {
+  // Section visibility (auto-hide if empty)
+  pitchVideoUrl?: string
+  pitchVideoThumbnail?: string
+  
+  // Traction Metrics
+  metrics: InvestorMetric[]
+  
+  // Roadmap / Milestones
+  milestones: InvestorMilestone[]
+  
+  // Downloadable Documents
+  documents: InvestorDocument[]
+  
+  // FAQ
+  faqs: InvestorFAQ[]
+  
+  // Investment Opportunity
+  investmentTiers: InvestmentTier[]
+  raisingAmount?: number
+  raisingCurrency?: 'USD' | 'EUR' | 'GBP'
+  useOfFunds?: string
+  expectedROI?: string
+  
+  // Calendar / Meeting
+  calendlyUrl?: string
+  meetingCTA?: string
+  
+  // Contact
+  investorEmail?: string
+  investorPhone?: string
+}

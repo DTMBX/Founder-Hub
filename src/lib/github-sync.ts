@@ -22,6 +22,7 @@ const DATA_FILES: Record<string, string> = {
   'founder-hub-pdfs': 'public/data/documents.json',
   'founder-hub-document-types': 'public/data/document-types.json',
   'founder-hub-offerings': 'public/data/offerings.json',
+  'founder-hub-investor': 'public/data/investor.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'
