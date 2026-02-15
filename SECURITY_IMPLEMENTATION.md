@@ -103,7 +103,7 @@ export interface User {
 
 ### Session Management
 - **Duration**: 8 hours from login
-- **Storage**: Secure Spark KV
+- **Storage**: Secure browser storage
 - **Validation**: On every protected route
 - **Expiration**: Automatic with re-auth required
 

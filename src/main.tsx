@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
 
-// Initialize localStorage-based KV storage (replaces Spark)
+// Initialize localStorage-based KV storage
 import './lib/local-storage-kv'
 
 import App from './App.tsx'
