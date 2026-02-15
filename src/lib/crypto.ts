@@ -11,6 +11,8 @@
  *   - Sessions: AES-256-GCM encrypted at rest
  */
 
+import { kv } from '@/lib/local-storage-kv'
+
 // Static app-level entropy — combined with random salt for key derivation
 const APP_ENTROPY = 'xTx396-founder-hub-e2e-v1-2026'
 const SALT_KV_KEY = 'founder-hub-e2e-salt'
@@ -21,12 +23,12 @@ let _cachedKey: CryptoKey | null = null
 // ─── Key Management ─────────────────────────────────────────
 
 async function getOrCreateSalt(): Promise<Uint8Array> {
-  const stored = await window.spark.kv.get<string>(SALT_KV_KEY)
+  const stored = await kv.get<string>(SALT_KV_KEY)
   if (stored) {
     return Uint8Array.from(atob(stored), c => c.charCodeAt(0))
   }
   const salt = crypto.getRandomValues(new Uint8Array(32))
-  await window.spark.kv.set(SALT_KV_KEY, btoa(String.fromCharCode(...salt)))
+  await kv.set(SALT_KV_KEY, btoa(String.fromCharCode(...salt)))
   return salt
 }
 
