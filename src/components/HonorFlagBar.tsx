@@ -5,7 +5,7 @@ import usFlag50 from '@/assets/images/us-flag-50.svg'
 import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
 import gadsdenSvg from '@/assets/images/gadsden.svg'
 import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
-import gonzalesPng from '@/assets/images/gonzales-come-and-take-it.png'
+import gonzalesSvg from '@/assets/images/gonzales-come-and-take-it.svg'
 import powMiaPng from '@/assets/images/pow-mia.png'
 
 interface FlagAsset {
@@ -20,7 +20,7 @@ const FLAG_ASSETS: FlagAsset[] = [
   { src: betsyRossSvg, alt: 'Betsy Ross Flag', priority: 2, type: 'svg' },
   { src: gadsdenSvg, alt: 'Gadsden Flag', priority: 2, type: 'svg' },
   { src: appealToHeavenPng, alt: 'Appeal to Heaven Flag', priority: 3, type: 'png' },
-  { src: gonzalesPng, alt: 'Gonzales Come and Take It Flag', priority: 3, type: 'png' },
+  { src: gonzalesSvg, alt: 'Gonzales Come and Take It Flag', priority: 3, type: 'svg' },
   { src: powMiaPng, alt: 'POW/MIA Flag', priority: 3, type: 'png' },
 ]
 
@@ -105,21 +105,26 @@ export default function HonorFlagBar({
       role="presentation"
       aria-hidden="true"
     >
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4">
         <div 
           className={cn(
-            "flex items-center gap-3 sm:gap-4 md:gap-5 h-[18px] sm:h-[20px] md:h-[24px]",
+            "flex items-center h-[20px] sm:h-[22px] md:h-[26px] mx-auto max-w-7xl",
             justifyClass
           )}
+          style={{
+            gap: `${100 / (currentFlags.length + 1)}px`,
+            justifyContent: 'space-evenly'
+          }}
         >
           {currentFlags.map((flag, index) => (
             <div
               key={`${flag.src}-${currentSet}-${index}`}
               className={cn(
-                "relative h-[14px] sm:h-[16px] md:h-[20px] opacity-0 transition-opacity duration-700",
+                "relative flex-shrink-0 opacity-0 transition-opacity duration-700",
                 loadedFlags.has(flag.src) && "opacity-100"
               )}
               style={{
+                height: isMobile ? '16px' : '22px',
                 transitionDelay: shouldAnimate ? `${index * 80}ms` : '0ms'
               }}
             >
@@ -132,6 +137,7 @@ export default function HonorFlagBar({
                 )}
                 style={{
                   filter: 'drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3))',
+                  imageRendering: flag.type === 'svg' ? 'auto' : 'crisp-edges',
                   animationDelay: shouldAnimate ? `${index * 0.3}s` : '0s',
                   animationDuration: shouldAnimate ? '8s' : '0s'
                 }}
