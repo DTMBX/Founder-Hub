@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera } from '@phosphor-icons/react'
+import { SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, ListBullets, MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, Image, Flag, Sparkle } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
 import EnhancedCourtManager from './EnhancedCourtManager'
@@ -19,6 +19,9 @@ import ThemeManager from './ThemeManager'
 import SettingsManager from './SettingsManager'
 import SecurityManager from './SecurityManager'
 import AuditLog from './AuditLog'
+import AssetScanner from './AssetScanner'
+import AssetUsagePolicyManager from './AssetUsagePolicyManager'
+import VisualModulesManager from './VisualModulesManager'
 
 interface AdminDashboardProps {
   onExit: () => void
@@ -101,6 +104,18 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                 <VideoCamera className="h-4 w-4" />
                 <span className="hidden sm:inline">Hero Media</span>
               </TabsTrigger>
+              <TabsTrigger value="assets" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Image className="h-4 w-4" />
+                <span className="hidden sm:inline">Assets</span>
+              </TabsTrigger>
+              <TabsTrigger value="asset-policy" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Flag className="h-4 w-4" />
+                <span className="hidden sm:inline">Usage Policy</span>
+              </TabsTrigger>
+              <TabsTrigger value="visual-modules" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Sparkle className="h-4 w-4" />
+                <span className="hidden sm:inline">Visual Modules</span>
+              </TabsTrigger>
               <TabsTrigger value="theme" className="gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Palette className="h-4 w-4" />
                 <span className="hidden sm:inline">Theme</span>
@@ -158,6 +173,18 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
           <TabsContent value="hero-media" className="space-y-4">
             <HeroMediaManager />
+          </TabsContent>
+
+          <TabsContent value="assets" className="space-y-4">
+            <AssetScanner />
+          </TabsContent>
+
+          <TabsContent value="asset-policy" className="space-y-4">
+            <AssetUsagePolicyManager />
+          </TabsContent>
+
+          <TabsContent value="visual-modules" className="space-y-4">
+            <VisualModulesManager />
           </TabsContent>
 
           <TabsContent value="theme" className="space-y-4">

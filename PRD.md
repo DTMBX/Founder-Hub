@@ -2,7 +2,7 @@
 
 A premium one-page personal landing site for Devon Tyler Barber (xTx396) with **Trinity Layout** — an intelligent audience-triage navigation system that instantly routes three distinct audiences (Investors, Lawyers, Friends/Supporters) into tailored content pathways while preserving a single, elegant landing page experience.
 
-**Latest Update**: Fully implemented Hero Video Background system with USA flag video (flag.mp4) active by default. Features include: full-bleed background video with 65% dark overlay and gradient vignette for optimal text readability on bright patriotic content, crisp white typography (700 weight) with restrained text shadows and letter spacing, glassmorphism CTA buttons with high contrast and visible focus states, responsive stacking on mobile with increased overlay strength, comprehensive motion & accessibility (respects reduced-motion with automatic pause/play controls and poster fallback), scroll-down indicator that fades out after 100px scroll, optimized video loading with instant poster display, and complete admin control panel with one-click "USA Flag Preset" that automatically configures video URL, poster image, overlay intensity, vignette, text alignment, and motion settings. Trinity Layout audience triage fully implemented with three distinct pathways (Investors | Legal/Court | About/Friends) featuring visual mode indicators, reversible navigation, and audience-specific content filtering. Performance optimized with lazy video loading that never blocks initial paint.
+**Latest Update**: Fully implemented **Asset Management System** with intelligent asset scanner, audience-based usage policies, and visual module controls. Features include: automated asset discovery and categorization (Flags, Logos, Maps, Icons, Backgrounds), metadata tagging with theme suitability and usage intent, smart placement suggestions with confidence scoring, usage policy manager controlling which assets appear in Investor/Legal/Friends pathways, hero accent integration with opacity and blend mode controls, Heritage Flags gallery module (optional, Friends-mode by default), EVIDENT® brand mark management with monochrome variants, USA Map Spotlight with optional animations (outline draw, pulse, gradient sweep) respecting reduced-motion preferences, reusable asset components (FlagBadge, LogoMark, WatermarkBackground, DividerMotif, MapSpotlight), performance guardrails warning on oversized assets, SVG sanitization for security, asset usage reports showing where-used references, and visual restraint defaults ensuring flags/heritage imagery remain subtle accents rather than dominant backgrounds. Hero Video Background system remains active with USA flag video, full-bleed overlay system, glassmorphism CTAs, and comprehensive motion/accessibility controls. Trinity Layout audience triage fully operational with pathway-driven asset rendering rules.
 
 **Experience Qualities**:
 1. **Triage-Driven & Intentional** - Within 5 seconds, visitors identify which pathway applies to them and access focused, relevant content without wading through irrelevant sections
@@ -11,9 +11,131 @@ A premium one-page personal landing site for Devon Tyler Barber (xTx396) with **
 4. **Clean & Professional** - Maximum content width ~1000px, generous vertical spacing, dark high-contrast theme with glassmorphism buttons, restrained typography
 
 **Complexity Level**: Complex Application (advanced functionality with audience-driven content routing)
-This comprehensive dual-interface application now features Trinity Layout audience triage, sophisticated scroll storytelling, glassmorphism design system, lazy loading strategies, responsive layout flows, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy (filing types), scriptable batch utilities, chain-of-custody tracking, attorney review notes, contingency checklists, and a polished public-facing site with pathway-driven content filtering and dynamic section rendering.
+This comprehensive dual-interface application now features Trinity Layout audience triage, sophisticated scroll storytelling, glassmorphism design system, lazy loading strategies, responsive layout flows, intelligent asset management system with automated scanning and audience-based usage policies, visual module controls for heritage flags and map animations, admin dashboard with authentication, role-based access control, advanced content management, batch document processing with optional OCR, metadata extraction pipeline, automated naming rules engine, staging and review workflows, project customization with live preview, case management with timeline support, document type taxonomy (filing types), scriptable batch utilities, chain-of-custody tracking, attorney review notes, contingency checklists, and a polished public-facing site with pathway-driven content filtering, dynamic section rendering, and tasteful asset integration respecting visual restraint principles.
 
 ## Essential Features
+
+### Asset Scanner (Admin Tool)
+- **Functionality**: Automated discovery and indexing of all uploaded/static assets (SVG, PNG, JPG, WebP, MP4) with categorization by type: Flags, Logos/Marks, Icons, Backgrounds, Maps, Other
+- **Purpose**: Provide comprehensive visibility into all visual assets and enable intelligent metadata management without manual file hunting
+- **Trigger**: Admin clicks "Scan Assets" in Assets tab or system auto-scans on first admin visit
+- **Progression**: Click scan → system discovers assets via glob imports → extracts metadata (dimensions, file size, format) → infers category and tags from filename patterns → displays asset grid with preview cards → admin clicks asset → edit metadata panel opens → save changes
+- **Success criteria**: 
+  - Scans complete in <5 seconds for typical asset counts (<100 assets)
+  - All SVG, PNG, JPG, WebP, MP4 formats detected correctly
+  - Categories auto-assigned with 80%+ accuracy
+  - Filename-based tagging generates relevant keywords
+  - Shows filename, dimensions, format, size for each asset
+  - Preserves existing metadata on re-scan (merge strategy)
+  - No build breaks from scanning process
+  - Dashboard cards show: Total Assets, Used on Landing, Unused Assets, Oversized warnings
+
+### Asset Tagging & Metadata
+- **Functionality**: Admin can tag assets with category, theme suitability (dark/light/both), usage intent (hero/accent/watermark/icon/gallery/divider), color treatment (original/monochrome-white/monochrome-muted/accent-tinted), licensing notes, source notes; can set "Primary brand mark" and "Secondary marks"
+- **Purpose**: Enable context-aware asset rendering and intelligent placement decisions based on documented metadata
+- **Trigger**: Admin selects asset in Asset Scanner, edits metadata in right panel
+- **Progression**: Select asset → edit category/theme/intent dropdowns → add licensing and source notes → toggle brand mark flags → save → metadata persists to KV storage
+- **Success criteria**: All metadata fields editable, dropdowns populated with correct options, brand mark toggles work, licensing/source notes support freeform text, changes save instantly, metadata preserved across scans
+
+### Smart Usage Rules & Policies
+- **Functionality**: "Usage Policy" settings page where admin configures: (a) which flags allowed on public pages, (b) which restricted to personal/private views, (c) whether flag imagery appears in investor/legal/friends pathways; provides audience-specific asset enablement
+- **Purpose**: Prevent visual/political overload in investor and legal contexts while allowing richer heritage visuals in friends mode
+- **Trigger**: Admin navigates to Usage Policy tab
+- **Progression**: View flag asset list → toggle Public/Restricted per flag → enable/disable per audience (Investors/Legal/Friends) → see guidance cards explaining best practices → changes apply immediately to public site rendering
+- **Success criteria**: Each flag has Public/Restricted toggle, audience pathway buttons (Investors/Legal/Friends) show enabled state, changes respected in public site asset components, visual defaults favor restraint (most flags off for Investors/Legal), Friends mode allows richer visuals
+
+### Visual Restraint Defaults
+- **Functionality**: By default, flag assets used only as subtle accents (small badges, faint watermarks, divider motifs) rather than dominant backgrounds; toggles prevent political/identity visuals from overpowering attorney/investor readability
+- **Purpose**: Maintain professional credibility and readability for business audiences while preserving optional heritage expression
+- **Trigger**: Public site renders assets according to usage policies
+- **Progression**: Asset components check audience mode → apply usage policy rules → render with restrained defaults (low opacity, small size, grayscale treatment where appropriate) → investor/legal pathways show minimal branding
+- **Success criteria**: Default flag rendering is subtle (opacity <20% for watermarks, small badge sizes), investor mode shows minimal flag imagery, legal mode most restrained, friends mode can show richer visuals, admin can override per asset
+
+### Hero Accent Asset Integration
+- **Functionality**: Admin can select optional "Hero Accent Asset" (small flag corner mark or faint watermark) that sits behind hero text with strong overlay controls (position, opacity 5-50%, blend mode); ensures white text contrast always passes high-contrast requirements
+- **Purpose**: Add subtle brand personality to hero without compromising readability
+- **Trigger**: Admin enables Hero Accent in Visual Modules tab
+- **Progression**: Enable hero accent → select asset from dropdown → choose position (corner-left/corner-right/watermark/full-background) → adjust opacity slider → select blend mode → preview changes → save
+- **Success criteria**: Hero accent renders with correct position, opacity adjustable 5-50%, blend modes (normal/multiply/screen/overlay) work, white text remains readable (WCAG AA compliant), mobile rendering stable, disabled by default
+
+### Heritage Flags Gallery Module
+- **Functionality**: Optional section module "Heritage Flags" enabled only in Friends/Supporters mode by default; displays clean curated gallery with flag previews, captions, and minimal copy; kept off for Investor/Legal unless admin explicitly enables
+- **Purpose**: Provide dedicated space for heritage/patriotic expression without cluttering business-focused pathways
+- **Trigger**: Admin enables Flag Gallery in Visual Modules, selects flags to display, configures title/description
+- **Progression**: Enable gallery → set title and description → select flags from asset list (checkboxes) → configure enabled audiences → save → gallery renders in public site when audience mode matches
+- **Success criteria**: Gallery section appears only when enabled and audience matches, displays selected flags in grid (2 cols mobile, 3 cols desktop), flag cards show preview image and tags, animation on scroll (fade-up stagger), Friends mode default, Investor/Legal hidden unless overridden
+
+### EVIDENT® Brand Integration
+- **Functionality**: Dedicated "Brands & Ventures" module can feature EVIDENT® logos and marks; logo usage control includes monochrome/flat variants for dark theme, clear spacing rules, consistent sizing across devices
+- **Purpose**: Professional presentation of brand ventures with consistent logo treatment
+- **Trigger**: Admin uploads/tags EVIDENT logos in Asset Scanner, uses in content modules
+- **Progression**: Upload logo variants (color, dark, light) → tag as Primary/Secondary brand marks → set color treatment per context → use LogoMark component in sections → logo renders with appropriate variant for theme
+- **Success criteria**: Logo variants support monochrome-white and monochrome-muted treatments, sizing consistent (sm/md/lg/xl), spacing respected, dark theme shows appropriate variant, components pull from asset metadata
+
+### Asset-Aware Theming
+- **Functionality**: For each SVG/logo/flag, store recommended color treatment (original/monochrome-white/monochrome-muted/accent-tinted); admin chooses per context with previews against dark/light backgrounds
+- **Purpose**: Ensure assets display appropriately across theme contexts without manual CSS tweaking
+- **Trigger**: Admin sets color treatment in asset metadata
+- **Progression**: Edit asset → select color treatment dropdown → treatment applies CSS filters (brightness-0 invert for white, grayscale for muted, hue-rotate for tinted) → asset components respect treatment setting
+- **Success criteria**: Four color treatments supported, CSS filters correctly applied, previews accurate, treatment persists across renders, dark theme defaults to appropriate treatments
+
+### USA Map Spotlight Widget
+- **Functionality**: Toggleable "USA Map Spotlight" widget with subtle animated highlight (gentle outline draw, pulsing dots, or sweeping gradient stroke); used as decorative element behind section header or in About/Friends mode; placement options (hero/about/footer)
+- **Purpose**: Add geographic/patriotic decorative element without overwhelming content
+- **Trigger**: Admin enables Map Spotlight in Visual Modules
+- **Progression**: Enable map → select map asset → choose animation type (outline/pulse/gradient/none) → adjust speed and intensity → select placement → enable/disable reduced motion respect → save → map renders in specified section
+- **Success criteria**: Map renders with selected animation, animations short (2-4s), reduced-motion setting pauses animations, placement options work (hero/about/footer), intensity adjustable 10-100%, default disabled
+
+### Animation Controls
+- **Functionality**: USA map animation optional, short, respectful of reduced-motion settings; admin controls: animation on/off, type (outline/pulse/gradient), speed (1-10s), intensity (10-100%), placement (hero/about/footer)
+- **Purpose**: Provide engaging visual interest while respecting accessibility and performance constraints
+- **Trigger**: Admin configures Map Spotlight settings
+- **Progression**: Adjust animation controls → preview behavior → save → public site respects reduced-motion preference (auto-pause if detected)
+- **Success criteria**: Animation disabled if reduced-motion detected, speed and intensity adjustable, animations GPU-optimized, no jank on scroll, intersection observer triggers animation only when visible
+
+### Performance Guardrails
+- **Functionality**: Asset Scanner warns on oversized images (>500KB) and recommends optimized formats; site lazy-loads non-critical imagery; SVGs sanitized to remove scripts/dangerous elements
+- **Purpose**: Maintain fast page load and prevent security/performance issues from heavy or malicious assets
+- **Trigger**: Asset scan analyzes file sizes, SVG upload triggers sanitization
+- **Progression**: Scan detects oversized asset → displays warning badge and suggestion → admin sees "Consider optimizing" message → SVG upload parses content → removes script tags and event handlers → stores sanitized version
+- **Success criteria**: Assets >500KB flagged with warnings, suggestions actionable, lazy loading works (intersection observer), SVGs stripped of scripts/onclick/onload attributes, no XSS vulnerabilities from SVG uploads
+
+### Accessibility
+- **Functionality**: Decorative assets have aria-hidden behavior; meaningful images have alt text fields in admin; no flashing/rapid animations; all animations respect reduced-motion preference
+- **Purpose**: Ensure asset system meets WCAG AA accessibility standards
+- **Trigger**: Asset components render with accessibility attributes
+- **Progression**: Decorative asset → aria-hidden="true" applied → meaningful asset → alt text from metadata → rapid animation → disabled if reduced-motion detected
+- **Success criteria**: All decorative assets aria-hidden, alt text fields available in admin, no animations >3 flashes per second, reduced-motion fully respected, keyboard navigation works
+
+### Asset Component Library
+- **Functionality**: Reusable components FlagBadge, LogoMark, WatermarkBackground, DividerMotif, MapSpotlight; each pulls from asset index and respects audience mode rules
+- **Purpose**: Provide consistent, policy-aware asset rendering throughout application
+- **Trigger**: Developer/admin uses asset components in sections
+- **Progression**: Import component → pass asset metadata → component applies sizing, filters, positioning → checks audience mode and usage policy → renders appropriately or hides
+- **Success criteria**: All five components implemented, props for size/treatment/position work, audience mode filtering automatic, lazy loading enabled, components work in all sections
+
+### Audience-Mode Asset Rules
+- **Functionality**: Investor mode uses minimal branding accents and EVIDENT® marks only where relevant; Legal mode uses most restrained visuals (focus on case jacket clarity); Friends mode can show richer heritage/flag visuals; admin can override per page/module
+- **Purpose**: Tailor visual density to audience expectations and context
+- **Trigger**: User selects audience pathway or admin sets default mode
+- **Progression**: Audience mode set → asset components query usage policy → filter assets based on allowed audiences → render only approved assets for that mode
+- **Success criteria**: Investor mode shows <3 flag/heritage assets, Legal mode shows minimal decoration, Friends mode shows full gallery when enabled, overrides work per section, mode badge indicates active filtering
+
+### Asset Usage Report
+- **Functionality**: Dashboard card showing "Assets used on public landing," "Assets used in court section," and "Unused assets"; allows one-click to disable any asset from public rendering
+- **Purpose**: Provide visibility into asset utilization and enable quick cleanup
+- **Trigger**: Asset Scanner generates report on scan completion
+- **Progression**: Scan assets → analyze whereUsed references → count usage by context → display report cards → admin clicks unused asset → option to disable or delete
+- **Success criteria**: Report accurate, shows used/unused counts, context breakdown (landing/court) correct, one-click disable works, report updates on re-scan
+
+### Auto-Suggestions
+- **Functionality**: Asset Scanner suggests placements like "This SVG is ideal as a footer watermark" or "This PNG is too large for inline use" based on size and aspect ratio; suggestions advisory only with confidence scores (high/medium/low)
+- **Purpose**: Guide admin toward optimal asset usage without enforcing rigid rules
+- **Trigger**: Asset metadata analyzed during scan
+- **Progression**: Scan asset → analyze dimensions, aspect ratio, file size → generate suggestions → display in Suggestions tab with confidence badges → admin reviews and acts on suggestions
+- **Success criteria**: Suggestions relevant and helpful, confidence scores accurate, placement suggestions match asset characteristics, optimization warnings actionable, suggestions never auto-apply
+
+## Essential Features (Continued)
 
 ### Trinity Selector (Audience Triage)
 - **Functionality**: Three large, prominent glass buttons in hero section for instant audience routing: Investors | Legal/Court | About/Friends
