@@ -32,7 +32,7 @@ export default function Navigation({
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   
-  const sectionIds = sections.map(s => s.type)
+  const sectionIds = (sections || []).map(s => s.type)
   const activeSection = useActiveSection(sectionIds)
 
   const pathwayAccent = activePathway === 'investors' ? 'emerald' : activePathway === 'legal' ? 'amber' : activePathway === 'about' ? 'purple' : null
@@ -57,7 +57,7 @@ export default function Navigation({
     }
   }
 
-  const navLinks = sections
+  const navLinks = (sections || [])
     .filter(s => s.type !== 'hero')
     .map(section => {
       const Icon = sectionIcons[section.type]

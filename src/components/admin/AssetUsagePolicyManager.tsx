@@ -154,7 +154,7 @@ export default function AssetUsagePolicyManager() {
                     <div>
                       <h4 className="font-semibold text-sm">{asset.fileName}</h4>
                       <div className="flex gap-1 mt-1">
-                        {asset.tags.map(tag => (
+                        {(asset.tags || []).map(tag => (
                           <Badge key={tag} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>

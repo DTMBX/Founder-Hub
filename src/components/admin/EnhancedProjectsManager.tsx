@@ -483,13 +483,13 @@ export default function EnhancedProjectsManager() {
                         </Button>
                       </div>
                       
-                      {editingProject.links.length === 0 ? (
+                      {(editingProject.links || []).length === 0 ? (
                         <div className="text-sm text-muted-foreground py-4 text-center border border-dashed rounded-md">
                           No links yet. Add repository, demo, or documentation links.
                         </div>
                       ) : (
                         <div className="space-y-3">
-                          {editingProject.links.map((link, index) => (
+                          {(editingProject.links || []).map((link, index) => (
                             <Card key={index} className="p-4">
                               <div className="space-y-3">
                                 <div className="flex items-start gap-2">
@@ -609,21 +609,21 @@ export default function EnhancedProjectsManager() {
                           )}
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          {editingProject.techStack.length > 0 && (
+                          {(editingProject.techStack || []).length > 0 && (
                             <div>
                               <Label className="text-xs mb-2 block">Tech Stack</Label>
                               <div className="flex flex-wrap gap-1">
-                                {editingProject.techStack.map(tech => (
+                                {(editingProject.techStack || []).map(tech => (
                                   <Badge key={tech} variant="secondary">{tech}</Badge>
                                 ))}
                               </div>
                             </div>
                           )}
-                          {editingProject.links.length > 0 && (
+                          {(editingProject.links || []).length > 0 && (
                             <div>
                               <Label className="text-xs mb-2 block">Links</Label>
                               <div className="flex flex-wrap gap-2">
-                                {editingProject.links.map((link, i) => (
+                                {(editingProject.links || []).map((link, i) => (
                                   <Button key={i} variant="outline" size="sm" className="gap-2">
                                     {getLinkIcon(link.type)}
                                     {link.label || 'Link'}
