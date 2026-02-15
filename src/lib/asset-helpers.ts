@@ -8,7 +8,7 @@ export const getImageAssetUrl = (filename: string) => {
 
 export const ASSET_PATHS = {
   videos: {
-    usaFlag: '/src/assets/video/flag-video.mp4',
+    usaFlag: '/src/assets/video/flag.mp4',
   },
   images: {
     usFlag50: '/src/assets/images/us-flag-50.png',

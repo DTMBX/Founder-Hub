@@ -40,9 +40,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       const defaultSections: Section[] = [
         { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
         { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 1, enabled: true, investorRelevant: true },
-        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 2, enabled: true, investorRelevant: false },
-        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 3, enabled: true, investorRelevant: true },
-        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 4, enabled: true, investorRelevant: true },
+        { id: 'about', type: 'about', title: 'About', content: '', order: 2, enabled: true, investorRelevant: false },
+        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 3, enabled: true, investorRelevant: false },
+        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 4, enabled: true, investorRelevant: true },
+        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 5, enabled: true, investorRelevant: true },
       ]
       setSections(defaultSections)
     }
@@ -62,7 +63,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       const targetSection = 
         selectedPathway === 'investors' ? 'projects' :
         selectedPathway === 'legal' ? 'court' :
-        'contact'
+        'about'
       
       const element = document.getElementById(targetSection)
       if (element) {
@@ -99,6 +100,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (pathway === 'about') {
       return enabled.filter(s => 
         s.type === 'hero' || 
+        s.type === 'about' || 
         s.type === 'contact'
       )
     }
@@ -107,7 +109,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   }
 
   const enabledSections = getVisibleSections()
-  const showAboutSection = pathway === 'about' || pathway === 'all'
+  const showAboutSection = enabledSections.some(s => s.type === 'about')
 
   const pathwayLabels = {
     investors: 'Investors',

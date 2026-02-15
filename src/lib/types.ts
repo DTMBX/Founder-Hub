@@ -48,7 +48,7 @@ export interface SiteSettings {
   heroMedia?: HeroMediaSettings
 }
 
-export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact'
+export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact' | 'about'
 
 export interface Section {
   id: string
