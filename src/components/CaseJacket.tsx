@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useIsMobile } from '@/hooks/use-mobile'
+import HonorFlagBar from './HonorFlagBar'
 import { 
   ArrowLeft, 
   Download, 
@@ -453,7 +454,15 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
+      <HonorFlagBar 
+        enabled={true}
+        rotationCadence={20000}
+        maxFlagsDesktop={7}
+        maxFlagsMobile={3}
+        animationEnabled={true}
+        alignment="center"
+      />
+      <div className="sticky z-40 border-b border-border bg-background/80 backdrop-blur-xl top-[18px] sm:top-[20px] md:top-[24px]">
         <div className="max-w-[1600px] mx-auto px-4 py-4">
           <div className="flex items-center gap-4 mb-4">
             <GlassButton onClick={onBack} variant="glass" size="sm">

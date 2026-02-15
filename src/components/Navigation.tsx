@@ -48,7 +48,7 @@ export default function Navigation({
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      const headerOffset = 72
+      const headerOffset = 96
       const elementPosition = element.getBoundingClientRect().top + window.scrollY
       const offsetPosition = elementPosition - headerOffset
       window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
@@ -67,7 +67,8 @@ export default function Navigation({
   return (
     <nav 
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
+        'fixed left-0 right-0 z-50 transition-all duration-500',
+        'top-[18px] sm:top-[20px] md:top-[24px]',
         isScrolled 
           ? 'bg-background/85 backdrop-blur-2xl border-b border-border/40 shadow-sm' 
           : 'bg-transparent'
