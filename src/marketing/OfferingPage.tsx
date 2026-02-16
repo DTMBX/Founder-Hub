@@ -11,7 +11,7 @@
  *  S7) Final CTA
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   MarketingHero,
   OfferGrid,
@@ -20,13 +20,16 @@ import {
   PricingTable,
   FAQSection,
   FinalCTA,
+  SiteTypeToggle,
 } from './components'
 import { MarketingPage } from './layouts'
 import {
   MARKETING_OFFERS,
   getFeaturedOffer,
+  getOffersBySiteType,
   type MarketingOffer,
   type OfferTier,
+  type SiteGenerationType,
 } from './offers.config'
 import { getFAQsForOffer } from './faq.config'
 import { track, MARKETING_EVENTS } from './event-tracker'
@@ -79,6 +82,26 @@ export function OfferingPage({
   const [showLeadCapture, setShowLeadCapture] = useState(false)
   const [pendingOfferId, setPendingOfferId] = useState<string | null>(null)
   
+  // Site type filter - persisted in localStorage
+  const [siteType, setSiteType] = useState<SiteGenerationType>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('xtx-site-generation-type')
+      if (stored === 'law-firm' || stored === 'small-business' || stored === 'agency') {
+        return stored
+      }
+    }
+    // Default to law-firm (most revenue-focused)
+    return 'law-firm'
+  })
+  
+  // Persist site type selection
+  useEffect(() => {
+    localStorage.setItem('xtx-site-generation-type', siteType)
+  }, [siteType])
+  
+  // Filter offers by site type
+  const filteredOffers = useMemo(() => getOffersBySiteType(siteType), [siteType])
+  
   // Load preview metas if not provided
   useEffect(() => {
     if (propMetas) return
@@ -107,8 +130,11 @@ export function OfferingPage({
     loadMetas()
   }, [basePath, propMetas])
   
-  // Get featured offer for pricing section
-  const featuredOffer = getFeaturedOffer() ?? MARKETING_OFFERS[0]
+  // Get featured offer for pricing section (prefer filtered, fallback to any)
+  const featuredOffer = filteredOffers.find(o => o.featured) 
+    ?? getFeaturedOffer() 
+    ?? filteredOffers[0] 
+    ?? MARKETING_OFFERS[0]
   
   // Get FAQs based on selected or featured offer
   const faqs = getFAQsForOffer(selectedOfferId ?? featuredOffer?.offerId ?? '')
@@ -212,14 +238,26 @@ export function OfferingPage({
         isPrimaryLoading={isGenerating}
       />
       
-      {/* S2: Offer Grid */}
-      <OfferGrid
-        offers={MARKETING_OFFERS}
-        previewMetas={previewMetas}
-        basePath={basePath}
-        onGeneratePreview={handleRequestPreview}
-        isGenerating={isGenerating}
-      />
+      {/* S2: Site Type Toggle + Offer Grid */}
+      <section id="offers" className="py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Site Type Toggle */}
+          <div className="flex justify-center mb-8">
+            <SiteTypeToggle
+              value={siteType}
+              onChange={setSiteType}
+            />
+          </div>
+        </div>
+        
+        <OfferGrid
+          offers={filteredOffers}
+          previewMetas={previewMetas}
+          basePath={basePath}
+          onGeneratePreview={handleRequestPreview}
+          isGenerating={isGenerating}
+        />
+      </section>
       
       {/* S3: How It Works */}
       <HowItWorks />

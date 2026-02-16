@@ -29,5 +29,8 @@ export type { EventDebugPanelProps } from './EventDebugPanel'
 export { SkipLinks } from './SkipLinks'
 export type { SkipLinksProps } from './SkipLinks'
 
+export { SiteTypeToggle } from './SiteTypeToggle'
+export type { SiteTypeToggleProps } from './SiteTypeToggle'
+
 export { FeatureGrid } from './FeatureGrid'
 export type { FeatureGridProps, FeatureItem } from './FeatureGrid'

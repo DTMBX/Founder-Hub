@@ -5,6 +5,16 @@
  * Edit this file to change offer content without touching JSX.
  */
 
+// ─── Site Type for Generation Toggle ────────────────────────
+
+export type SiteGenerationType = 'law-firm' | 'small-business' | 'agency'
+
+export const SITE_GENERATION_TYPES: { id: SiteGenerationType; label: string; description?: string }[] = [
+  { id: 'law-firm', label: 'Law Firm', description: 'Professional legal websites' },
+  { id: 'small-business', label: 'Small Business', description: 'Modern business sites' },
+  { id: 'agency', label: 'Agency / White Label', description: 'Reseller solutions' },
+]
+
 export interface OfferTier {
   id: string
   name: string
@@ -31,6 +41,8 @@ export interface MarketingOffer {
   featured?: boolean
   badge?: string
   order: number
+  /** Site type for generation toggle filtering */
+  siteType?: SiteGenerationType | 'universal'
 }
 
 // ─── Law Firm Offer ──────────────────────────────────────────
@@ -47,6 +59,7 @@ export const LAW_FIRM_OFFER: MarketingOffer = {
     'Client intake forms',
     'Mobile-first design',
   ],
+  siteType: 'law-firm',
   tiers: [
     {
       id: 'law-firm-starter',
@@ -126,6 +139,7 @@ export const SMB_OFFER: MarketingOffer = {
     'Contact forms',
     'SEO optimized',
   ],
+  siteType: 'small-business',
   tiers: [
     {
       id: 'smb-starter',
@@ -182,6 +196,7 @@ export const AGENCY_OFFER: MarketingOffer = {
     'Team directory',
     'Lead capture',
   ],
+  siteType: 'agency',
   tiers: [
     {
       id: 'agency-starter',
@@ -234,6 +249,7 @@ export const PREMIUM_OFFER: MarketingOffer = {
   subtitle: 'White-glove website experience',
   description: 'A fully custom website built with dedicated support, unlimited revisions, and priority delivery.',
   idealFor: ['High-growth companies', 'Professional firms', 'Premium brands'],
+  siteType: 'universal',
   quickFeatures: [
     'Custom design',
     'Priority support',
@@ -296,4 +312,17 @@ export function formatPrice(amount: number, currency: string): string {
     return `$${amount.toLocaleString()}`
   }
   return `${currency} ${amount.toLocaleString()}`
+}
+
+/**
+ * Filter offers by site generation type
+ * Universal offers are always included
+ */
+export function getOffersBySiteType(siteType: SiteGenerationType | 'all'): MarketingOffer[] {
+  if (siteType === 'all') {
+    return MARKETING_OFFERS
+  }
+  return MARKETING_OFFERS.filter(
+    o => o.siteType === siteType || o.siteType === 'universal'
+  )
 }
