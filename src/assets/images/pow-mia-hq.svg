@@ -1,0 +1,55 @@
+<!-- POW/MIA Flag - High Quality SVG -->
+<!-- Based on official POW/MIA flag design -->
+<!-- Public domain: U.S. government work -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid meet">
+  <rect width="900" height="600" fill="#000"/>
+  
+  <!-- POW★MIA text -->
+  <text x="450" y="70" fill="#fff" font-family="'Times New Roman', serif" font-weight="bold" 
+        font-size="48" text-anchor="middle" letter-spacing="8">POW</text>
+  <text x="450" y="70" fill="#fff" font-family="serif" font-size="32" text-anchor="middle">
+    <tspan dx="84">★</tspan>
+  </text>
+  <text x="516" y="70" fill="#fff" font-family="'Times New Roman', serif" font-weight="bold" 
+        font-size="48" text-anchor="start" letter-spacing="8">MIA</text>
+  
+  <!-- Circular border -->
+  <circle cx="450" cy="310" r="180" fill="none" stroke="#fff" stroke-width="6"/>
+  
+  <!-- Silhouette group -->
+  <g fill="#fff" transform="translate(450, 280)">
+    <!-- Head -->
+    <ellipse cx="0" cy="-80" rx="32" ry="40"/>
+    
+    <!-- Body (stooped posture) -->
+    <path d="M-30,-45 C-35,-20 -40,20 -35,60 L35,60 C40,20 35,-20 30,-45 Z"/>
+    
+    <!-- Arms (bound behind) -->
+    <path d="M-35,0 C-50,10 -55,30 -50,45 M35,0 C50,10 55,30 50,45" 
+          stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round"/>
+    
+    <!-- Legs -->
+    <path d="M-25,55 L-30,130 L-20,130 L-15,60 M25,55 L30,130 L20,130 L15,60"/>
+  </g>
+  
+  <!-- Guard tower silhouette -->
+  <g fill="#fff" transform="translate(620, 350)">
+    <!-- Tower base -->
+    <rect x="-20" y="0" width="40" height="80"/>
+    <!-- Tower top platform -->
+    <rect x="-30" y="-20" width="60" height="25"/>
+    <!-- Tower roof -->
+    <polygon points="-35,-20 0,-45 35,-20"/>
+    <!-- Tower legs -->
+    <rect x="-25" y="80" width="8" height="40"/>
+    <rect x="17" y="80" width="8" height="40"/>
+  </g>
+  
+  <!-- Barbed wire suggestion -->
+  <path d="M180,380 Q200,375 220,380 Q240,385 260,380 Q280,375 300,380" 
+        stroke="#fff" stroke-width="2" fill="none"/>
+  
+  <!-- "YOU ARE NOT FORGOTTEN" text -->
+  <text x="450" y="560" fill="#fff" font-family="'Times New Roman', serif" font-weight="bold" 
+        font-size="32" text-anchor="middle" letter-spacing="4">YOU ARE NOT FORGOTTEN</text>
+</svg>

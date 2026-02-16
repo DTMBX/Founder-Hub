@@ -6,6 +6,9 @@ import { Section } from '@/lib/types'
 import { useActiveSection } from '@/hooks/use-active-section'
 import { cn } from '@/lib/utils'
 
+// Import height constants for scroll offset calculations
+import { HONOR_BAR_HEIGHT_DESKTOP, HONOR_BAR_HEIGHT_MOBILE } from './HonorFlagBar'
+
 interface NavigationProps {
   sections: Section[]
   investorMode: boolean
@@ -49,7 +52,8 @@ export default function Navigation({
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      const headerOffset = 96
+      // Account for sticky header + honor bar when scrolling to sections
+      const headerOffset = 64 + HONOR_BAR_HEIGHT_DESKTOP
       const elementPosition = element.getBoundingClientRect().top + window.scrollY
       const offsetPosition = elementPosition - headerOffset
       window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
@@ -69,11 +73,14 @@ export default function Navigation({
     <nav 
       className={cn(
         'fixed left-0 right-0 z-50 transition-all duration-500',
-        'top-[18px] sm:top-[20px] md:top-[24px]',
         isScrolled 
-          ? 'bg-background/85 backdrop-blur-2xl border-b border-border/40 shadow-sm' 
+          ? 'bg-background/90 backdrop-blur-2xl border-b border-border/40 shadow-sm' 
           : 'bg-transparent'
       )}
+      style={{
+        // Nav sits below the honor bar
+        top: `${HONOR_BAR_HEIGHT_DESKTOP}px`
+      }}
     >
       {/* Pathway accent line */}
       {pathwayAccent && isScrolled && (

@@ -3,11 +3,15 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { useKV } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import usFlagOfficial from '@/assets/images/us-flag-official.svg'
-import betsyRossSvg from '@/assets/images/betsy-ross-13-star.svg'
+import betsyRossSvg from '@/assets/images/betsy-ross-hq.svg'
 import gadsdenSvg from '@/assets/images/gadsden.svg'
 import appealToHeavenSvg from '@/assets/images/appeal-to-heaven.svg'
 import gonzalesSvg from '@/assets/images/gonzales-come-and-take-it.svg'
-import powMiaSvg from '@/assets/images/pow-mia.svg'
+import powMiaSvg from '@/assets/images/pow-mia-hq.svg'
+
+// CSS custom property height for layout coordination
+export const HONOR_BAR_HEIGHT_DESKTOP = 32
+export const HONOR_BAR_HEIGHT_MOBILE = 28
 
 interface FlagAsset {
   src: string
@@ -131,8 +135,11 @@ export default function HonorFlagBar({
     console.warn(`Failed to load flag image: ${src}`)
   }
 
+  const barHeight = isMobile ? HONOR_BAR_HEIGHT_MOBILE : HONOR_BAR_HEIGHT_DESKTOP
+
   if (!enabled || flagSets.length === 0) {
-    return <div className="h-[1px] bg-border/20" />
+    // Reserve space even when disabled to prevent layout shift
+    return <div style={{ height: barHeight }} className="bg-transparent" />
   }
 
   const currentFlags = flagSets[currentSet]
@@ -141,31 +148,35 @@ export default function HonorFlagBar({
     alignment === 'right' ? 'justify-end' :
     'justify-center'
 
-  const baseGap = isMobile ? 16 : 24
+  const baseGap = isMobile ? 12 : 20
   const gapSize = currentFlags.length <= 1 ? 0 : baseGap
 
-  const flagHeight = isMobile ? 16 : 20
+  const flagHeight = isMobile ? 16 : 18
   
-  const parallaxOffset = shouldParallax ? Math.min(scrollY * 0.15, 30) : 0
+  const parallaxOffset = shouldParallax ? Math.min(scrollY * 0.1, 15) : 0
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-[60] bg-background/95 backdrop-blur-sm border-b border-border/20"
+      className="fixed top-0 left-0 right-0 z-40 bg-background/70 backdrop-blur-md border-b border-border/10"
+      style={{
+        height: barHeight,
+        minHeight: barHeight,
+        // CSS custom property for layout coordination
+        ['--honor-bar-height' as string]: `${barHeight}px`
+      }}
       role="presentation"
       aria-hidden="true"
     >
-      <div className="w-full px-4 sm:px-6">
+      <div className="w-full h-full px-3 sm:px-4">
         <div 
           className={cn(
-            "flex items-center mx-auto max-w-7xl transition-all duration-300",
+            "flex items-center h-full mx-auto max-w-7xl transition-all duration-300",
             justifyClass
           )}
           style={{
             gap: `${gapSize}px`,
-            height: `${flagHeight + 8}px`,
-            minHeight: `${flagHeight + 8}px`,
             transform: shouldParallax ? `translateY(${parallaxOffset}px)` : 'none',
-            opacity: shouldParallax ? Math.max(1 - (scrollY / 400), 0.7) : 1
+            opacity: shouldParallax ? Math.max(1 - (scrollY / 300), 0.8) : 1
           }}
         >
           {currentFlags.map((flag, index) => (

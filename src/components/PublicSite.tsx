@@ -129,10 +129,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const showAboutSection = enabledSections.some(s => s.type === 'about')
 
   const pathwayLabels: Record<string, { label: string; color: string }> = {
-    investors: { label: 'Investor Mode', color: 'border-emerald-500/40 text-emerald-400' },
-    legal: { label: 'Court Mode', color: 'border-amber-500/40 text-amber-400' },
-    about: { label: 'Connect Mode', color: 'border-purple-500/40 text-purple-400' },
-    marketplace: { label: 'Trade Mode', color: 'border-rose-500/40 text-rose-400' }
+    investors: { label: 'Investor Brief', color: 'border-emerald-500/40 text-emerald-400' },
+    legal: { label: 'Court Filings', color: 'border-amber-500/40 text-amber-400' },
+    about: { label: 'About Devon', color: 'border-purple-500/40 text-purple-400' },
+    marketplace: { label: 'Services', color: 'border-rose-500/40 text-rose-400' }
   }
 
   const socialLinks = contactLinks?.filter(l => l.category === 'social') || []

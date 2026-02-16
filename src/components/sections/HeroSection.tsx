@@ -158,7 +158,7 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-sm sm:text-base tracking-[0.25em] uppercase font-medium text-white/70 mb-6"
           >
-            {settings?.primaryDomain || 'xTx396.online'}
+            Founder & Innovator
           </motion.p>
 
           {/* Headline */}
@@ -169,7 +169,7 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
               textShadow: '0 2px 30px rgba(0,0,0,0.4)',
             }}
           >
-            {heroMedia?.headlineText || settings?.siteName || 'Devon Tyler Barber'}
+            {heroMedia?.headlineText || 'Devon T. Barber'}
           </h1>
           
           {/* Subhead */}
@@ -181,7 +181,7 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
               ...(textAlignment === 'left' ? {} : { marginLeft: 'auto', marginRight: 'auto' })
             }}
           >
-            {heroMedia?.subheadText || settings?.tagline || 'Founder & Innovator'}
+            {heroMedia?.subheadText || 'Building transformative solutions at the intersection of technology and justice.'}
           </p>
 
           {/* CTA Buttons (if configured) */}
@@ -219,10 +219,10 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
             {/* Quad Pathway Cards - 2x2 Grid */}
             <div className={`grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
               {[
-                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor', desc: 'Projects & Roadmap', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
-                { key: 'legal' as const, icon: Scales, label: 'Court', desc: 'Cases & Filings', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
-                { key: 'marketplace' as const, icon: Storefront, label: 'Trade', desc: 'Barter & Exchange', accent: 'from-rose-500/20 to-rose-700/5', border: 'hover:border-rose-400/40' },
-                { key: 'about' as const, icon: UsersFour, label: 'Connect', desc: 'Mission & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
+                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor Brief', desc: 'Projects & Roadmap', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
+                { key: 'legal' as const, icon: Scales, label: 'Court Filings', desc: 'Cases & Documents', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
+                { key: 'marketplace' as const, icon: Storefront, label: 'Services', desc: 'Build • Launch • Support', accent: 'from-rose-500/20 to-rose-700/5', border: 'hover:border-rose-400/40' },
+                { key: 'about' as const, icon: UsersFour, label: 'About Devon', desc: 'Mission & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
               ].map((pathway, idx) => (
                 <motion.div
                   key={pathway.key}

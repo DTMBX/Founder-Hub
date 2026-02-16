@@ -5,6 +5,7 @@ import AdminLogin from './components/admin/AdminLogin'
 import CaseJacket from './components/CaseJacket'
 import CheckoutResult from './components/CheckoutResult'
 import SiteRouter from './components/sites/SiteRouter'
+import { OfferingPage } from './marketing'
 import { useAuth } from './lib/auth'
 import { useInitializeSampleData } from './lib/initialize-sample-data'
 
@@ -16,6 +17,7 @@ type View =
   | 'checkout-cancel'
   | 'site'
   | 'site-preview'
+  | 'offerings'
 
 function App() {
   const [view, setView] = useState<View>('public')
@@ -63,6 +65,8 @@ function App() {
       }
     } else if (hash === 'admin') {
       setView('admin')
+    } else if (hash === 'offerings') {
+      setView('offerings')
     } else if (hash === 'checkout/success') {
       setView('checkout-success')
     } else if (hash === 'checkout/cancel') {
@@ -84,6 +88,11 @@ function App() {
   const handleNavigateToAdmin = () => {
     setView('admin')
     window.location.hash = 'admin'
+  }
+
+  const handleNavigateToOfferings = () => {
+    setView('offerings')
+    window.location.hash = 'offerings'
   }
 
   // Public site via slug: #s/{slug}
@@ -122,6 +131,10 @@ function App() {
     }
 
     return <AdminDashboard onExit={handleBackToPublic} />
+  }
+
+  if (view === 'offerings') {
+    return <OfferingPage />
   }
 
   return <PublicSite onAdminClick={handleNavigateToAdmin} onNavigateToCase={handleNavigateToCase} />
