@@ -2,16 +2,16 @@ import { useState, useEffect, useMemo } from 'react'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { useKV } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
-import usFlagOfficial from '@/assets/images/us-flag-official.svg'
-import betsyRossSvg from '@/assets/images/betsy-ross-hq.svg'
-import gadsdenSvg from '@/assets/images/gadsden.svg'
-import appealToHeavenSvg from '@/assets/images/appeal-to-heaven.svg'
-import gonzalesSvg from '@/assets/images/gonzales-come-and-take-it.svg'
-import powMiaSvg from '@/assets/images/pow-mia-hq.svg'
+import usFlagPng from '@/assets/images/us-flag-50.png'
+import betsyRossPng from '@/assets/images/betsy-ross-13-star.png'
+import gadsdenPng from '@/assets/images/gadsden.png'
+import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
+import gonzalesPng from '@/assets/images/gonzales-come-and-take-it.png'
+import powMiaPng from '@/assets/images/pow-mia.png'
 
 // CSS custom property height for layout coordination
-export const HONOR_BAR_HEIGHT_DESKTOP = 32
-export const HONOR_BAR_HEIGHT_MOBILE = 28
+export const HONOR_BAR_HEIGHT_DESKTOP = 56
+export const HONOR_BAR_HEIGHT_MOBILE = 48
 
 interface FlagAsset {
   src: string
@@ -21,12 +21,12 @@ interface FlagAsset {
 }
 
 const FLAG_ASSETS: FlagAsset[] = [
-  { src: usFlagOfficial, alt: 'United States Flag', priority: 1, type: 'svg' },
-  { src: betsyRossSvg, alt: 'Betsy Ross Flag', priority: 2, type: 'svg' },
-  { src: gadsdenSvg, alt: 'Gadsden Flag', priority: 2, type: 'svg' },
-  { src: appealToHeavenSvg, alt: 'Appeal to Heaven Flag', priority: 3, type: 'svg' },
-  { src: gonzalesSvg, alt: 'Gonzales Come and Take It Flag', priority: 3, type: 'svg' },
-  { src: powMiaSvg, alt: 'POW/MIA Flag', priority: 3, type: 'svg' },
+  { src: usFlagPng, alt: 'United States Flag', priority: 1, type: 'png' },
+  { src: betsyRossPng, alt: 'Betsy Ross Flag', priority: 2, type: 'png' },
+  { src: gadsdenPng, alt: 'Gadsden Flag', priority: 2, type: 'png' },
+  { src: appealToHeavenPng, alt: 'Appeal to Heaven Flag', priority: 3, type: 'png' },
+  { src: gonzalesPng, alt: 'Gonzales Come and Take It Flag', priority: 3, type: 'png' },
+  { src: powMiaPng, alt: 'POW/MIA Flag', priority: 3, type: 'png' },
 ]
 
 interface HonorFlagBarProps {
@@ -151,13 +151,13 @@ export default function HonorFlagBar({
   const baseGap = isMobile ? 12 : 20
   const gapSize = currentFlags.length <= 1 ? 0 : baseGap
 
-  const flagHeight = isMobile ? 16 : 18
+  const flagHeight = isMobile ? 36 : 44
   
   const parallaxOffset = shouldParallax ? Math.min(scrollY * 0.1, 15) : 0
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-40 bg-background/70 backdrop-blur-md border-b border-border/10"
+      className="fixed top-0 left-0 right-0 z-40 bg-black border-b border-white/10"
       style={{
         height: barHeight,
         minHeight: barHeight,
