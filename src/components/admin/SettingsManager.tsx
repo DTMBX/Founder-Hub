@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
-import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle, CreditCard } from '@phosphor-icons/react'
+import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle, CreditCard, ShieldCheck, Usb, Key, Warning } from '@phosphor-icons/react'
 import { useState, useEffect } from 'react'
 import { 
   getGitHubToken, 
@@ -19,6 +19,7 @@ import {
   hasGitHubToken, 
   testGitHubToken 
 } from '@/lib/github-sync'
+import { exportKeyfileToFile, storeKeyfileLocally } from '@/lib/keyfile'
 
 export default function SettingsManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
@@ -31,12 +32,24 @@ export default function SettingsManager() {
     indexingEnabled: true,
     investorModeAvailable: true
   })
-  const { currentUser } = useAuth()
+  const { currentUser, setupKeyfileAuth, disableKeyfileAuth } = useAuth()
   
   // GitHub integration state
   const [githubToken, setGithubTokenState] = useState('')
   const [tokenStatus, setTokenStatus] = useState<'unchecked' | 'valid' | 'invalid'>('unchecked')
   const [isTestingToken, setIsTestingToken] = useState(false)
+  
+  // Keyfile setup state
+  const [showKeyfileSetup, setShowKeyfileSetup] = useState(false)
+  const [keyfilePassword, setKeyfilePassword] = useState('')
+  const [backupPassphrase, setBackupPassphrase] = useState('')
+  const [keyfileLabel, setKeyfileLabel] = useState('USB Key')
+  const [isSettingUpKeyfile, setIsSettingUpKeyfile] = useState(false)
+  const [setupComplete, setSetupComplete] = useState(false)
+  const [recoveryData, setRecoveryData] = useState<{
+    backupCodes: string[]
+    recoveryPhrase: string
+  } | null>(null)
   
   useEffect(() => {
     const existing = getGitHubToken()
@@ -82,6 +95,65 @@ export default function SettingsManager() {
       await logAudit(currentUser.id, currentUser.email, 'update_settings', 'Updated site settings')
     }
     toast.success('Settings saved successfully')
+  }
+
+  const handleSetupKeyfile = async () => {
+    if (!keyfilePassword || !backupPassphrase) {
+      toast.error('Please enter your password and a backup passphrase')
+      return
+    }
+    
+    if (backupPassphrase.length < 8) {
+      toast.error('Backup passphrase must be at least 8 characters')
+      return
+    }
+    
+    setIsSettingUpKeyfile(true)
+    
+    try {
+      const result = await setupKeyfileAuth(keyfilePassword, backupPassphrase, keyfileLabel)
+      
+      if (result.success && result.recovery) {
+        // Store keyfile locally for this computer
+        storeKeyfileLocally(result.recovery.keyfile)
+        
+        // Export keyfile for USB
+        exportKeyfileToFile(result.recovery.keyfile)
+        
+        // Store recovery data so user can copy it
+        setRecoveryData({
+          backupCodes: result.recovery.backupCodes,
+          recoveryPhrase: result.recovery.recoveryPhrase
+        })
+        
+        setSetupComplete(true)
+        toast.success('USB keyfile setup complete! File downloaded.')
+      } else {
+        toast.error(result.error || 'Setup failed')
+      }
+    } catch (err) {
+      console.error('Keyfile setup error:', err)
+      toast.error('An error occurred during setup')
+    }
+    
+    setIsSettingUpKeyfile(false)
+  }
+
+  const handleDisableKeyfile = async () => {
+    if (!keyfilePassword) {
+      toast.error('Please enter your password to disable keyfile auth')
+      return
+    }
+    
+    const result = await disableKeyfileAuth(keyfilePassword)
+    if (result.success) {
+      toast.success('USB keyfile authentication disabled')
+      setShowKeyfileSetup(false)
+      setSetupComplete(false)
+      setRecoveryData(null)
+    } else {
+      toast.error(result.error || 'Failed to disable')
+    }
   }
 
   return (
@@ -447,6 +519,187 @@ export default function SettingsManager() {
               . Create products in Stripe Dashboard → Products, then copy the Price ID (price_xxx).
             </p>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Security - USB Keyfile Setup */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ShieldCheck className="h-4 w-4 text-primary" weight="duotone" />
+            Security &amp; Authentication
+          </CardTitle>
+          <CardDescription>
+            Set up USB keyfile authentication for enhanced security.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {currentUser?.keyfileEnabled ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle className="h-5 w-5" weight="fill" />
+                <span className="font-medium">USB Keyfile Authentication Enabled</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your account requires a USB keyfile for login. Store your keyfile securely on your USB drive.
+              </p>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <Label>Enter password to disable keyfile auth</Label>
+                <Input
+                  type="password"
+                  placeholder="Current password"
+                  value={keyfilePassword}
+                  onChange={(e) => setKeyfilePassword(e.target.value)}
+                />
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={handleDisableKeyfile}
+                >
+                  Disable USB Keyfile Auth
+                </Button>
+              </div>
+            </div>
+          ) : setupComplete && recoveryData ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle className="h-5 w-5" weight="fill" />
+                <span className="font-medium">Setup Complete!</span>
+              </div>
+              
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg space-y-3">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <Warning className="h-4 w-4" weight="fill" />
+                  <span className="font-medium text-sm">Save these recovery options NOW</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">1. USB Keyfile (downloaded automatically)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Move the downloaded .json file to your USB drive (D:)
+                  </p>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">2. Backup Codes (one-time use)</p>
+                  <div className="grid grid-cols-2 gap-1 font-mono text-xs bg-background/50 p-2 rounded">
+                    {recoveryData.backupCodes.map((code, i) => (
+                      <div key={i} className="text-center py-0.5">{code}</div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Backup passphrase required to use these codes.
+                  </p>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">3. Recovery Phrase (emergency only)</p>
+                  <div className="font-mono text-xs bg-background/50 p-2 rounded break-words">
+                    {recoveryData.recoveryPhrase}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Write this down and store somewhere safe (not digital).
+                  </p>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  setSetupComplete(false)
+                  setRecoveryData(null)
+                  setShowKeyfileSetup(false)
+                }}
+              >
+                I've Saved Everything
+              </Button>
+            </div>
+          ) : showKeyfileSetup ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Current Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={keyfilePassword}
+                  onChange={(e) => setKeyfilePassword(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Backup Passphrase</Label>
+                <Input
+                  type="password"
+                  placeholder="Create a separate passphrase for backup codes"
+                  value={backupPassphrase}
+                  onChange={(e) => setBackupPassphrase(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  This is different from your password. You'll need it to use backup codes.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Keyfile Label</Label>
+                <Input
+                  placeholder="e.g., USB Key, Work Computer"
+                  value={keyfileLabel}
+                  onChange={(e) => setKeyfileLabel(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleSetupKeyfile}
+                  disabled={isSettingUpKeyfile}
+                  className="gap-2"
+                >
+                  <Usb className="h-4 w-4" />
+                  {isSettingUpKeyfile ? 'Setting up...' : 'Create USB Keyfile'}
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setShowKeyfileSetup(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Enable USB keyfile authentication to require a physical key for login.
+                This provides stronger security than password-only authentication.
+              </p>
+              
+              <div className="flex items-start gap-3 text-xs text-muted-foreground">
+                <Usb className="h-4 w-4 mt-0.5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">How it works:</p>
+                  <ul className="mt-1 space-y-1 list-disc list-inside">
+                    <li>A keyfile is generated and saved to your USB drive</li>
+                    <li>Login requires both password + USB keyfile</li>
+                    <li>Backup codes for emergency access</li>
+                    <li>Recovery phrase as last resort</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => setShowKeyfileSetup(true)}
+                className="gap-2"
+              >
+                <Key className="h-4 w-4" />
+                Set Up USB Keyfile
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

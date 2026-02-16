@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
-import { useAuth } from '@/lib/auth'
-import { ArrowLeft, ShieldCheck, Lock, EnvelopeSimple, Key, Usb, CheckCircle, Warning } from '@phosphor-icons/react'
+import { useAuth, LoginOptions } from '@/lib/auth'
+import { ArrowLeft, ShieldCheck, Lock, EnvelopeSimple, Key, Usb, CheckCircle, Warning, Password, Notepad } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { 
   getLocalKeyfile, 
@@ -12,6 +12,8 @@ import {
   hasLocalKeyfile,
   AdminKeyfile 
 } from '@/lib/keyfile'
+
+type AuthMethod = 'usb' | 'backup' | 'recovery'
 
 interface AdminLoginProps {
   onBack: () => void
@@ -26,6 +28,13 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [importedKeyfile, setImportedKeyfile] = useState<AdminKeyfile | null>(null)
   const [hasStoredKeyfile, setHasStoredKeyfile] = useState(false)
+  
+  // Alternative auth methods
+  const [authMethod, setAuthMethod] = useState<AuthMethod>('usb')
+  const [backupCode, setBackupCode] = useState('')
+  const [backupPassphrase, setBackupPassphrase] = useState('')
+  const [recoveryPhrase, setRecoveryPhrase] = useState('')
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { login } = useAuth()
 
@@ -74,17 +83,41 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
     setIsLoading(true)
 
     try {
-      const result = await login(
-        email, 
-        password, 
-        totpCode || undefined,
-        importedKeyfile || undefined
-      )
+      // Build login options based on selected auth method
+      const loginOptions: LoginOptions = {
+        email,
+        password,
+        totpCode: totpCode || undefined,
+      }
+      
+      // Add keyfile auth based on selected method
+      if (requiresKeyfile || importedKeyfile) {
+        switch (authMethod) {
+          case 'usb':
+            loginOptions.keyfile = importedKeyfile || undefined
+            break
+          case 'backup':
+            loginOptions.backupCode = backupCode || undefined
+            loginOptions.backupPassphrase = backupPassphrase || undefined
+            break
+          case 'recovery':
+            loginOptions.recoveryPhrase = recoveryPhrase || undefined
+            break
+        }
+      } else if (importedKeyfile) {
+        loginOptions.keyfile = importedKeyfile
+      }
+      
+      const result = await login(loginOptions)
       
       if (!result.success) {
         if (result.requiresKeyfile) {
           setRequiresKeyfile(true)
-          toast.warning('Hardware keyfile required for this account')
+          if (!requiresKeyfile) {
+            toast.warning('Hardware keyfile required for this account')
+          } else {
+            toast.error(result.error || 'Authentication failed')
+          }
         } else if (result.requires2FA) {
           setRequires2FA(true)
           toast.info('Please enter your authentication code')
@@ -149,40 +182,127 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
 
               {/* Hardware Keyfile Section */}
               {requiresKeyfile && (
-                <div className="space-y-2 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
+                <div className="space-y-3 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
                   <div className="flex items-center gap-2 text-amber-400">
-                    <Usb className="h-4 w-4" weight="duotone" />
-                    <Label className="text-xs font-medium">Hardware Key Required</Label>
+                    <ShieldCheck className="h-4 w-4" weight="duotone" />
+                    <Label className="text-xs font-medium">Additional Authentication Required</Label>
                   </div>
                   
-                  {importedKeyfile ? (
-                    <div className="flex items-center gap-2 text-emerald-400 text-sm">
-                      <CheckCircle className="h-4 w-4" weight="fill" />
-                      <span>Keyfile loaded: {importedKeyfile.label}</span>
+                  {/* Auth method selector */}
+                  <div className="flex gap-1 p-1 bg-background/50 rounded-md">
+                    <button
+                      type="button"
+                      onClick={() => setAuthMethod('usb')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] font-medium rounded transition-colors ${
+                        authMethod === 'usb' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Usb className="h-3 w-3" weight="bold" />
+                      USB Key
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAuthMethod('backup')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] font-medium rounded transition-colors ${
+                        authMethod === 'backup' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Password className="h-3 w-3" weight="bold" />
+                      Backup Code
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAuthMethod('recovery')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 text-[10px] font-medium rounded transition-colors ${
+                        authMethod === 'recovery' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <Notepad className="h-3 w-3" weight="bold" />
+                      Recovery
+                    </button>
+                  </div>
+                  
+                  {/* USB Keyfile option */}
+                  {authMethod === 'usb' && (
+                    <div className="space-y-2">
+                      {importedKeyfile ? (
+                        <div className="flex items-center gap-2 text-emerald-400 text-sm">
+                          <CheckCircle className="h-4 w-4" weight="fill" />
+                          <span>Keyfile loaded: {importedKeyfile.label}</span>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-[11px] text-muted-foreground">
+                            Insert your USB key and import the keyfile.
+                          </p>
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept=".json"
+                            onChange={handleKeyfileImport}
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-2"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
+                            <Usb className="h-4 w-4" />
+                            Import Keyfile from USB
+                          </Button>
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <>
+                  )}
+                  
+                  {/* Backup code option */}
+                  {authMethod === 'backup' && (
+                    <div className="space-y-2">
                       <p className="text-[11px] text-muted-foreground">
-                        Insert your USB key and import the keyfile, or use your home computer where the key is stored.
+                        Enter a one-time backup code and your backup passphrase.
                       </p>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".json"
-                        onChange={handleKeyfileImport}
-                        className="hidden"
+                      <Input
+                        type="text"
+                        placeholder="XXXX-XXXX-XXXX"
+                        value={backupCode}
+                        onChange={(e) => setBackupCode(e.target.value.toUpperCase())}
+                        className="font-mono text-center text-sm"
+                        maxLength={14}
                       />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full mt-2 gap-2"
-                        onClick={() => fileInputRef.current?.click()}
-                      >
-                        <Usb className="h-4 w-4" />
-                        Import Keyfile from USB
-                      </Button>
-                    </>
+                      <Input
+                        type="password"
+                        placeholder="Backup passphrase"
+                        value={backupPassphrase}
+                        onChange={(e) => setBackupPassphrase(e.target.value)}
+                        className="text-sm"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Recovery phrase option */}
+                  {authMethod === 'recovery' && (
+                    <div className="space-y-2">
+                      <p className="text-[11px] text-muted-foreground">
+                        Enter your 12-word recovery phrase. This should only be used as a last resort.
+                      </p>
+                      <textarea
+                        placeholder="word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12"
+                        value={recoveryPhrase}
+                        onChange={(e) => setRecoveryPhrase(e.target.value.toLowerCase())}
+                        className="w-full h-20 px-3 py-2 text-sm font-mono rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                      />
+                      <p className="text-[10px] text-amber-400">
+                        After recovery, set up a new USB keyfile immediately.
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
@@ -224,7 +344,7 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
               <Button 
                 type="button"
                 className="w-full" 
-                disabled={isLoading || (requiresKeyfile && !importedKeyfile)} 
+                disabled={isLoading || (requiresKeyfile && authMethod === 'usb' && !importedKeyfile)} 
                 size="lg"
                 onClick={handleSubmit}
               >

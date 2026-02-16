@@ -12,16 +12,31 @@ import {
   isEncrypted,
   initEncryption
 } from './crypto'
-import { AdminKeyfile, verifyKeyfile } from './keyfile'
+import { 
+  AdminKeyfile, 
+  verifyKeyfile,
+  verifyBackupCode,
+  getBackupCodes,
+  markBackupCodeUsed,
+  verifyRecoveryPhrase,
+  setupAdminKeyfile,
+  exportRecoveryBackup,
+  RecoverySetup
+} from './keyfile'
 
 const SESSION_KEY = 'founder-hub-session'
 const USERS_KEY = 'founder-hub-users'
 const LOGIN_ATTEMPTS_KEY = 'founder-hub-login-attempts'
 const AUDIT_LOG_KEY = 'founder-hub-audit-log'
 const PENDING_2FA_KEY = 'founder-hub-pending-2fa'
-const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout (was 15)
-const MAX_ATTEMPTS = 3                     // 3 attempts before lockout (was 5)
-const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions (was 8)
+const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout
+const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
+const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions
+const SESSION_REFRESH_THRESHOLD = 30 * 60 * 1000 // Refresh session if less than 30 min remaining
+
+// Production mode detection - suppress verbose logging
+const IS_DEV = import.meta.env.DEV
+const log = IS_DEV ? console.log.bind(console) : () => {}
 
 interface LoginAttempt {
   count: number
@@ -32,6 +47,26 @@ interface LoginAttempt {
 interface Pending2FA {
   userId: string
   expiresAt: number
+}
+
+// Extended login options for backup/recovery
+export interface LoginOptions {
+  email: string
+  password: string
+  totpCode?: string
+  keyfile?: AdminKeyfile
+  backupCode?: string           // One-time backup code
+  backupPassphrase?: string     // Passphrase to decrypt backup codes
+  recoveryPhrase?: string       // 12-word recovery phrase
+}
+
+export interface LoginResult {
+  success: boolean
+  error?: string
+  requires2FA?: boolean
+  requiresKeyfile?: boolean
+  hasBackupCodes?: boolean      // Indicates backup codes are available
+  hasRecoveryPhrase?: boolean   // Indicates recovery phrase is set up
 }
 
 // ─── Password Hashing (PBKDF2 with legacy SHA-256 fallback) ──────
@@ -64,43 +99,60 @@ async function verifyPassword(
   return { valid: legacyHash === storedHash, needsMigration: true }
 }
 
+/**
+ * Generate a cryptographically secure random password for initial admin setup.
+ * The admin MUST change this password immediately after first login.
+ */
+function generateSecureInitialPassword(): string {
+  const array = new Uint8Array(24)
+  crypto.getRandomValues(array)
+  return btoa(String.fromCharCode(...array)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32)
+}
+
 async function initializeDefaultAdmin(): Promise<void> {
-  console.log('[auth] initializeDefaultAdmin starting...')
+  log('[auth] initializeDefaultAdmin starting...')
   try {
     await initEncryption()
     const users = await kv.get<User[]>(USERS_KEY)
-    console.log('[auth] existing users:', users?.length || 0)
+    log('[auth] existing users:', users?.length || 0)
   
     if (!users || users.length === 0) {
-      const { hash, salt } = await hashPassword('SecureAdmin2024!')
+      // Generate a secure random password - admin MUST change on first login
+      const initialPassword = generateSecureInitialPassword()
+      const { hash, salt } = await hashPassword(initialPassword)
     
       const defaultAdmin: User = {
-      id: `user_${Date.now()}`,
-      email: 'dTb33@pm.me',
-      passwordHash: hash,
-      passwordSalt: salt,
-      role: 'owner',
-      createdAt: Date.now(),
-      lastLogin: 0
-    }
-    
-    await kv.set(USERS_KEY, [defaultAdmin])
-    console.log('Default admin account created (PBKDF2 + AES-256-GCM)')
-  } else {
-    // Migrate existing admin email if needed
-    let changed = false
-    const migrated = users.map(u => {
-      if (u.email === 'admin@xtx396.online') {
-        changed = true
-        return { ...u, email: 'dTb33@pm.me' }
+        id: `user_${Date.now()}`,
+        email: 'dTb33@pm.me',
+        passwordHash: hash,
+        passwordSalt: salt,
+        role: 'owner',
+        createdAt: Date.now(),
+        lastLogin: 0,
+        requiresPasswordChange: true // Force password change on first login
       }
-      return u
-    })
-    if (changed) {
-      await kv.set(USERS_KEY, migrated)
-      console.log('Admin email migrated to dTb33@pm.me')
+    
+      await kv.set(USERS_KEY, [defaultAdmin])
+      // Only log initial password in development mode
+      if (IS_DEV) {
+        console.warn('[AUTH] Initial admin password (change immediately):', initialPassword)
+      }
+      log('Default admin account created (PBKDF2 + AES-256-GCM)')
+    } else {
+      // Migrate existing admin email if needed
+      let changed = false
+      const migrated = users.map(u => {
+        if (u.email === 'admin@xtx396.online') {
+          changed = true
+          return { ...u, email: 'dTb33@pm.me' }
+        }
+        return u
+      })
+      if (changed) {
+        await kv.set(USERS_KEY, migrated)
+        log('Admin email migrated to dTb33@pm.me')
+      }
     }
-  }
   } catch (error) {
     console.error('[auth] initializeDefaultAdmin failed:', error)
   }
@@ -112,53 +164,77 @@ export function useAuth() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  console.log('[useAuth] Hook called, session:', session, 'users:', users?.length, 'isLoading:', isLoading)
+  log('[useAuth] Hook called, session:', session, 'users:', users?.length, 'isLoading:', isLoading)
 
   useEffect(() => {
-    console.log('[useAuth] Initializing default admin...')
+    log('[useAuth] Initializing default admin...')
     initializeDefaultAdmin().then(async () => {
       // After init, load the users into state
       const latestUsers = await kv.get<User[]>(USERS_KEY) || []
-      console.log('[useAuth] Post-init users:', latestUsers.length)
+      log('[useAuth] Post-init users:', latestUsers.length)
       if (latestUsers.length > 0 && (!users || users.length === 0)) {
         setUsers(latestUsers)
       }
     })
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    console.log('[useAuth] Session effect triggered - session:', session, 'users:', users?.length)
+    log('[useAuth] Session effect triggered - session:', session, 'users:', users?.length)
     if (session && session.expiresAt > Date.now()) {
-      console.log('[useAuth] Valid session found, looking for user:', session.userId)
+      log('[useAuth] Valid session found, looking for user:', session.userId)
+      
+      // Auto-refresh session if approaching expiration
+      const timeRemaining = session.expiresAt - Date.now()
+      if (timeRemaining < SESSION_REFRESH_THRESHOLD && timeRemaining > 0) {
+        const refreshedSession: Session = {
+          ...session,
+          expiresAt: Date.now() + SESSION_DURATION
+        }
+        setSession(refreshedSession)
+        log('[useAuth] Session refreshed')
+      }
+      
       const user = users?.find(u => u.id === session.userId)
       if (user) {
-        console.log('[useAuth] User found:', user.email)
+        log('[useAuth] User found:', user.email)
         setCurrentUser(user)
         setIsLoading(false)
       } else if (users && users.length > 0) {
         // Only clear session if we have users loaded but can't find this user
-        console.log('[useAuth] User not found in users array, clearing session')
+        log('[useAuth] User not found in users array, clearing session')
         setSession(null)
         setCurrentUser(null)
         setIsLoading(false)
       } else {
         // Users not loaded yet, keep waiting
-        console.log('[useAuth] Users not loaded yet, waiting...')
+        log('[useAuth] Users not loaded yet, waiting...')
       }
     } else if (session) {
-      console.log('[useAuth] Session expired, clearing')
+      log('[useAuth] Session expired, clearing')
       setSession(null)
       setCurrentUser(null)
       setIsLoading(false)
     } else {
-      console.log('[useAuth] No session')
+      log('[useAuth] No session')
       setCurrentUser(null)
       setIsLoading(false)
     }
   }, [session, users, setSession])
 
-  const login = async (email: string, password: string, totpCode?: string, keyfile?: AdminKeyfile): Promise<{ success: boolean; error?: string; requires2FA?: boolean; requiresKeyfile?: boolean }> => {
-    console.log('[auth.login] Starting login for:', email)
+  const login = async (
+    emailOrOptions: string | LoginOptions,
+    passwordArg?: string,
+    totpCodeArg?: string,
+    keyfileArg?: AdminKeyfile
+  ): Promise<LoginResult> => {
+    // Support both old signature and new options object
+    const options: LoginOptions = typeof emailOrOptions === 'string'
+      ? { email: emailOrOptions, password: passwordArg || '', totpCode: totpCodeArg, keyfile: keyfileArg }
+      : emailOrOptions
+    
+    const { email, password, totpCode, keyfile, backupCode, backupPassphrase, recoveryPhrase } = options
+    
+    log('[auth.login] Starting login for:', email)
     try {
       const attemptsData = await kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
       const attempt = attemptsData[email]
@@ -178,9 +254,9 @@ export function useAuth() {
       }
 
       const allUsers = await kv.get<User[]>(USERS_KEY) || []
-      console.log('[auth.login] Found users:', allUsers.length, allUsers.map(u => u.email))
+      log('[auth.login] Found users:', allUsers.length)
       const user = allUsers.find(u => u.email.toLowerCase() === email.toLowerCase())
-      console.log('[auth.login] User lookup result:', user ? user.email : 'NOT FOUND')
+      log('[auth.login] User lookup result:', user ? 'found' : 'NOT FOUND')
       
       if (!user) {
         const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
@@ -199,13 +275,13 @@ export function useAuth() {
       }
 
       // PBKDF2 verification with automatic legacy SHA-256 migration
-      console.log('[auth.login] Verifying password, user has salt:', !!user.passwordSalt)
+      log('[auth.login] Verifying password')
       const { valid, needsMigration } = await verifyPassword(
         password,
         user.passwordHash,
         user.passwordSalt
       )
-      console.log('[auth.login] Password verification result - valid:', valid, 'needsMigration:', needsMigration)
+      log('[auth.login] Password verification result - valid:', valid)
       
       if (!valid) {
         const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
@@ -238,14 +314,62 @@ export function useAuth() {
 
       // Hardware keyfile verification (if enabled for this user)
       if (user.keyfileEnabled && user.keyfileHash) {
-        if (!keyfile) {
-          await logAudit(user.id, user.email, 'login_keyfile_required', 'Password verified, awaiting hardware key', 'auth', user.id)
-          return { success: false, requiresKeyfile: true }
+        let keyfileVerified = false
+        
+        // Option 1: USB Keyfile (primary)
+        if (keyfile) {
+          const keyResult = await verifyKeyfile(keyfile, password, user.keyfileHash, user.id)
+          if (keyResult.valid) {
+            keyfileVerified = true
+            log('[auth.login] Hardware keyfile verified successfully')
+          } else {
+            await logAudit(user.id, user.email, 'login_keyfile_failed', keyResult.error || 'Invalid keyfile', 'auth', user.id)
+          }
         }
         
-        const keyResult = await verifyKeyfile(keyfile, password, user.keyfileHash, user.id)
-        if (!keyResult.valid) {
+        // Option 2: Backup code (one-time use)
+        if (!keyfileVerified && backupCode && backupPassphrase) {
+          const backupSet = await getBackupCodes(backupPassphrase)
+          if (backupSet) {
+            const backupResult = await verifyBackupCode(backupCode, backupSet.codes, backupSet.usedCodes)
+            if (backupResult.valid && backupResult.usedHash) {
+              await markBackupCodeUsed(backupResult.usedHash, backupPassphrase)
+              keyfileVerified = true
+              log('[auth.login] Backup code verified successfully')
+              await logAudit(user.id, user.email, 'backup_code_used', 'Authenticated via backup code', 'auth', user.id)
+            } else {
+              await logAudit(user.id, user.email, 'backup_code_failed', backupResult.error || 'Invalid backup code', 'auth', user.id)
+            }
+          }
+        }
+        
+        // Option 3: Recovery phrase (emergency fallback)
+        if (!keyfileVerified && recoveryPhrase) {
+          const phraseValid = await verifyRecoveryPhrase(recoveryPhrase)
+          if (phraseValid) {
+            keyfileVerified = true
+            log('[auth.login] Recovery phrase verified successfully')
+            await logAudit(user.id, user.email, 'recovery_phrase_used', 'Authenticated via recovery phrase - recommend setting up new keyfile', 'auth', user.id)
+          } else {
+            await logAudit(user.id, user.email, 'recovery_phrase_failed', 'Invalid recovery phrase', 'auth', user.id)
+          }
+        }
+        
+        // If no keyfile method succeeded, request keyfile
+        if (!keyfileVerified) {
           const currentAttempt = attempt || { count: 0, lastAttempt: 0 }
+          if (!keyfile && !backupCode && !recoveryPhrase) {
+            // First request - don't count as failed attempt
+            await logAudit(user.id, user.email, 'login_keyfile_required', 'Password verified, awaiting hardware key', 'auth', user.id)
+            return { 
+              success: false, 
+              requiresKeyfile: true,
+              hasBackupCodes: true,
+              hasRecoveryPhrase: true
+            }
+          }
+          
+          // Failed attempt with wrong key/code
           currentAttempt.count++
           currentAttempt.lastAttempt = now
           if (currentAttempt.count >= MAX_ATTEMPTS) {
@@ -253,10 +377,15 @@ export function useAuth() {
           }
           attemptsData[email] = currentAttempt
           await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
-          await logAudit(user.id, user.email, 'login_keyfile_failed', keyResult.error || 'Invalid keyfile', 'auth', user.id)
-          return { success: false, error: keyResult.error || 'Invalid hardware key', requiresKeyfile: true }
+          
+          return { 
+            success: false, 
+            error: 'Invalid authentication method',
+            requiresKeyfile: true,
+            hasBackupCodes: true,
+            hasRecoveryPhrase: true
+          }
         }
-        console.log('[auth.login] Hardware keyfile verified successfully')
       }
 
       if (user.twoFactorEnabled && user.twoFactorSecret) {
@@ -320,27 +449,27 @@ export function useAuth() {
         expiresAt: now + SESSION_DURATION
       }
 
-      console.log('[auth.login] Creating session:', newSession)
+      log('[auth.login] Creating session')
       setSession(newSession)
       
       // Force update the users state to ensure effect finds the user
       const latestUsers = await kv.get<User[]>(USERS_KEY) || []
-      console.log('[auth.login] Force updating users state with:', latestUsers.length, 'users')
+      log('[auth.login] Updating users state')
       setUsers(latestUsers)
       
-      console.log('[auth.login] Session set, logging audit...')
+      log('[auth.login] Logging audit...')
       await logAudit(user.id, user.email, 'login', 'User logged in successfully', 'auth', user.id)
-      console.log('[auth.login] Login complete, returning success')
+      log('[auth.login] Login complete')
 
       return { success: true }
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('[auth] Login error:', error)
       return { success: false, error: 'An error occurred. Please try again.' }
     }
   }
 
   const logout = async () => {
-    console.log('[auth] Logging out...')
+    log('[auth] Logging out...')
     if (currentUser) {
       await logAudit(currentUser.id, currentUser.email, 'logout', 'User logged out', 'auth', currentUser.id)
     }
@@ -348,7 +477,7 @@ export function useAuth() {
     localStorage.removeItem('xtx396:' + SESSION_KEY)
     setSession(null)
     setCurrentUser(null)
-    console.log('[auth] Logout complete')
+    log('[auth] Logout complete')
   }
 
   const changePassword = async (currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> => {
@@ -515,6 +644,111 @@ export function useAuth() {
     return { success: true, backupCodes }
   }
 
+  /**
+   * Set up keyfile-based authentication (USB key + backup codes + recovery phrase)
+   * This is the recommended primary authentication method for admin accounts.
+   */
+  const setupKeyfileAuth = async (
+    password: string,
+    backupPassphrase: string,
+    keyfileLabel: string = 'USB Key'
+  ): Promise<{ 
+    success: boolean
+    recovery?: RecoverySetup
+    error?: string 
+  }> => {
+    if (!currentUser) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    // Verify password first
+    const { valid } = await verifyPassword(password, currentUser.passwordHash, currentUser.passwordSalt)
+    if (!valid) {
+      await logAudit(currentUser.id, currentUser.email, 'keyfile_setup_failed', 'Invalid password', 'auth', currentUser.id)
+      return { success: false, error: 'Invalid password' }
+    }
+
+    try {
+      // Generate keyfile + backup codes + recovery phrase
+      const recovery = await setupAdminKeyfile(
+        currentUser.id,
+        password,
+        backupPassphrase,
+        keyfileLabel
+      )
+
+      // Enable keyfile requirement for this user
+      const allUsers = await kv.get<User[]>(USERS_KEY) || []
+      const updatedUsers = allUsers.map(u => 
+        u.id === currentUser.id 
+          ? { 
+              ...u, 
+              keyfileEnabled: true, 
+              keyfileHash: recovery.keyHash,
+              keyfileId: recovery.keyfile.keyId
+            } 
+          : u
+      )
+      
+      await kv.set(USERS_KEY, updatedUsers)
+      setUsers(updatedUsers)
+      
+      await logAudit(
+        currentUser.id, 
+        currentUser.email, 
+        'keyfile_enabled', 
+        `USB keyfile authentication enabled: ${keyfileLabel}`, 
+        'auth', 
+        currentUser.id
+      )
+      
+      // Auto-download the recovery backup file
+      exportRecoveryBackup(recovery.keyfile, recovery.backupCodes, recovery.recoveryPhrase)
+      
+      return { success: true, recovery }
+    } catch (error) {
+      console.error('[auth] Keyfile setup error:', error)
+      return { success: false, error: 'Failed to set up keyfile authentication' }
+    }
+  }
+
+  /**
+   * Disable keyfile authentication (revert to password-only)
+   */
+  const disableKeyfileAuth = async (password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!currentUser) {
+      return { success: false, error: 'Not authenticated' }
+    }
+
+    if (!currentUser.keyfileEnabled) {
+      return { success: false, error: 'Keyfile authentication is not enabled' }
+    }
+
+    const { valid } = await verifyPassword(password, currentUser.passwordHash, currentUser.passwordSalt)
+    if (!valid) {
+      return { success: false, error: 'Invalid password' }
+    }
+
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
+    const updatedUsers = allUsers.map(u => 
+      u.id === currentUser.id 
+        ? { 
+            ...u, 
+            keyfileEnabled: false, 
+            keyfileHash: undefined,
+            keyfileId: undefined
+          } 
+        : u
+    )
+    
+    await kv.set(USERS_KEY, updatedUsers)
+    setUsers(updatedUsers)
+    
+    await logAudit(currentUser.id, currentUser.email, 'keyfile_disabled', 'USB keyfile authentication disabled', 'auth', currentUser.id)
+    
+    return { success: true }
+  }
+
   return {
     currentUser,
     isAuthenticated: !!currentUser && !!session && session.expiresAt > Date.now(),
@@ -525,7 +759,9 @@ export function useAuth() {
     setup2FA,
     enable2FA,
     disable2FA,
-    regenerateBackupCodes
+    regenerateBackupCodes,
+    setupKeyfileAuth,
+    disableKeyfileAuth
   }
 }
 

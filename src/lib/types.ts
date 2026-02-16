@@ -13,6 +13,8 @@ export interface User {
   keyfileEnabled?: boolean       // Require keyfile for login
   keyfileHash?: string           // Hash of keyfile secret for verification
   keyfileId?: string             // ID of active keyfile
+  // Account status
+  requiresPasswordChange?: boolean // Force password change on next login
   lastLogin: number
   createdAt: number
 }

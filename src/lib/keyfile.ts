@@ -8,14 +8,22 @@
  * - Keyfile contains AES-256-GCM encrypted payload with device fingerprint
  * - Keyfile hash stored in user record for verification
  * - Can be stored on USB drive for portable secure access
- * - Lost keyfile = need to regenerate (revokes old keyfiles)
+ * - Lost keyfile = use backup codes or recovery phrase
+ * 
+ * Recovery options:
+ * 1. USB Keyfile (primary) - stored on USB drive
+ * 2. Encrypted Backup Code - stored encrypted with a separate passphrase
+ * 3. Recovery Phrase - 12-word BIP39-style phrase for emergency access
  */
 
 import { kv } from '@/lib/local-storage-kv'
 
 const KEYFILE_VERSION = 'xtx396-keyfile-v1'
 const KEYFILE_LOCAL_KEY = 'xtx396-admin-keyfile'
+const BACKUP_CODES_KEY = 'xtx396-admin-backup-codes'
+const RECOVERY_PHRASE_HASH_KEY = 'xtx396-recovery-phrase-hash'
 const PBKDF2_ITERATIONS = 100_000
+const BACKUP_CODES_COUNT = 8
 
 export interface AdminKeyfile {
   version: string
@@ -30,6 +38,19 @@ interface KeyfilePayload {
   secret: string            // Random 256-bit secret
   deviceHint: string        // Browser/device hint for audit
   createdAt: number
+}
+
+export interface BackupCodeSet {
+  codes: string[]           // 8 one-time backup codes
+  usedCodes: string[]       // Codes that have been used
+  encryptedAt: number
+}
+
+export interface RecoverySetup {
+  keyfile: AdminKeyfile
+  keyHash: string
+  backupCodes: string[]
+  recoveryPhrase: string
 }
 
 // ─── Key Generation ─────────────────────────────────────────
@@ -271,4 +292,224 @@ function getDeviceHint(): string {
   if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS'
   if (ua.includes('Android')) return 'Android'
   return 'Unknown'
+}
+
+// ─── Backup Codes ─────────────────────────────────────────
+
+/**
+ * Generate one-time backup codes for emergency access
+ */
+export function generateBackupCodes(): string[] {
+  const codes: string[] = []
+  for (let i = 0; i < BACKUP_CODES_COUNT; i++) {
+    // Format: XXXX-XXXX-XXXX (12 chars)
+    const part1 = generateSecureRandom(2).toUpperCase()
+    const part2 = generateSecureRandom(2).toUpperCase()
+    const part3 = generateSecureRandom(2).toUpperCase()
+    codes.push(`${part1}-${part2}-${part3}`)
+  }
+  return codes
+}
+
+/**
+ * Hash backup codes for secure storage
+ */
+export async function hashBackupCodes(codes: string[]): Promise<string[]> {
+  return Promise.all(codes.map(code => hashSecret(code.replace(/-/g, ''))))
+}
+
+/**
+ * Verify a backup code against stored hashes
+ */
+export async function verifyBackupCode(
+  code: string,
+  hashedCodes: string[],
+  usedHashes: string[]
+): Promise<{ valid: boolean; usedHash?: string; error?: string }> {
+  const normalizedCode = code.replace(/-/g, '').toUpperCase()
+  const codeHash = await hashSecret(normalizedCode)
+  
+  if (usedHashes.includes(codeHash)) {
+    return { valid: false, error: 'This backup code has already been used' }
+  }
+  
+  if (hashedCodes.includes(codeHash)) {
+    return { valid: true, usedHash: codeHash }
+  }
+  
+  return { valid: false, error: 'Invalid backup code' }
+}
+
+/**
+ * Store encrypted backup code hashes
+ */
+export async function storeBackupCodes(
+  hashedCodes: string[],
+  encryptionPassphrase: string
+): Promise<void> {
+  const data: BackupCodeSet = {
+    codes: hashedCodes,
+    usedCodes: [],
+    encryptedAt: Date.now()
+  }
+  const encrypted = await encryptWithPassword(JSON.stringify(data), encryptionPassphrase)
+  await kv.set(BACKUP_CODES_KEY, encrypted)
+}
+
+/**
+ * Get and decrypt backup codes
+ */
+export async function getBackupCodes(encryptionPassphrase: string): Promise<BackupCodeSet | null> {
+  const encrypted = await kv.get<string>(BACKUP_CODES_KEY)
+  if (!encrypted) return null
+  
+  try {
+    const decrypted = await decryptWithPassword(encrypted, encryptionPassphrase)
+    if (!decrypted) return null
+    return JSON.parse(decrypted) as BackupCodeSet
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Mark a backup code as used
+ */
+export async function markBackupCodeUsed(
+  usedHash: string,
+  encryptionPassphrase: string
+): Promise<void> {
+  const backupSet = await getBackupCodes(encryptionPassphrase)
+  if (!backupSet) return
+  
+  backupSet.usedCodes.push(usedHash)
+  const encrypted = await encryptWithPassword(JSON.stringify(backupSet), encryptionPassphrase)
+  await kv.set(BACKUP_CODES_KEY, encrypted)
+}
+
+// ─── Recovery Phrase ─────────────────────────────────────────
+
+// BIP39-inspired word list (simplified subset)
+const RECOVERY_WORDS = [
+  'abandon', 'ability', 'absent', 'absorb', 'abstract', 'absurd', 'abuse', 'access',
+  'accident', 'account', 'accuse', 'achieve', 'acquire', 'action', 'actor', 'actual',
+  'adapt', 'address', 'adjust', 'admit', 'adult', 'advance', 'advice', 'affair',
+  'afford', 'afraid', 'again', 'agent', 'agree', 'ahead', 'alarm', 'album',
+  'alert', 'alien', 'allow', 'almost', 'alone', 'alpha', 'already', 'alter',
+  'always', 'amateur', 'amazing', 'among', 'amount', 'amused', 'anchor', 'ancient',
+  'anger', 'angle', 'animal', 'annual', 'another', 'answer', 'antenna', 'antique',
+  'anxiety', 'apart', 'apology', 'appear', 'apple', 'approve', 'april', 'arctic',
+  'arena', 'argue', 'armor', 'army', 'arrange', 'arrest', 'arrive', 'arrow',
+  'artist', 'artwork', 'aspect', 'assault', 'asset', 'assist', 'assume', 'asthma',
+  'athlete', 'atom', 'attack', 'attend', 'attract', 'auction', 'august', 'aunt',
+  'author', 'autumn', 'average', 'avocado', 'avoid', 'awake', 'aware', 'awful',
+  'balance', 'bamboo', 'banana', 'banner', 'bargain', 'barrel', 'basket', 'battle',
+  'beach', 'beauty', 'become', 'believe', 'benefit', 'better', 'between', 'beyond',
+  'blanket', 'border', 'bottle', 'bounce', 'bracket', 'branch', 'brave', 'bread',
+  'bridge', 'bright', 'broken', 'bronze', 'brother', 'budget', 'buffalo', 'build'
+]
+
+/**
+ * Generate a 12-word recovery phrase
+ */
+export function generateRecoveryPhrase(): string {
+  const words: string[] = []
+  const randomBytes = crypto.getRandomValues(new Uint8Array(12))
+  for (let i = 0; i < 12; i++) {
+    const index = randomBytes[i] % RECOVERY_WORDS.length
+    words.push(RECOVERY_WORDS[index])
+  }
+  return words.join(' ')
+}
+
+/**
+ * Hash recovery phrase for verification
+ */
+export async function hashRecoveryPhrase(phrase: string): Promise<string> {
+  const normalized = phrase.toLowerCase().trim().split(/\s+/).join(' ')
+  return hashSecret(normalized + 'recovery-v1')
+}
+
+/**
+ * Store recovery phrase hash
+ */
+export async function storeRecoveryPhraseHash(phraseHash: string): Promise<void> {
+  await kv.set(RECOVERY_PHRASE_HASH_KEY, phraseHash)
+}
+
+/**
+ * Verify recovery phrase
+ */
+export async function verifyRecoveryPhrase(phrase: string): Promise<boolean> {
+  const storedHash = await kv.get<string>(RECOVERY_PHRASE_HASH_KEY)
+  if (!storedHash) return false
+  
+  const inputHash = await hashRecoveryPhrase(phrase)
+  return inputHash === storedHash
+}
+
+// ─── Complete Setup Flow ─────────────────────────────────────────
+
+/**
+ * Complete keyfile + backup setup for admin
+ * Returns everything the admin needs to store securely
+ */
+export async function setupAdminKeyfile(
+  userId: string,
+  password: string,
+  backupPassphrase: string,
+  keyfileLabel: string = 'USB Key'
+): Promise<RecoverySetup> {
+  // Generate primary keyfile
+  const { keyfile, keyHash } = await generateKeyfile(userId, password, keyfileLabel)
+  
+  // Generate backup codes
+  const backupCodes = generateBackupCodes()
+  const hashedCodes = await hashBackupCodes(backupCodes)
+  await storeBackupCodes(hashedCodes, backupPassphrase)
+  
+  // Generate recovery phrase
+  const recoveryPhrase = generateRecoveryPhrase()
+  const phraseHash = await hashRecoveryPhrase(recoveryPhrase)
+  await storeRecoveryPhraseHash(phraseHash)
+  
+  return {
+    keyfile,
+    keyHash,
+    backupCodes,
+    recoveryPhrase
+  }
+}
+
+/**
+ * Export all recovery materials to a secure backup file
+ */
+export function exportRecoveryBackup(
+  keyfile: AdminKeyfile,
+  backupCodes: string[],
+  recoveryPhrase: string
+): void {
+  const backup = {
+    _warning: 'KEEP THIS FILE SECURE. Store offline in multiple locations.',
+    _created: new Date().toISOString(),
+    keyfile,
+    backupCodes,
+    recoveryPhrase,
+    instructions: [
+      '1. Primary: Use your USB keyfile for daily login',
+      '2. Backup codes: Use if USB is unavailable (one-time use each)',
+      '3. Recovery phrase: Last resort to regain access if all else fails',
+      'Store this file encrypted or print and secure in a safe location.'
+    ]
+  }
+  
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `xtx396-admin-recovery-${Date.now()}.json`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
