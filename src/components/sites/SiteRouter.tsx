@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from 'react'
 import { getSiteRegistry } from '@/lib/site-registry'
-import type { SiteSummary } from '@/lib/types'
+import type { SiteSummary, NormalizedSiteData, LawFirmSiteData, SMBSiteData, AgencySiteData } from '@/lib/types'
 import LawFirmSite from './LawFirmSite'
 import SMBSite from './SMBSite'
 import AgencySite from './AgencySite'
@@ -31,7 +31,7 @@ interface SiteRouterProps {
 
 type LoadState =
   | { status: 'loading' }
-  | { status: 'resolved'; site: SiteSummary }
+  | { status: 'resolved'; site: SiteSummary; data: NormalizedSiteData }
   | { status: 'not-found' }
   | { status: 'forbidden'; reason: string }
 
@@ -68,7 +68,14 @@ export default function SiteRouter({ slug, siteId, mode, onBack }: SiteRouterPro
       }
       // Preview mode: allow all statuses (admin access implied)
 
-      setState({ status: 'resolved', site })
+      // Fetch normalized data
+      const normalized = await registry.getNormalizedSiteData(site.siteId)
+      if (!normalized) {
+        setState({ status: 'not-found' })
+        return
+      }
+
+      setState({ status: 'resolved', site, data: normalized })
     }
 
     resolve()
@@ -114,7 +121,7 @@ export default function SiteRouter({ slug, siteId, mode, onBack }: SiteRouterPro
     )
   }
 
-  const { site } = state
+  const { site, data } = state
 
   // Preview mode indicator
   const isPreview = mode === 'preview'
@@ -132,16 +139,16 @@ export default function SiteRouter({ slug, siteId, mode, onBack }: SiteRouterPro
         </div>
       )}
 
-      {/* Render the appropriate site component */}
+      {/* Render the appropriate site component with fully resolved data */}
       <div className={(isPreview || isDraft || isDemo) ? 'pt-7' : ''}>
-        {site.type === 'law-firm' && (
-          <LawFirmSite siteId={site.siteId} site={site} onBack={onBack} />
+        {data.type === 'law-firm' && (
+          <LawFirmSite data={data as LawFirmSiteData} onBack={onBack} />
         )}
-        {site.type === 'small-business' && (
-          <SMBSite siteId={site.siteId} site={site} onBack={onBack} />
+        {data.type === 'small-business' && (
+          <SMBSite data={data as SMBSiteData} onBack={onBack} />
         )}
-        {site.type === 'agency' && (
-          <AgencySite siteId={site.siteId} site={site} onBack={onBack} />
+        {data.type === 'agency' && (
+          <AgencySite data={data as AgencySiteData} onBack={onBack} />
         )}
       </div>
     </>

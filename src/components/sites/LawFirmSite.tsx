@@ -1,32 +1,24 @@
 /**
  * LawFirmSite — Public-facing law firm website renderer.
  *
- * Renders a complete, responsive law firm website from LawFirmShowcaseData.
- * Sections are conditionally rendered based on available data.
+ * Pure component: receives fully resolved data as props.
+ * No runtime storage calls. Deterministic output.
  */
 
-import { useKV } from '@/lib/local-storage-kv'
-import type { LawFirmShowcaseData, LawFirmConfig, SiteSummary } from '@/lib/types'
+import type { LawFirmSiteData, LawFirmConfig, SiteCoreBranding } from '@/lib/types'
 import { useState } from 'react'
-import { Scales, Phone, Envelope, MapPin, Star, ArrowRight } from '@phosphor-icons/react'
+import { Phone, Envelope, MapPin, Star, ArrowRight } from '@phosphor-icons/react'
 
-const DEFAULT_DATA: LawFirmShowcaseData = {
-  config: { firmName: '', intakeFormEnabled: false, intakeFields: [], seo: { sitemapEnabled: false } },
-  caseResults: [], attorneys: [], practiceAreas: [], testimonials: [],
-  blogPosts: [], intakeSubmissions: [], visibility: 'demo',
-}
-
-interface LawFirmSiteProps {
-  siteId: string
-  site: SiteSummary
+export interface LawFirmSiteProps {
+  data: LawFirmSiteData
   onBack?: () => void
 }
 
-export default function LawFirmSite({ siteId, site, onBack }: LawFirmSiteProps) {
-  const [data] = useKV<LawFirmShowcaseData>(`sites:${siteId}:data`, DEFAULT_DATA)
+export default function LawFirmSite({ data, onBack }: LawFirmSiteProps) {
   const c: LawFirmConfig = data.config
-  const primary = c.primaryColor ?? '#1a365d'
-  const accent = c.accentColor ?? '#c7a44a'
+  const b: SiteCoreBranding = data.branding
+  const primary = b.primaryColor
+  const accent = b.secondaryColor ?? c.accentColor ?? '#c7a44a'
 
   const publishedPosts = data.blogPosts.filter((p) => p.status === 'published')
   const featuredResults = data.caseResults.filter((r) => r.featured && !r.isConfidential)
@@ -45,8 +37,8 @@ export default function LawFirmSite({ siteId, site, onBack }: LawFirmSiteProps) 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              {c.logoUrl && <img src={c.logoUrl} alt={c.firmName} className="h-8 w-auto" />}
-              <span className="font-bold text-lg" style={{ color: primary }}>{c.firmName || site.name}</span>
+              {(b.logo ?? c.logoUrl) && <img src={b.logo ?? c.logoUrl} alt={c.firmName} className="h-8 w-auto" />}
+              <span className="font-bold text-lg" style={{ color: primary }}>{c.firmName || data.name}</span>
             </div>
             <div className="hidden md:flex items-center gap-6 text-sm font-medium">
               {data.practiceAreas.length > 0 && <a href="#practice-areas" className="hover:text-gray-600">Practice Areas</a>}
@@ -81,7 +73,7 @@ export default function LawFirmSite({ siteId, site, onBack }: LawFirmSiteProps) 
       {/* Hero */}
       <section className="relative py-20 lg:py-32" style={{ backgroundColor: primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">{c.firmName || site.name}</h1>
+          <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">{c.firmName || data.name}</h1>
           {c.tagline && <p className="text-xl lg:text-2xl opacity-90 mb-6 max-w-3xl mx-auto">{c.tagline}</p>}
           {c.description && <p className="text-base opacity-75 max-w-2xl mx-auto mb-8">{c.description}</p>}
           <div className="flex items-center justify-center gap-4 flex-wrap">
@@ -270,7 +262,7 @@ export default function LawFirmSite({ siteId, site, onBack }: LawFirmSiteProps) 
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             {/* Firm info */}
             <div>
-              <h3 className="font-bold text-lg mb-3">{c.firmName || site.name}</h3>
+              <h3 className="font-bold text-lg mb-3">{c.firmName || data.name}</h3>
               {c.address && <p className="text-sm opacity-80 flex items-start gap-2"><MapPin className="h-4 w-4 shrink-0 mt-0.5" /> {c.address}</p>}
               {c.phone && <p className="text-sm opacity-80 flex items-center gap-2 mt-1"><Phone className="h-4 w-4" /> {c.phone}</p>}
               {c.email && <p className="text-sm opacity-80 flex items-center gap-2 mt-1"><Envelope className="h-4 w-4" /> {c.email}</p>}
@@ -305,7 +297,7 @@ export default function LawFirmSite({ siteId, site, onBack }: LawFirmSiteProps) 
             </div>
           )}
           <div className="mt-4 flex items-center justify-between text-xs opacity-50">
-            <span>&copy; {new Date().getFullYear()} {c.firmName || site.name}</span>
+            <span>&copy; {new Date().getFullYear()} {c.firmName || data.name}</span>
             {c.privacyPolicyUrl && <a href={c.privacyPolicyUrl} className="hover:opacity-100">Privacy Policy</a>}
           </div>
         </div>

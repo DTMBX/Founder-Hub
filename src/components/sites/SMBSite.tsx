@@ -1,36 +1,25 @@
 /**
  * SMBSite — Public-facing small business website renderer.
  *
- * Renders a complete, responsive SMB website from SMBTemplateData.
- * Sections are conditionally rendered based on config.sections toggles.
+ * Pure component: receives fully resolved data as props.
+ * No runtime storage calls. Deterministic output.
  */
 
-import { useKV } from '@/lib/local-storage-kv'
-import type { SMBTemplateData, SMBTemplateConfig, SiteSummary } from '@/lib/types'
+import type { SMBSiteData, SMBTemplateConfig, SiteCoreBranding } from '@/lib/types'
 import { useState } from 'react'
 import { Phone, Envelope, MapPin, Star, Clock, ArrowRight, Tag } from '@phosphor-icons/react'
 
-const DEFAULT_DATA: SMBTemplateData = {
-  config: {
-    businessName: '', industry: '', seo: { sitemapEnabled: false },
-    sections: { hero: true, services: true, about: true, team: false, testimonials: false, faq: false, contact: true, gallery: false, blog: false, promotions: false, map: false },
-  },
-  services: [], team: [], testimonials: [], faqs: [], galleryImages: [],
-  promotions: [], blogPosts: [], contactSubmissions: [],
-}
-
-interface SMBSiteProps {
-  siteId: string
-  site: SiteSummary
+export interface SMBSiteProps {
+  data: SMBSiteData
   onBack?: () => void
 }
 
-export default function SMBSite({ siteId, site, onBack }: SMBSiteProps) {
-  const [data] = useKV<SMBTemplateData>(`sites:${siteId}:data`, DEFAULT_DATA)
+export default function SMBSite({ data, onBack }: SMBSiteProps) {
   const c: SMBTemplateConfig = data.config
+  const b: SiteCoreBranding = data.branding
   const s = c.sections
-  const primary = c.primaryColor ?? '#2563eb'
-  const accent = c.accentColor ?? '#f59e0b'
+  const primary = b.primaryColor
+  const accent = b.secondaryColor ?? c.accentColor ?? '#f59e0b'
 
   const activePromos = data.promotions.filter((p) => p.active)
   const publishedPosts = data.blogPosts.filter((p) => p.status === 'published')
@@ -54,8 +43,8 @@ export default function SMBSite({ siteId, site, onBack }: SMBSiteProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              {c.logoUrl && <img src={c.logoUrl} alt={c.businessName} className="h-8 w-auto" />}
-              <span className="font-bold text-lg" style={{ color: primary }}>{c.businessName || site.name}</span>
+              {(b.logo ?? c.logoUrl) && <img src={b.logo ?? c.logoUrl} alt={c.businessName} className="h-8 w-auto" />}
+              <span className="font-bold text-lg" style={{ color: primary }}>{c.businessName || data.name}</span>
             </div>
             <div className="hidden md:flex items-center gap-6 text-sm font-medium">
               {s.services && data.services.length > 0 && <a href="#services" className="hover:text-gray-600">Services</a>}
@@ -93,7 +82,7 @@ export default function SMBSite({ siteId, site, onBack }: SMBSiteProps) {
         }>
           {c.heroStyle === 'image' && c.heroImageUrl && <div className="absolute inset-0 bg-black/50" />}
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-            <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">{c.businessName || site.name}</h1>
+            <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4">{c.businessName || data.name}</h1>
             {c.tagline && <p className="text-xl lg:text-2xl opacity-90 mb-6 max-w-3xl mx-auto">{c.tagline}</p>}
             {c.description && <p className="text-base opacity-75 max-w-2xl mx-auto mb-8">{c.description}</p>}
             {c.ctaText && (
@@ -302,7 +291,7 @@ export default function SMBSite({ siteId, site, onBack }: SMBSiteProps) {
       {/* Footer */}
       <footer className="py-8 text-white" style={{ backgroundColor: primary }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm opacity-80">
-          <span>&copy; {new Date().getFullYear()} {c.businessName || site.name}</span>
+          <span>&copy; {new Date().getFullYear()} {c.businessName || data.name}</span>
           {c.socialLinks && Object.keys(c.socialLinks).length > 0 && (
             <div className="flex gap-4">
               {Object.entries(c.socialLinks).map(([platform, url]) => (

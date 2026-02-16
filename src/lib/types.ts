@@ -1067,11 +1067,97 @@ export interface SiteSummary {
   updatedAt: string              // ISO 8601
 }
 
-/** Union of all site data payloads, keyed by SiteType */
-export type SiteData = LawFirmShowcaseData | SMBTemplateData | AgencyFrameworkData
+// ─── Canonical Site Core Schema ──────────────────────────────
 
-/** Map SiteType → concrete data shape for type-safe retrieval */
+/**
+ * Shared base for all site data payloads.
+ * Every site type extends SiteCore to normalize common fields.
+ */
+export interface SiteCoreBranding {
+  primaryColor: string
+  secondaryColor?: string
+  logo?: string
+  favicon?: string
+}
+
+export interface SiteCoreSEO {
+  title: string
+  description: string
+  ogImage?: string
+}
+
+export interface SiteCore {
+  siteId: string
+  name: string
+  slug: string
+  status: SiteStatus
+  domain?: string
+  branding: SiteCoreBranding
+  seo: SiteCoreSEO
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Law firm site data extending SiteCore.
+ */
+export interface LawFirmSiteData extends SiteCore {
+  type: 'law-firm'
+  config: LawFirmConfig
+  caseResults: CaseResult[]
+  attorneys: AttorneyProfile[]
+  practiceAreas: PracticeArea[]
+  testimonials: ClientTestimonial[]
+  blogPosts: LawFirmBlogPost[]
+  intakeSubmissions: LawFirmIntakeSubmission[]
+  visibility: 'private' | 'unlisted' | 'demo'
+}
+
+/**
+ * SMB site data extending SiteCore.
+ */
+export interface SMBSiteData extends SiteCore {
+  type: 'small-business'
+  config: SMBTemplateConfig
+  services: SMBServiceItem[]
+  team: SMBTeamMember[]
+  testimonials: ClientTestimonial[]
+  faqs: SMBFaq[]
+  galleryImages: Array<{ id: string; url: string; alt: string; caption?: string; order: number }>
+  promotions: SMBPromotion[]
+  blogPosts: SMBBlogPost[]
+  contactSubmissions: SMBContactSubmission[]
+}
+
+/**
+ * Agency site data extending SiteCore.
+ */
+export interface AgencySiteData extends SiteCore {
+  type: 'agency'
+  config: AgencyConfig
+  projects: AgencyClientProject[]
+  pipeline: AgencyPipelineLead[]
+  invoices: AgencyInvoice[]
+  proposals: AgencyProposal[]
+  timeEntries: AgencyTimeEntry[]
+  brandingRemoved: true
+}
+
+/** Union of all normalized site data payloads. */
+export type NormalizedSiteData = LawFirmSiteData | SMBSiteData | AgencySiteData
+
+/** Union of all site data payloads (includes legacy shapes). */
+export type SiteData = LawFirmShowcaseData | SMBTemplateData | AgencyFrameworkData | NormalizedSiteData
+
+/** Map SiteType → normalized data shape for type-safe retrieval */
 export interface SiteDataMap {
+  'law-firm': LawFirmSiteData
+  'small-business': SMBSiteData
+  'agency': AgencySiteData
+}
+
+/** Map SiteType → legacy data shape (pre-normalization) */
+export interface LegacySiteDataMap {
   'law-firm': LawFirmShowcaseData
   'small-business': SMBTemplateData
   'agency': AgencyFrameworkData
