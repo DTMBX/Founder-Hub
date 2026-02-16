@@ -53,6 +53,8 @@ const STATIC_DATA_MAP: Record<string, string> = {
   'law-firm-showcase': '/data/law-firm-showcase.json',
   'smb-template': '/data/smb-template.json',
   'agency-framework': '/data/agency-framework.json',
+  // Multi-tenant site registry
+  'sites:index': '/data/sites-index.json',
 }
 
 // Check if running on localhost (admin allowed)
