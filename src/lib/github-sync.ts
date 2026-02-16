@@ -16,17 +16,42 @@ const BRANCH = 'main'
 
 // Data files to sync to repo (relative to dataPath)
 const DATA_FILES: Record<string, string> = {
+  // Core content
   'founder-hub-settings': 'settings.json',
   'founder-hub-sections': 'sections.json',
   'founder-hub-projects': 'projects.json',
   'founder-hub-court-cases': 'court-cases.json',
   'founder-hub-proof-links': 'links.json',
+  'founder-hub-contact-links': 'contact-links.json',
   'founder-hub-profile': 'profile.json',
   'founder-hub-about': 'about.json',
   'founder-hub-pdfs': 'documents.json',
   'founder-hub-document-types': 'document-types.json',
   'founder-hub-offerings': 'offerings.json',
   'founder-hub-investor': 'investor.json',
+  // Case management
+  'founder-hub-filing-types': 'filing-types.json',
+  'founder-hub-naming-rules': 'naming-rules.json',
+  // Multi-site config
+  'founder-hub-sites-config': 'sites.json',
+  // Honor Flag Bar
+  'honor-flag-bar-settings': 'honor-flag-bar.json',
+  'honor-flag-bar-enabled': 'honor-flag-bar-enabled.json',
+  'honor-flag-bar-animation': 'honor-flag-bar-animation.json',
+  'honor-flag-bar-parallax': 'honor-flag-bar-parallax.json',
+  'honor-flag-bar-rotation': 'honor-flag-bar-rotation.json',
+  'honor-flag-bar-max-desktop': 'honor-flag-bar-max-desktop.json',
+  'honor-flag-bar-max-mobile': 'honor-flag-bar-max-mobile.json',
+  'honor-flag-bar-alignment': 'honor-flag-bar-alignment.json',
+  // Visual modules
+  'hero-accent-settings': 'hero-accent-settings.json',
+  'flag-gallery-settings': 'flag-gallery-settings.json',
+  'map-spotlight-settings': 'map-spotlight-settings.json',
+  // Asset management
+  'asset-metadata': 'asset-metadata.json',
+  'asset-usage-policy': 'asset-usage-policy.json',
+  // Audit trail
+  'founder-hub-audit-log': 'audit-log.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'
@@ -156,8 +181,9 @@ async function updateFile(
 }
 
 /**
- * Publish all local data to GitHub repo.
- * This commits all data files and triggers auto-deploy.
+ * Publish all local data to GitHub repo in a single commit.
+ * Uses the Git Trees API to batch all file changes into one commit,
+ * avoiding sequential per-file API calls.
  * 
  * @param siteConfig Optional site config for multi-site publishing
  */
@@ -188,48 +214,135 @@ export async function publishToGitHub(siteConfig?: {
     ? getSiteStoragePrefix(siteConfig.siteId) 
     : STORAGE_PREFIX
   
-  const errors: string[] = []
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19)
+  const repoBase = `https://api.github.com/repos/${config.owner}/${config.repo}`
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+  }
+  
+  // Collect all files that have data to push
+  const filesToPush: { path: string; content: string }[] = []
   
   for (const [kvKey, fileName] of Object.entries(DATA_FILES)) {
     const data = localStorage.getItem(storagePrefix + kvKey)
-    
     if (data) {
-      // Pretty-print JSON for readability in repo
       let prettyJson: string
       try {
         prettyJson = JSON.stringify(JSON.parse(data), null, 2)
       } catch {
         prettyJson = data
       }
-      
-      // Construct full path: dataPath + fileName
       const fullPath = `${config.dataPath}/${fileName}`.replace(/^\//, '')
+      filesToPush.push({ path: fullPath, content: prettyJson })
+    }
+  }
+  
+  if (filesToPush.length === 0) {
+    return { success: false, error: 'No data to publish. Make changes in the admin panel first.' }
+  }
+
+  try {
+    // 1. Get the latest commit SHA on the branch
+    const refRes = await fetch(`${repoBase}/git/ref/heads/${BRANCH}`, { headers })
+    if (!refRes.ok) {
+      return { success: false, error: `Failed to read branch ref: ${refRes.status}` }
+    }
+    const refData = await refRes.json()
+    const latestCommitSha = refData.object.sha
+    
+    // 2. Get the tree SHA of the latest commit
+    const commitRes = await fetch(`${repoBase}/git/commits/${latestCommitSha}`, { headers })
+    if (!commitRes.ok) {
+      return { success: false, error: `Failed to read commit: ${commitRes.status}` }
+    }
+    const commitData = await commitRes.json()
+    const baseTreeSha = commitData.tree.sha
+    
+    // 3. Create blobs for each file
+    const treeItems: { path: string; mode: string; type: string; sha: string }[] = []
+    
+    for (const file of filesToPush) {
+      const blobRes = await fetch(`${repoBase}/git/blobs`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          content: file.content,
+          encoding: 'utf-8'
+        })
+      })
       
-      const result = await updateFile(
-        token,
-        fullPath,
-        prettyJson,
-        `Update ${fileName} via admin panel [${timestamp}]`,
-        config
-      )
-      
-      if (!result.success) {
-        errors.push(`${fullPath}: ${result.error}`)
+      if (!blobRes.ok) {
+        const err = await blobRes.json()
+        return { success: false, error: `Failed to create blob for ${file.path}: ${err.message}` }
       }
+      
+      const blobData = await blobRes.json()
+      treeItems.push({
+        path: file.path,
+        mode: '100644',
+        type: 'blob',
+        sha: blobData.sha
+      })
     }
-  }
-  
-  if (errors.length > 0) {
+    
+    // 4. Create a new tree with all file changes
+    const treeRes = await fetch(`${repoBase}/git/trees`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        base_tree: baseTreeSha,
+        tree: treeItems
+      })
+    })
+    
+    if (!treeRes.ok) {
+      const err = await treeRes.json()
+      return { success: false, error: `Failed to create tree: ${err.message}` }
+    }
+    
+    const treeData = await treeRes.json()
+    
+    // 5. Create a new commit
+    const newCommitRes = await fetch(`${repoBase}/git/commits`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        message: `Update ${filesToPush.length} data files via admin panel [${timestamp}]`,
+        tree: treeData.sha,
+        parents: [latestCommitSha]
+      })
+    })
+    
+    if (!newCommitRes.ok) {
+      const err = await newCommitRes.json()
+      return { success: false, error: `Failed to create commit: ${err.message}` }
+    }
+    
+    const newCommitData = await newCommitRes.json()
+    
+    // 6. Update the branch reference to point to the new commit
+    const updateRefRes = await fetch(`${repoBase}/git/refs/heads/${BRANCH}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({
+        sha: newCommitData.sha
+      })
+    })
+    
+    if (!updateRefRes.ok) {
+      const err = await updateRefRes.json()
+      return { success: false, error: `Failed to update branch: ${err.message}` }
+    }
+    
     return { 
-      success: false, 
-      error: `Failed to update some files:\n${errors.join('\n')}` 
+      success: true, 
+      commitUrl: `https://github.com/${config.owner}/${config.repo}/commit/${newCommitData.sha}`
     }
-  }
-  
-  return { 
-    success: true, 
-    commitUrl: `https://github.com/${config.owner}/${config.repo}/commits/${BRANCH}`
+    
+  } catch (error) {
+    return { success: false, error: `Network error: ${String(error)}` }
   }
 }
 

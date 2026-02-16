@@ -45,7 +45,7 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 
 export default function ContactSection({ investorMode }: ContactSectionProps) {
   const [links] = useKV<Link[]>('founder-hub-contact-links', [])
-  const [profile] = useKV<SiteProfile>('founder-hub-profile', null)
+  const [profile] = useKV<SiteProfile | null>('founder-hub-profile', null)
 
   const emails = profile?.professionalEmails?.length ? profile.professionalEmails : DEFAULT_EMAILS
   const contactLinks = links?.filter(l => l.category === 'contact').sort((a, b) => a.order - b.order) || []

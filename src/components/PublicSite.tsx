@@ -55,7 +55,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       'all': 'all',
       'investors': 'investors',
       'legal': 'legal',
-      'about': 'friends'
+      'about': 'friends',
+      'marketplace': 'all'
     }
     setAudienceMode(audienceMapping[pathway])
   }, [pathway, setAudienceMode])
