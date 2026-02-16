@@ -13,11 +13,20 @@
       { "id": "case-type", "label": "Type of Case", "type": "select", "required": true, "options": ["Personal Injury", "Criminal Defense", "Family Law", "Business Law", "Employment Law", "Other"] },
       { "id": "description", "label": "Brief Description", "type": "textarea", "required": true }
     ],
-    "disclaimer": "This website is for informational purposes only and does not constitute legal advice. No attorney-client relationship is formed by use of this site."
+    "disclaimer": "This website is for informational purposes only and does not constitute legal advice. No attorney-client relationship is formed by use of this site.",
+    "seo": {
+      "sitemapEnabled": true,
+      "schemaOrgType": "LegalService"
+    },
+    "officeLocations": [],
+    "headerLinks": [],
+    "footerLinks": []
   },
   "caseResults": [],
   "attorneys": [],
   "practiceAreas": [],
   "testimonials": [],
+  "blogPosts": [],
+  "intakeSubmissions": [],
   "visibility": "private"
 }

@@ -1,5 +1,16 @@
 {
+  "config": {
+    "defaultHourlyRate": 15000,
+    "currency": "USD",
+    "invoicePrefix": "INV-",
+    "proposalPrefix": "PROP-",
+    "taxRate": 0,
+    "paymentTerms": "Net 30"
+  },
   "projects": [],
   "pipeline": [],
+  "invoices": [],
+  "proposals": [],
+  "timeEntries": [],
   "brandingRemoved": true
 }
