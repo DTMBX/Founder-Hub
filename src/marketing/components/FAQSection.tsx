@@ -34,6 +34,9 @@ interface FAQItemProps {
 }
 
 function FAQAccordionItem({ item, isOpen, onToggle }: FAQItemProps) {
+  const buttonId = `faq-button-${item.id}`
+  const panelId = `faq-panel-${item.id}`
+  
   const handleToggle = () => {
     if (!isOpen) {
       track(MARKETING_EVENTS.FAQ_EXPANDED, { faqId: item.id, question: item.question })
@@ -43,28 +46,37 @@ function FAQAccordionItem({ item, isOpen, onToggle }: FAQItemProps) {
   
   return (
     <div className="border-b border-border last:border-b-0">
-      <button
-        onClick={handleToggle}
-        className={cn(
-          'flex items-center justify-between w-full py-5 text-left',
-          'hover:text-primary transition-colors'
-        )}
-        aria-expanded={isOpen}
-      >
-        <span className="font-medium pr-4">{item.question}</span>
-        <ChevronDown
+      <h3>
+        <button
+          id={buttonId}
+          onClick={handleToggle}
           className={cn(
-            'w-5 h-5 flex-shrink-0 transition-transform duration-200',
-            isOpen && 'rotate-180'
+            'flex items-center justify-between w-full py-5 text-left',
+            'hover:text-primary transition-colors'
           )}
-        />
-      </button>
+          aria-expanded={isOpen}
+          aria-controls={panelId}
+        >
+          <span className="font-medium pr-4">{item.question}</span>
+          <ChevronDown
+            className={cn(
+              'w-5 h-5 flex-shrink-0 transition-transform duration-200',
+              isOpen && 'rotate-180'
+            )}
+            aria-hidden="true"
+          />
+        </button>
+      </h3>
       
       <div
+        id={panelId}
+        role="region"
+        aria-labelledby={buttonId}
         className={cn(
           'overflow-hidden transition-all duration-200',
           isOpen ? 'max-h-96 pb-5' : 'max-h-0'
         )}
+        hidden={!isOpen}
       >
         <p className="text-muted-foreground leading-relaxed">{item.answer}</p>
       </div>
@@ -101,13 +113,17 @@ export function FAQSection({
   }
   
   return (
-    <section className={cn('py-16 lg:py-24', className)} id="faq">
+    <section 
+      className={cn('py-16 lg:py-24', className)} 
+      id="faq"
+      aria-labelledby="faq-heading"
+    >
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <HelpCircle className="w-6 h-6 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">{title}</h2>
+            <HelpCircle className="w-6 h-6 text-primary" aria-hidden="true" />
+            <h2 id="faq-heading" className="text-3xl md:text-4xl font-bold">{title}</h2>
           </div>
           <p className="text-lg text-muted-foreground">{subtitle}</p>
         </div>

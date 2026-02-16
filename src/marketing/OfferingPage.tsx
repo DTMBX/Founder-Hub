@@ -21,8 +21,9 @@ import {
   FAQSection,
   FinalCTA,
   EventDebugPanel,
+  SkipLinks,
 } from './components'
-import { useScrollDepth } from './hooks'
+import { useScrollDepth, usePreloadAssets } from './hooks'
 import {
   MARKETING_OFFERS,
   getFeaturedOffer,
@@ -82,6 +83,14 @@ export function OfferingPage({
   
   // Track scroll depth milestones
   useScrollDepth('offering_page')
+  
+  // Preload critical assets
+  usePreloadAssets({
+    preloads: heroVideoPosterUrl
+      ? [{ href: heroVideoPosterUrl, as: 'image' }]
+      : [],
+    preconnects: [],
+  })
   
   // Load preview metas if not provided
   useEffect(() => {
@@ -158,6 +167,9 @@ export function OfferingPage({
   
   return (
     <div className="min-h-screen">
+      {/* Skip Links for keyboard navigation */}
+      <SkipLinks />
+      
       {/* S1: Hero */}
       <MarketingHero
         headline={heroHeadline}

@@ -29,3 +29,20 @@ export type {
   UseTrackSectionResult,
   UseTrackCTAHoverOptions,
 } from './useTracking'
+
+export {
+  useFocusTrap,
+  useAnnounce,
+  usePreloadAssets,
+  useReducedMotion,
+  useKeyboardShortcut,
+} from './useA11y'
+
+export type {
+  UseFocusTrapOptions,
+  UseFocusTrapResult,
+  UseAnnounceResult,
+  UsePreloadAssetsOptions,
+  UseKeyboardShortcutOptions,
+  PreloadConfig,
+} from './useA11y'

@@ -88,6 +88,8 @@ export function MarketingHero({
   
   return (
     <section
+      id="main-content"
+      aria-labelledby="hero-headline"
       className={cn(
         'relative min-h-[80vh] flex items-center py-16 lg:py-24',
         'bg-gradient-to-b from-background to-muted/30',
@@ -104,7 +106,10 @@ export function MarketingHero({
             </Badge>
             
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+            <h1 
+              id="hero-headline"
+              className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight"
+            >
               {headline}
             </h1>
             
@@ -114,22 +119,23 @@ export function MarketingHero({
             </p>
             
             {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4" role="group" aria-label="Primary actions">
               <Button
                 size="lg"
                 onClick={handlePrimaryCta}
                 disabled={isPrimaryLoading}
                 className="text-lg px-8 py-6"
+                aria-label={isPrimaryLoading ? 'Generating your preview' : 'Generate a personalized preview of your website'}
               >
                 {isPrimaryLoading ? (
                   <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" aria-hidden="true" />
                     Generating...
                   </span>
                 ) : (
                   <>
                     {primaryCtaLabel}
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-5 h-5" aria-hidden="true" />
                   </>
                 )}
               </Button>
@@ -139,24 +145,25 @@ export function MarketingHero({
                 variant="outline"
                 onClick={handleSecondaryCta}
                 className="text-lg px-8 py-6"
+                aria-label="Schedule a 15-minute consultation call"
               >
-                <Calendar className="mr-2 w-5 h-5" />
+                <Calendar className="mr-2 w-5 h-5" aria-hidden="true" />
                 {secondaryCtaLabel}
               </Button>
             </div>
             
             {/* Trust Badges */}
-            <div className="flex flex-wrap gap-4 pt-4">
+            <ul className="flex flex-wrap gap-4 pt-4" aria-label="Trust indicators">
               {trustBadges.map((badge) => (
-                <div
+                <li
                   key={badge.id}
                   className="flex items-center gap-2 text-sm text-muted-foreground"
                 >
-                  <Check className="w-4 h-4 text-green-500" />
+                  <Check className="w-4 h-4 text-green-500" aria-hidden="true" />
                   <span>{badge.label}</span>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
           
           {/* Right: Video Preview */}

@@ -25,3 +25,6 @@ export type { OfferGridProps } from './OfferGrid'
 
 export { EventDebugPanel } from './EventDebugPanel'
 export type { EventDebugPanelProps } from './EventDebugPanel'
+
+export { SkipLinks } from './SkipLinks'
+export type { SkipLinksProps } from './SkipLinks'
