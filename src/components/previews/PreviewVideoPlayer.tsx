@@ -187,6 +187,7 @@ export function PreviewVideoPlayer({
             ref={videoRef}
             src={videoUrl}
             poster={posterUrl}
+            preload="none"
             muted={isMuted}
             playsInline
             onEnded={handleVideoEnded}

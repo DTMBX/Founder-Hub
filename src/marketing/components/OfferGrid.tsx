@@ -43,24 +43,53 @@ export interface OfferGridProps {
 // ─── Prefetch Helper ─────────────────────────────────────────
 
 const prefetchedOffers = new Set<string>()
+const prefetchedMetas = new Set<string>()
+
+/**
+ * Prefetch meta.json for an offer on hover
+ * This enables instant modal open by preloading data before click
+ */
+async function prefetchOfferMeta(
+  offerId: string, 
+  basePath: string
+): Promise<PreviewMeta | null> {
+  const key = `${offerId}-meta`
+  if (prefetchedMetas.has(key)) return null
+  prefetchedMetas.add(key)
+  
+  try {
+    const res = await fetch(`${basePath}/${offerId}/meta.json`, {
+      priority: 'low',
+      cache: 'force-cache'
+    } as RequestInit)
+    if (res.ok) {
+      return await res.json()
+    }
+  } catch {
+    // Ignore prefetch errors
+  }
+  return null
+}
 
 function prefetchOfferAssets(offerId: string, basePath: string, meta: PreviewMeta | null) {
   if (prefetchedOffers.has(offerId)) return
   prefetchedOffers.add(offerId)
   
-  // Prefetch poster
+  // Prefetch poster only - DO NOT prefetch video files
   if (meta?.posterFilename) {
     const link = document.createElement('link')
     link.rel = 'prefetch'
+    link.as = 'image'
     link.href = `${basePath}/${offerId}/${meta.posterFilename}`
     document.head.appendChild(link)
   }
   
-  // Prefetch first few scene thumbnails
+  // Prefetch first few scene thumbnails (images only, no videos)
   meta?.scenes.slice(0, 3).forEach((scene) => {
     if (scene.thumbnailFilename) {
       const link = document.createElement('link')
       link.rel = 'prefetch'
+      link.as = 'image'
       link.href = `${basePath}/${offerId}/${scene.thumbnailFilename}`
       document.head.appendChild(link)
     }
@@ -101,6 +130,10 @@ export function OfferGrid({
   className,
 }: OfferGridProps) {
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null)
+  const [localMetas, setLocalMetas] = useState<Record<string, PreviewMeta | null>>({})
+  
+  // Merge prop metas with locally prefetched metas
+  const mergedMetas = { ...localMetas, ...previewMetas }
   
   // Map montages by offerId
   const montageMap = new Map<string, PreviewMontage>(
@@ -112,7 +145,7 @@ export function OfferGrid({
     ? offers.find((o) => o.offerId === selectedOfferId)
     : null
   const selectedMontage = selectedOfferId ? montageMap.get(selectedOfferId) : null
-  const selectedMeta = selectedOfferId ? previewMetas[selectedOfferId] : null
+  const selectedMeta = selectedOfferId ? mergedMetas[selectedOfferId] : null
   
   // Create playlist from meta
   const selectedPlaylist: ScenePlaylist | undefined =
@@ -169,17 +202,27 @@ export function OfferGrid({
             return (
               <div
                 key={offer.offerId}
-                onMouseEnter={() => {
-                  prefetchOfferAssets(
-                    offer.offerId,
-                    basePath,
-                    previewMetas[offer.offerId] ?? null
-                  )
+                onMouseEnter={async () => {
+                  // Prefetch meta.json if not already loaded
+                  if (!mergedMetas[offer.offerId]) {
+                    const meta = await prefetchOfferMeta(offer.offerId, basePath)
+                    if (meta) {
+                      setLocalMetas(prev => ({ ...prev, [offer.offerId]: meta }))
+                      prefetchOfferAssets(offer.offerId, basePath, meta)
+                    }
+                  } else {
+                    // Meta already available, just prefetch assets
+                    prefetchOfferAssets(
+                      offer.offerId,
+                      basePath,
+                      mergedMetas[offer.offerId] ?? null
+                    )
+                  }
                 }}
               >
                 <OfferCard
                   montage={montage}
-                  meta={previewMetas[offer.offerId] ?? undefined}
+                  meta={mergedMetas[offer.offerId] ?? undefined}
                   basePath={basePath}
                   featured={offer.featured}
                   badge={offer.badge}
