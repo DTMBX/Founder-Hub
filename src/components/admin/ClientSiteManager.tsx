@@ -6,10 +6,12 @@
  * Each site links to its type-specific framework manager.
  */
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useClientSites } from '@/hooks/use-client-sites'
-import type { SiteType, SiteStatus, SiteSummary } from '@/lib/types'
+import type { SiteType, SiteStatus, SiteSummary, NormalizedSiteData } from '@/lib/types'
 import { generateSlug } from '@/lib/site-registry'
+import { validateSiteReadyForDeploy, type ValidationResult } from '@/lib/site-validation'
+import { exportSite, type SiteExportResult } from '@/lib/static-export'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +44,10 @@ import {
   Globe,
   CircleNotch,
   ArrowRight,
+  Rocket,
+  Warning,
+  CheckCircle,
+  XCircle,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -85,6 +91,7 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
     deleteSite,
     loading,
     migrating,
+    registry,
   } = useClientSites()
 
   // Create dialog state
@@ -104,6 +111,13 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
 
   // Delete confirmation
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+
+  // Deploy dialog state
+  const [deployOpen, setDeployOpen] = useState(false)
+  const [deploySite, setDeploySite] = useState<SiteSummary | null>(null)
+  const [deployValidation, setDeployValidation] = useState<ValidationResult | null>(null)
+  const [deployResult, setDeployResult] = useState<SiteExportResult | null>(null)
+  const [deploying, setDeploying] = useState(false)
 
   // ── Create Handlers ────────────────────────────────────
 
@@ -179,6 +193,60 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
       toast.error(err instanceof Error ? err.message : 'Failed to delete site')
     }
   }
+
+  // ── Deploy Handlers ────────────────────────────────────
+
+  const openDeploy = useCallback(async (site: SiteSummary) => {
+    setDeploySite(site)
+    setDeployResult(null)
+    setDeployValidation(null)
+    setDeployOpen(true)
+
+    // Load normalized data and validate
+    try {
+      const data = await registry.getNormalizedSiteData(site.siteId)
+      if (!data) {
+        setDeployValidation({ isValid: false, errors: ['Site data could not be loaded.'] })
+        return
+      }
+      const validation = validateSiteReadyForDeploy(data)
+      setDeployValidation(validation)
+    } catch (err) {
+      setDeployValidation({
+        isValid: false,
+        errors: [err instanceof Error ? err.message : 'Validation failed.'],
+      })
+    }
+  }, [registry])
+
+  const handleDeploy = useCallback(async () => {
+    if (!deploySite) return
+    setDeploying(true)
+    try {
+      const data = await registry.getNormalizedSiteData(deploySite.siteId)
+      if (!data) {
+        toast.error('Site data not found')
+        return
+      }
+
+      const result = await exportSite(data, { baseUrl: 'https://xtx396.com' })
+      setDeployResult(result)
+
+      if (result.success) {
+        toast.success(`Exported ${result.artifacts.length} file(s) for ${deploySite.name}`)
+        // Update site status to public if still in draft
+        if (deploySite.status === 'draft' || deploySite.status === 'demo') {
+          await updateSite(deploySite.siteId, { status: 'public' })
+        }
+      } else {
+        toast.error(`Export failed: ${result.validation.errors.length} issue(s)`)
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Export failed')
+    } finally {
+      setDeploying(false)
+    }
+  }, [deploySite, updateSite, registry])
 
   // ── Render ─────────────────────────────────────────────
 
@@ -295,6 +363,15 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
 
                   {/* Actions */}
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-green-600 hover:text-green-700"
+                      onClick={() => openDeploy(site)}
+                      title="Deploy site"
+                    >
+                      <Rocket className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -484,6 +561,101 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
             >
               Delete Site
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Deploy Dialog ───────────────────────────────── */}
+      <Dialog open={deployOpen} onOpenChange={setDeployOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Rocket className="h-5 w-5" />
+              Deploy Site
+            </DialogTitle>
+            <DialogDescription>
+              {deploySite
+                ? `Validate and export "${deploySite.name}" as a static site.`
+                : 'Loading...'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {/* Validation Status */}
+            {!deployValidation && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <CircleNotch className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Validating site readiness...</span>
+              </div>
+            )}
+
+            {deployValidation && !deployValidation.isValid && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-destructive">
+                  <XCircle className="h-5 w-5" weight="fill" />
+                  <span className="font-medium text-sm">
+                    {deployValidation.errors.length} issue{deployValidation.errors.length !== 1 ? 's' : ''} must be resolved
+                  </span>
+                </div>
+                <ul className="space-y-1 ml-7">
+                  {deployValidation.errors.map((err, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <Warning className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
+                      {err}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {deployValidation?.isValid && !deployResult && (
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="h-5 w-5" weight="fill" />
+                <span className="font-medium text-sm">Site is ready for deployment</span>
+              </div>
+            )}
+
+            {/* Export Result */}
+            {deployResult?.success && (
+              <div className="space-y-3 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950">
+                <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                  <CheckCircle className="h-5 w-5" weight="fill" />
+                  <span className="font-semibold text-sm">Export Complete</span>
+                </div>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>Files generated: {deployResult.artifacts.length}</p>
+                  {deployResult.artifacts.map((a, i) => (
+                    <p key={i} className="ml-4 font-mono text-xs">{a.path}</p>
+                  ))}
+                  <p className="mt-2 font-mono text-xs">
+                    SHA-256: {deployResult.htmlHash.slice(0, 16)}...
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeployOpen(false)}>
+              {deployResult?.success ? 'Done' : 'Cancel'}
+            </Button>
+            {!deployResult?.success && (
+              <Button
+                onClick={handleDeploy}
+                disabled={!deployValidation?.isValid || deploying}
+                className="gap-2"
+              >
+                {deploying ? (
+                  <>
+                    <CircleNotch className="h-4 w-4 animate-spin" /> Exporting...
+                  </>
+                ) : (
+                  <>
+                    <Rocket className="h-4 w-4" /> Deploy
+                  </>
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
