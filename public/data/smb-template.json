@@ -7,6 +7,9 @@
     "primaryColor": "#2563eb",
     "accentColor": "#f59e0b",
     "socialLinks": {},
+    "seo": {
+      "sitemapEnabled": true
+    },
     "sections": {
       "hero": true,
       "services": true,
@@ -15,12 +18,19 @@
       "testimonials": true,
       "faq": true,
       "contact": true,
-      "gallery": false
-    }
+      "gallery": false,
+      "blog": false,
+      "promotions": false,
+      "map": false
+    },
+    "heroStyle": "gradient"
   },
   "services": [],
   "team": [],
   "testimonials": [],
   "faqs": [],
-  "galleryImages": []
+  "galleryImages": [],
+  "promotions": [],
+  "blogPosts": [],
+  "contactSubmissions": []
 }

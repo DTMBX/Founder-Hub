@@ -686,6 +686,59 @@ export interface ClientTestimonial {
   order: number
 }
 
+// Law firm blog / insights for SEO and content marketing
+export interface LawFirmBlogPost {
+  id: string
+  title: string
+  slug: string
+  author: string                 // attorney id or name
+  practiceArea?: string
+  content: string                // markdown or HTML
+  excerpt: string
+  featuredImageUrl?: string
+  tags: string[]
+  status: 'draft' | 'published' | 'archived'
+  publishedAt?: string           // ISO date
+  createdAt: string
+  updatedAt: string
+  seoTitle?: string
+  seoDescription?: string
+  order: number
+}
+
+// Contact / intake form submissions log
+export interface LawFirmIntakeSubmission {
+  id: string
+  fields: Record<string, string> // field id → value
+  submittedAt: string
+  ipHash?: string                // hashed for audit, not PII
+  status: 'new' | 'reviewed' | 'contacted' | 'converted' | 'dismissed'
+  assignedTo?: string            // attorney id
+  notes?: string
+}
+
+// SEO configuration per page
+export interface LawFirmSEOConfig {
+  globalTitle?: string           // "Firm Name | Tagline"
+  globalDescription?: string
+  ogImageUrl?: string
+  twitterHandle?: string
+  googleSiteVerification?: string
+  schemaOrgType?: string         // LocalBusiness, LegalService, Attorney, etc.
+  localBusinessSchema?: {
+    name: string
+    address: string
+    phone: string
+    priceRange?: string
+    geo?: { lat: number; lng: number }
+    openingHours?: string[]
+  }
+  robotsTxt?: string
+  sitemapEnabled: boolean
+  analyticsId?: string           // Google Analytics
+  gtmId?: string                 // Google Tag Manager
+}
+
 export interface LawFirmConfig {
   firmName: string
   tagline?: string
@@ -710,6 +763,18 @@ export interface LawFirmConfig {
     required: boolean
     options?: string[]           // for select type
   }>
+  seo: LawFirmSEOConfig
+  officeLocations?: Array<{
+    id: string
+    name: string
+    address: string
+    phone?: string
+    email?: string
+    isPrimary: boolean
+    mapEmbedUrl?: string
+  }>
+  headerLinks?: Array<{ label: string; href: string; order: number }>
+  footerLinks?: Array<{ label: string; href: string; order: number }>
 }
 
 export interface LawFirmShowcaseData {
@@ -718,6 +783,8 @@ export interface LawFirmShowcaseData {
   attorneys: AttorneyProfile[]
   practiceAreas: PracticeArea[]
   testimonials: ClientTestimonial[]
+  blogPosts: LawFirmBlogPost[]
+  intakeSubmissions: LawFirmIntakeSubmission[]
   visibility: 'private' | 'unlisted' | 'demo'  // never 'public' until client deploys
 }
 
@@ -729,6 +796,9 @@ export interface SMBServiceItem {
   description: string
   icon?: string
   price?: string
+  imageUrl?: string
+  ctaText?: string               // "Book Now", "Learn More"
+  ctaUrl?: string
   featured: boolean
   order: number
 }
@@ -748,7 +818,73 @@ export interface SMBFaq {
   id: string
   question: string
   answer: string
+  category?: string
   order: number
+}
+
+// Promotion / special offer
+export interface SMBPromotion {
+  id: string
+  title: string
+  description: string
+  code?: string                  // promo code
+  discountText?: string          // "20% off", "$50 off"
+  validFrom?: string
+  validUntil?: string
+  active: boolean
+  order: number
+}
+
+// Blog / news post for SMB
+export interface SMBBlogPost {
+  id: string
+  title: string
+  slug: string
+  content: string
+  excerpt: string
+  featuredImageUrl?: string
+  category?: string
+  tags: string[]
+  status: 'draft' | 'published' | 'archived'
+  publishedAt?: string
+  createdAt: string
+  updatedAt: string
+  order: number
+}
+
+// Contact form submission
+export interface SMBContactSubmission {
+  id: string
+  name: string
+  email: string
+  phone?: string
+  message: string
+  service?: string               // which service they inquired about
+  submittedAt: string
+  status: 'new' | 'read' | 'replied' | 'archived'
+  notes?: string
+}
+
+// SEO for SMB
+export interface SMBSEOConfig {
+  siteTitle?: string
+  siteDescription?: string
+  ogImageUrl?: string
+  schemaType?: string            // LocalBusiness, Restaurant, etc.
+  localBusinessSchema?: {
+    name: string
+    address: string
+    phone: string
+    priceRange?: string
+    geo?: { lat: number; lng: number }
+    openingHours?: string[]
+    servesCuisine?: string       // for restaurants
+  }
+  googleSiteVerification?: string
+  analyticsId?: string
+  gtmId?: string
+  sitemapEnabled: boolean
+  robotsNoindex?: boolean
 }
 
 export interface SMBTemplateConfig {
@@ -759,6 +895,8 @@ export interface SMBTemplateConfig {
   logoUrl?: string
   primaryColor?: string
   accentColor?: string
+  fontHeading?: string
+  fontBody?: string
   address?: string
   phone?: string
   email?: string
@@ -766,6 +904,7 @@ export interface SMBTemplateConfig {
   mapEmbedUrl?: string
   analyticsId?: string
   socialLinks?: Record<string, string>
+  seo: SMBSEOConfig
   sections: {
     hero: boolean
     services: boolean
@@ -775,7 +914,15 @@ export interface SMBTemplateConfig {
     faq: boolean
     contact: boolean
     gallery: boolean
+    blog: boolean
+    promotions: boolean
+    map: boolean
   }
+  heroStyle?: 'image' | 'video' | 'gradient' | 'split'
+  heroImageUrl?: string
+  heroVideoUrl?: string
+  ctaText?: string
+  ctaUrl?: string
 }
 
 export interface SMBTemplateData {
@@ -784,7 +931,10 @@ export interface SMBTemplateData {
   team: SMBTeamMember[]
   testimonials: ClientTestimonial[]   // reused from law firm
   faqs: SMBFaq[]
-  galleryImages: Array<{ id: string; url: string; alt: string; order: number }>
+  galleryImages: Array<{ id: string; url: string; alt: string; caption?: string; order: number }>
+  promotions: SMBPromotion[]
+  blogPosts: SMBBlogPost[]
+  contactSubmissions: SMBContactSubmission[]
 }
 
 // ─── Agency Framework (White-Label, Unbranded) ───────────────
@@ -794,6 +944,7 @@ export type AgencyProjectStatus = 'discovery' | 'design' | 'development' | 'revi
 export interface AgencyClientProject {
   id: string
   clientName: string
+  projectName?: string
   templateType: 'law-firm' | 'small-business' | 'custom' | 'landing-page'
   status: AgencyProjectStatus
   domain?: string
@@ -805,6 +956,9 @@ export interface AgencyClientProject {
   hoursEstimated: number
   hoursUsed: number
   deliverables: string[]
+  contactEmail?: string
+  contactPhone?: string
+  priority?: 'low' | 'normal' | 'high' | 'urgent'
 }
 
 export interface AgencyPipelineLead {
@@ -819,11 +973,79 @@ export interface AgencyPipelineLead {
   notes?: string
   status: 'new' | 'contacted' | 'proposal' | 'negotiation' | 'won' | 'lost'
   source?: string                // referral, ads, organic, etc.
+  followUpDate?: string          // next follow-up
   createdAt: string              // ISO date string
 }
 
+// Invoice / billing for agency
+export interface AgencyInvoice {
+  id: string
+  projectId: string              // links to AgencyClientProject
+  clientName: string
+  invoiceNumber: string
+  amount: number                 // in cents
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+  issuedDate: string
+  dueDate: string
+  paidDate?: string
+  lineItems: Array<{
+    description: string
+    quantity: number
+    unitPrice: number            // in cents
+    total: number                // in cents
+  }>
+  notes?: string
+  paymentMethod?: string
+}
+
+// Proposal template for sending to leads
+export interface AgencyProposal {
+  id: string
+  leadId?: string
+  projectId?: string
+  title: string
+  clientName: string
+  scope: string                  // markdown description
+  deliverables: string[]
+  timeline: string
+  investment: number             // in cents
+  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired'
+  validUntil?: string
+  createdAt: string
+  sentAt?: string
+  notes?: string
+}
+
+// Time log entry for hours tracking
+export interface AgencyTimeEntry {
+  id: string
+  projectId: string
+  description: string
+  hours: number
+  date: string
+  category: 'discovery' | 'design' | 'development' | 'review' | 'meeting' | 'admin'
+  billable: boolean
+}
+
+// Agency settings
+export interface AgencyConfig {
+  agencyName?: string            // blank = white label
+  defaultHourlyRate: number      // in cents
+  currency: string
+  invoicePrefix: string          // e.g., "INV-"
+  proposalPrefix: string         // e.g., "PROP-"
+  taxRate?: number               // percentage
+  paymentTerms: string           // "Net 30", "Due on receipt"
+  bankDetails?: string
+  notificationEmail?: string
+}
+
 export interface AgencyFrameworkData {
+  config: AgencyConfig
   projects: AgencyClientProject[]
   pipeline: AgencyPipelineLead[]
+  invoices: AgencyInvoice[]
+  proposals: AgencyProposal[]
+  timeEntries: AgencyTimeEntry[]
   brandingRemoved: true           // sentinel — confirms no personal branding
 }
