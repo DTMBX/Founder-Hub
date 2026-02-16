@@ -202,6 +202,7 @@ export function OfferGrid({
             playlist={selectedPlaylist}
             basePath={`${basePath}/${selectedOfferId}`}
             price={selectedOffer ? getOfferPrice(selectedOffer) : undefined}
+            tiers={selectedOffer?.tiers}
             features={selectedOffer?.quickFeatures}
             onCta={handleCta}
             isCtaLoading={isGenerating}
