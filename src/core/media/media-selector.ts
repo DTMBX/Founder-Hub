@@ -58,7 +58,7 @@ export function createSiteRandom(siteId: string, salt = ''): () => number {
 /**
  * Shuffle an array using Fisher-Yates with seeded random.
  */
-function shuffleArray<T>(array: T[], random: () => number): T[] {
+export function shuffleArray<T>(array: T[], random: () => number): T[] {
   const shuffled = [...array]
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1))

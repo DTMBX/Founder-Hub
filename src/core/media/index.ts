@@ -36,6 +36,7 @@ export {
   selectOne,
   selectMany,
   selectWithPreference,
+  shuffleArray,
   generateMediaKit,
   regenerateHeroImage,
   getImageById,
