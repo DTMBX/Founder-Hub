@@ -162,31 +162,78 @@ function TestimonialsCarousel({ testimonials }: { testimonials: Testimonial[] })
 // ─── Preview Thumbnails ──────────────────────────────────────
 
 function PreviewThumbnails({ thumbnails }: { thumbnails: string[] }) {
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set())
+  const [errorImages, setErrorImages] = useState<Set<number>>(new Set())
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // Lazy load images when they enter viewport
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number((entry.target as HTMLElement).dataset.index)
+            if (!isNaN(index)) {
+              setLoadedImages((prev) => new Set([...prev, index]))
+            }
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { rootMargin: '100px', threshold: 0.1 }
+    )
+    
+    const images = container.querySelectorAll('[data-lazy-image]')
+    images.forEach((img) => observer.observe(img))
+    
+    return () => observer.disconnect()
+  }, [thumbnails.length])
+  
   return (
     <div className="py-12">
       <h3 className="text-center text-lg font-medium mb-8 text-muted-foreground">
         Recent Site Previews
       </h3>
       
-      <div className="flex gap-4 overflow-x-auto pb-4 px-4 -mx-4 scrollbar-thin scrollbar-thumb-muted">
+      <div 
+        ref={containerRef}
+        className="flex gap-4 overflow-x-auto pb-4 px-4 -mx-4 scrollbar-thin scrollbar-thumb-muted"
+      >
         {thumbnails.map((url, i) => (
           <div
             key={i}
+            data-lazy-image
+            data-index={i}
             className={cn(
               'flex-shrink-0 w-48 aspect-video rounded-lg overflow-hidden',
               'bg-muted shadow-sm ring-1 ring-border',
               'transition-transform hover:scale-105'
             )}
           >
-            <img
-              src={url}
-              alt={`Preview ${i + 1}`}
-              className="w-full h-full object-cover"
-              loading="lazy"
-              onLoad={() => {
-                track(MARKETING_EVENTS.SECTION_VIEWED, { section: 'proof_thumbnails', thumbnailIndex: i })
-              }}
-            />
+            {loadedImages.has(i) ? (
+              errorImages.has(i) ? (
+                <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
+                  Preview unavailable
+                </div>
+              ) : (
+                <img
+                  src={url}
+                  alt={`Preview ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  onLoad={() => {
+                    track(MARKETING_EVENTS.SECTION_VIEWED, { section: 'proof_thumbnails', thumbnailIndex: i })
+                  }}
+                  onError={() => {
+                    setErrorImages((prev) => new Set([...prev, i]))
+                  }}
+                />
+              )
+            ) : (
+              <div className="w-full h-full animate-pulse bg-muted" />
+            )}
           </div>
         ))}
       </div>

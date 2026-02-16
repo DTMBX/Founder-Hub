@@ -2,9 +2,10 @@
  * Offer Grid Section
  *
  * Grid of offer cards with "Best Value" highlighting and modal integration.
+ * Includes prefetch on hover for modal assets.
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { OfferCard } from '@/components/previews/OfferCard'
 import { PreviewModal } from '@/components/previews/PreviewModal'
 import { cn } from '@/lib/utils'
@@ -19,6 +20,54 @@ import { MARKETING_OFFERS, type MarketingOffer } from '../offers.config'
 import { track, MARKETING_EVENTS } from '../event-tracker'
 
 // ─── Types ───────────────────────────────────────────────────
+
+export interface OfferGridProps {
+  /** Offers to display (uses MARKETING_OFFERS if not provided) */
+  offers?: MarketingOffer[]
+  /** Pre-loaded preview metadata */
+  previewMetas?: Record<string, PreviewMeta | null>
+  /** Base path for preview assets */
+  basePath?: string
+  /** Callback when generate preview is clicked */
+  onGeneratePreview?: (offerId: string) => void
+  /** Loading state for generate CTA */
+  isGenerating?: boolean
+  /** Section title */
+  title?: string
+  /** Section subtitle */
+  subtitle?: string
+  /** Custom className */
+  className?: string
+}
+
+// ─── Prefetch Helper ─────────────────────────────────────────
+
+const prefetchedOffers = new Set<string>()
+
+function prefetchOfferAssets(offerId: string, basePath: string, meta: PreviewMeta | null) {
+  if (prefetchedOffers.has(offerId)) return
+  prefetchedOffers.add(offerId)
+  
+  // Prefetch poster
+  if (meta?.posterFilename) {
+    const link = document.createElement('link')
+    link.rel = 'prefetch'
+    link.href = `${basePath}/${offerId}/${meta.posterFilename}`
+    document.head.appendChild(link)
+  }
+  
+  // Prefetch first few scene thumbnails
+  meta?.scenes.slice(0, 3).forEach((scene) => {
+    if (scene.thumbnailFilename) {
+      const link = document.createElement('link')
+      link.rel = 'prefetch'
+      link.href = `${basePath}/${offerId}/${scene.thumbnailFilename}`
+      document.head.appendChild(link)
+    }
+  })
+}
+
+// ─── Component ───────────────────────────────────────────────
 
 export interface OfferGridProps {
   /** Offers to display (uses MARKETING_OFFERS if not provided) */
@@ -118,17 +167,27 @@ export function OfferGrid({
             if (!montage) return null
             
             return (
-              <OfferCard
+              <div
                 key={offer.offerId}
-                montage={montage}
-                meta={previewMetas[offer.offerId] ?? undefined}
-                basePath={basePath}
-                featured={offer.featured}
-                badge={offer.badge}
-                price={getOfferPrice(offer)}
-                quickFeatures={offer.quickFeatures}
-                onClick={() => handleOpenPreview(offer.offerId)}
-              />
+                onMouseEnter={() => {
+                  prefetchOfferAssets(
+                    offer.offerId,
+                    basePath,
+                    previewMetas[offer.offerId] ?? null
+                  )
+                }}
+              >
+                <OfferCard
+                  montage={montage}
+                  meta={previewMetas[offer.offerId] ?? undefined}
+                  basePath={basePath}
+                  featured={offer.featured}
+                  badge={offer.badge}
+                  price={getOfferPrice(offer)}
+                  quickFeatures={offer.quickFeatures}
+                  onClick={() => handleOpenPreview(offer.offerId)}
+                />
+              </div>
             )
           })}
         </div>

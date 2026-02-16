@@ -12,6 +12,9 @@ export * from './proof.config'
 // Event Tracking
 export * from './event-tracker'
 
+// Hooks
+export * from './hooks'
+
 // Components
 export * from './components'
 
