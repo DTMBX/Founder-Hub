@@ -225,7 +225,10 @@ describe('Preset Registry', () => {
   describe('getPresetsForType', () => {
     it('should return law firm presets for law-firm type', () => {
       const presets = getPresetsForType('law-firm')
-      expect(presets).toEqual(LAWFIRM_PRESETS)
+      // Now includes base presets (4) + practice-type presets (14) = 18
+      expect(presets.length).toBe(18)
+      // Should include base presets
+      expect(presets.slice(0, 4)).toEqual(LAWFIRM_PRESETS)
     })
 
     it('should return SMB presets for small-business type', () => {
@@ -483,5 +486,166 @@ describe('Immutability', () => {
     applyPreset(original, 'agency-creative-gradient')
     
     expect(original).toEqual(originalCopy)
+  })
+})
+
+// =============================================================================
+// Practice-Type Presets Tests
+// =============================================================================
+
+import {
+  ALL_PRACTICE_TYPE_PRESETS,
+  CRIMINAL_DEFENSE_PRESETS,
+  PERSONAL_INJURY_PRESETS,
+  FAMILY_LAW_PRESETS,
+  IMMIGRATION_PRESETS,
+  REAL_ESTATE_PRESETS,
+  CIVIL_RIGHTS_PRESETS,
+  BUSINESS_LAW_PRESETS,
+  getPresetsForPracticeType,
+  getPracticeTypePreset,
+} from '../lawfirm.practice-presets'
+
+describe('Practice-Type Presets', () => {
+  describe('Preset Collections', () => {
+    it('should have 14 total practice-type presets (2 per practice area)', () => {
+      expect(ALL_PRACTICE_TYPE_PRESETS).toHaveLength(14)
+    })
+
+    it('should have 2 criminal defense presets', () => {
+      expect(CRIMINAL_DEFENSE_PRESETS).toHaveLength(2)
+      expect(CRIMINAL_DEFENSE_PRESETS[0].presetId).toBe('criminal-defense-dark')
+      expect(CRIMINAL_DEFENSE_PRESETS[1].presetId).toBe('criminal-defense-steel')
+    })
+
+    it('should have 2 personal injury presets', () => {
+      expect(PERSONAL_INJURY_PRESETS).toHaveLength(2)
+      expect(PERSONAL_INJURY_PRESETS[0].presetId).toBe('personal-injury-bold')
+      expect(PERSONAL_INJURY_PRESETS[1].presetId).toBe('personal-injury-trust')
+    })
+
+    it('should have 2 family law presets', () => {
+      expect(FAMILY_LAW_PRESETS).toHaveLength(2)
+      expect(FAMILY_LAW_PRESETS[0].presetId).toBe('family-law-warm')
+      expect(FAMILY_LAW_PRESETS[1].presetId).toBe('family-law-calm')
+    })
+
+    it('should have 2 immigration presets', () => {
+      expect(IMMIGRATION_PRESETS).toHaveLength(2)
+      expect(IMMIGRATION_PRESETS[0].presetId).toBe('immigration-hope')
+      expect(IMMIGRATION_PRESETS[1].presetId).toBe('immigration-liberty')
+    })
+
+    it('should have 2 real estate presets', () => {
+      expect(REAL_ESTATE_PRESETS).toHaveLength(2)
+      expect(REAL_ESTATE_PRESETS[0].presetId).toBe('real-estate-earth')
+      expect(REAL_ESTATE_PRESETS[1].presetId).toBe('real-estate-modern')
+    })
+
+    it('should have 2 civil rights presets', () => {
+      expect(CIVIL_RIGHTS_PRESETS).toHaveLength(2)
+      expect(CIVIL_RIGHTS_PRESETS[0].presetId).toBe('civil-rights-justice')
+      expect(CIVIL_RIGHTS_PRESETS[1].presetId).toBe('civil-rights-advocate')
+    })
+
+    it('should have 2 business law presets', () => {
+      expect(BUSINESS_LAW_PRESETS).toHaveLength(2)
+      expect(BUSINESS_LAW_PRESETS[0].presetId).toBe('business-law-corporate')
+      expect(BUSINESS_LAW_PRESETS[1].presetId).toBe('business-law-executive')
+    })
+  })
+
+  describe('getPresetsForPracticeType', () => {
+    it('should return criminal defense presets for criminal vertical', () => {
+      const presets = getPresetsForPracticeType('lawfirm_criminal')
+      expect(presets).toHaveLength(2)
+      expect(presets[0].presetId).toBe('criminal-defense-dark')
+    })
+
+    it('should return personal injury presets for personal injury vertical', () => {
+      const presets = getPresetsForPracticeType('lawfirm_personal_injury')
+      expect(presets).toHaveLength(2)
+      expect(presets[0].presetId).toBe('personal-injury-bold')
+    })
+
+    it('should return empty array for unknown vertical', () => {
+      const presets = getPresetsForPracticeType('unknown-vertical')
+      expect(presets).toHaveLength(0)
+    })
+  })
+
+  describe('getPracticeTypePreset', () => {
+    it('should return preset by ID', () => {
+      const preset = getPracticeTypePreset('criminal-defense-dark')
+      expect(preset).not.toBeNull()
+      expect(preset?.label).toBe('Criminal Defense Dark')
+    })
+
+    it('should return null for unknown preset ID', () => {
+      const preset = getPracticeTypePreset('unknown-preset')
+      expect(preset).toBeNull()
+    })
+  })
+
+  describe('Preset Structure', () => {
+    it('all practice-type presets should be law-firm type', () => {
+      for (const preset of ALL_PRACTICE_TYPE_PRESETS) {
+        expect(preset.siteType).toBe('law-firm')
+      }
+    })
+
+    it('all presets should have required color tokens', () => {
+      for (const preset of ALL_PRACTICE_TYPE_PRESETS) {
+        expect(preset.tokens.colors?.primaryColor).toBeDefined()
+        expect(preset.tokens.colors?.secondaryColor).toBeDefined()
+        expect(preset.tokens.colors?.backgroundColor).toBeDefined()
+        expect(preset.tokens.colors?.textColor).toBeDefined()
+      }
+    })
+
+    it('all presets should have required typography tokens', () => {
+      for (const preset of ALL_PRACTICE_TYPE_PRESETS) {
+        expect(preset.tokens.typography?.fontFamily?.heading).toBeDefined()
+        expect(preset.tokens.typography?.fontFamily?.body).toBeDefined()
+      }
+    })
+
+    it('all presets should have section defaults', () => {
+      for (const preset of ALL_PRACTICE_TYPE_PRESETS) {
+        expect(preset.sectionDefaults).toBeDefined()
+        expect(preset.sectionDefaults.heroStyle).toBeDefined()
+      }
+    })
+  })
+
+  describe('applyPreset with Practice-Type Presets', () => {
+    it('should apply criminal defense preset to law firm site', () => {
+      const site = createBaseLawFirmSite()
+      const result = applyPreset(site, 'criminal-defense-dark')
+      
+      expect(result.branding.primaryColor).toBe('#1e293b')
+      expect(result.branding.secondaryColor).toBe('#ef4444')
+    })
+
+    it('should apply family law preset to law firm site', () => {
+      const site = createBaseLawFirmSite()
+      const result = applyPreset(site, 'family-law-warm')
+      
+      expect(result.branding.primaryColor).toBe('#92400e')
+      expect(result.branding.secondaryColor).toBe('#b45309')
+    })
+
+    it('should include practice-type presets in getPresetsForType', () => {
+      const presets = getPresetsForType('law-firm')
+      
+      // Should include both base presets (4) and practice-type presets (14)
+      expect(presets.length).toBe(18)
+      
+      // Should include practice-type presets
+      const ids = presets.map(p => p.presetId)
+      expect(ids).toContain('criminal-defense-dark')
+      expect(ids).toContain('personal-injury-bold')
+      expect(ids).toContain('family-law-warm')
+    })
   })
 })
