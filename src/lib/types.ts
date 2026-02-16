@@ -1049,3 +1049,94 @@ export interface AgencyFrameworkData {
   timeEntries: AgencyTimeEntry[]
   brandingRemoved: true           // sentinel — confirms no personal branding
 }
+
+// ─── Multi-Tenant Site Registry ──────────────────────────────
+
+export type SiteType = 'law-firm' | 'small-business' | 'agency'
+
+export type SiteStatus = 'draft' | 'demo' | 'private' | 'unlisted' | 'public'
+
+export interface SiteSummary {
+  siteId: string
+  type: SiteType
+  name: string
+  slug: string
+  status: SiteStatus
+  domain?: string
+  createdAt: string              // ISO 8601
+  updatedAt: string              // ISO 8601
+}
+
+/** Union of all site data payloads, keyed by SiteType */
+export type SiteData = LawFirmShowcaseData | SMBTemplateData | AgencyFrameworkData
+
+/** Map SiteType → concrete data shape for type-safe retrieval */
+export interface SiteDataMap {
+  'law-firm': LawFirmShowcaseData
+  'small-business': SMBTemplateData
+  'agency': AgencyFrameworkData
+}
+
+// ─── Contract / Document System ──────────────────────────────
+
+export type ContractStatus = 'draft' | 'exported' | 'sent' | 'signed'
+
+export interface ContractSummary {
+  docId: string
+  type: string
+  title: string
+  status: ContractStatus
+  updatedAt: string
+  templateVersion: string
+}
+
+export interface ContractDoc {
+  docId: string
+  siteId: string
+  type: string
+  templateId: string
+  templateVersion: string
+  fields: Record<string, string>
+  createdAt: string
+  updatedAt: string
+}
+
+// ─── Export System (Immutable) ────────────────────────────────
+
+export type ExportKind = 'pdf' | 'docx'
+export type ExportStatus = 'generated' | 'signed'
+
+export interface ExportSummary {
+  exportId: string
+  docId: string
+  kind: ExportKind
+  sha256: string
+  createdAt: string
+  status: ExportStatus
+}
+
+export interface ExportRecord {
+  exportId: string
+  docId: string
+  siteId: string
+  kind: ExportKind
+  sha256: string
+  createdAt: string
+  fileRef: string
+  signedFileRef?: string
+  signedSha256?: string
+  status: ExportStatus
+}
+
+// ─── Site Audit Trail (Append-Only) ──────────────────────────
+
+/** Site-level audit event, distinct from the admin AuditEvent. */
+export interface SiteAuditEvent {
+  eventId: string
+  at: string                     // ISO 8601
+  actor: string
+  action: string
+  entityType: string
+  entityId: string
+  details?: Record<string, unknown>
+}

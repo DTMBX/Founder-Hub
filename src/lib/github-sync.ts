@@ -56,6 +56,8 @@ const DATA_FILES: Record<string, string> = {
   'law-firm-showcase': 'law-firm-showcase.json',
   'smb-template': 'smb-template.json',
   'agency-framework': 'agency-framework.json',
+  // Multi-tenant site registry
+  'sites:index': 'sites-index.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'
