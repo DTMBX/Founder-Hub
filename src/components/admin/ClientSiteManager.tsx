@@ -48,8 +48,11 @@ import {
   Warning,
   CheckCircle,
   XCircle,
+  Palette,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
+import { PresetSelector } from './PresetSelector'
+import { applyPreset } from '@/core/presets'
 
 // ─── Helpers ─────────────────────────────────────────────────
 
@@ -92,6 +95,7 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
     loading,
     migrating,
     registry,
+    refresh,
   } = useClientSites()
 
   // Create dialog state
@@ -248,6 +252,23 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
     }
   }, [deploySite, updateSite, registry])
 
+  // ── Preset Handlers ────────────────────────────────────
+
+  const handleApplyPreset = useCallback(async (siteId: string, presetId: string) => {
+    try {
+      const data = await registry.getNormalizedSiteData(siteId)
+      if (!data) {
+        throw new Error('Site data not found')
+      }
+
+      const updated = applyPreset(data, presetId)
+      await registry.setSiteData(siteId, updated)
+      await refresh()
+    } catch (err) {
+      throw err
+    }
+  }, [registry, refresh])
+
   // ── Render ─────────────────────────────────────────────
 
   if (loading || migrating) {
@@ -363,6 +384,10 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
 
                   {/* Actions */}
                   <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <PresetSelector
+                      siteType={site.type}
+                      onApply={(presetId) => handleApplyPreset(site.siteId, presetId)}
+                    />
                     <Button
                       variant="ghost"
                       size="icon"
