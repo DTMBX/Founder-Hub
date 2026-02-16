@@ -1,15 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useKV, kv } from '@/lib/local-storage-kv'
 import Navigation from './Navigation'
 import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
-import ProjectsSection from './sections/ProjectsSection'
-import CourtSection from './sections/CourtSection'
-import ProofSection from './sections/ProofSection'
-import ContactSection from './sections/ContactSection'
-import AboutSection from './sections/AboutSection'
-import OfferingsSection from './sections/OfferingsSection'
-import InvestorSection from './sections/InvestorSection'
+import { LandingSections, DEFAULT_LANDING_CONFIG } from './landing'
+import type { LandingConfig, LandingSectionConfig } from './landing'
 import { ScrollProgress } from './ui/scroll-progress'
 import { BackToTop } from './ui/back-to-top'
 import { Section, SiteSettings, Link } from '@/lib/types'
@@ -106,6 +101,43 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   // Hide proof section from nav + layout when no proof links exist
   const hasProofContent = (proofLinks?.filter(l => l.category === 'proof').length ?? 0) > 0
 
+  // Build LandingConfig from KV sections
+  const landingConfig = useMemo<LandingConfig>(() => {
+    // Convert KV sections to LandingSectionConfig format
+    const sectionConfigs: LandingSectionConfig[] = (sections || [])
+      .filter(s => s.type !== 'hero') // Hero is rendered separately
+      .map(s => ({
+        id: s.id,
+        type: s.type as LandingSectionConfig['type'],
+        enabled: s.enabled,
+        order: s.order,
+        investorRelevant: s.investorRelevant ?? false,
+        // Set relevance based on section type
+        legalRelevant: s.type === 'court' || s.type === 'contact',
+        marketplaceRelevant: s.type === 'offerings' || s.type === 'contact'
+      }))
+    
+    // Add investor section if not present (special section)
+    if (!sectionConfigs.some(s => s.id === 'investor')) {
+      sectionConfigs.push({
+        id: 'investor',
+        type: 'investor',
+        enabled: true,
+        order: 2.5, // Between projects and offerings
+        investorRelevant: true,
+        legalRelevant: false,
+        marketplaceRelevant: false
+      })
+    }
+    
+    return {
+      sections: sectionConfigs.length > 0 ? sectionConfigs : DEFAULT_LANDING_CONFIG.sections,
+      pathway,
+      hasProofContent
+    }
+  }, [sections, pathway, hasProofContent])
+
+  // For navigation - still need visible sections for nav links
   const getVisibleSections = () => {
     let enabled = sections?.filter(s => s.enabled).sort((a, b) => a.order - b.order) || []
     if (!hasProofContent) enabled = enabled.filter(s => s.type !== 'proof')
@@ -126,7 +158,6 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   }
 
   const enabledSections = getVisibleSections()
-  const showAboutSection = enabledSections.some(s => s.type === 'about')
 
   const pathwayLabels: Record<string, { label: string; color: string }> = {
     investors: { label: 'Investor Brief', color: 'border-emerald-500/40 text-emerald-400' },
@@ -192,37 +223,17 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       )}
 
       <main>
+        {/* Hero - Hand-authored, not part of config system */}
         <HeroSection 
           investorMode={false} 
           onSelectPathway={handleSelectPathway}
         />
         
-        {showAboutSection && (
-          <AboutSection pathway={pathway} />
-        )}
-        
-        {enabledSections.some(s => s.type === 'projects') && (
-          <ProjectsSection investorMode={pathway === 'investors'} />
-        )}
-        
-        {/* Investor section - only visible when in investor mode AND has content */}
-        {pathway === 'investors' && <InvestorSection />}
-        
-        {enabledSections.some(s => s.type === 'offerings') && (
-          <OfferingsSection tradeMode={pathway === 'marketplace'} />
-        )}
-        
-        {enabledSections.some(s => s.type === 'court') && (
-          <CourtSection investorMode={false} onNavigateToCase={onNavigateToCase} />
-        )}
-        
-        {enabledSections.some(s => s.type === 'proof') && (
-          <ProofSection investorMode={pathway === 'investors'} />
-        )}
-        
-        {enabledSections.some(s => s.type === 'contact') && (
-          <ContactSection investorMode={pathway === 'investors'} />
-        )}
+        {/* Config-driven sections below the hero */}
+        <LandingSections 
+          config={landingConfig}
+          onNavigateToCase={onNavigateToCase}
+        />
       </main>
 
       {/* Professional footer */}
