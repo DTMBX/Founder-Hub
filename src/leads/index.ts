@@ -48,3 +48,20 @@ export type {
   UseLeadCaptureOptions,
   UseLeadCaptureResult,
 } from './useLeadCapture'
+
+// Qualification
+export { QualificationForm } from './QualificationForm'
+export type { QualificationFormProps } from './QualificationForm'
+
+export {
+  QUALIFICATION_QUESTIONS,
+  QUALIFICATION_THRESHOLDS,
+  calculateLeadScore,
+  getLeadPriority,
+  isQualified,
+} from './qualification.config'
+
+export type {
+  QualificationQuestion,
+  QualificationOption,
+} from './qualification.config'
