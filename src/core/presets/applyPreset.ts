@@ -27,6 +27,7 @@ import type {
 import { getLawFirmPreset, LAWFIRM_PRESETS } from './lawfirm.presets'
 import { getSMBPreset, SMB_PRESETS } from './smb.presets'
 import { getAgencyPreset, AGENCY_PRESETS } from './agency.presets'
+import { getPracticeTypePreset, ALL_PRACTICE_TYPE_PRESETS } from './lawfirm.practice-presets'
 
 // ─── Preset Registry ─────────────────────────────────────────
 
@@ -36,7 +37,8 @@ import { getAgencyPreset, AGENCY_PRESETS } from './agency.presets'
 export function getPresetsForType(siteType: SiteType): Preset[] {
   switch (siteType) {
     case 'law-firm':
-      return LAWFIRM_PRESETS
+      // Include both general and practice-type presets
+      return [...LAWFIRM_PRESETS, ...ALL_PRACTICE_TYPE_PRESETS]
     case 'small-business':
       return SMB_PRESETS
     case 'agency':
@@ -50,6 +52,7 @@ export function getPresetsForType(siteType: SiteType): Preset[] {
 export function getPresetById(presetId: string): Preset | null {
   return (
     getLawFirmPreset(presetId) ??
+    getPracticeTypePreset(presetId) ??
     getSMBPreset(presetId) ??
     getAgencyPreset(presetId) ??
     null

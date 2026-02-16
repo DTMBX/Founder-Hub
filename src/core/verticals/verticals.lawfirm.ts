@@ -137,8 +137,8 @@ export const VERTICAL_LAWFIRM_CRIMINAL: VerticalPack = {
   siteType: 'law-firm',
   icon: 'shield',
 
-  recommendedPresets: ['lawfirm-classic-navy', 'lawfirm-modern-slate'],
-  defaultPreset: 'lawfirm-classic-navy',
+  recommendedPresets: ['criminal-defense-dark', 'criminal-defense-steel', 'lawfirm-classic-navy'],
+  defaultPreset: 'criminal-defense-dark',
 
   copyTemplates: {
     heroHeadline: {
@@ -239,8 +239,8 @@ export const VERTICAL_LAWFIRM_PERSONAL_INJURY: VerticalPack = {
   siteType: 'law-firm',
   icon: 'medical',
 
-  recommendedPresets: ['lawfirm-modern-slate', 'lawfirm-classic-navy'],
-  defaultPreset: 'lawfirm-modern-slate',
+  recommendedPresets: ['personal-injury-bold', 'personal-injury-trust', 'lawfirm-modern-slate'],
+  defaultPreset: 'personal-injury-bold',
 
   copyTemplates: {
     heroHeadline: {
@@ -341,8 +341,8 @@ export const VERTICAL_LAWFIRM_FAMILY: VerticalPack = {
   siteType: 'law-firm',
   icon: 'family',
 
-  recommendedPresets: ['lawfirm-minimal-white', 'lawfirm-modern-slate'],
-  defaultPreset: 'lawfirm-minimal-white',
+  recommendedPresets: ['family-law-warm', 'family-law-calm', 'lawfirm-minimal-white'],
+  defaultPreset: 'family-law-warm',
 
   copyTemplates: {
     heroHeadline: {
@@ -442,8 +442,8 @@ export const VERTICAL_LAWFIRM_IMMIGRATION: VerticalPack = {
   siteType: 'law-firm',
   icon: 'globe',
 
-  recommendedPresets: ['lawfirm-modern-slate', 'lawfirm-classic-navy'],
-  defaultPreset: 'lawfirm-modern-slate',
+  recommendedPresets: ['immigration-hope', 'immigration-liberty', 'lawfirm-modern-slate'],
+  defaultPreset: 'immigration-hope',
 
   copyTemplates: {
     heroHeadline: {
@@ -543,8 +543,8 @@ export const VERTICAL_LAWFIRM_REAL_ESTATE: VerticalPack = {
   siteType: 'law-firm',
   icon: 'building',
 
-  recommendedPresets: ['lawfirm-executive-burgundy', 'lawfirm-classic-navy'],
-  defaultPreset: 'lawfirm-executive-burgundy',
+  recommendedPresets: ['real-estate-earth', 'real-estate-modern', 'lawfirm-executive-burgundy'],
+  defaultPreset: 'real-estate-earth',
 
   copyTemplates: {
     heroHeadline: {
@@ -644,8 +644,8 @@ export const VERTICAL_LAWFIRM_CIVIL_RIGHTS: VerticalPack = {
   siteType: 'law-firm',
   icon: 'justice',
 
-  recommendedPresets: ['lawfirm-classic-navy', 'lawfirm-minimal-white'],
-  defaultPreset: 'lawfirm-classic-navy',
+  recommendedPresets: ['civil-rights-justice', 'civil-rights-advocate', 'lawfirm-classic-navy'],
+  defaultPreset: 'civil-rights-justice',
 
   copyTemplates: {
     heroHeadline: {
@@ -745,8 +745,8 @@ export const VERTICAL_LAWFIRM_BUSINESS: VerticalPack = {
   siteType: 'law-firm',
   icon: 'briefcase',
 
-  recommendedPresets: ['lawfirm-executive-burgundy', 'lawfirm-modern-slate'],
-  defaultPreset: 'lawfirm-executive-burgundy',
+  recommendedPresets: ['business-law-corporate', 'business-law-executive', 'lawfirm-executive-burgundy'],
+  defaultPreset: 'business-law-corporate',
 
   copyTemplates: {
     heroHeadline: {
