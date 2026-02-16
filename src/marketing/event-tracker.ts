@@ -51,8 +51,11 @@ export const MARKETING_EVENTS = {
   DEPLOY_CLICKED: 'deploy_clicked',
   
   // Lead capture
+  LEAD_FORM_OPENED: 'lead_form_opened',
   LEAD_FORM_STARTED: 'lead_form_started',
   LEAD_FORM_SUBMITTED: 'lead_form_submitted',
+  LEAD_FORM_COMPLETED: 'lead_form_completed',
+  LEAD_FORM_ERROR: 'lead_form_error',
   LEAD_FORM_ABANDONED: 'lead_form_abandoned',
   
   // Navigation
