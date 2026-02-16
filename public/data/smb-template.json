@@ -1,0 +1,26 @@
+{
+  "config": {
+    "businessName": "",
+    "tagline": "",
+    "description": "",
+    "industry": "",
+    "primaryColor": "#2563eb",
+    "accentColor": "#f59e0b",
+    "socialLinks": {},
+    "sections": {
+      "hero": true,
+      "services": true,
+      "about": true,
+      "team": false,
+      "testimonials": true,
+      "faq": true,
+      "contact": true,
+      "gallery": false
+    }
+  },
+  "services": [],
+  "team": [],
+  "testimonials": [],
+  "faqs": [],
+  "galleryImages": []
+}

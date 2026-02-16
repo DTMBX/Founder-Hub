@@ -625,3 +625,205 @@ export interface SitesConfig {
   sites: ManagedSite[]
   activeSiteId: string
 }
+
+// ─── Law Firm Case Display (Client Showcase) ─────────────────
+
+export interface CaseResult {
+  id: string
+  title: string
+  practiceArea: string
+  resultType: 'verdict' | 'settlement' | 'dismissal' | 'acquittal' | 'award' | 'other'
+  amount?: number                // in cents
+  currency?: 'USD' | 'EUR' | 'GBP'
+  date: string                   // ISO date
+  court?: string
+  jurisdiction?: string
+  summary: string
+  description?: string
+  isConfidential?: boolean       // suppress amount, show "Confidential" 
+  featured: boolean
+  order: number
+  tags: string[]
+}
+
+export interface AttorneyProfile {
+  id: string
+  name: string
+  title: string                  // e.g., "Partner", "Senior Associate"
+  barNumber?: string
+  jurisdictions: string[]
+  practiceAreas: string[]
+  education: Array<{ school: string; degree: string; year?: string }>
+  bio: string
+  photoUrl?: string
+  email?: string
+  phone?: string
+  linkedIn?: string
+  featured: boolean
+  order: number
+}
+
+export interface PracticeArea {
+  id: string
+  name: string
+  slug: string
+  icon?: string
+  description: string
+  keyPoints: string[]
+  caseResultIds?: string[]       // link to CaseResult entries
+  order: number
+}
+
+export interface ClientTestimonial {
+  id: string
+  clientName: string             // or "Anonymous"
+  clientTitle?: string
+  quote: string
+  rating?: number                // 1-5
+  practiceArea?: string
+  date?: string
+  featured: boolean
+  order: number
+}
+
+export interface LawFirmConfig {
+  firmName: string
+  tagline?: string
+  description?: string
+  logoUrl?: string
+  logoLightUrl?: string
+  primaryColor?: string
+  accentColor?: string
+  address?: string
+  phone?: string
+  email?: string
+  website?: string
+  barAssociations?: string[]
+  foundedYear?: string
+  disclaimer?: string            // Required legal disclaimer
+  privacyPolicyUrl?: string
+  intakeFormEnabled: boolean
+  intakeFields: Array<{
+    id: string
+    label: string
+    type: 'text' | 'email' | 'phone' | 'select' | 'textarea'
+    required: boolean
+    options?: string[]           // for select type
+  }>
+}
+
+export interface LawFirmShowcaseData {
+  config: LawFirmConfig
+  caseResults: CaseResult[]
+  attorneys: AttorneyProfile[]
+  practiceAreas: PracticeArea[]
+  testimonials: ClientTestimonial[]
+  visibility: 'private' | 'unlisted' | 'demo'  // never 'public' until client deploys
+}
+
+// ─── Small Business Web Template Framework ───────────────────
+
+export interface SMBServiceItem {
+  id: string
+  name: string
+  description: string
+  icon?: string
+  price?: string
+  featured: boolean
+  order: number
+}
+
+export interface SMBTeamMember {
+  id: string
+  name: string
+  role: string
+  bio?: string
+  photoUrl?: string
+  email?: string
+  linkedIn?: string
+  order: number
+}
+
+export interface SMBFaq {
+  id: string
+  question: string
+  answer: string
+  order: number
+}
+
+export interface SMBTemplateConfig {
+  businessName: string
+  industry: string
+  tagline?: string
+  description?: string
+  logoUrl?: string
+  primaryColor?: string
+  accentColor?: string
+  address?: string
+  phone?: string
+  email?: string
+  hours?: string
+  mapEmbedUrl?: string
+  analyticsId?: string
+  socialLinks?: Record<string, string>
+  sections: {
+    hero: boolean
+    services: boolean
+    about: boolean
+    team: boolean
+    testimonials: boolean
+    faq: boolean
+    contact: boolean
+    gallery: boolean
+  }
+}
+
+export interface SMBTemplateData {
+  config: SMBTemplateConfig
+  services: SMBServiceItem[]
+  team: SMBTeamMember[]
+  testimonials: ClientTestimonial[]   // reused from law firm
+  faqs: SMBFaq[]
+  galleryImages: Array<{ id: string; url: string; alt: string; order: number }>
+}
+
+// ─── Agency Framework (White-Label, Unbranded) ───────────────
+
+export type AgencyProjectStatus = 'discovery' | 'design' | 'development' | 'review' | 'launched' | 'maintenance'
+
+export interface AgencyClientProject {
+  id: string
+  clientName: string
+  templateType: 'law-firm' | 'small-business' | 'custom' | 'landing-page'
+  status: AgencyProjectStatus
+  domain?: string
+  startDate: string
+  launchDate?: string
+  notes?: string
+  repoUrl?: string
+  budget: number                 // in cents
+  hoursEstimated: number
+  hoursUsed: number
+  deliverables: string[]
+}
+
+export interface AgencyPipelineLead {
+  id: string
+  contactName: string
+  company?: string
+  email: string
+  phone?: string
+  serviceInterest: string        // which offering they inquired about
+  budget?: string
+  timeline?: string
+  notes?: string
+  status: 'new' | 'contacted' | 'proposal' | 'negotiation' | 'won' | 'lost'
+  source?: string                // referral, ads, organic, etc.
+  createdAt: string              // ISO date string
+}
+
+export interface AgencyFrameworkData {
+  projects: AgencyClientProject[]
+  pipeline: AgencyPipelineLead[]
+  brandingRemoved: true           // sentinel — confirms no personal branding
+}

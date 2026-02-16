@@ -52,6 +52,10 @@ const DATA_FILES: Record<string, string> = {
   'asset-usage-policy': 'asset-usage-policy.json',
   // Audit trail
   'founder-hub-audit-log': 'audit-log.json',
+  // Frameworks (private)
+  'law-firm-showcase': 'law-firm-showcase.json',
+  'smb-template': 'smb-template.json',
+  'agency-framework': 'agency-framework.json',
 }
 
 const STORAGE_PREFIX = 'xtx396:'

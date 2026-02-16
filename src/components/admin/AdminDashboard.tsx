@@ -13,7 +13,8 @@ import {
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
+  Buildings, Storefront, Kanban
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -42,6 +43,9 @@ import InvestorManager from './InvestorManager'
 import EvidentManager from './EvidentManager'
 import SitePicker from './SitePicker'
 import SitesManager from './SitesManager'
+import LawFirmShowcaseManager from './LawFirmShowcaseManager'
+import SMBTemplateManager from './SMBTemplateManager'
+import AgencyFrameworkManager from './AgencyFrameworkManager'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -70,6 +74,10 @@ const navItems: NavItem[] = [
   // Evident Platform
   { id: 'evident', label: 'Evident Dashboard', icon: Globe, category: 'Evident Platform' },
   { id: 'sites', label: 'Sites & Repos', icon: TreeStructure, category: 'Evident Platform' },
+  // Frameworks (Private)
+  { id: 'law-firm', label: 'Law Firm Showcase', icon: Buildings, category: 'Frameworks' },
+  { id: 'smb-template', label: 'SMB Template', icon: Storefront, category: 'Frameworks' },
+  { id: 'agency', label: 'Agency Framework', icon: Kanban, category: 'Frameworks' },
   // Case Management
   { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Case Management' },
   { id: 'court', label: 'Court Cases', icon: Scales, category: 'Case Management' },
@@ -90,7 +98,7 @@ const navItems: NavItem[] = [
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
 ]
 
-const categories = ['XTX396 Site', 'Investor & Trade', 'Evident Platform', 'Case Management', 'Assets', 'System']
+const categories = ['XTX396 Site', 'Investor & Trade', 'Evident Platform', 'Frameworks', 'Case Management', 'Assets', 'System']
 
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
@@ -168,6 +176,9 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'visual-modules': return <VisualModulesManager />
       case 'evident': return <EvidentManager />
       case 'sites': return <SitesManager />
+      case 'law-firm': return <LawFirmShowcaseManager />
+      case 'smb-template': return <SMBTemplateManager />
+      case 'agency': return <AgencyFrameworkManager />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />

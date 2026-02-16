@@ -49,6 +49,10 @@ const STATIC_DATA_MAP: Record<string, string> = {
   'asset-usage-policy': '/data/asset-usage-policy.json',
   // Audit trail (append-only)
   'founder-hub-audit-log': '/data/audit-log.json',
+  // Frameworks (private)
+  'law-firm-showcase': '/data/law-firm-showcase.json',
+  'smb-template': '/data/smb-template.json',
+  'agency-framework': '/data/agency-framework.json',
 }
 
 // Check if running on localhost (admin allowed)
