@@ -57,3 +57,27 @@ export {
   isScrollingMotion,
   getScrollDirection,
 } from './generatorHelpers'
+
+// Assembler
+export type {
+  AssemblyOptions,
+  AssemblyResult,
+  AssemblyStats,
+  PlaylistEntry,
+  ScenePlaylist,
+  ExportManifest,
+} from './assembler'
+
+export {
+  DEFAULT_ASSEMBLY_OPTIONS,
+  createScenePlaylist,
+  generateFfmpegConcatList,
+  generateFfmpegFilterComplex,
+  calculateAssemblyStats,
+  createMontageMetadata,
+  getAssemblyPaths,
+  validateAssemblyInputs,
+  selectAssemblyStrategy,
+  selectPosterScene,
+  createExportManifest,
+} from './assembler'
