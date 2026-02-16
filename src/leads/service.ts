@@ -14,6 +14,7 @@ import {
   type LeadListQuery,
   type LeadListResult,
 } from './types'
+import type { CsvColumn } from '@/lib/csv'
 
 // ─── Adapter Interface ───────────────────────────────────────
 
@@ -406,6 +407,47 @@ export class LeadService {
     )
     
     return lead
+  }
+  
+  /**
+   * Export leads to CSV string
+   */
+  async exportCsv(query?: LeadListQuery): Promise<string> {
+    const { toCsv } = await import('@/lib/csv')
+    
+    // Get all leads matching query (no pagination)
+    const result = await this.storage.list({ ...query, limit: 10000, offset: 0 })
+    
+    const columns: CsvColumn<Lead>[] = [
+      { header: 'ID', accessor: 'id' },
+      { header: 'Created', accessor: 'createdAt' },
+      { header: 'Status', accessor: 'status' },
+      { header: 'Source', accessor: 'source' },
+      { header: 'Email', accessor: 'email' },
+      { header: 'First Name', accessor: 'firstName' },
+      { header: 'Last Name', accessor: 'lastName' },
+      { header: 'Company', accessor: 'company' },
+      { header: 'Phone', accessor: 'phone' },
+      { header: 'Vertical', accessor: 'vertical' },
+      { header: 'Budget', accessor: 'budget' },
+      { header: 'Timeline', accessor: 'timeline' },
+      { header: 'Landing Page', accessor: 'landingPage' },
+      { header: 'UTM Source', accessor: 'utmSource' },
+      { header: 'UTM Medium', accessor: 'utmMedium' },
+      { header: 'UTM Campaign', accessor: 'utmCampaign' },
+    ]
+    
+    return toCsv(result.leads, { columns })
+  }
+  
+  /**
+   * Download leads as CSV file
+   */
+  async downloadCsv(query?: LeadListQuery, filename = 'leads'): Promise<void> {
+    const { downloadCsv } = await import('@/lib/csv')
+    const csv = await this.exportCsv(query)
+    const timestamp = new Date().toISOString().slice(0, 10)
+    downloadCsv(csv, `${filename}-${timestamp}.csv`)
   }
 }
 

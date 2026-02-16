@@ -30,6 +30,7 @@ import {
 } from './offers.config'
 import { getFAQsForOffer } from './faq.config'
 import { track, MARKETING_EVENTS } from './event-tracker'
+import { LeadCaptureModal } from '@/leads'
 import type { PreviewMeta } from '@/previews'
 
 // ─── Types ───────────────────────────────────────────────────
@@ -74,6 +75,10 @@ export function OfferingPage({
     propMetas ?? {}
   )
   
+  // Lead capture modal state
+  const [showLeadCapture, setShowLeadCapture] = useState(false)
+  const [pendingOfferId, setPendingOfferId] = useState<string | null>(null)
+  
   // Load preview metas if not provided
   useEffect(() => {
     if (propMetas) return
@@ -115,6 +120,41 @@ export function OfferingPage({
     .slice(0, 6)
   
   // Handlers
+  
+  // Step 1: User clicks "Generate Preview" - show lead capture modal
+  const handleRequestPreview = useCallback((offerId: string) => {
+    track(MARKETING_EVENTS.GENERATE_PREVIEW_STARTED, { offerId })
+    setPendingOfferId(offerId)
+    setShowLeadCapture(true)
+  }, [])
+  
+  // Step 2: Lead captured - proceed with preview generation
+  const handleLeadCaptured = useCallback(
+    async (leadId: string) => {
+      if (!pendingOfferId) return
+      
+      setIsGenerating(true)
+      setSelectedOfferId(pendingOfferId)
+      setShowLeadCapture(false)
+      
+      track(MARKETING_EVENTS.GENERATE_PREVIEW_COMPLETED, {
+        offerId: pendingOfferId,
+        leadId,
+      })
+      
+      try {
+        await onGeneratePreview?.(pendingOfferId)
+      } catch (error) {
+        console.error('Preview generation failed:', error)
+      } finally {
+        setIsGenerating(false)
+        setPendingOfferId(null)
+      }
+    },
+    [pendingOfferId, onGeneratePreview]
+  )
+  
+  // Legacy handler (for backward compatibility if used elsewhere)
   const handleGeneratePreview = useCallback(
     async (offerId: string) => {
       setIsGenerating(true)
@@ -177,7 +217,7 @@ export function OfferingPage({
         offers={MARKETING_OFFERS}
         previewMetas={previewMetas}
         basePath={basePath}
-        onGeneratePreview={handleGeneratePreview}
+        onGeneratePreview={handleRequestPreview}
         isGenerating={isGenerating}
       />
       
@@ -209,6 +249,21 @@ export function OfferingPage({
         }}
         onSecondaryCta={handleBookCall}
         isPrimaryLoading={isGenerating}
+      />
+      
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => {
+          setShowLeadCapture(false)
+          setPendingOfferId(null)
+        }}
+        onSuccess={handleLeadCaptured}
+        source="preview_generator"
+        title="Get Your Free Preview"
+        description="Enter your details to generate a personalized website preview."
+        submitLabel="Generate My Preview"
+        vertical={pendingOfferId ?? undefined}
       />
     </MarketingPage>
   )

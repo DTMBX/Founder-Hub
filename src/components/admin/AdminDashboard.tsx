@@ -8,13 +8,13 @@ import { downloadDataFiles } from '@/lib/local-storage-kv'
 import { publishToGitHub, hasGitHubToken } from '@/lib/github-sync'
 import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
-import { 
+import {
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
-  Buildings, Storefront, Kanban
+  Buildings, Storefront, Kanban, UsersFour
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -48,6 +48,7 @@ import SMBTemplateManager from './SMBTemplateManager'
 import AgencyFrameworkManager from './AgencyFrameworkManager'
 import ClientSiteManager from './ClientSiteManager'
 import { useClientSites } from '@/hooks/use-client-sites'
+import { AdminLeadsViewer } from '@/leads'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -99,6 +100,7 @@ const navItems: NavItem[] = [
   { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System' },
   { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
+  { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System' },
 ]
 
 const categories = ['XTX396 Site', 'Investor & Trade', 'Evident Platform', 'Frameworks', 'Case Management', 'Assets', 'System']
@@ -192,6 +194,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />
       case 'audit': return <AuditLog />
+      case 'leads': return <AdminLeadsViewer />
       default: return <ContentManager />
     }
   }
