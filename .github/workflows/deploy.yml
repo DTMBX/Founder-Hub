@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Playwright browsers
+        run: npx playwright install chromium
+
       - name: Build
         run: npm run build
 
@@ -50,6 +53,16 @@ jobs:
         run: node scripts/generate-static-sites.mjs
         env:
           SITE_BASE_URL: https://xtx396.com
+
+      - name: Generate preview artifacts
+        run: npm run generate:previews -- --skip-server
+        env:
+          CI: true
+        continue-on-error: true
+
+      - name: Verify preview artifacts
+        run: node scripts/verify-previews.mjs
+        continue-on-error: true
 
       - name: Inject CNAME for custom domain
         run: echo 'xtx396.com' > dist/CNAME
