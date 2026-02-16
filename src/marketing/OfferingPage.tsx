@@ -20,7 +20,9 @@ import {
   PricingTable,
   FAQSection,
   FinalCTA,
+  EventDebugPanel,
 } from './components'
+import { useScrollDepth } from './hooks'
 import {
   MARKETING_OFFERS,
   getFeaturedOffer,
@@ -77,6 +79,9 @@ export function OfferingPage({
   useEffect(() => {
     trackPageView('offering_page')
   }, [])
+  
+  // Track scroll depth milestones
+  useScrollDepth('offering_page')
   
   // Load preview metas if not provided
   useEffect(() => {
@@ -205,6 +210,9 @@ export function OfferingPage({
         onSecondaryCta={handleBookCall}
         isPrimaryLoading={isGenerating}
       />
+      
+      {/* Debug Panel (visible with ?debug=1) */}
+      <EventDebugPanel />
     </div>
   )
 }

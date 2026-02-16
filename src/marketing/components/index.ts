@@ -22,3 +22,6 @@ export type { FinalCTAProps } from './FinalCTA'
 
 export { OfferGrid } from './OfferGrid'
 export type { OfferGridProps } from './OfferGrid'
+
+export { EventDebugPanel } from './EventDebugPanel'
+export type { EventDebugPanelProps } from './EventDebugPanel'
