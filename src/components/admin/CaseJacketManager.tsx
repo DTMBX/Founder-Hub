@@ -200,7 +200,7 @@ export default function CaseJacketManager() {
         setUploadItems(prev => prev.map(i => i.id === item.id ? { ...i, status: 'ocr', progress: 50, checksum } : i))
         const ocrResult = await OCRPipeline.processDocument(item.file, {
           extractFields: true,
-          detectStamps: true,
+          detectStamp: true,
         })
 
         // Determine suggested values
@@ -356,7 +356,7 @@ export default function CaseJacketManager() {
       try {
         const result = await OCRPipeline.processDocument(fakeFile, {
           extractFields: true,
-          detectStamps: true,
+          detectStamp: true,
         })
 
         const idx = updatedPdfs.findIndex(p => p.id === doc.id)

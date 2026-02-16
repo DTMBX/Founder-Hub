@@ -444,6 +444,9 @@ export type AuditAction =
   | 'create_offering'
   | 'update_offering'
   | 'delete_offering'
+  | 'password_migrated'
+  | 'login_keyfile_required'
+  | 'login_keyfile_failed'
 
 export interface AuditEvent {
   id: string

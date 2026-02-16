@@ -13,18 +13,42 @@ const STORAGE_PREFIX = 'xtx396:'
 
 // Map KV keys to static JSON file paths
 const STATIC_DATA_MAP: Record<string, string> = {
+  // Core content
   'founder-hub-settings': '/data/settings.json',
   'founder-hub-sections': '/data/sections.json',
   'founder-hub-projects': '/data/projects.json',
   'founder-hub-court-cases': '/data/court-cases.json',
   'founder-hub-proof-links': '/data/links.json',
+  'founder-hub-contact-links': '/data/contact-links.json',
   'founder-hub-profile': '/data/profile.json',
   'founder-hub-about': '/data/about.json',
   'founder-hub-pdfs': '/data/documents.json',
   'founder-hub-document-types': '/data/document-types.json',
   'founder-hub-offerings': '/data/offerings.json',
   'founder-hub-investor': '/data/investor.json',
+  // Case management
+  'founder-hub-filing-types': '/data/filing-types.json',
+  'founder-hub-naming-rules': '/data/naming-rules.json',
+  // Multi-site
   'founder-hub-sites-config': '/data/sites.json',
+  // Honor Flag Bar
+  'honor-flag-bar-settings': '/data/honor-flag-bar.json',
+  'honor-flag-bar-enabled': '/data/honor-flag-bar-enabled.json',
+  'honor-flag-bar-animation': '/data/honor-flag-bar-animation.json',
+  'honor-flag-bar-parallax': '/data/honor-flag-bar-parallax.json',
+  'honor-flag-bar-rotation': '/data/honor-flag-bar-rotation.json',
+  'honor-flag-bar-max-desktop': '/data/honor-flag-bar-max-desktop.json',
+  'honor-flag-bar-max-mobile': '/data/honor-flag-bar-max-mobile.json',
+  'honor-flag-bar-alignment': '/data/honor-flag-bar-alignment.json',
+  // Visual modules
+  'hero-accent-settings': '/data/hero-accent-settings.json',
+  'flag-gallery-settings': '/data/flag-gallery-settings.json',
+  'map-spotlight-settings': '/data/map-spotlight-settings.json',
+  // Asset management
+  'asset-metadata': '/data/asset-metadata.json',
+  'asset-usage-policy': '/data/asset-usage-policy.json',
+  // Audit trail (append-only)
+  'founder-hub-audit-log': '/data/audit-log.json',
 }
 
 // Check if running on localhost (admin allowed)
@@ -64,8 +88,9 @@ async function fetchStaticData<T>(key: string): Promise<T | null> {
 /**
  * React hook for hybrid storage.
  * Uses localStorage with static JSON fallback for content files.
+ * Setter accepts a value OR an updater function (prev => next).
  */
-export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] {
+export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: T) => T)) => void] {
   const storageKey = STORAGE_PREFIX + key
   const [value, setValue] = useState<T>(defaultValue)
   const [initialized, setInitialized] = useState(false)
@@ -105,10 +130,15 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T) => void] 
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [storageKey, defaultValue])
 
-  const setStoredValue = useCallback((newValue: T) => {
+  const setStoredValue = useCallback((newValue: T | ((prev: T) => T)) => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(newValue))
-      setValue(newValue)
+      setValue(prev => {
+        const resolved = typeof newValue === 'function'
+          ? (newValue as (prev: T) => T)(prev)
+          : newValue
+        localStorage.setItem(storageKey, JSON.stringify(resolved))
+        return resolved
+      })
     } catch (error) {
       console.error(`[useKV] Error writing ${key}:`, error)
     }

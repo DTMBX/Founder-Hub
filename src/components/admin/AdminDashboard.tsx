@@ -13,7 +13,7 @@ import {
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
-  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure
+  UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe
 } from '@phosphor-icons/react'
 import ContentManager from './ContentManager'
 import EnhancedProjectsManager from './EnhancedProjectsManager'
@@ -39,6 +39,7 @@ import ProfileManager from './ProfileManager'
 import HonorFlagBarManager from './HonorFlagBarManager'
 import OfferingsManager from './OfferingsManager'
 import InvestorManager from './InvestorManager'
+import EvidentManager from './EvidentManager'
 import SitePicker from './SitePicker'
 import SitesManager from './SitesManager'
 import { cn } from '@/lib/utils'
@@ -55,38 +56,41 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  // Content
-  { id: 'content', label: 'Content', icon: Article, category: 'Content' },
-  { id: 'about', label: 'About / Updates', icon: UserCircle, category: 'Content' },
-  { id: 'links', label: 'Links', icon: LinkSimple, category: 'Content' },
-  { id: 'profile', label: 'Profile & Emails', icon: IdentificationBadge, category: 'Content' },
-  { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'Content' },
-  { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Content' },
-  { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'Content' },
-  { id: 'offerings', label: 'Offerings', icon: ShoppingBag, category: 'Content' },
-  { id: 'investor', label: 'Investor Section', icon: TrendUp, category: 'Content' },
-  // Projects & Cases
-  { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Management' },
-  { id: 'court', label: 'Court Cases', icon: Scales, category: 'Management' },
-  { id: 'documents', label: 'Documents', icon: FilePdf, category: 'Management' },
-  { id: 'case-jackets', label: 'Case Jackets', icon: Briefcase, category: 'Management' },
-  { id: 'filing-types', label: 'Filing Types', icon: Certificate, category: 'Management' },
-  { id: 'templates', label: 'Templates', icon: ClipboardText, category: 'Management' },
+  // XTX396 Site
+  { id: 'content', label: 'Content', icon: Article, category: 'XTX396 Site' },
+  { id: 'about', label: 'About / Updates', icon: UserCircle, category: 'XTX396 Site' },
+  { id: 'links', label: 'Links', icon: LinkSimple, category: 'XTX396 Site' },
+  { id: 'profile', label: 'Profile & Emails', icon: IdentificationBadge, category: 'XTX396 Site' },
+  { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'XTX396 Site' },
+  { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'XTX396 Site' },
+  { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'XTX396 Site' },
+  // Investor & Trade
+  { id: 'investor', label: 'Investor Section', icon: TrendUp, category: 'Investor & Trade' },
+  { id: 'offerings', label: 'Offerings', icon: ShoppingBag, category: 'Investor & Trade' },
+  // Evident Platform
+  { id: 'evident', label: 'Evident Dashboard', icon: Globe, category: 'Evident Platform' },
+  { id: 'sites', label: 'Sites & Repos', icon: TreeStructure, category: 'Evident Platform' },
+  // Case Management
+  { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Case Management' },
+  { id: 'court', label: 'Court Cases', icon: Scales, category: 'Case Management' },
+  { id: 'documents', label: 'Documents', icon: FilePdf, category: 'Case Management' },
+  { id: 'case-jackets', label: 'Case Jackets', icon: Briefcase, category: 'Case Management' },
+  { id: 'filing-types', label: 'Filing Types', icon: Certificate, category: 'Case Management' },
+  { id: 'templates', label: 'Templates', icon: ClipboardText, category: 'Case Management' },
   // Assets & Uploads
   { id: 'inbox', label: 'Inbox', icon: Tray, category: 'Assets' },
   { id: 'upload', label: 'Upload Queue', icon: CloudArrowUp, category: 'Assets' },
   { id: 'staging', label: 'Staging Review', icon: Stack, category: 'Assets' },
   { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets' },
   { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets' },
-  // Settings
-  { id: 'sites', label: 'Sites', icon: TreeStructure, category: 'Settings' },
-  { id: 'theme', label: 'Theme', icon: Palette, category: 'Settings' },
-  { id: 'settings', label: 'Site Settings', icon: Gear, category: 'Settings' },
-  { id: 'security', label: 'Security', icon: ShieldCheck, category: 'Settings' },
-  { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'Settings' },
+  // System
+  { id: 'theme', label: 'Theme', icon: Palette, category: 'System' },
+  { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System' },
+  { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
+  { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
 ]
 
-const categories = ['Content', 'Management', 'Assets', 'Settings']
+const categories = ['XTX396 Site', 'Investor & Trade', 'Evident Platform', 'Case Management', 'Assets', 'System']
 
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
@@ -162,6 +166,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'assets': return <AssetScanner />
       case 'asset-policy': return <AssetUsagePolicyManager />
       case 'visual-modules': return <VisualModulesManager />
+      case 'evident': return <EvidentManager />
       case 'sites': return <SitesManager />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
@@ -238,7 +243,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                       )
                     })}
                   </div>
-                  {category !== 'Settings' && !sidebarCollapsed && (
+                  {category !== 'System' && !sidebarCollapsed && (
                     <Separator className="mt-3 opacity-50" />
                   )}
                 </div>
