@@ -25,3 +25,6 @@ export * from './layouts'
 // Pages
 export { OfferingPage } from './OfferingPage'
 export type { OfferingPageProps } from './OfferingPage'
+
+export { ServicesPage } from './ServicesPage'
+export type { ServicesPageProps } from './ServicesPage'
