@@ -87,8 +87,13 @@ function fmt(cents: number, currency = 'USD'): string {
 
 // ─── Component ─────────────────────────────────────────────────
 
-export default function LawFirmShowcaseManager() {
-  const [data, setData] = useKV<LawFirmShowcaseData>('law-firm-showcase', DEFAULT_DATA)
+interface LawFirmShowcaseManagerProps {
+  siteId?: string
+}
+
+export default function LawFirmShowcaseManager({ siteId }: LawFirmShowcaseManagerProps) {
+  const kvKey = siteId ? `sites:${siteId}:data` : 'law-firm-showcase'
+  const [data, setData] = useKV<LawFirmShowcaseData>(kvKey, DEFAULT_DATA)
   const [tab, setTab] = useState('overview')
   const [editingResult, setEditingResult] = useState<CaseResult | null>(null)
   const [editingAttorney, setEditingAttorney] = useState<AttorneyProfile | null>(null)

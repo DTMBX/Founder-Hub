@@ -93,8 +93,13 @@ const HERO_STYLES = [
 
 // ─── Component ─────────────────────────────────────────────────
 
-export default function SMBTemplateManager() {
-  const [data, setData] = useKV<SMBTemplateData>('smb-template', DEFAULT_DATA)
+interface SMBTemplateManagerProps {
+  siteId?: string
+}
+
+export default function SMBTemplateManager({ siteId }: SMBTemplateManagerProps) {
+  const kvKey = siteId ? `sites:${siteId}:data` : 'smb-template'
+  const [data, setData] = useKV<SMBTemplateData>(kvKey, DEFAULT_DATA)
   const [tab, setTab] = useState('setup')
   const [editingService, setEditingService] = useState<SMBServiceItem | null>(null)
   const [editingTeamMember, setEditingTeamMember] = useState<SMBTeamMember | null>(null)
