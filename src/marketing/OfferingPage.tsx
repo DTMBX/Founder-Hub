@@ -20,10 +20,8 @@ import {
   PricingTable,
   FAQSection,
   FinalCTA,
-  EventDebugPanel,
-  SkipLinks,
 } from './components'
-import { useScrollDepth, usePreloadAssets } from './hooks'
+import { MarketingPage } from './layouts'
 import {
   MARKETING_OFFERS,
   getFeaturedOffer,
@@ -31,7 +29,7 @@ import {
   type OfferTier,
 } from './offers.config'
 import { getFAQsForOffer } from './faq.config'
-import { trackPageView, track, MARKETING_EVENTS } from './event-tracker'
+import { track, MARKETING_EVENTS } from './event-tracker'
 import type { PreviewMeta } from '@/previews'
 
 // ─── Types ───────────────────────────────────────────────────
@@ -75,22 +73,6 @@ export function OfferingPage({
   const [previewMetas, setPreviewMetas] = useState<Record<string, PreviewMeta | null>>(
     propMetas ?? {}
   )
-  
-  // Track page view on mount
-  useEffect(() => {
-    trackPageView('offering_page')
-  }, [])
-  
-  // Track scroll depth milestones
-  useScrollDepth('offering_page')
-  
-  // Preload critical assets
-  usePreloadAssets({
-    preloads: heroVideoPosterUrl
-      ? [{ href: heroVideoPosterUrl, as: 'image' }]
-      : [],
-    preconnects: [],
-  })
   
   // Load preview metas if not provided
   useEffect(() => {
@@ -165,11 +147,17 @@ export function OfferingPage({
     [featuredOffer, onSelectTier]
   )
   
+  // Preload config for hero poster
+  const preloads = heroVideoPosterUrl
+    ? [{ href: heroVideoPosterUrl, as: 'image' as const }]
+    : []
+  
   return (
-    <div className="min-h-screen">
-      {/* Skip Links for keyboard navigation */}
-      <SkipLinks />
-      
+    <MarketingPage
+      pageId="offering_page"
+      title="Website Services | Professional Launch in 72 Hours"
+      preloads={preloads}
+    >
       {/* S1: Hero */}
       <MarketingHero
         headline={heroHeadline}
@@ -222,10 +210,7 @@ export function OfferingPage({
         onSecondaryCta={handleBookCall}
         isPrimaryLoading={isGenerating}
       />
-      
-      {/* Debug Panel (visible with ?debug=1) */}
-      <EventDebugPanel />
-    </div>
+    </MarketingPage>
   )
 }
 
