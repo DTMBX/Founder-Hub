@@ -25,6 +25,7 @@ const categoryOptions: { value: OfferingCategory; label: string; icon: any }[] =
   { value: 'service', label: 'Professional Service', icon: FileText },
   { value: 'whitelabel', label: 'White-Label Solution', icon: Globe },
   { value: 'subscription', label: 'Subscription/Retainer', icon: Headset },
+  { value: 'barter', label: 'Barter / Trade', icon: Package },
 ]
 
 const pricingOptions: { value: OfferingPricing; label: string }[] = [
@@ -32,6 +33,7 @@ const pricingOptions: { value: OfferingPricing; label: string }[] = [
   { value: 'paid', label: 'Paid (set price tiers)' },
   { value: 'donation', label: 'Free with Donation Option' },
   { value: 'contact', label: 'Contact for Quote' },
+  { value: 'trade', label: 'Trade / Barter' },
 ]
 
 const visibilityOptions: { value: OfferingVisibility; label: string }[] = [
