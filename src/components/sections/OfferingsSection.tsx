@@ -4,6 +4,8 @@ import { Offering, OfferingCategory, OfferingPriceTier } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
 import { GlassButton } from '@/components/ui/glass-button'
 import { GlassCard } from '@/components/ui/glass-card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { 
   Globe, 
   FileText, 
@@ -21,7 +23,10 @@ import {
   X,
   CircleNotch,
   Handshake,
-  Swap
+  Swap,
+  Check,
+  ListChecks,
+  Briefcase
 } from '@phosphor-icons/react'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { useIntersectionObserver } from '@/hooks/use-intersection-observer'
@@ -99,6 +104,7 @@ export default function OfferingsSection({ investorMode, tradeMode }: OfferingsS
   const prefersReducedMotion = useReducedMotion()
   const [selectedCategory, setSelectedCategory] = useState<OfferingCategory | 'all'>('all')
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null)
 
   // Handle Stripe checkout
   const handleCheckout = async (offering: Offering, tier: OfferingPriceTier) => {
@@ -341,7 +347,7 @@ export default function OfferingsSection({ investorMode, tradeMode }: OfferingsS
                       )}
 
                       {/* CTA */}
-                      <div className="mt-auto pt-4 border-t border-border/30">
+                      <div className="mt-auto pt-4 border-t border-border/30 space-y-2">
                         {(() => {
                           const purchaseTier = getPurchaseTier(offering)
                           const isLoading = purchaseTier && checkoutLoading === `${offering.id}-${purchaseTier.id}`
@@ -417,12 +423,23 @@ export default function OfferingsSection({ investorMode, tradeMode }: OfferingsS
                             <GlassButton 
                               variant="glassAccent" 
                               className="w-full justify-center gap-2"
+                              onClick={() => setSelectedOffering(offering)}
                             >
                               Learn More
                               <ArrowRight className="h-4 w-4" />
                             </GlassButton>
                           )
                         })()}
+                        {/* View Details — always shown */}
+                        {(offering.priceTiers.length > 1 || (offering.deliverables && offering.deliverables.length > 0) || (offering.includes && offering.includes.length > 0)) && (
+                          <button
+                            onClick={() => setSelectedOffering(offering)}
+                            className="w-full text-xs text-muted-foreground hover:text-accent transition-colors py-1.5 flex items-center justify-center gap-1"
+                          >
+                            <ListChecks className="h-3.5 w-3.5" />
+                            View all tiers & details
+                          </button>
+                        )}
                       </div>
                     </div>
                   </GlassCard>
@@ -454,6 +471,217 @@ export default function OfferingsSection({ investorMode, tradeMode }: OfferingsS
           </GlassCard>
         </motion.div>
       </div>
+
+      {/* Offering Detail Dialog */}
+      <Dialog open={!!selectedOffering} onOpenChange={(open) => { if (!open) setSelectedOffering(null) }}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+          {selectedOffering && (() => {
+            const o = selectedOffering
+            const catStyle = categoryLabels[o.category] || categoryLabels.digital
+            const catIcon = categoryIcons[o.category] || <Package className="h-5 w-5" />
+
+            return (
+              <ScrollArea className="max-h-[90vh]">
+                <div className="p-6 sm:p-8">
+                  {/* Header */}
+                  <DialogHeader className="mb-6">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2.5 rounded-lg bg-accent/10 text-accent">
+                        {catIcon}
+                      </div>
+                      <Badge className={`text-xs ${catStyle.color} border`}>
+                        {catStyle.label}
+                      </Badge>
+                      {o.featured && (
+                        <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 border text-xs">
+                          <Star className="h-3 w-3 mr-1" weight="fill" />
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
+                    <DialogTitle className="text-2xl sm:text-3xl font-bold">
+                      {o.title}
+                    </DialogTitle>
+                    <p className="text-muted-foreground leading-relaxed mt-2">
+                      {o.description}
+                    </p>
+                  </DialogHeader>
+
+                  {/* Meta bar */}
+                  <div className="flex flex-wrap gap-4 mb-8 text-sm text-muted-foreground">
+                    {o.turnaround && (
+                      <span className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4 text-accent" />
+                        {o.turnaround}
+                      </span>
+                    )}
+                    {o.priceTiers.length > 1 && (
+                      <span className="flex items-center gap-1.5">
+                        <CurrencyDollar className="h-4 w-4 text-accent" />
+                        {o.priceTiers.length} pricing tiers
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Price Tiers */}
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <CurrencyDollar className="h-5 w-5 text-accent" />
+                      Pricing
+                    </h3>
+                    <div className={cn(
+                      'grid gap-4',
+                      o.priceTiers.length === 1 ? 'grid-cols-1' :
+                      o.priceTiers.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
+                      'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+                    )}>
+                      {o.priceTiers.map((tier) => (
+                        <div
+                          key={tier.id}
+                          className="rounded-xl border border-border/50 bg-card/50 p-5 flex flex-col"
+                        >
+                          <h4 className="font-semibold text-base mb-1">{tier.name}</h4>
+                          {tier.description && (
+                            <p className="text-xs text-muted-foreground mb-3">{tier.description}</p>
+                          )}
+                          <div className="flex items-baseline gap-1.5 mb-4">
+                            <span className="text-2xl font-bold text-accent">
+                              {formatPrice(tier.price, tier.currency)}
+                            </span>
+                            {tier.isRecurring && (
+                              <span className="text-sm text-muted-foreground">/{tier.recurringInterval}</span>
+                            )}
+                          </div>
+                          {(tier.features || []).length > 0 && (
+                            <ul className="space-y-2 flex-grow">
+                              {(tier.features || []).map((feature, fi) => (
+                                <li key={fi} className="flex items-start gap-2 text-sm">
+                                  <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" weight="bold" />
+                                  <span>{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                          {hasPriceTierPayment(tier) && tier.price > 0 && (
+                            <div className="mt-4 pt-3 border-t border-border/30">
+                              <GlassButton
+                                variant="glassAccent"
+                                className="w-full justify-center gap-2"
+                                onClick={() => handleCheckout(o, tier)}
+                                disabled={!!checkoutLoading}
+                              >
+                                {checkoutLoading === `${o.id}-${tier.id}` ? (
+                                  <>
+                                    <CircleNotch className="h-4 w-4 animate-spin" />
+                                    Processing...
+                                  </>
+                                ) : (
+                                  <>
+                                    <ShoppingCart className="h-4 w-4" />
+                                    Select {tier.name}
+                                  </>
+                                )}
+                              </GlassButton>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Deliverables */}
+                  {(o.deliverables || []).length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Package className="h-5 w-5 text-accent" />
+                        Deliverables
+                      </h3>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {(o.deliverables || []).map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <Check className="h-4 w-4 text-accent shrink-0 mt-0.5" weight="bold" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* What's Included */}
+                  {(o.includes || []).length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <ListChecks className="h-5 w-5 text-accent" />
+                        What's Included
+                      </h3>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {(o.includes || []).map((item, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm">
+                            <Check className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" weight="bold" />
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Requirements */}
+                  {o.requirements && (
+                    <div className="mb-8 p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <h3 className="text-sm font-semibold mb-2 text-amber-400 flex items-center gap-2">
+                        <Briefcase className="h-4 w-4" />
+                        Requirements
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{o.requirements}</p>
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  {(o.tags || []).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {(o.tags || []).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Bottom CTA */}
+                  <div className="pt-6 border-t border-border/40 flex flex-col sm:flex-row gap-3">
+                    {o.pricingType === 'contact' ? (
+                      <GlassButton
+                        variant="glassAccent"
+                        className="flex-1 justify-center gap-2"
+                        onClick={() => window.location.href = `mailto:contact@xtx396.com?subject=${encodeURIComponent(o.title)}`}
+                      >
+                        <Envelope className="h-4 w-4" />
+                        {o.contactCTA || 'Get in Touch'}
+                      </GlassButton>
+                    ) : o.externalUrl ? (
+                      <GlassButton
+                        variant="glassAccent"
+                        className="flex-1 justify-center gap-2"
+                        onClick={() => window.open(o.externalUrl, '_blank')}
+                      >
+                        <ArrowRight className="h-4 w-4" />
+                        Get Started
+                      </GlassButton>
+                    ) : null}
+                    <GlassButton
+                      variant="glass"
+                      className="justify-center gap-2"
+                      onClick={() => setSelectedOffering(null)}
+                    >
+                      Close
+                    </GlassButton>
+                  </div>
+                </div>
+              </ScrollArea>
+            )
+          })()}
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }

@@ -1,38 +1,496 @@
 [
   {
-    "id": "web-creator-whitelabel",
-    "title": "White-Label Web Creator",
-    "slug": "web-creator",
-    "summary": "Professional agency-grade websites built for your brand",
-    "description": "Full-service web development with your branding. Modern React/Next.js architecture, mobile-first design, SEO optimized. Perfect for agencies and entrepreneurs who need quality without the overhead.",
+    "id": "law-firm-case-showcase",
+    "title": "Law Firm Case Showcase Site",
+    "slug": "law-firm-case-showcase",
+    "summary": "Premium websites built for law firms to present verdicts, settlements, and case victories with forensic credibility",
+    "description": "A purpose-built web presence for litigators and trial attorneys who need to demonstrate track record. Architected to display case wins, verdict amounts, settlement summaries, practice area breakdowns, and attorney profiles — all presented with the precision and restraint expected by opposing counsel and prospective clients alike. Built on modern React architecture with server-side rendering for SEO. WCAG 2.1 AA compliant. Mobile-first. No templates — every site is built from specification.",
+    "category": "service",
+    "pricingType": "contact",
+    "priceTiers": [
+      {
+        "id": "solo-practitioner",
+        "name": "Solo Practitioner",
+        "price": 500000,
+        "currency": "USD",
+        "description": "Professional single-attorney web presence",
+        "features": [
+          "Up to 8 pages",
+          "Case verdict/settlement gallery with filtering",
+          "Attorney bio & credentials page",
+          "Practice area breakdowns",
+          "Contact intake form with case-type routing",
+          "Mobile-first responsive design",
+          "SEO audit & schema markup",
+          "Google Business Profile integration",
+          "90-day post-launch support",
+          "Performance monitoring dashboard"
+        ]
+      },
+      {
+        "id": "mid-firm",
+        "name": "Mid-Size Firm",
+        "price": 1500000,
+        "currency": "USD",
+        "description": "Multi-attorney firm with full case portfolio",
+        "features": [
+          "Up to 25 pages",
+          "Full case results database with search & filter",
+          "Individual attorney profile pages",
+          "Practice area landing pages with case linkage",
+          "Blog/insights CMS integration",
+          "Client testimonial system",
+          "Multi-location office pages with maps",
+          "Analytics & conversion tracking",
+          "ADA compliance audit",
+          "6-month post-launch support",
+          "Quarterly performance reviews"
+        ]
+      },
+      {
+        "id": "enterprise-firm",
+        "name": "Enterprise / Trial Firm",
+        "price": 3500000,
+        "currency": "USD",
+        "description": "Full-scale digital presence for high-volume litigation firms",
+        "features": [
+          "Unlimited pages",
+          "Case results database with advanced filtering",
+          "Custom case study pages with timeline views",
+          "Attorney directory with filtering by practice area",
+          "Multi-language support",
+          "Video integration for case overviews",
+          "Client portal with secure document exchange",
+          "CRM integration (Clio, Salesforce, etc.)",
+          "Custom API integrations",
+          "12-month retainer support",
+          "Monthly analytics reporting",
+          "Priority feature requests"
+        ]
+      }
+    ],
+    "tags": ["law firm", "case wins", "verdicts", "legal web design", "attorney website"],
+    "icon": "Scales",
+    "deliverables": [
+      "Production-ready source code",
+      "Deployment to your hosting or managed hosting",
+      "Content management training (recorded)",
+      "SEO configuration & schema markup",
+      "Performance baseline report",
+      "Accessibility audit certificate"
+    ],
+    "includes": [
+      "Discovery & strategy session",
+      "Content architecture plan",
+      "Design mockups with 2 revision rounds",
+      "Development, QA, and deployment",
+      "Post-launch support window"
+    ],
+    "requirements": "Firm must provide case data (verdicts, settlements, descriptions), attorney headshots, and brand assets (logo, color palette). We handle the rest.",
+    "turnaround": "4-8 weeks",
+    "featured": true,
+    "order": 1,
+    "visibility": "public",
+    "contactCTA": "Schedule Consultation",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "white-label-agency",
+    "title": "White-Label Agency Partnership",
+    "slug": "white-label-agency",
+    "summary": "Full-service web development under your brand. You sell it. We build it. Your clients never know.",
+    "description": "For marketing agencies, consultancies, and entrepreneurs who want to offer premium web development without hiring a dev team. You maintain the client relationship and set your own margins. We handle architecture, design implementation, development, QA, and deployment — all under your brand, your domain, your invoice. Every deliverable ships with your company name. NDAs standard. White-glove onboarding for your first 3 client projects.",
     "category": "whitelabel",
     "pricingType": "contact",
     "priceTiers": [
       {
-        "id": "starter",
-        "name": "Starter Site",
-        "price": 150000,
+        "id": "project-based",
+        "name": "Per-Project",
+        "price": 250000,
         "currency": "USD",
-        "description": "5-page responsive website",
-        "features": ["Mobile responsive", "SEO basics", "Contact form", "30-day support"]
+        "description": "Individual project fulfillment",
+        "features": [
+          "Single website build under your brand",
+          "Branded deliverables & documentation",
+          "Direct Slack/Teams channel for project coordination",
+          "2 revision rounds included",
+          "Source code transfer on completion",
+          "Your branding on all client-facing materials",
+          "NDA included"
+        ]
       },
       {
-        "id": "business",
-        "name": "Business Package",
-        "price": 350000,
+        "id": "retainer-5",
+        "name": "5-Project Retainer",
+        "price": 1000000,
         "currency": "USD",
-        "description": "Full business presence",
-        "features": ["Up to 15 pages", "Blog integration", "Analytics", "CMS admin", "90-day support"]
+        "description": "Committed volume — 5 project credits",
+        "features": [
+          "5 website builds at reduced per-unit cost",
+          "Priority scheduling queue",
+          "Dedicated project manager",
+          "White-label project intake form for your clients",
+          "Branded SOW & proposal templates",
+          "Quarterly strategy call",
+          "Volume discount on additional projects",
+          "12-month validity"
+        ]
+      },
+      {
+        "id": "unlimited-retainer",
+        "name": "Unlimited Retainer",
+        "price": 500000,
+        "currency": "USD",
+        "description": "Ongoing monthly capacity",
+        "features": [
+          "Up to 3 concurrent active projects",
+          "Unlimited revision rounds",
+          "Same-day response SLA",
+          "Dedicated senior developer assigned",
+          "Weekly standup calls",
+          "Custom process documentation for your agency",
+          "Priority bug fixes & maintenance",
+          "Co-branded case studies (optional)",
+          "Agency partner badge for your website"
+        ],
+        "isRecurring": true,
+        "recurringInterval": "month"
       }
     ],
-    "tags": ["web development", "white-label", "agency"],
+    "tags": ["white-label", "agency", "reseller", "partnership", "web development"],
     "icon": "Globe",
-    "deliverables": ["Source code", "Deployment", "Documentation", "Training session"],
-    "turnaround": "2-4 weeks",
+    "deliverables": [
+      "Production source code (your repo or ours)",
+      "Branded documentation & user guides",
+      "Deployment & DNS configuration",
+      "Handoff call with your client (if requested)",
+      "Post-launch support transferred to you"
+    ],
+    "includes": [
+      "NDA & white-label agreement",
+      "Onboarding & process alignment",
+      "Branded templates (SOW, proposal, invoice)",
+      "Slack/Teams integration for real-time coordination"
+    ],
+    "requirements": "You handle the client relationship, sales, and billing. We handle the build. Minimum project scope: 5-page responsive website.",
+    "turnaround": "2-6 weeks per project",
     "featured": true,
-    "order": 1,
+    "order": 2,
     "visibility": "public",
-    "contactCTA": "Request Quote",
+    "contactCTA": "Apply for Partnership",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "small-business-web-presence",
+    "title": "Small Business Web Presence",
+    "slug": "small-business-web",
+    "summary": "Agency-grade websites at small business pricing. No templates. No page builders. Real development.",
+    "description": "Most small businesses get sold overpriced WordPress templates or underpowered drag-and-drop sites. This is neither. You get the same technology stack used by funded startups and enterprise clients — React, modern CSS, proper SEO, real performance optimization — but scoped and priced for a local business. Your site loads fast, ranks well, looks sharp on every device, and actually converts visitors into customers.",
+    "category": "service",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "essential",
+        "name": "Essential",
+        "price": 150000,
+        "currency": "USD",
+        "description": "Professional single-page or 3-page site",
+        "features": [
+          "Up to 3 pages",
+          "Mobile-first responsive design",
+          "Contact form with email routing",
+          "Google Maps integration",
+          "Basic SEO setup",
+          "SSL & hosting guidance",
+          "30-day post-launch support"
+        ]
+      },
+      {
+        "id": "growth",
+        "name": "Growth",
+        "price": 350000,
+        "currency": "USD",
+        "description": "Full business website with lead generation",
+        "features": [
+          "Up to 10 pages",
+          "Service/product showcase pages",
+          "Blog or news section",
+          "Google Analytics & Search Console setup",
+          "Schema markup for local SEO",
+          "Social media integration",
+          "Google Business Profile optimization",
+          "60-day post-launch support",
+          "1 content update per month (3 months)"
+        ]
+      },
+      {
+        "id": "authority",
+        "name": "Authority",
+        "price": 750000,
+        "currency": "USD",
+        "description": "Premium presence with ongoing optimization",
+        "features": [
+          "Up to 20 pages",
+          "Custom design — no templates",
+          "E-commerce or booking integration",
+          "Advanced SEO with keyword strategy",
+          "Conversion tracking & A/B testing setup",
+          "Email marketing integration",
+          "Customer review/testimonial system",
+          "90-day post-launch support",
+          "Monthly performance reports (6 months)",
+          "Priority access to new features"
+        ]
+      }
+    ],
+    "tags": ["small business", "local business", "web design", "affordable", "professional"],
+    "icon": "Storefront",
+    "deliverables": [
+      "Production website deployed to your domain",
+      "Source code ownership",
+      "Content management documentation",
+      "SEO configuration report",
+      "Performance benchmark"
+    ],
+    "includes": [
+      "30-minute discovery call",
+      "Design concept with 1 revision round",
+      "Development, testing, and deployment",
+      "DNS & hosting setup assistance"
+    ],
+    "requirements": "Business must provide logo, brand colors, copy/content (or purchase content writing add-on), and domain name.",
+    "turnaround": "1-3 weeks",
+    "featured": true,
+    "order": 3,
+    "visibility": "public",
+    "contactCTA": "Get Started",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "legal-landing-page",
+    "title": "Legal Landing Page",
+    "slug": "legal-landing-page",
+    "summary": "High-conversion single-page sites for practice areas, case intake, or campaign-specific attorney marketing",
+    "description": "A single, focused page designed to convert visitors into consultations. Built for attorneys running Google Ads, social media campaigns, or practice-area marketing who need a dedicated landing destination. Fast load times, clear calls to action, intake form integration, and conversion tracking built in. Not a template — each page is built to specification for your practice area and market.",
+    "category": "service",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "standard",
+        "name": "Standard Landing Page",
+        "price": 125000,
+        "currency": "USD",
+        "description": "Single practice-area conversion page",
+        "features": [
+          "Single responsive page",
+          "Practice area focused design",
+          "Case intake form with email routing",
+          "Click-to-call integration",
+          "Google Ads conversion tracking pixel",
+          "Schema markup for attorneys",
+          "Fast load optimization (< 2s)",
+          "30-day support"
+        ]
+      },
+      {
+        "id": "campaign-bundle",
+        "name": "Campaign Bundle (3 pages)",
+        "price": 300000,
+        "currency": "USD",
+        "description": "Three landing pages for multi-practice campaigns",
+        "features": [
+          "3 practice-area landing pages",
+          "Shared design system for brand consistency",
+          "A/B variant support",
+          "Unified analytics dashboard",
+          "CRM webhook integration",
+          "60-day support",
+          "1 revision round per page"
+        ]
+      }
+    ],
+    "tags": ["landing page", "legal marketing", "lead generation", "Google Ads", "attorney"],
+    "icon": "FileText",
+    "turnaround": "5-10 business days",
+    "featured": false,
+    "order": 4,
+    "visibility": "public",
+    "contactCTA": "Order Landing Page",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "case-results-widget",
+    "title": "Case Results Display Widget",
+    "slug": "case-results-widget",
+    "summary": "Embeddable verdict and settlement display component for any existing website",
+    "description": "A standalone, embeddable component that displays your firm's case results (verdicts, settlements, awards) on your existing website — regardless of platform. Works with WordPress, Squarespace, Wix, custom sites, and any HTML page. Filter by practice area, sort by amount, and auto-format currency. No server required. Loads via a single script tag. Styled to match your existing site. Data managed through a simple JSON file or admin interface.",
+    "category": "digital",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "widget-license",
+        "name": "Widget License",
+        "price": 49900,
+        "currency": "USD",
+        "description": "One-time license for a single domain",
+        "features": [
+          "Embeddable script tag — works on any site",
+          "Filterable by practice area",
+          "Sortable by verdict amount or date",
+          "Responsive design",
+          "JSON-based data management",
+          "Custom color theming",
+          "Setup documentation",
+          "30-day email support"
+        ]
+      },
+      {
+        "id": "widget-managed",
+        "name": "Managed Widget",
+        "price": 7500,
+        "currency": "USD",
+        "description": "Hosted widget with admin panel",
+        "features": [
+          "Everything in Widget License",
+          "Hosted admin panel for case entry",
+          "No JSON editing required",
+          "Automatic updates",
+          "Multi-domain support",
+          "Priority support",
+          "Monthly backup"
+        ],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      }
+    ],
+    "tags": ["widget", "embeddable", "case results", "verdicts", "settlements", "law firm"],
+    "icon": "Code",
+    "turnaround": "Instant download / 2-day setup for managed",
+    "featured": false,
+    "order": 5,
+    "visibility": "public",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "agency-starter-kit",
+    "title": "Agency Starter Kit",
+    "slug": "agency-starter-kit",
+    "summary": "Everything you need to launch a web development agency — processes, templates, and your first client site build",
+    "description": "For entrepreneurs ready to start selling web development services but lacking the technical infrastructure. Includes branded proposal templates, SOW templates, client intake workflows, project management setup, and one complete client website build to use as your portfolio piece. You learn the process by doing — we build alongside you for your first project, then you run independently.",
+    "category": "whitelabel",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "kit-standard",
+        "name": "Starter Kit",
+        "price": 250000,
+        "currency": "USD",
+        "description": "Full agency launch package",
+        "features": [
+          "Branded proposal & SOW templates (editable)",
+          "Client intake questionnaire templates",
+          "Project management workflow (Notion/Trello)",
+          "Pricing guide with margin calculator",
+          "Client communication email templates",
+          "1 complete client website build (up to 5 pages)",
+          "Portfolio-ready case study writeup",
+          "2-hour strategy & onboarding call",
+          "30-day Slack access for questions"
+        ]
+      }
+    ],
+    "tags": ["agency launch", "starter kit", "entrepreneurship", "web agency", "business in a box"],
+    "icon": "Briefcase",
+    "deliverables": [
+      "Template library (Google Docs/Notion)",
+      "Process documentation",
+      "First client website (source code)",
+      "Recorded onboarding session"
+    ],
+    "turnaround": "2-3 weeks (includes first client build)",
+    "featured": false,
+    "order": 6,
+    "visibility": "public",
+    "contactCTA": "Launch Your Agency",
+    "createdAt": 1739664000000,
+    "updatedAt": 1739664000000
+  },
+  {
+    "id": "monthly-web-retainer",
+    "title": "Website Maintenance & Growth Retainer",
+    "slug": "web-retainer",
+    "summary": "Ongoing development hours for updates, new features, performance optimization, and content changes",
+    "description": "For businesses and firms that need continuous web development support without hiring in-house. Covers content updates, design tweaks, new page builds, performance tuning, security patches, and feature additions. Dedicated developer assigned. Hours tracked transparently. Unused hours roll over for 1 month.",
+    "category": "subscription",
+    "pricingType": "paid",
+    "priceTiers": [
+      {
+        "id": "retainer-5hr",
+        "name": "5 Hours / Month",
+        "price": 50000,
+        "currency": "USD",
+        "description": "Light maintenance & updates",
+        "features": [
+          "5 development hours per month",
+          "Content & copy updates",
+          "Bug fixes & security patches",
+          "Monthly uptime report",
+          "Email support (48hr response)",
+          "1-month hour rollover"
+        ],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      },
+      {
+        "id": "retainer-15hr",
+        "name": "15 Hours / Month",
+        "price": 125000,
+        "currency": "USD",
+        "description": "Active development & growth",
+        "features": [
+          "15 development hours per month",
+          "New feature development",
+          "SEO monitoring & optimization",
+          "Performance audits",
+          "Priority support (24hr response)",
+          "Weekly status updates",
+          "1-month hour rollover"
+        ],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      },
+      {
+        "id": "retainer-30hr",
+        "name": "30 Hours / Month",
+        "price": 225000,
+        "currency": "USD",
+        "description": "Dedicated development resource",
+        "features": [
+          "30 development hours per month",
+          "Dedicated senior developer",
+          "Same-day response SLA",
+          "Custom feature sprints",
+          "Analytics & conversion reporting",
+          "A/B testing implementation",
+          "Weekly standup calls",
+          "2-month hour rollover",
+          "Priority scheduling"
+        ],
+        "isRecurring": true,
+        "recurringInterval": "month"
+      }
+    ],
+    "tags": ["retainer", "maintenance", "support", "ongoing", "web development"],
+    "icon": "Headset",
+    "featured": false,
+    "order": 7,
+    "visibility": "public",
+    "contactCTA": "Start Retainer",
     "createdAt": 1739664000000,
     "updatedAt": 1739664000000
   },
@@ -40,8 +498,8 @@
     "id": "document-drafting",
     "title": "Document Drafting Services",
     "slug": "document-drafting",
-    "summary": "Professional legal document preparation and drafting",
-    "description": "Expert document preparation for motions, responses, briefs, contracts, and correspondence. Formatted to court specifications with proper citations and exhibits. Not legal advice - document preparation only.",
+    "summary": "Professional legal document preparation and drafting — formatted to court specifications",
+    "description": "Expert document preparation for motions, responses, briefs, contracts, and correspondence. Formatted to court specifications with proper citations and exhibits. Not legal advice — document preparation and formatting only.",
     "category": "service",
     "pricingType": "paid",
     "priceTiers": [
@@ -51,7 +509,11 @@
         "price": 7500,
         "currency": "USD",
         "description": "Single document, 1-5 pages",
-        "features": ["Professional formatting", "1 revision round"]
+        "features": [
+          "Professional formatting",
+          "Court-compliant layout",
+          "1 revision round"
+        ]
       },
       {
         "id": "complex",
@@ -59,85 +521,23 @@
         "price": 25000,
         "currency": "USD",
         "description": "Multi-document filing package",
-        "features": ["Multiple documents", "Exhibit preparation", "2 revision rounds", "Rush available"]
+        "features": [
+          "Multiple documents",
+          "Exhibit preparation & indexing",
+          "Table of contents & authorities",
+          "2 revision rounds",
+          "Rush delivery available"
+        ]
       }
     ],
     "gratuityEnabled": true,
     "donationSuggestions": [500, 1000, 2500],
-    "tags": ["documents", "legal", "drafting"],
+    "tags": ["documents", "legal", "drafting", "court filings"],
     "icon": "FileText",
     "turnaround": "3-7 business days",
-    "featured": true,
-    "order": 2,
-    "visibility": "public",
-    "createdAt": 1739664000000,
-    "updatedAt": 1739664000000
-  },
-  {
-    "id": "automation-scripts",
-    "title": "Automation Script Library",
-    "slug": "automation-scripts",
-    "summary": "PowerShell and Python scripts for productivity",
-    "description": "Battle-tested automation scripts for file management, data processing, API integrations, and workflow automation. Includes documentation and usage examples.",
-    "category": "digital",
-    "pricingType": "donation",
-    "priceTiers": [
-      {
-        "id": "free",
-        "name": "Free Download",
-        "price": 0,
-        "currency": "USD",
-        "description": "Download with optional contribution"
-      }
-    ],
-    "donationSuggestions": [500, 1000, 2500, 5000],
-    "gratuityEnabled": true,
-    "tags": ["scripts", "automation", "PowerShell", "Python"],
-    "icon": "Code",
-    "includes": ["Source code", "Documentation", "Example configs"],
     "featured": false,
-    "order": 3,
+    "order": 8,
     "visibility": "public",
-    "downloadUrl": "#",
-    "createdAt": 1739664000000,
-    "updatedAt": 1739664000000
-  },
-  {
-    "id": "retainer-assistant",
-    "title": "Virtual Assistant Retainer",
-    "slug": "assistant-retainer",
-    "summary": "Ongoing support for your business operations",
-    "description": "Dedicated assistant hours for administrative tasks, research, document management, scheduling, and project coordination. Flexible monthly hours with rollover.",
-    "category": "subscription",
-    "pricingType": "paid",
-    "priceTiers": [
-      {
-        "id": "starter",
-        "name": "10 Hours/Month",
-        "price": 35000,
-        "currency": "USD",
-        "description": "Entry-level support",
-        "features": ["10 hours monthly", "Email support", "Task tracking"],
-        "isRecurring": true,
-        "recurringInterval": "month"
-      },
-      {
-        "id": "professional",
-        "name": "25 Hours/Month",
-        "price": 75000,
-        "currency": "USD",
-        "description": "Professional support",
-        "features": ["25 hours monthly", "Priority response", "Rollover hours", "Weekly check-in"],
-        "isRecurring": true,
-        "recurringInterval": "month"
-      }
-    ],
-    "tags": ["assistant", "retainer", "support"],
-    "icon": "Headset",
-    "featured": true,
-    "order": 4,
-    "visibility": "public",
-    "contactCTA": "Start Retainer",
     "createdAt": 1739664000000,
     "updatedAt": 1739664000000
   }
