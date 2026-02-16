@@ -35,11 +35,20 @@ export default function Navigation({
 }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   
   const sectionIds = (sections || []).map(s => s.type)
   const activeSection = useActiveSection(sectionIds)
 
   const pathwayAccent = activePathway === 'investors' ? 'emerald' : activePathway === 'legal' ? 'amber' : activePathway === 'about' ? 'purple' : activePathway === 'marketplace' ? 'rose' : null
+
+  // Track mobile state for responsive positioning
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,11 +58,14 @@ export default function Navigation({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Use responsive honor bar height
+  const honorBarHeight = isMobile ? HONOR_BAR_HEIGHT_MOBILE : HONOR_BAR_HEIGHT_DESKTOP
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
       // Account for sticky header + honor bar when scrolling to sections
-      const headerOffset = 64 + HONOR_BAR_HEIGHT_DESKTOP
+      const headerOffset = 64 + honorBarHeight
       const elementPosition = element.getBoundingClientRect().top + window.scrollY
       const offsetPosition = elementPosition - headerOffset
       window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
@@ -72,14 +84,14 @@ export default function Navigation({
   return (
     <nav 
       className={cn(
-        'fixed left-0 right-0 z-50 transition-all duration-500',
+        'fixed left-0 right-0 z-50 transition-all duration-300',
         isScrolled 
-          ? 'bg-background/90 backdrop-blur-2xl border-b border-border/40 shadow-sm' 
-          : 'bg-transparent'
+          ? 'bg-black/95 backdrop-blur-xl border-b border-white/10 shadow-lg translate-y-0 opacity-100' 
+          : '-translate-y-full opacity-0 pointer-events-none'
       )}
       style={{
-        // Nav sits below the honor bar
-        top: `${HONOR_BAR_HEIGHT_DESKTOP}px`
+        // Nav sits directly below the honor bar with no gap
+        top: `${honorBarHeight}px`
       }}
     >
       {/* Pathway accent line */}
@@ -97,7 +109,7 @@ export default function Navigation({
             onClick={() => scrollToSection('hero')}
             className={cn(
               'text-base font-bold tracking-tight transition-colors font-mono',
-              isScrolled ? 'text-foreground hover:text-accent' : 'text-white/90 hover:text-white'
+              isScrolled ? 'text-white hover:text-white/80' : 'text-white/90 hover:text-white'
             )}
           >
             xTx396
@@ -111,34 +123,24 @@ export default function Navigation({
                 className={cn(
                   'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
                   activeSection === link.id
-                    ? isScrolled 
-                      ? 'text-foreground bg-accent/10' 
-                      : 'text-white bg-white/10'
-                    : isScrolled
-                      ? 'text-muted-foreground hover:text-foreground hover:bg-accent/5'
-                      : 'text-white/70 hover:text-white hover:bg-white/5'
+                    ? 'text-white bg-white/15' 
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
                 )}
               >
                 {link.label}
                 {activeSection === link.id && (
-                  <span className={cn(
-                    'absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full',
-                    isScrolled ? 'bg-accent' : 'bg-white/80'
-                  )} />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-white/80" />
                 )}
               </button>
             ))}
 
             {onAdminClick && (
-              <div className="ml-3 pl-3 border-l border-border/30">
+              <div className="ml-3 pl-3 border-l border-white/20">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onAdminClick}
-                  className={cn(
-                    'text-xs font-medium',
-                    isScrolled ? '' : 'text-white/60 hover:text-white hover:bg-white/10'
-                  )}
+                  className="text-xs font-medium text-white/60 hover:text-white hover:bg-white/10"
                 >
                   Admin
                 </Button>
@@ -148,9 +150,7 @@ export default function Navigation({
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className={cn(
-                isScrolled ? '' : 'text-white/90 hover:bg-white/10'
-              )}>
+              <Button variant="ghost" size="icon" className="text-white/90 hover:bg-white/10">
                 <List className="h-5 w-5" />
               </Button>
             </SheetTrigger>

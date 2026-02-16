@@ -10,8 +10,8 @@ import gonzalesPng from '@/assets/images/gonzales-come-and-take-it.png'
 import powMiaPng from '@/assets/images/pow-mia.png'
 
 // CSS custom property height for layout coordination
-export const HONOR_BAR_HEIGHT_DESKTOP = 56
-export const HONOR_BAR_HEIGHT_MOBILE = 48
+export const HONOR_BAR_HEIGHT_DESKTOP = 64
+export const HONOR_BAR_HEIGHT_MOBILE = 56
 
 interface FlagAsset {
   src: string
@@ -151,13 +151,14 @@ export default function HonorFlagBar({
   const baseGap = isMobile ? 12 : 20
   const gapSize = currentFlags.length <= 1 ? 0 : baseGap
 
-  const flagHeight = isMobile ? 36 : 44
+  const flagHeight = isMobile ? 40 : 48
   
-  const parallaxOffset = shouldParallax ? Math.min(scrollY * 0.1, 15) : 0
+  // Opacity-only fade on scroll (no translateY to avoid clipping)
+  const scrollOpacity = shouldParallax ? Math.max(1 - (scrollY / 400), 0.85) : 1
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 z-40 bg-black border-b border-white/10"
+      className="fixed top-0 left-0 right-0 z-40 bg-black border-b border-white/10 overflow-visible"
       style={{
         height: barHeight,
         minHeight: barHeight,
@@ -167,16 +168,15 @@ export default function HonorFlagBar({
       role="presentation"
       aria-hidden="true"
     >
-      <div className="w-full h-full px-3 sm:px-4">
+      <div className="w-full h-full px-3 sm:px-4 overflow-visible">
         <div 
           className={cn(
-            "flex items-center h-full mx-auto max-w-7xl transition-all duration-300",
+            "flex items-center h-full mx-auto max-w-7xl transition-opacity duration-300",
             justifyClass
           )}
           style={{
             gap: `${gapSize}px`,
-            transform: shouldParallax ? `translateY(${parallaxOffset}px)` : 'none',
-            opacity: shouldParallax ? Math.max(1 - (scrollY / 300), 0.8) : 1
+            opacity: scrollOpacity
           }}
         >
           {currentFlags.map((flag, index) => (
