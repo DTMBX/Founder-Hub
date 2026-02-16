@@ -3,11 +3,11 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { useKV } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import usFlagPng from '@/assets/images/us-flag-50.png'
-import betsyRossPng from '@/assets/images/betsy-ross-13-star.png'
 import gadsdenPng from '@/assets/images/gadsden.png'
 import appealToHeavenPng from '@/assets/images/appeal-to-heaven.png'
 import gonzalesPng from '@/assets/images/gonzales-come-and-take-it.png'
 import powMiaPng from '@/assets/images/pow-mia.png'
+import betsyRossPng from '@/assets/images/betsy-ross-13-star.png'
 
 // CSS custom property height for layout coordination
 export const HONOR_BAR_HEIGHT_DESKTOP = 64
