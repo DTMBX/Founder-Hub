@@ -119,8 +119,13 @@ function statusBadge(statuses: { value: string; label: string; color: string }[]
 
 /* ── component ─────────────────────────────────────────── */
 
-export default function AgencyFrameworkManager() {
-  const [data, setData] = useKV<AgencyFrameworkData>('agency-framework', DEFAULT_DATA)
+interface AgencyFrameworkManagerProps {
+  siteId?: string
+}
+
+export default function AgencyFrameworkManager({ siteId }: AgencyFrameworkManagerProps) {
+  const kvKey = siteId ? `sites:${siteId}:data` : 'agency-framework'
+  const [data, setData] = useKV<AgencyFrameworkData>(kvKey, DEFAULT_DATA)
   const d = data ?? DEFAULT_DATA
 
   const [tab, setTab] = useState('projects')

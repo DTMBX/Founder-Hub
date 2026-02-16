@@ -46,6 +46,8 @@ import SitesManager from './SitesManager'
 import LawFirmShowcaseManager from './LawFirmShowcaseManager'
 import SMBTemplateManager from './SMBTemplateManager'
 import AgencyFrameworkManager from './AgencyFrameworkManager'
+import ClientSiteManager from './ClientSiteManager'
+import { useClientSites } from '@/hooks/use-client-sites'
 import { cn } from '@/lib/utils'
 
 interface AdminDashboardProps {
@@ -75,6 +77,7 @@ const navItems: NavItem[] = [
   { id: 'evident', label: 'Evident Dashboard', icon: Globe, category: 'Evident Platform' },
   { id: 'sites', label: 'Sites & Repos', icon: TreeStructure, category: 'Evident Platform' },
   // Frameworks (Private)
+  { id: 'client-sites', label: 'Client Sites', icon: Globe, category: 'Frameworks' },
   { id: 'law-firm', label: 'Law Firm Showcase', icon: Buildings, category: 'Frameworks' },
   { id: 'smb-template', label: 'SMB Template', icon: Storefront, category: 'Frameworks' },
   { id: 'agency', label: 'Agency Framework', icon: Kanban, category: 'Frameworks' },
@@ -106,6 +109,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('content')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
   
   useInitializeDocumentTypes()
 
@@ -176,9 +180,14 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'visual-modules': return <VisualModulesManager />
       case 'evident': return <EvidentManager />
       case 'sites': return <SitesManager />
-      case 'law-firm': return <LawFirmShowcaseManager />
-      case 'smb-template': return <SMBTemplateManager />
-      case 'agency': return <AgencyFrameworkManager />
+      case 'law-firm': return <LawFirmShowcaseManager siteId={activeClientSite?.type === 'law-firm' ? activeClientSiteId ?? undefined : undefined} />
+      case 'smb-template': return <SMBTemplateManager siteId={activeClientSite?.type === 'small-business' ? activeClientSiteId ?? undefined : undefined} />
+      case 'agency': return <AgencyFrameworkManager siteId={activeClientSite?.type === 'agency' ? activeClientSiteId ?? undefined : undefined} />
+      case 'client-sites': return <ClientSiteManager onNavigateToSite={(siteId, siteType) => {
+        setActiveClientSiteId(siteId)
+        const tabMap: Record<string, string> = { 'law-firm': 'law-firm', 'small-business': 'smb-template', agency: 'agency' }
+        setActiveTab(tabMap[siteType] ?? 'client-sites')
+      }} />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />
