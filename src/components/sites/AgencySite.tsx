@@ -1,24 +1,13 @@
 /**
  * AgencySite — Public-facing agency portfolio / landing page renderer.
  *
- * Renders a professional agency website from AgencyFrameworkData.
- * Showcases launched projects, services, and contact information.
- * Intentionally clean and minimal — the agency's work speaks for itself.
+ * Pure component: receives fully resolved data as props.
+ * No runtime storage calls. Deterministic output.
  */
 
-import { useKV } from '@/lib/local-storage-kv'
-import type { AgencyFrameworkData, AgencyConfig, SiteSummary } from '@/lib/types'
+import type { AgencySiteData, AgencyConfig } from '@/lib/types'
 import { useState } from 'react'
 import { ArrowRight, Briefcase, Code, PencilLine, MagnifyingGlass, ChatDots, Envelope } from '@phosphor-icons/react'
-
-const DEFAULT_DATA: AgencyFrameworkData = {
-  config: {
-    defaultHourlyRate: 15000, currency: 'USD', invoicePrefix: 'INV-',
-    proposalPrefix: 'PROP-', paymentTerms: 'Net 30',
-  },
-  projects: [], pipeline: [], invoices: [], proposals: [], timeEntries: [],
-  brandingRemoved: true,
-}
 
 const STATUS_LABELS: Record<string, string> = {
   discovery: 'Discovery', design: 'Design', development: 'Development',
@@ -35,16 +24,14 @@ const SERVICE_ICONS: Record<string, typeof Code> = {
   review: ChatDots, meeting: ChatDots, admin: Briefcase,
 }
 
-interface AgencySiteProps {
-  siteId: string
-  site: SiteSummary
+export interface AgencySiteProps {
+  data: AgencySiteData
   onBack?: () => void
 }
 
-export default function AgencySite({ siteId, site, onBack }: AgencySiteProps) {
-  const [data] = useKV<AgencyFrameworkData>(`sites:${siteId}:data`, DEFAULT_DATA)
+export default function AgencySite({ data, onBack }: AgencySiteProps) {
   const c: AgencyConfig = data.config
-  const agencyName = c.agencyName || site.name
+  const agencyName = c.agencyName || data.name
   const launchedProjects = data.projects.filter((p) => p.status === 'launched' || p.status === 'maintenance')
   const activeProjects = data.projects.filter((p) => p.status !== 'launched' && p.status !== 'maintenance')
 

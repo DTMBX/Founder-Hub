@@ -22,9 +22,11 @@ import type {
   SMBSEOConfig,
   AgencyFrameworkData,
   AgencyConfig,
+  NormalizedSiteData,
 } from '@/lib/types'
 import type { StorageAdapter } from '@/lib/storage-adapter'
 import { createStorageAdapter } from '@/lib/storage-adapter'
+import { normalizeSiteData } from '@/lib/site-normalize'
 
 // ─── Key Helpers ─────────────────────────────────────────────
 
@@ -182,6 +184,19 @@ export class SiteRegistry {
   /** Get the full data payload for a site. */
   async getSiteData<T extends SiteType>(siteId: string): Promise<SiteDataMap[T] | null> {
     return this.adapter.get<SiteDataMap[T]>(KEYS.siteData(siteId))
+  }
+
+  /**
+   * Get fully normalized site data with SiteCore fields.
+   * Reads raw data, applies normalization, returns NormalizedSiteData.
+   * Returns null if site or data not found.
+   */
+  async getNormalizedSiteData(siteId: string): Promise<NormalizedSiteData | null> {
+    const summary = await this.get(siteId)
+    if (!summary) return null
+    const raw = await this.adapter.get<SiteData>(KEYS.siteData(siteId))
+    if (!raw) return null
+    return normalizeSiteData(raw, summary)
   }
 
   // ── Write Operations ─────────────────────────────────────
