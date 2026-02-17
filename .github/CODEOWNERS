@@ -56,6 +56,20 @@
 /src/billing/                   @DTMBX
 
 # ─────────────────────────────────────────────────────────────────────────────
+# OPS AUTOMATION LAYER (B11)
+# ─────────────────────────────────────────────────────────────────────────────
+/ops/                           @DTMBX
+/ops/automation/audit/          @DTMBX
+/ops/automation/leads/          @DTMBX
+/ops/automation/crm/            @DTMBX
+/ops/automation/engine/         @DTMBX
+/ops/automation/messaging/      @DTMBX
+/ops/automation/content/        @DTMBX
+/ops/automation/health/         @DTMBX
+/ops/automation/ui-policy/      @DTMBX
+/ops/console/                   @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
 # CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 package.json                    @DTMBX
