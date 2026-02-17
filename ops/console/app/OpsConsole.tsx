@@ -10,6 +10,7 @@ import { AutomationsPage } from '../pages/automations/AutomationsPage';
 import { ContentPage } from '../pages/content/ContentPage';
 import { SettingsPage } from '../pages/settings/SettingsPage';
 import { AuditLogPage } from '../pages/audit/AuditLogPage';
+import { CopilotPage } from '../pages/copilot/CopilotPage';
 import { OpsLoginGate } from './OpsLoginGate';
 
 type OpsRoute =
@@ -19,7 +20,8 @@ type OpsRoute =
   | 'automations'
   | 'content'
   | 'settings'
-  | 'audit';
+  | 'audit'
+  | 'copilot';
 
 const NAV_ITEMS: { route: OpsRoute; label: string; icon: string }[] = [
   { route: 'dashboard', label: 'Home', icon: '📊' },
@@ -42,6 +44,7 @@ function OpsShell() {
       case 'content': return <ContentPage />;
       case 'settings': return <SettingsPage />;
       case 'audit': return <AuditLogPage />;
+      case 'copilot': return <CopilotPage />;
       default: return <DashboardPage />;
     }
   };
@@ -77,6 +80,12 @@ function OpsShell() {
             style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '18px' }}
             title="Settings"
           >⚙</button>
+          <button
+            onClick={() => setRoute('copilot')}
+            style={{ background: 'none', border: 'none', color: route === 'copilot' ? '#60a5fa' : '#9ca3af', cursor: 'pointer', fontSize: '18px' }}
+            title="Co-Pilot"
+            aria-label="Open Co-Pilot"
+          >🤖</button>
           <button
             onClick={() => setRoute('audit')}
             style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '18px' }}

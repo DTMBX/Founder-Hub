@@ -1,0 +1,275 @@
+{
+  "version": "1.0.0",
+  "commands": [
+    {
+      "id": "repo.status",
+      "description": "Show current repository working tree status (porcelain format).",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only git query, no side effects."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "git",
+        "args": ["status", "--porcelain"]
+      },
+      "expected_outputs": ["text"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only",
+      "output_limits": { "max_chars": 8192, "max_lines": 200 }
+    },
+    {
+      "id": "repo.branch",
+      "description": "Show the current branch name.",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only git query, no side effects."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "git",
+        "args": ["rev-parse", "--abbrev-ref", "HEAD"]
+      },
+      "expected_outputs": ["text"],
+      "timeout_seconds": 10,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "repo.last_commit",
+      "description": "Show the most recent commit with full author and date details.",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only git query, no side effects."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "git",
+        "args": ["log", "-1", "--pretty=fuller"]
+      },
+      "expected_outputs": ["text"],
+      "timeout_seconds": 10,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "ops.health_snapshot",
+      "description": "Capture a point-in-time health snapshot of all ops subsystems.",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only health check, no external effects."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["ops_health_snapshot"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "audit.verify",
+      "description": "Verify the integrity of the ops audit log (check payload hashes).",
+      "roles_allowed": ["Admin", "Operator"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only audit verification, no modifications."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["audit_verify"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 30,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "automation.dry_run",
+      "description": "Preview planned automation actions without executing them.",
+      "roles_allowed": ["Admin", "Operator"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Dry run only — no sends, no mutations."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The automation rule ID to dry-run."
+          }
+        },
+        "required": ["ruleId"],
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["automation_dry_run", "{{ruleId}}"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 30,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "automation.queue_status",
+      "description": "Show current automation queue depth, pending items, and processing rate.",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only queue inspection, no side effects."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["automation_queue_status"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "leads.stats",
+      "description": "Return aggregate lead statistics: total, by status, recent additions.",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only aggregate statistics, no PII exposed."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["leads_stats"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "contentops.pending_requests",
+      "description": "List pending content operations requests (count and summaries only).",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only content queue inspection."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "__internal__",
+        "args": ["contentops_pending_requests"]
+      },
+      "expected_outputs": ["json"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only"
+    },
+    {
+      "id": "repo.diff_summary",
+      "description": "Show a summary of uncommitted changes (files changed, insertions, deletions).",
+      "roles_allowed": ["Admin", "Operator", "ReadOnly"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only git diff statistics."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "git",
+        "args": ["diff", "--stat"]
+      },
+      "expected_outputs": ["text"],
+      "timeout_seconds": 15,
+      "side_effects": "read_only",
+      "output_limits": { "max_chars": 8192, "max_lines": 200 }
+    },
+    {
+      "id": "repo.search",
+      "description": "Search for a pattern in tracked files (git grep, bounded output).",
+      "roles_allowed": ["Admin", "Operator"],
+      "safe_mode_behavior": {
+        "allowed": true,
+        "reason": "Read-only code search, no modifications."
+      },
+      "args_schema": {
+        "type": "object",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "minLength": 2,
+            "description": "The search pattern (literal string or basic regex)."
+          }
+        },
+        "required": ["pattern"],
+        "additionalProperties": false
+      },
+      "working_dir_policy": { "type": "fixed", "value": "." },
+      "env_allowlist": [],
+      "command_template": {
+        "executable": "git",
+        "args": ["grep", "-n", "--count", "{{pattern}}"]
+      },
+      "expected_outputs": ["text"],
+      "timeout_seconds": 30,
+      "side_effects": "read_only",
+      "output_limits": { "max_chars": 16384, "max_lines": 500 }
+    }
+  ]
+}

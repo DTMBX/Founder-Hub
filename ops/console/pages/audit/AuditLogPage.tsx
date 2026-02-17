@@ -15,7 +15,7 @@ const CATEGORY_GROUPS: Record<string, OpsEventCategory[]> = {
   ],
   Message: ['message.email_queued', 'message.email_sent', 'message.sms_queued', 'message.sms_sent', 'message.send_blocked'],
   Content: ['content.request_created', 'content.publish_triggered'],
-  Console: ['console.login', 'console.logout', 'console.safe_mode_toggled'],
+  Console: ['console.login', 'console.logout', 'console.safe_mode_toggled', 'console.action'],
   System: ['system.startup', 'system.error', 'system.config_changed'],
 };
 
@@ -43,6 +43,7 @@ export function AuditLogPage() {
   const { can } = useOps();
   const [events, setEvents] = useState<OpsAuditEvent[]>([]);
   const [filter, setFilter] = useState<string>('all');
+  const [correlationFilter, setCorrelationFilter] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
   const loadEvents = useCallback(async () => {
@@ -61,12 +62,18 @@ export function AuditLogPage() {
 
   useEffect(() => { loadEvents(); }, [loadEvents]);
 
-  const filtered = filter === 'all'
-    ? events
-    : events.filter((e) => {
-        const cats = CATEGORY_GROUPS[filter];
-        return cats && (cats as string[]).includes(e.category);
-      });
+  const filtered = events.filter((e) => {
+    // Category group filter
+    if (filter !== 'all') {
+      const cats = CATEGORY_GROUPS[filter];
+      if (!cats || !(cats as string[]).includes(e.category)) return false;
+    }
+    // Correlation ID filter (deep-link from Copilot)
+    if (correlationFilter) {
+      if (!e.correlationId || !e.correlationId.includes(correlationFilter)) return false;
+    }
+    return true;
+  });
 
   if (!can('audit.read')) {
     return (
@@ -112,6 +119,33 @@ export function AuditLogPage() {
         ))}
       </div>
 
+      {/* Correlation ID filter — for deep-linking from Copilot */}
+      <div style={{ marginBottom: '12px', display: 'flex', gap: '6px' }}>
+        <input
+          type="text"
+          value={correlationFilter}
+          onChange={(e) => setCorrelationFilter(e.target.value)}
+          placeholder="Filter by correlation ID…"
+          aria-label="Filter by correlation ID"
+          style={{
+            flex: 1, padding: '6px 10px', borderRadius: '8px',
+            border: '1px solid #e5e7eb', fontSize: '12px',
+            fontFamily: 'monospace', background: '#fff',
+          }}
+        />
+        {correlationFilter && (
+          <button
+            onClick={() => setCorrelationFilter('')}
+            style={{
+              padding: '6px 10px', borderRadius: '8px', border: '1px solid #e5e7eb',
+              background: '#fff', fontSize: '11px', cursor: 'pointer', color: '#6b7280',
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
       {/* Events */}
       {loading ? (
         <p style={{ textAlign: 'center', color: '#9ca3af', fontSize: '13px', padding: '40px 0' }}>
@@ -148,6 +182,17 @@ export function AuditLogPage() {
               <p style={{ fontSize: '10px', color: '#d1d5db', marginTop: '4px', fontFamily: 'monospace' }}>
                 {ev.id}
               </p>
+              {ev.correlationId && (
+                <p style={{
+                  fontSize: '10px', color: '#93c5fd', marginTop: '2px',
+                  fontFamily: 'monospace', cursor: 'pointer',
+                }}
+                  onClick={() => setCorrelationFilter(ev.correlationId ?? '')}
+                  title="Click to filter by this correlation ID"
+                >
+                  ↳ {ev.correlationId}
+                </p>
+              )}
             </div>
           ))}
         </div>
