@@ -6,11 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
 import { downloadDataFiles } from '@/lib/local-storage-kv'
-import { publishToGitHub, hasGitHubToken } from '@/lib/github-sync'
+import { publishToGitHub, hasGitHubToken, type PublishMode } from '@/lib/github-sync'
 import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
 import { usePermissions, FOUNDER_MODE_ROUTES } from '@/lib/route-guards'
 import { useFeatureFlags, activateFounderMode, activateOpsMode } from '@/lib/feature-flags'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import {
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
@@ -114,6 +115,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState('content')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false)
   const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
   
   // RBAC & Feature Flags
@@ -160,7 +162,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       toast.error('No site selected')
       return
     }
+
+    // Require confirmation before publishing (Chain A4)
+    setShowPublishConfirm(true)
+  }
+
+  const executePublish = async (mode: PublishMode = 'branch') => {
+    if (!activeSite) return
     
+    setShowPublishConfirm(false)
     setIsPublishing(true)
     
     // Build site config for the active site/satellite
@@ -175,11 +185,23 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       repo,
       dataPath,
       siteId
-    })
+    }, mode)
     setIsPublishing(false)
     
     if (result.success) {
-      toast.success(`Published to ${activeSatellite?.name || activeSite.name}!`)
+      if (result.mode === 'branch' && result.pullRequestUrl) {
+        toast.success(
+          `Changes pushed to branch "${result.branch}". PR created for review.`,
+          { duration: 8000 }
+        )
+      } else if (result.mode === 'branch') {
+        toast.success(
+          `Changes pushed to branch "${result.branch}". Merge to publish.`,
+          { duration: 6000 }
+        )
+      } else {
+        toast.success(`Published to ${activeSatellite?.name || activeSite.name}!`)
+      }
     } else {
       toast.error(result.error || 'Failed to publish')
     }
@@ -337,7 +359,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               className={cn('w-full gap-2 text-xs', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
             >
               <GithubLogo className="h-4 w-4 shrink-0" weight={isPublishing ? 'light' : 'bold'} />
-              {!sidebarCollapsed && (isPublishing ? 'Publishing...' : 'Publish to Live')}
+              {!sidebarCollapsed && (isPublishing ? 'Publishing...' : 'Publish Changes')}
             </Button>
           )}
           {canExport && (
@@ -406,6 +428,21 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           {renderContent()}
         </div>
       </main>
+
+      {/* Publish Confirmation Dialog (Chain A4) */}
+      <ConfirmDialog
+        open={showPublishConfirm}
+        onOpenChange={setShowPublishConfirm}
+        title="Publish Changes"
+        description={`Push data changes to "${activeSatellite?.name || activeSite?.name || 'Unknown'}". Changes will be committed to a feature branch and a pull request will be opened for review.`}
+        intent="publish"
+        confirmationType="typed"
+        confirmText="PUBLISH"
+        confirmLabel="Publish to Branch"
+        auditAction="publish_changes"
+        onConfirm={() => executePublish('branch')}
+        warning="Changes will be pushed to a review branch. Merge the PR to deploy to production."
+      />
     </div>
   )
 }

@@ -462,6 +462,26 @@ export type AuditAction =
   | 'keyfile_setup_failed'
   | 'keyfile_enabled'
   | 'keyfile_disabled'
+  // Archive/Restore actions (Chain A4)
+  | 'archive_site'
+  | 'archive_satellite'
+  | 'archive_document'
+  | 'archive_case'
+  | 'archive_offering'
+  | 'restore_site'
+  | 'restore_satellite'
+  | 'restore_document'
+  | 'restore_project'
+  | 'restore_case'
+  | 'restore_offering'
+  | 'permanent_delete_site'
+  | 'permanent_delete_satellite'
+  | 'permanent_delete_document'
+  | 'permanent_delete_project'
+  | 'permanent_delete_case'
+  | 'permanent_delete_offering'
+  | 'archive_cleanup'
+  | 'destructive_action_confirmed'
 
 export interface AuditEvent {
   id: string
@@ -622,6 +642,8 @@ export interface SatelliteApp {
   dataPath: string       // Data folder path (e.g., "/public/data")
   enabled: boolean
   description?: string
+  archived?: boolean     // Soft delete flag
+  archivedAt?: string    // ISO timestamp of archive
 }
 
 export interface ManagedSite {
@@ -634,6 +656,10 @@ export interface ManagedSite {
   type: 'primary' | 'worktree'
   enabled: boolean
   satellites?: SatelliteApp[]
+  archived?: boolean     // Soft delete flag
+  archivedAt?: string    // ISO timestamp of archive
+  archivedBy?: string    // Who archived it
+  archiveReason?: string // Why it was archived
 }
 
 export interface SitesConfig {

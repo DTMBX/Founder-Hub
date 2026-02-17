@@ -6,13 +6,15 @@ import { Switch } from '@/components/ui/switch'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useKV } from '@/lib/local-storage-kv'
 import { ManagedSite, SatelliteApp, SitesConfig } from '@/lib/types'
 import { useSite } from '@/lib/site-context'
+import { useAuthStore } from '@/lib/auth'
 import { toast } from 'sonner'
 import { 
   Plus, Trash, PencilSimple, Globe, Folder, TreeStructure,
-  Check, X, FloppyDisk, GithubLogo, FolderOpen
+  Check, X, FloppyDisk, GithubLogo, FolderOpen, Archive, ArrowCounterClockwise
 } from '@phosphor-icons/react'
 
 const SITES_KEY = 'founder-hub-sites-config'
@@ -25,10 +27,23 @@ const defaultSitesConfig: SitesConfig = {
 export default function SitesManager() {
   const [config, setConfig] = useKV<SitesConfig>(SITES_KEY, defaultSitesConfig)
   const { refreshSites } = useSite()
+  const { user } = useAuthStore()
   const [editingSite, setEditingSite] = useState<ManagedSite | null>(null)
   const [editingSatellite, setEditingSatellite] = useState<{ siteId: string; satellite: SatelliteApp } | null>(null)
   const [isAddingSite, setIsAddingSite] = useState(false)
   const [isAddingSatellite, setIsAddingSatellite] = useState<string | null>(null)
+  
+  // Confirmation dialog state for destructive actions
+  const [archiveConfirm, setArchiveConfirm] = useState<{ siteId: string; siteName: string } | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{ siteId: string; siteName: string } | null>(null)
+  const [deleteSatelliteConfirm, setDeleteSatelliteConfirm] = useState<{ siteId: string; satelliteId: string; satelliteName: string } | null>(null)
+  
+  // Active tab for showing archived/active sites
+  const [viewTab, setViewTab] = useState<'active' | 'archived'>('active')
+
+  // Filter sites by archived status
+  const activeSites = (config?.sites || []).filter(s => !s.archived)
+  const archivedSites = (config?.sites || []).filter(s => s.archived)
 
   const handleSaveSite = (site: ManagedSite) => {
     const sites = config?.sites || []
@@ -48,12 +63,59 @@ export default function SitesManager() {
     refreshSites()
   }
 
-  const handleDeleteSite = (siteId: string) => {
-    if (!confirm('Delete this site configuration?')) return
+  // Archive site (soft delete) - replaces hard delete
+  const handleArchiveSite = (siteId: string) => {
+    const sites = config?.sites || []
+    const site = sites.find(s => s.id === siteId)
+    if (!site) return
     
+    const updated = sites.map(s => 
+      s.id === siteId 
+        ? { 
+            ...s, 
+            archived: true, 
+            archivedAt: new Date().toISOString(),
+            archivedBy: user?.email || 'unknown'
+          } 
+        : s
+    )
+    
+    setConfig({ ...config!, sites: updated })
+    setArchiveConfirm(null)
+    toast.success(`Site "${site.name}" archived. It can be restored from the Archived tab.`)
+    refreshSites()
+  }
+
+  // Restore archived site
+  const handleRestoreSite = (siteId: string) => {
+    const sites = config?.sites || []
+    const site = sites.find(s => s.id === siteId)
+    if (!site) return
+    
+    const updated = sites.map(s => 
+      s.id === siteId 
+        ? { 
+            ...s, 
+            archived: false, 
+            archivedAt: undefined,
+            archivedBy: undefined,
+            archiveReason: undefined
+          } 
+        : s
+    )
+    
+    setConfig({ ...config!, sites: updated })
+    toast.success(`Site "${site.name}" restored`)
+    setViewTab('active')
+    refreshSites()
+  }
+
+  // Permanent delete (only for archived sites, requires typed confirmation)
+  const handlePermanentDeleteSite = (siteId: string) => {
     const sites = (config?.sites || []).filter(s => s.id !== siteId)
     setConfig({ ...config!, sites })
-    toast.success('Site deleted')
+    setDeleteConfirm(null)
+    toast.success('Site permanently deleted')
     refreshSites()
   }
 
@@ -83,8 +145,6 @@ export default function SitesManager() {
   }
 
   const handleDeleteSatellite = (siteId: string, satelliteId: string) => {
-    if (!confirm('Remove this satellite app?')) return
-    
     const sites = config?.sites || []
     const site = sites.find(s => s.id === siteId)
     if (!site) return
@@ -94,6 +154,7 @@ export default function SitesManager() {
     const updatedSites = sites.map(s => s.id === siteId ? updatedSite : s)
     
     setConfig({ ...config!, sites: updatedSites })
+    setDeleteSatelliteConfirm(null)
     toast.success('Satellite removed')
     refreshSites()
   }
@@ -131,122 +192,207 @@ export default function SitesManager() {
         </Button>
       </div>
 
-      <div className="grid gap-4">
-        {(config?.sites || []).map((site) => (
-          <GlassCard key={site.id} className="p-4">
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Globe className="h-5 w-5 text-primary" weight="duotone" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold">{site.name}</h3>
-                  <span className={`text-xs px-2 py-0.5 rounded ${site.enabled ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'}`}>
-                    {site.enabled ? 'Active' : 'Disabled'}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">
-                    {site.type}
-                  </span>
-                </div>
-                {site.description && (
-                  <p className="text-sm text-muted-foreground mt-1">{site.description}</p>
-                )}
-                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <GithubLogo className="h-3 w-3" />
-                    {site.repo}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <FolderOpen className="h-3 w-3" />
-                    {site.dataPath}
-                  </span>
-                </div>
+      {/* Active/Archived Tabs */}
+      <Tabs value={viewTab} onValueChange={(v) => setViewTab(v as 'active' | 'archived')}>
+        <TabsList>
+          <TabsTrigger value="active">
+            Active ({activeSites.length})
+          </TabsTrigger>
+          <TabsTrigger value="archived">
+            Archived ({archivedSites.length})
+          </TabsTrigger>
+        </TabsList>
 
-                {/* Satellite Apps */}
-                {site.satellites && site.satellites.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <TreeStructure className="h-3 w-3" />
-                      <span>Satellite Apps ({site.satellites.length})</span>
+        <TabsContent value="active" className="mt-4">
+          <div className="grid gap-4">
+            {activeSites.map((site) => (
+              <GlassCard key={site.id} className="p-4">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Globe className="h-5 w-5 text-primary" weight="duotone" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{site.name}</h3>
+                      <span className={`text-xs px-2 py-0.5 rounded ${site.enabled ? 'bg-green-500/20 text-green-400' : 'bg-muted text-muted-foreground'}`}>
+                        {site.enabled ? 'Active' : 'Disabled'}
+                      </span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-primary/20 text-primary">
+                        {site.type}
+                      </span>
                     </div>
-                    <div className="grid gap-2 ml-4">
-                      {site.satellites.map((satellite) => (
-                        <div 
-                          key={satellite.id} 
-                          className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30 border border-border/50"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Folder className="h-4 w-4 text-primary" weight="duotone" />
-                            <span className="text-sm font-medium">{satellite.name}</span>
-                            <span className="text-xs text-muted-foreground">({satellite.path})</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0"
-                              onClick={() => setEditingSatellite({ siteId: site.id, satellite })}
-                            >
-                              <PencilSimple className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                              onClick={() => handleDeleteSatellite(site.id, satellite.id)}
-                            >
-                              <Trash className="h-3 w-3" />
-                            </Button>
-                          </div>
+                    {site.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{site.description}</p>
+                    )}
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <GithubLogo className="h-3 w-3" />
+                        {site.repo}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <FolderOpen className="h-3 w-3" />
+                        {site.dataPath}
+                      </span>
+                    </div>
+
+                    {/* Satellite Apps */}
+                    {site.satellites && site.satellites.length > 0 && (
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <TreeStructure className="h-3 w-3" />
+                          <span>Satellite Apps ({site.satellites.length})</span>
                         </div>
-                      ))}
+                        <div className="grid gap-2 ml-4">
+                          {site.satellites.filter(s => !s.archived).map((satellite) => (
+                            <div 
+                              key={satellite.id} 
+                              className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30 border border-border/50"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Folder className="h-4 w-4 text-primary" weight="duotone" />
+                                <span className="text-sm font-medium">{satellite.name}</span>
+                                <span className="text-xs text-muted-foreground">({satellite.path})</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 w-7 p-0"
+                                  onClick={() => setEditingSatellite({ siteId: site.id, satellite })}
+                                >
+                                  <PencilSimple className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                                  onClick={() => setDeleteSatelliteConfirm({ 
+                                    siteId: site.id, 
+                                    satelliteId: satellite.id, 
+                                    satelliteName: satellite.name 
+                                  })}
+                                >
+                                  <Trash className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsAddingSatellite(site.id)}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Add Satellite
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setEditingSite(site)}
+                    >
+                      <PencilSimple className="h-4 w-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-amber-500 hover:text-amber-500"
+                      onClick={() => setArchiveConfirm({ siteId: site.id, siteName: site.name })}
+                      title="Archive site"
+                    >
+                      <Archive className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+
+            {activeSites.length === 0 && (
+              <GlassCard className="p-8 text-center">
+                <Globe className="h-12 w-12 mx-auto text-muted-foreground mb-4" weight="duotone" />
+                <h3 className="font-semibold mb-2">No active sites</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Add a site to start managing multiple repositories from this admin panel.
+                </p>
+                <Button onClick={() => { setIsAddingSite(true); setEditingSite(createEmptySite()) }}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Site
+                </Button>
+              </GlassCard>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="archived" className="mt-4">
+          <div className="grid gap-4">
+            {archivedSites.map((site) => (
+              <GlassCard key={site.id} className="p-4 border-dashed opacity-75">
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <Archive className="h-5 w-5 text-muted-foreground" weight="duotone" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-muted-foreground">{site.name}</h3>
+                      <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                        Archived
+                      </span>
+                    </div>
+                    {site.description && (
+                      <p className="text-sm text-muted-foreground mt-1">{site.description}</p>
+                    )}
+                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <GithubLogo className="h-3 w-3" />
+                        {site.repo}
+                      </span>
+                      {site.archivedAt && (
+                        <span>Archived: {new Date(site.archivedAt).toLocaleDateString()}</span>
+                      )}
+                      {site.archivedBy && (
+                        <span>By: {site.archivedBy}</span>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => setIsAddingSatellite(site.id)}
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Satellite
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setEditingSite(site)}
-                >
-                  <PencilSimple className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => handleDeleteSite(site.id)}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </GlassCard>
-        ))}
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleRestoreSite(site.id)}
+                    >
+                      <ArrowCounterClockwise className="h-4 w-4 mr-1" />
+                      Restore
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => setDeleteConfirm({ siteId: site.id, siteName: site.name })}
+                      title="Permanently delete"
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
 
-        {(!config?.sites || config.sites.length === 0) && (
-          <GlassCard className="p-8 text-center">
-            <Globe className="h-12 w-12 mx-auto text-muted-foreground mb-4" weight="duotone" />
-            <h3 className="font-semibold mb-2">No sites configured</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Add a site to start managing multiple repositories from this admin panel.
-            </p>
-            <Button onClick={() => { setIsAddingSite(true); setEditingSite(createEmptySite()) }}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Site
-            </Button>
-          </GlassCard>
-        )}
-      </div>
+            {archivedSites.length === 0 && (
+              <GlassCard className="p-8 text-center">
+                <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" weight="duotone" />
+                <h3 className="font-semibold mb-2">No archived sites</h3>
+                <p className="text-sm text-muted-foreground">
+                  When you archive a site, it will appear here for later restoration.
+                </p>
+              </GlassCard>
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Edit Site Dialog */}
       <Dialog open={!!editingSite} onOpenChange={() => { setEditingSite(null); setIsAddingSite(false) }}>
@@ -304,6 +450,41 @@ export default function SitesManager() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Archive Site Confirmation */}
+      <ConfirmDialog
+        open={!!archiveConfirm}
+        onOpenChange={(open) => !open && setArchiveConfirm(null)}
+        title="Archive Site"
+        description={`Are you sure you want to archive "${archiveConfirm?.siteName}"? The site will be moved to the Archived tab and can be restored later.`}
+        intent="archive"
+        confirmationType="simple"
+        onConfirm={() => archiveConfirm && handleArchiveSite(archiveConfirm.siteId)}
+      />
+
+      {/* Permanent Delete Confirmation (typed) */}
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => !open && setDeleteConfirm(null)}
+        title="Permanently Delete Site"
+        description={`This action cannot be undone. The site configuration for "${deleteConfirm?.siteName}" will be permanently removed.`}
+        intent="delete"
+        confirmationType="typed-slug"
+        confirmText={deleteConfirm?.siteName}
+        onConfirm={() => deleteConfirm && handlePermanentDeleteSite(deleteConfirm.siteId)}
+      />
+
+      {/* Delete Satellite Confirmation (typed) */}
+      <ConfirmDialog
+        open={!!deleteSatelliteConfirm}
+        onOpenChange={(open) => !open && setDeleteSatelliteConfirm(null)}
+        title="Remove Satellite App"
+        description={`Are you sure you want to remove the satellite app "${deleteSatelliteConfirm?.satelliteName}"?`}
+        intent="delete"
+        confirmationType="typed"
+        confirmText="DELETE"
+        onConfirm={() => deleteSatelliteConfirm && handleDeleteSatellite(deleteSatelliteConfirm.siteId, deleteSatelliteConfirm.satelliteId)}
+      />
     </div>
   )
 }

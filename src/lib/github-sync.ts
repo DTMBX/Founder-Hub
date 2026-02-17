@@ -16,6 +16,13 @@ const DEFAULT_REPO_OWNER = 'DTMBX'
 const DEFAULT_REPO_NAME = 'XTX396'
 const BRANCH = 'main'
 
+/**
+ * Safe commit mode:
+ * - 'branch': Creates a feature branch (default, recommended)
+ * - 'direct': Commits directly to main (legacy, requires admin override)
+ */
+export type PublishMode = 'branch' | 'direct'
+
 // Data files to sync to repo (relative to dataPath)
 const DATA_FILES: Record<string, string> = {
   // Core content
@@ -78,6 +85,9 @@ interface CommitResult {
   success: boolean
   error?: string
   commitUrl?: string
+  branch?: string       // Branch name if published to branch
+  pullRequestUrl?: string  // PR URL if auto-created
+  mode?: PublishMode    // How the commit was made
 }
 
 /**
@@ -192,14 +202,19 @@ async function updateFile(
  * Uses the Git Trees API to batch all file changes into one commit,
  * avoiding sequential per-file API calls.
  * 
+ * SAFE COMMIT WORKFLOW (Chain A4):
+ * - Default mode ('branch'): creates a feature branch + opens PR
+ * - Legacy mode ('direct'): commits to main (admin override only)
+ * 
  * @param siteConfig Optional site config for multi-site publishing
+ * @param mode Publish mode — 'branch' (safe, default) or 'direct' (admin override)
  */
 export async function publishToGitHub(siteConfig?: {
   owner: string
   repo: string
   dataPath: string
   siteId?: string
-}): Promise<CommitResult> {
+}, mode: PublishMode = 'branch'): Promise<CommitResult> {
   const token = await getGitHubToken()
   
   if (!token) {
@@ -251,7 +266,7 @@ export async function publishToGitHub(siteConfig?: {
   }
 
   try {
-    // 1. Get the latest commit SHA on the branch
+    // 1. Get the latest commit SHA on main
     const refRes = await fetch(`${repoBase}/git/ref/heads/${BRANCH}`, { headers })
     if (!refRes.ok) {
       return { success: false, error: `Failed to read branch ref: ${refRes.status}` }
@@ -312,11 +327,15 @@ export async function publishToGitHub(siteConfig?: {
     const treeData = await treeRes.json()
     
     // 5. Create a new commit
+    const commitMessage = mode === 'branch'
+      ? `chore(admin): update ${filesToPush.length} data files [${timestamp}]\n\n---\nmode: branch\nfiles: ${filesToPush.length}\ntimestamp: ${timestamp}\n---`
+      : `Update ${filesToPush.length} data files via admin panel [${timestamp}]`
+
     const newCommitRes = await fetch(`${repoBase}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        message: `Update ${filesToPush.length} data files via admin panel [${timestamp}]`,
+        message: commitMessage,
         tree: treeData.sha,
         parents: [latestCommitSha]
       })
@@ -328,8 +347,72 @@ export async function publishToGitHub(siteConfig?: {
     }
     
     const newCommitData = await newCommitRes.json()
-    
-    // 6. Update the branch reference to point to the new commit
+
+    // ─── Safe Commit Workflow (Chain A4) ─────────────────────
+    if (mode === 'branch') {
+      // Create a feature branch from main, push commit there, then open PR
+      const branchName = `admin/data-update-${Date.now()}`
+
+      // 6a. Create the feature branch ref
+      const createBranchRes = await fetch(`${repoBase}/git/refs`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          ref: `refs/heads/${branchName}`,
+          sha: newCommitData.sha
+        })
+      })
+
+      if (!createBranchRes.ok) {
+        const err = await createBranchRes.json()
+        return { success: false, error: `Failed to create branch: ${err.message}` }
+      }
+
+      // 7a. Open a pull request from the branch to main
+      let pullRequestUrl: string | undefined
+      try {
+        const prRes = await fetch(`${repoBase}/pulls`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            title: `Admin Panel: Update ${filesToPush.length} data files [${timestamp}]`,
+            head: branchName,
+            base: BRANCH,
+            body: [
+              `## Data Update from Admin Panel`,
+              ``,
+              `**Files changed:** ${filesToPush.length}`,
+              `**Timestamp:** ${timestamp}`,
+              `**Mode:** Safe commit (branch + PR)`,
+              ``,
+              `### Files Updated`,
+              ...filesToPush.map(f => `- \`${f.path}\``),
+              ``,
+              `---`,
+              `*This PR was auto-created by the admin panel safe commit workflow.*`,
+            ].join('\n')
+          })
+        })
+
+        if (prRes.ok) {
+          const prData = await prRes.json()
+          pullRequestUrl = prData.html_url
+        }
+      } catch {
+        // PR creation is best-effort; the branch commit still succeeded
+      }
+
+      return {
+        success: true,
+        commitUrl: `https://github.com/${config.owner}/${config.repo}/commit/${newCommitData.sha}`,
+        branch: branchName,
+        pullRequestUrl,
+        mode: 'branch',
+      }
+    }
+
+    // ─── Direct Commit (Legacy / Admin Override) ─────────────
+    // 6b. Update the main branch reference directly
     const updateRefRes = await fetch(`${repoBase}/git/refs/heads/${BRANCH}`, {
       method: 'PATCH',
       headers,
@@ -345,14 +428,14 @@ export async function publishToGitHub(siteConfig?: {
     
     return { 
       success: true, 
-      commitUrl: `https://github.com/${config.owner}/${config.repo}/commit/${newCommitData.sha}`
+      commitUrl: `https://github.com/${config.owner}/${config.repo}/commit/${newCommitData.sha}`,
+      mode: 'direct',
     }
     
   } catch (error) {
     return { success: false, error: `Network error: ${String(error)}` }
   }
 }
-
 /**
  * Test GitHub token by fetching repo info
  */
