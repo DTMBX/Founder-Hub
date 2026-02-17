@@ -577,3 +577,79 @@ describe('evaluateAcceptance', () => {
     expect(() => evaluateAcceptance('target-1', [])).toThrow('At least one');
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P6 — Barrel Export (Shell Integration)
+// ═════════════════════════════════════════════════════════════════
+
+describe('P6 — Barrel Export', () => {
+  // Use dynamic import so the barrel is tested as a module boundary
+  it('exports ManifestRegistry', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.ManifestRegistry).toBeDefined();
+    expect(typeof mod.ManifestRegistry).toBe('function');
+  });
+
+  it('exports validateManifest', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.validateManifest).toBeDefined();
+    expect(typeof mod.validateManifest).toBe('function');
+  });
+
+  it('exports hashManifest', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.hashManifest).toBeDefined();
+    expect(typeof mod.hashManifest).toBe('function');
+  });
+
+  it('exports ToolHub class', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.ToolHub).toBeDefined();
+    expect(typeof mod.ToolHub).toBe('function');
+  });
+
+  it('exports BrandRegistry', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.BrandRegistry).toBeDefined();
+    expect(typeof mod.BrandRegistry).toBe('function');
+  });
+
+  it('exports validateBrandProfile', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.validateBrandProfile).toBeDefined();
+    expect(typeof mod.validateBrandProfile).toBe('function');
+  });
+
+  it('exports evaluateRisk', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.evaluateRisk).toBeDefined();
+    expect(typeof mod.evaluateRisk).toBe('function');
+  });
+
+  it('exports evaluateAcceptance', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    expect(mod.evaluateAcceptance).toBeDefined();
+    expect(typeof mod.evaluateAcceptance).toBe('function');
+  });
+
+  it('barrel ToolHub instance works end-to-end', async () => {
+    const mod = await import('../../apps/toolhub/index');
+    const registry = new mod.ManifestRegistry();
+    const hub = new mod.ToolHub(registry);
+
+    registry.register({
+      id: 'barrel-test-tool',
+      name: 'Barrel Test',
+      description: 'Validates barrel export wiring',
+      version: '1.0.0',
+      category: 'dev-tool',
+      status: 'active',
+      brand: 'test',
+      entryPoint: '/tools/barrel-test',
+    });
+
+    const results = hub.search('barrel');
+    expect(results.totalCount).toBe(1);
+    expect(results.tools[0].id).toBe('barrel-test-tool');
+  });
+});
