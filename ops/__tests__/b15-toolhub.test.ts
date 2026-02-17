@@ -653,3 +653,174 @@ describe('P6 — Barrel Export', () => {
     expect(results.tools[0].id).toBe('barrel-test-tool');
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P7 — Policy Generator
+// ═════════════════════════════════════════════════════════════════
+
+import {
+  generatePolicy,
+  generateAllPolicies,
+  verifyPolicyIntegrity,
+} from '../../apps/tooling/generatePolicies';
+import type { BrandProfile } from '../../apps/toolhub/BrandProfile';
+
+function makeBrand(overrides: Partial<BrandProfile> = {}): BrandProfile {
+  return {
+    brandId: 'test-brand',
+    name: 'Test Brand',
+    domain: 'test.example.com',
+    tagline: 'For testing',
+    description: 'A test brand',
+    primaryColor: '#111111',
+    accentColor: '#222222',
+    logoPath: '/logo.svg',
+    toolCategories: ['app'],
+    defaultCapabilities: ['read'],
+    policies: {
+      requireAuditLog: true,
+      requireIntegrityHash: true,
+      immutableOriginals: true,
+      appendOnlyLogs: true,
+    },
+    contact: { supportEmail: 'test@example.com' },
+    ...overrides,
+  };
+}
+
+function makeTool(overrides: Partial<ToolManifest> = {}): ToolManifest {
+  return {
+    id: 'test-tool',
+    name: 'Test Tool',
+    description: 'A test tool',
+    version: '1.0.0',
+    category: 'app',
+    status: 'active',
+    brand: 'test-brand',
+    entryPoint: '/tools/test',
+    ...overrides,
+  };
+}
+
+describe('P7 — generatePolicy', () => {
+  it('generates a policy document', () => {
+    const brand = makeBrand();
+    const tools = [makeTool()];
+    const doc = generatePolicy(brand, 'app', tools);
+
+    expect(doc.policyId).toBe('pol-test-brand-app');
+    expect(doc.title).toContain('Test Brand');
+    expect(doc.brand).toBe('test-brand');
+    expect(doc.category).toBe('app');
+    expect(doc.toolCount).toBe(1);
+    expect(doc.body).toContain('# Test Brand');
+    expect(doc.bodyHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('includes policy requirements table', () => {
+    const brand = makeBrand();
+    const doc = generatePolicy(brand, 'app', [makeTool()]);
+
+    expect(doc.body).toContain('Audit logging');
+    expect(doc.body).toContain('Integrity hashing');
+    expect(doc.body).toContain('Immutable originals');
+    expect(doc.body).toContain('Append-only logs');
+  });
+
+  it('includes tool summary table', () => {
+    const tools = [
+      makeTool({ id: 'tool-a', name: 'Alpha' }),
+      makeTool({ id: 'tool-b', name: 'Beta' }),
+    ];
+    const doc = generatePolicy(makeBrand(), 'app', tools);
+
+    expect(doc.body).toContain('tool-a');
+    expect(doc.body).toContain('Alpha');
+    expect(doc.body).toContain('tool-b');
+    expect(doc.body).toContain('Beta');
+    expect(doc.toolCount).toBe(2);
+  });
+
+  it('includes per-tool details by default', () => {
+    const tools = [makeTool({ capabilities: ['admin'], tags: ['forensic'] })];
+    const doc = generatePolicy(makeBrand(), 'app', tools);
+
+    expect(doc.body).toContain('## Tool Details');
+    expect(doc.body).toContain('admin');
+    expect(doc.body).toContain('forensic');
+  });
+
+  it('omits per-tool details when disabled', () => {
+    const doc = generatePolicy(makeBrand(), 'app', [makeTool()], {
+      includeToolDetails: false,
+    });
+
+    expect(doc.body).not.toContain('## Tool Details');
+  });
+
+  it('includes custom header note', () => {
+    const doc = generatePolicy(makeBrand(), 'app', [makeTool()], {
+      headerNote: 'CUSTOM HEADER',
+    });
+
+    expect(doc.body).toContain('CUSTOM HEADER');
+  });
+
+  it('throws when brand is missing', () => {
+    expect(() => generatePolicy(null as any, 'app', [makeTool()])).toThrow('Brand');
+  });
+
+  it('throws when category is empty', () => {
+    expect(() => generatePolicy(makeBrand(), '', [makeTool()])).toThrow('Category');
+  });
+
+  it('throws when tools array is empty', () => {
+    expect(() => generatePolicy(makeBrand(), 'app', [])).toThrow('At least one');
+  });
+});
+
+describe('P7 — generateAllPolicies', () => {
+  it('generates policies for all brand+category combos', () => {
+    const brand = makeBrand({ brandId: 'evident' });
+    const tools = [
+      makeTool({ id: 'app-1', brand: 'evident', category: 'app' }),
+      makeTool({ id: 'algo-1', brand: 'evident', category: 'algorithm' }),
+      makeTool({ id: 'app-2', brand: 'evident', category: 'app' }),
+    ];
+
+    const docs = generateAllPolicies([brand], tools);
+
+    expect(docs.length).toBe(2); // app + algorithm
+    const ids = docs.map((d) => d.policyId);
+    expect(ids).toContain('pol-evident-app');
+    expect(ids).toContain('pol-evident-algorithm');
+  });
+
+  it('skips brands with no matching tools', () => {
+    const brand1 = makeBrand({ brandId: 'a' });
+    const brand2 = makeBrand({ brandId: 'b' });
+    const tools = [makeTool({ brand: 'a', category: 'app' })];
+
+    const docs = generateAllPolicies([brand1, brand2], tools);
+    expect(docs.length).toBe(1);
+    expect(docs[0].brand).toBe('a');
+  });
+
+  it('returns empty array when no tools provided', () => {
+    const docs = generateAllPolicies([makeBrand()], []);
+    expect(docs).toEqual([]);
+  });
+});
+
+describe('P7 — verifyPolicyIntegrity', () => {
+  it('returns true for untampered policy', () => {
+    const doc = generatePolicy(makeBrand(), 'app', [makeTool()]);
+    expect(verifyPolicyIntegrity(doc)).toBe(true);
+  });
+
+  it('returns false when body is tampered', () => {
+    const doc = generatePolicy(makeBrand(), 'app', [makeTool()]);
+    doc.body += ' TAMPERED';
+    expect(verifyPolicyIntegrity(doc)).toBe(false);
+  });
+});
