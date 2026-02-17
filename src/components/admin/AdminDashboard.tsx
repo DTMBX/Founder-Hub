@@ -18,7 +18,8 @@ import {
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
-  Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket
+  Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
+  Warning, Link
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import { useClientSites } from '@/hooks/use-client-sites'
@@ -58,6 +59,8 @@ const ClientSiteManager = lazy(() => import('./ClientSiteManager'))
 const AdminLeadsViewer = lazy(() => import('@/leads').then(m => ({ default: m.AdminLeadsViewer })))
 const DeploymentsPanel = lazy(() => import('./DeploymentsPanel'))
 const ProvenancePanel = lazy(() => import('./ProvenancePanel'))
+const IncidentDashboard = lazy(() => import('./IncidentDashboard'))
+const AuditIntegrity = lazy(() => import('./AuditIntegrity'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -124,6 +127,8 @@ const navItems: NavItem[] = [
   { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
   { id: 'deployments', label: 'Deployments', icon: Rocket, category: 'System' },
   { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System' },
+  { id: 'incidents', label: 'Incidents', icon: Warning, category: 'System' },
+  { id: 'audit-integrity', label: 'Audit Integrity', icon: Link, category: 'System' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
   { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System' },
 ]
@@ -268,6 +273,8 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'security': return <SecurityManager />
       case 'deployments': return <DeploymentsPanel siteId={activeSite?.id || 'xtx396'} />
       case 'provenance': return <ProvenancePanel />
+      case 'incidents': return <IncidentDashboard />
+      case 'audit-integrity': return <AuditIntegrity />
       case 'audit': return <AuditLog />
       case 'leads': return <AdminLeadsViewer />
       default: return <ContentManager />
