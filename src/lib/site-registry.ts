@@ -39,6 +39,12 @@ export const KEYS = {
   exportsIndex: (siteId: string) => `sites:${siteId}:exports:index`,
   exportRecord: (siteId: string, exportId: string) => `sites:${siteId}:exports:${exportId}`,
   auditIndex: (siteId: string) => `sites:${siteId}:audit:index`,
+  // CP1: Versioning and Deployments
+  versionsIndex: (siteId: string) => `sites:${siteId}:versions:index`,
+  version: (siteId: string, versionId: string) => `sites:${siteId}:versions:${versionId}`,
+  deploymentsIndex: (siteId: string) => `sites:${siteId}:deployments:index`,
+  deployment: (siteId: string, deploymentId: string) => `sites:${siteId}:deployments:${deploymentId}`,
+  siteMeta: (siteId: string) => `sites:${siteId}:meta`,
 } as const
 
 // ─── Slug Utilities ──────────────────────────────────────────

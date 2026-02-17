@@ -62,7 +62,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         { id: 'hero', type: 'hero', title: 'Hero', content: '', order: 0, enabled: true, investorRelevant: true },
         { id: 'about', type: 'about', title: 'About', content: '', order: 1, enabled: true, investorRelevant: false },
         { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 2, enabled: true, investorRelevant: true },
-        { id: 'offerings', type: 'offerings', title: 'Offerings', content: '', order: 3, enabled: true, investorRelevant: true },
+        { id: 'services', type: 'services', title: 'Services', content: '', order: 3, enabled: true, investorRelevant: true },
         { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 4, enabled: true, investorRelevant: false },
         { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 5, enabled: true, investorRelevant: true },
         { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 6, enabled: true, investorRelevant: true },
@@ -85,7 +85,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       const targetSection = 
         selectedPathway === 'investors' ? 'projects' :
         selectedPathway === 'legal' ? 'court' :
-        selectedPathway === 'marketplace' ? 'offerings' :
+        selectedPathway === 'marketplace' ? 'services' :
         'about'
       
       const element = document.getElementById(targetSection)
@@ -114,7 +114,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         investorRelevant: s.investorRelevant ?? false,
         // Set relevance based on section type
         legalRelevant: s.type === 'court' || s.type === 'contact',
-        marketplaceRelevant: s.type === 'offerings' || s.type === 'contact'
+        marketplaceRelevant: s.type === 'services' || s.type === 'offerings' || s.type === 'contact'
       }))
     
     // Add investor section if not present (special section)
@@ -143,7 +143,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (!hasProofContent) enabled = enabled.filter(s => s.type !== 'proof')
     if (pathway === 'all') return enabled
     if (pathway === 'investors') {
-      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'offerings' || s.type === 'proof' || s.type === 'contact')
+      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'services' || s.type === 'offerings' || s.type === 'proof' || s.type === 'contact')
     }
     if (pathway === 'legal') {
       return enabled.filter(s => s.type === 'hero' || s.type === 'court' || s.type === 'contact')
@@ -152,7 +152,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       return enabled.filter(s => s.type === 'hero' || s.type === 'about' || s.type === 'contact')
     }
     if (pathway === 'marketplace') {
-      return enabled.filter(s => s.type === 'hero' || s.type === 'offerings' || s.type === 'contact')
+      return enabled.filter(s => s.type === 'hero' || s.type === 'services' || s.type === 'offerings' || s.type === 'contact')
     }
     return enabled
   }

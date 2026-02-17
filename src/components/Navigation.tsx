@@ -22,6 +22,7 @@ const sectionIcons: Record<string, any> = {
   hero: House,
   projects: FolderOpen,
   offerings: ShoppingBag,
+  services: ShoppingBag,
   about: UserCircle,
   court: Scales,
   proof: Newspaper,

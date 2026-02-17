@@ -95,7 +95,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
           <p className="text-lg sm:text-xl text-muted-foreground mb-4 max-w-3xl leading-relaxed">
             {investorMode 
               ? 'Active projects seeking funding and partnership. Each initiative is designed for measurable impact and sustainable growth.'
-              : 'Transformative solutions at the intersection of technology, home improvement, transparency, and justice.'
+              : 'I am actively building an MMORPG and managing multiple client web services. My work spans transformative solutions at the intersection of technology, gaming, transparency, and justice—delivering scalable, professional services for individuals, businesses, and agencies.'
             }
           </p>
           {investorMode && (
@@ -119,10 +119,10 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.5 }}
-            className="text-center py-16"
+            className="text-center py-6"
           >
-            <FolderOpen className="h-12 w-12 text-muted-foreground/40 mx-auto mb-4" />
-            <p className="text-muted-foreground">Projects loading or not yet configured.</p>
+            <FolderOpen className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground/70">Projects loading or not yet configured.</p>
           </motion.div>
         ) : (
         <motion.div

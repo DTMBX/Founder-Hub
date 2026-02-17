@@ -449,6 +449,12 @@ export type AuditAction =
   | 'password_migrated'
   | 'login_keyfile_required'
   | 'login_keyfile_failed'
+  | 'backup_code_failed'
+  | 'recovery_phrase_used'
+  | 'recovery_phrase_failed'
+  | 'keyfile_setup_failed'
+  | 'keyfile_enabled'
+  | 'keyfile_disabled'
 
 export interface AuditEvent {
   id: string
@@ -1058,6 +1064,17 @@ export type SiteType = 'law-firm' | 'small-business' | 'agency'
 
 export type SiteStatus = 'draft' | 'demo' | 'private' | 'unlisted' | 'public'
 
+/**
+ * Site lifecycle state machine.
+ * DRAFT → PREVIEW → STAGING → LIVE
+ * Valid transitions:
+ *   draft → preview
+ *   preview → staging | draft
+ *   staging → live | preview
+ *   live → staging (via rollback)
+ */
+export type SiteState = 'draft' | 'preview' | 'staging' | 'live'
+
 export interface SiteSummary {
   siteId: string
   type: SiteType
@@ -1067,6 +1084,98 @@ export interface SiteSummary {
   domain?: string
   createdAt: string              // ISO 8601
   updatedAt: string              // ISO 8601
+  // CP1: Versioning & State (optional for backwards compat)
+  state?: SiteState              // Lifecycle state (defaults to 'draft')
+  currentVersionId?: string      // Active version being edited
+  liveVersionId?: string         // Version currently deployed as live
+  lastDeploymentId?: string      // Most recent deployment record
+  deploymentCount?: number       // Total number of deployments
+}
+
+// ─── Site Versioning (CP1) ───────────────────────────────────
+
+/**
+ * Immutable snapshot of site configuration and content.
+ * Used for audit trail, rollback, and deployment tracking.
+ * NEVER contains secrets (GitHub tokens, Stripe keys, passwords).
+ */
+export interface SiteVersion {
+  versionId: string
+  siteId: string
+  /** Normalized snapshot (config + content, no secrets) */
+  snapshotData: SiteVersionSnapshot
+  /** SHA-256 hash of canonical JSON(snapshotData) */
+  dataHash: string
+  createdAt: string              // ISO 8601
+  createdBy: string              // userId or 'system'
+  /** Optional human label, e.g., "v1.2.0", "Pre-launch" */
+  label?: string
+  notes?: string
+}
+
+/**
+ * Minimal snapshot payload for version storage.
+ * Pulled from NormalizedSiteData but stripped of secrets.
+ */
+export interface SiteVersionSnapshot {
+  type: SiteType
+  name: string
+  slug: string
+  domain?: string
+  /** Branding tokens */
+  branding?: SiteCoreBranding
+  /** SEO metadata */
+  seo?: SiteCoreSEO
+  /** Template/preset reference */
+  presetId?: string
+  /** Serialized content blocks (varies by type) */
+  contentBlocks: Record<string, unknown>
+  /** Theme overrides */
+  themeTokens?: Record<string, string>
+}
+
+// ─── Deployments (CP1) ────────────────────────────────────────
+
+export type DeploymentEnvironment = 'preview' | 'staging' | 'production'
+
+export type DeploymentStatus =
+  | 'pending'
+  | 'building'
+  | 'deploying'
+  | 'success'
+  | 'failed'
+  | 'rolled-back'
+  | 'cancelled'
+
+export interface DeploymentLog {
+  timestamp: string              // ISO 8601
+  level: 'info' | 'warn' | 'error'
+  message: string
+}
+
+/**
+ * Record of a deployment attempt.
+ * Tracks version, environment, status, and build artifacts.
+ */
+export interface Deployment {
+  deploymentId: string
+  siteId: string
+  versionId: string
+  environment: DeploymentEnvironment
+  status: DeploymentStatus
+  /** Git commit SHA if pushed */
+  commitSha?: string
+  /** Build artifact hash */
+  buildHash?: string
+  /** Preview/staging URL */
+  previewUrl?: string
+  startedAt: string              // ISO 8601
+  completedAt?: string           // ISO 8601
+  deployedBy: string             // userId
+  approvedBy?: string            // userId (for staging → prod)
+  /** Bounded log entries (max 200) */
+  logs: DeploymentLog[]
+  errorMessage?: string
 }
 
 // ─── Canonical Site Core Schema ──────────────────────────────

@@ -74,6 +74,7 @@ function renderSection(
       )
     
     case 'offerings':
+    case 'services':
       return (
         <Suspense key={section.id} fallback={<SectionSkeleton />}>
           <OfferingsSection 

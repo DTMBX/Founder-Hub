@@ -109,6 +109,35 @@ function generateSecureInitialPassword(): string {
   return btoa(String.fromCharCode(...array)).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32)
 }
 
+/**
+ * Get initial admin credentials from environment variables or generate defaults.
+ * Environment variables:
+ *   VITE_ADMIN_EMAIL - Admin email address (required for custom deployments)
+ *   VITE_ADMIN_PASSWORD - Initial admin password (if not set, generates random)
+ *   VITE_SITE_ID - Unique site identifier for multi-site deployments
+ */
+function getInitialAdminConfig(): { email: string; password: string; requiresChange: boolean } {
+  const envEmail = import.meta.env.VITE_ADMIN_EMAIL
+  const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
+  
+  // If password is set via env var, don't force change (operator configured it)
+  if (envEmail && envPassword) {
+    return {
+      email: envEmail,
+      password: envPassword,
+      requiresChange: false
+    }
+  }
+  
+  // Generate random password if not configured
+  const randomPassword = generateSecureInitialPassword()
+  return {
+    email: envEmail || 'admin@localhost',
+    password: randomPassword,
+    requiresChange: true
+  }
+}
+
 async function initializeDefaultAdmin(): Promise<void> {
   log('[auth] initializeDefaultAdmin starting...')
   try {
@@ -117,25 +146,28 @@ async function initializeDefaultAdmin(): Promise<void> {
     log('[auth] existing users:', users?.length || 0)
   
     if (!users || users.length === 0) {
-      // Generate a secure random password - admin MUST change on first login
-      const initialPassword = generateSecureInitialPassword()
-      const { hash, salt } = await hashPassword(initialPassword)
+      // Get admin config from environment or generate
+      const adminConfig = getInitialAdminConfig()
+      const { hash, salt } = await hashPassword(adminConfig.password)
     
       const defaultAdmin: User = {
         id: `user_${Date.now()}`,
-        email: 'dTb33@pm.me',
+        email: adminConfig.email,
         passwordHash: hash,
         passwordSalt: salt,
         role: 'owner',
         createdAt: Date.now(),
         lastLogin: 0,
-        requiresPasswordChange: true // Force password change on first login
+        requiresPasswordChange: adminConfig.requiresChange
       }
     
       await kv.set(USERS_KEY, [defaultAdmin])
-      // Only log initial password in development mode
-      if (IS_DEV) {
-        console.warn('[AUTH] Initial admin password (change immediately):', initialPassword)
+      // Log initial password in development mode or when randomly generated
+      if (IS_DEV || adminConfig.requiresChange) {
+        console.warn(`[AUTH] Admin: ${adminConfig.email}`)
+        if (adminConfig.requiresChange) {
+          console.warn('[AUTH] Initial password (change immediately):', adminConfig.password)
+        }
       }
       log('Default admin account created (PBKDF2 + AES-256-GCM)')
     } else {
