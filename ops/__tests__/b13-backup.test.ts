@@ -1,5 +1,5 @@
 /**
- * B13-P2 — Backup System Tests
+ * B13-P2/P3 — Backup + Restore System Tests
  *
  * Covers:
  *   - sha256 hashing
@@ -9,6 +9,9 @@
  *   - LocalProvider store/list/retrieve/verify
  *   - OffsiteProviderStub basics
  *   - BackupService.createBundle integration
+ *   - RestoreService verification
+ *   - RestoreService restore (dry-run)
+ *   - RestoreService conductDrill
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -29,6 +32,7 @@ import {
 } from '../backup/BackupService';
 import { LocalProvider } from '../backup/providers/LocalProvider';
 import { OffsiteProviderStub } from '../backup/providers/OffsiteProviderStub';
+import { RestoreService } from '../backup/RestoreService';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -466,5 +470,217 @@ describe('B13-P2 — BackupService.createBundle', () => {
 
   it('getProvider returns undefined for unknown', () => {
     expect(svc.getProvider('nope')).toBeUndefined();
+  });
+});
+
+// ── RestoreService.verifyBundle ─────────────────────────────────
+
+describe('B13-P3 — RestoreService.verifyBundle', () => {
+  let backupSvc: BackupService;
+  let restoreSvc: RestoreService;
+
+  beforeEach(() => {
+    backupSvc = new BackupService();
+    restoreSvc = new RestoreService();
+  });
+
+  function buildBundle(files: Map<string, Buffer>): { bundle: ReturnType<BackupService['buildManifest']> extends infer M ? { manifest: M; metadata: any; bundleHash: string } : never } {
+    const manifest = backupSvc.buildManifest(files, 'test-repo', 'abc123');
+    const metadata = {
+      bundleId: 'test-bundle',
+      createdAt: new Date().toISOString(),
+      repo: 'test-repo',
+      commitHash: 'abc123',
+      manifestHash: hashManifest(manifest),
+      encrypted: false,
+      encryptionMethod: 'none',
+      provider: 'local',
+    };
+    const bundleHash = sha256(JSON.stringify({ manifest, metadata }));
+    return { manifest, metadata, bundleHash };
+  }
+
+  it('verifies a valid bundle', () => {
+    const files = makeFiles({ 'src/app.ts': 'code' });
+    const bundle = buildBundle(files);
+    const result = restoreSvc.verifyBundle(bundle);
+
+    expect(result.valid).toBe(true);
+    expect(result.manifestHashMatch).toBe(true);
+    expect(result.bundleHashMatch).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('detects manifest hash tampering', () => {
+    const files = makeFiles({ 'src/app.ts': 'code' });
+    const bundle = buildBundle(files);
+    bundle.metadata.manifestHash = 'tampered_hash_value';
+
+    const result = restoreSvc.verifyBundle(bundle);
+
+    expect(result.valid).toBe(false);
+    expect(result.manifestHashMatch).toBe(false);
+  });
+
+  it('detects bundle hash tampering', () => {
+    const files = makeFiles({ 'src/app.ts': 'code' });
+    const bundle = buildBundle(files);
+    bundle.bundleHash = 'tampered_bundle_hash';
+
+    const result = restoreSvc.verifyBundle(bundle);
+
+    expect(result.valid).toBe(false);
+    expect(result.bundleHashMatch).toBe(false);
+  });
+});
+
+// ── RestoreService.restore ──────────────────────────────────────
+
+describe('B13-P3 — RestoreService.restore', () => {
+  let backupSvc: BackupService;
+  let restoreSvc: RestoreService;
+
+  beforeEach(() => {
+    backupSvc = new BackupService();
+    restoreSvc = new RestoreService();
+  });
+
+  function buildValidBundle(fileMap: Record<string, string>) {
+    const files = makeFiles(fileMap);
+    const manifest = backupSvc.buildManifest(files, 'repo', 'abc');
+    const metadata = {
+      bundleId: 'restore-test',
+      createdAt: new Date().toISOString(),
+      repo: 'repo',
+      commitHash: 'abc',
+      manifestHash: hashManifest(manifest),
+      encrypted: false,
+      encryptionMethod: 'none',
+      provider: 'local',
+    };
+    const bundleHash = sha256(JSON.stringify({ manifest, metadata }));
+    return { bundle: { manifest, metadata, bundleHash }, files };
+  }
+
+  it('restores successfully when all files match', async () => {
+    const { bundle, files } = buildValidBundle({
+      'src/app.ts': 'code',
+      'README.md': '# Doc',
+    });
+
+    const result = await restoreSvc.restore(bundle, files, { dryRun: true });
+
+    expect(result.status).toBe('success');
+    expect(result.manifestValid).toBe(true);
+    expect(result.hashesVerified).toBe(2);
+    expect(result.hashMismatches).toHaveLength(0);
+    expect(result.missingFiles).toHaveLength(0);
+    expect(result.dryRun).toBe(true);
+  });
+
+  it('detects modified files during restore', async () => {
+    const { bundle } = buildValidBundle({ 'src/app.ts': 'original' });
+    const tamperedFiles = makeFiles({ 'src/app.ts': 'TAMPERED' });
+
+    const result = await restoreSvc.restore(bundle, tamperedFiles, { dryRun: true });
+
+    expect(result.status).toBe('partial');
+    expect(result.hashMismatches).toContain('src/app.ts');
+  });
+
+  it('detects missing files during restore', async () => {
+    const { bundle } = buildValidBundle({ 'src/app.ts': 'code', 'README.md': '# Doc' });
+    const partialFiles = makeFiles({ 'src/app.ts': 'code' });
+
+    const result = await restoreSvc.restore(bundle, partialFiles, { dryRun: true });
+
+    expect(result.status).toBe('partial');
+    expect(result.missingFiles).toContain('README.md');
+  });
+
+  it('fails when bundle integrity is compromised', async () => {
+    const { bundle, files } = buildValidBundle({ 'src/app.ts': 'code' });
+    bundle.bundleHash = 'bad_hash';
+
+    const result = await restoreSvc.restore(bundle, files);
+
+    expect(result.status).toBe('failed');
+    expect(result.manifestValid).toBe(false);
+  });
+
+  it('invokes progress callback', async () => {
+    const { bundle, files } = buildValidBundle({ 'a.ts': 'a' });
+    const stages: string[] = [];
+
+    await restoreSvc.restore(bundle, files, {
+      dryRun: true,
+      onProgress: (stage) => stages.push(stage),
+    });
+
+    expect(stages).toContain('verify');
+    expect(stages).toContain('files');
+    expect(stages).toContain('complete');
+  });
+});
+
+// ── RestoreService.conductDrill ─────────────────────────────────
+
+describe('B13-P3 — RestoreService.conductDrill', () => {
+  let backupSvc: BackupService;
+  let restoreSvc: RestoreService;
+
+  beforeEach(() => {
+    backupSvc = new BackupService();
+    restoreSvc = new RestoreService();
+  });
+
+  it('produces a complete drill report', async () => {
+    const files = makeFiles({ 'src/app.ts': 'code', 'README.md': '# Doc' });
+    const manifest = backupSvc.buildManifest(files, 'repo', 'abc');
+    const metadata = {
+      bundleId: 'drill-bundle',
+      createdAt: new Date().toISOString(),
+      repo: 'repo',
+      commitHash: 'abc',
+      manifestHash: hashManifest(manifest),
+      encrypted: false,
+      encryptionMethod: 'none',
+      provider: 'local',
+    };
+    const bundleHash = sha256(JSON.stringify({ manifest, metadata }));
+    const bundle = { manifest, metadata, bundleHash };
+
+    const report = await restoreSvc.conductDrill(bundle, files, 'test-runner');
+
+    expect(report.drillId).toContain('drill_');
+    expect(report.bundleId).toBe('drill-bundle');
+    expect(report.result.status).toBe('success');
+    expect(report.buildCheck.passed).toBe(true);
+    expect(report.conductedBy).toBe('test-runner');
+    expect(report.conductedAt).toBeTruthy();
+  });
+
+  it('reports build failure when restore has issues', async () => {
+    const files = makeFiles({ 'src/app.ts': 'code' });
+    const manifest = backupSvc.buildManifest(files, 'repo', 'abc');
+    const metadata = {
+      bundleId: 'failing-drill',
+      createdAt: new Date().toISOString(),
+      repo: 'repo',
+      commitHash: 'abc',
+      manifestHash: hashManifest(manifest),
+      encrypted: false,
+      encryptionMethod: 'none',
+      provider: 'local',
+    };
+    const bundleHash = sha256(JSON.stringify({ manifest, metadata }));
+    const bundle = { manifest, metadata, bundleHash };
+
+    // Provide tampered files
+    const tampered = makeFiles({ 'src/app.ts': 'MODIFIED' });
+    const report = await restoreSvc.conductDrill(bundle, tampered, 'test-runner');
+
+    expect(report.result.status).not.toBe('success');
+    expect(report.buildCheck.passed).toBe(false);
   });
 });
