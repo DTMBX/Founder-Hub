@@ -422,8 +422,8 @@ export function useDeleteConfirmation(
     confirmText: itemName,
     confirmLabel: 'Delete',
     intent: 'delete',
-    auditAction: `delete_${itemType.toLowerCase().replace(/\s+/g, '_')}` as AuditAction,
-    auditDetails: `Deleted ${itemType}: ${itemName}`,
+    auditAction: 'destructive_action_confirmed',
+    auditDetails: `Delete ${itemType}: ${itemName}`,
     warning: 'This action is permanent and cannot be reversed.',
   })
 }
@@ -441,8 +441,8 @@ export function useArchiveConfirmation(
     confirmationType: 'simple',
     confirmLabel: 'Archive',
     intent: 'archive',
-    auditAction: `archive_${itemType.toLowerCase().replace(/\s+/g, '_')}` as AuditAction,
-    auditDetails: `Archived ${itemType}: ${itemName}`,
+    auditAction: 'destructive_action_confirmed',
+    auditDetails: `Archive ${itemType}: ${itemName}`,
   })
 }
 
@@ -460,7 +460,7 @@ export function usePublishConfirmation(
     confirmLabel: 'Publish',
     intent: 'publish',
     auditAction: 'publish_changes',
-    auditDetails: `Published site: ${siteName}`,
+    auditDetails: `Publish site: ${siteName}`,
     warning: 'Changes will be pushed to a feature branch and require PR review before going live.',
   })
 }
@@ -481,8 +481,8 @@ export function useDeployConfirmation(
     confirmText: isProduction ? 'DEPLOY-PROD' : undefined,
     confirmLabel: 'Deploy',
     intent: 'deploy',
-    auditAction: 'publish_changes',
-    auditDetails: `Deployed to ${environment}: ${siteName}`,
+    auditAction: 'destructive_action_confirmed',
+    auditDetails: `Deploy to ${environment}: ${siteName}`,
     warning: isProduction 
       ? 'Production deployments are visible to all users immediately.'
       : undefined,
