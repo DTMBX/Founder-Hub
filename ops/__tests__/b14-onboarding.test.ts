@@ -1,0 +1,293 @@
+/**
+ * B14 — Client Onboarding + Billing Ops Tests
+ *
+ * Covers:
+ *   P1: IntakeModel + checklist validation
+ *   P3: ProposalService (added in P3)
+ *   P4: BillingLedger (added in P4)
+ *   P5: HandoffPackageService (added in P5)
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  IntakeService,
+  type ChecklistSchema,
+  type EngagementType,
+} from '../onboarding/intake/IntakeModel';
+
+// ── Test checklist schema ───────────────────────────────────────
+
+const testChecklist: ChecklistSchema = {
+  engagementType: 'ediscovery',
+  version: '1.0.0',
+  items: [
+    { id: 'req-1', label: 'Required item 1', required: true },
+    { id: 'req-2', label: 'Required item 2', required: true },
+    { id: 'opt-1', label: 'Optional item 1', required: false },
+  ],
+};
+
+const smbChecklist: ChecklistSchema = {
+  engagementType: 'smb-consulting',
+  version: '1.0.0',
+  items: [
+    { id: 's-1', label: 'Scope', required: true },
+  ],
+};
+
+// ── B14-P1: Intake Model ───────────────────────────────────────
+
+describe('B14-P1 — IntakeService.loadChecklist', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+  });
+
+  it('loads a valid checklist schema', () => {
+    const schema = svc.loadChecklist(testChecklist);
+    expect(schema.engagementType).toBe('ediscovery');
+    expect(schema.items).toHaveLength(3);
+  });
+
+  it('rejects incomplete schema', () => {
+    expect(() => svc.loadChecklist({ engagementType: 'ediscovery' })).toThrow(
+      'missing required fields',
+    );
+  });
+
+  it('rejects invalid engagement type', () => {
+    expect(() =>
+      svc.loadChecklist({
+        engagementType: 'invalid-type',
+        version: '1.0.0',
+        items: [],
+      }),
+    ).toThrow('Invalid engagement type');
+  });
+
+  it('rejects items without id or label', () => {
+    expect(() =>
+      svc.loadChecklist({
+        engagementType: 'ediscovery',
+        version: '1.0.0',
+        items: [{ required: true }],
+      }),
+    ).toThrow('missing id or label');
+  });
+});
+
+describe('B14-P1 — IntakeService.createIntake', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+    svc.registerChecklist(smbChecklist);
+  });
+
+  it('creates an intake with correct fields', () => {
+    const record = svc.createIntake('ediscovery', 'Acme Corp', 'legal@acme.com');
+    expect(record.intakeId).toMatch(/^INT-/);
+    expect(record.engagementType).toBe('ediscovery');
+    expect(record.clientName).toBe('Acme Corp');
+    expect(record.contactEmail).toBe('legal@acme.com');
+    expect(record.status).toBe('draft');
+    expect(record.checklist).toHaveLength(3);
+    expect(record.integrityHash).toBeTruthy();
+  });
+
+  it('initialises all checklist items as incomplete', () => {
+    const record = svc.createIntake('ediscovery', 'Acme', 'a@b.com');
+    expect(record.checklist.every((i) => !i.completed)).toBe(true);
+  });
+
+  it('errors if no checklist registered', () => {
+    const fresh = new IntakeService();
+    expect(() =>
+      fresh.createIntake('ediscovery', 'X', 'x@y.com'),
+    ).toThrow('No checklist registered');
+  });
+});
+
+describe('B14-P1 — IntakeService.completeItem', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+  });
+
+  it('marks an item as completed', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    const updated = svc.completeItem(record.intakeId, 'req-1', 'user1');
+    const item = updated.checklist.find((i) => i.id === 'req-1')!;
+    expect(item.completed).toBe(true);
+    expect(item.completedBy).toBe('user1');
+    expect(item.completedAt).toBeTruthy();
+  });
+
+  it('errors on unknown intake', () => {
+    expect(() => svc.completeItem('nope', 'req-1', 'user1')).toThrow(
+      'Intake not found',
+    );
+  });
+
+  it('errors on unknown item', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    expect(() =>
+      svc.completeItem(record.intakeId, 'bad-id', 'user1'),
+    ).toThrow('Checklist item not found');
+  });
+});
+
+describe('B14-P1 — IntakeService.submit', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+  });
+
+  it('submits when all required items are complete', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    svc.completeItem(record.intakeId, 'req-1', 'u');
+    svc.completeItem(record.intakeId, 'req-2', 'u');
+    const submitted = svc.submit(record.intakeId);
+    expect(submitted.status).toBe('submitted');
+    expect(submitted.submittedAt).toBeTruthy();
+  });
+
+  it('rejects when required items are incomplete', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    svc.completeItem(record.intakeId, 'req-1', 'u');
+    // req-2 not completed
+    expect(() => svc.submit(record.intakeId)).toThrow('required item(s) incomplete');
+  });
+
+  it('allows submit with optional items incomplete', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    svc.completeItem(record.intakeId, 'req-1', 'u');
+    svc.completeItem(record.intakeId, 'req-2', 'u');
+    // opt-1 not completed — should still work
+    expect(() => svc.submit(record.intakeId)).not.toThrow();
+  });
+});
+
+describe('B14-P1 — IntakeService.review', () => {
+  let svc: IntakeService;
+  let intakeId: string;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    svc.completeItem(record.intakeId, 'req-1', 'u');
+    svc.completeItem(record.intakeId, 'req-2', 'u');
+    svc.submit(record.intakeId);
+    intakeId = record.intakeId;
+  });
+
+  it('approves a submitted intake', () => {
+    const reviewed = svc.review(intakeId, 'approved', 'reviewer@co.com');
+    expect(reviewed.status).toBe('approved');
+    expect(reviewed.reviewedBy).toBe('reviewer@co.com');
+  });
+
+  it('rejects a submitted intake', () => {
+    const reviewed = svc.review(intakeId, 'rejected', 'reviewer@co.com');
+    expect(reviewed.status).toBe('rejected');
+  });
+
+  it('errors if not in submitted status', () => {
+    svc.review(intakeId, 'approved', 'r');
+    expect(() => svc.review(intakeId, 'rejected', 'r')).toThrow(
+      'Cannot review intake in status: approved',
+    );
+  });
+});
+
+describe('B14-P1 — IntakeService.verify', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+  });
+
+  it('validates an unmodified record', () => {
+    const record = svc.createIntake('ediscovery', 'X', 'x@y.com');
+    expect(svc.verify(record.intakeId).valid).toBe(true);
+  });
+
+  it('returns invalid for non-existent record', () => {
+    const result = svc.verify('nope');
+    expect(result.valid).toBe(false);
+    expect(result.reason).toBe('Record not found');
+  });
+});
+
+describe('B14-P1 — IntakeService.list', () => {
+  let svc: IntakeService;
+
+  beforeEach(() => {
+    svc = new IntakeService();
+    svc.registerChecklist(testChecklist);
+    svc.registerChecklist(smbChecklist);
+  });
+
+  it('lists all records', () => {
+    svc.createIntake('ediscovery', 'A', 'a@b.com');
+    svc.createIntake('smb-consulting', 'B', 'b@c.com');
+    expect(svc.list()).toHaveLength(2);
+  });
+
+  it('filters by engagement type', () => {
+    svc.createIntake('ediscovery', 'A', 'a@b.com');
+    svc.createIntake('smb-consulting', 'B', 'b@c.com');
+    expect(svc.list({ engagementType: 'ediscovery' })).toHaveLength(1);
+  });
+
+  it('filters by status', () => {
+    const r = svc.createIntake('ediscovery', 'A', 'a@b.com');
+    svc.createIntake('ediscovery', 'B', 'b@c.com');
+    svc.completeItem(r.intakeId, 'req-1', 'u');
+    svc.completeItem(r.intakeId, 'req-2', 'u');
+    svc.submit(r.intakeId);
+    expect(svc.list({ status: 'submitted' })).toHaveLength(1);
+    expect(svc.list({ status: 'draft' })).toHaveLength(1);
+  });
+});
+
+describe('B14-P1 — Checklist JSON schema validation', () => {
+  it('ediscovery checklist has required fields', async () => {
+    const json = await import(
+      '../onboarding/intake/checklists/ediscovery.json'
+    );
+    expect(json.engagementType).toBe('ediscovery');
+    expect(json.version).toBe('1.0.0');
+    expect(Array.isArray(json.items)).toBe(true);
+    expect(json.items.length).toBeGreaterThan(0);
+    for (const item of json.items) {
+      expect(item.id).toBeTruthy();
+      expect(item.label).toBeTruthy();
+      expect(typeof item.required).toBe('boolean');
+    }
+  });
+
+  it('smb-consulting checklist has required fields', async () => {
+    const json = await import(
+      '../onboarding/intake/checklists/smb-consulting.json'
+    );
+    expect(json.engagementType).toBe('smb-consulting');
+    expect(Array.isArray(json.items)).toBe(true);
+  });
+
+  it('public-tools checklist has required fields', async () => {
+    const json = await import(
+      '../onboarding/intake/checklists/public-tools.json'
+    );
+    expect(json.engagementType).toBe('public-tools');
+    expect(Array.isArray(json.items)).toBe(true);
+  });
+});

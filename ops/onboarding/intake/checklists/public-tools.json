@@ -1,0 +1,38 @@
+{
+  "engagementType": "public-tools",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "pt-001",
+      "label": "User registration completed (email verified)",
+      "required": true
+    },
+    {
+      "id": "pt-002",
+      "label": "Terms of service accepted",
+      "required": true
+    },
+    {
+      "id": "pt-003",
+      "label": "Privacy policy acknowledged",
+      "required": true
+    },
+    {
+      "id": "pt-004",
+      "label": "Usage tier selected (free, standard, professional)",
+      "required": true
+    },
+    {
+      "id": "pt-005",
+      "label": "Acceptable use policy accepted",
+      "required": false,
+      "notes": "Required for tools processing sensitive data"
+    },
+    {
+      "id": "pt-006",
+      "label": "Payment method added (for paid tiers)",
+      "required": false,
+      "notes": "Required only for standard and professional tiers"
+    }
+  ]
+}
