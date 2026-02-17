@@ -57,6 +57,7 @@ const AgencyFrameworkManager = lazy(() => import('./AgencyFrameworkManager'))
 const ClientSiteManager = lazy(() => import('./ClientSiteManager'))
 const AdminLeadsViewer = lazy(() => import('@/leads').then(m => ({ default: m.AdminLeadsViewer })))
 const DeploymentsPanel = lazy(() => import('./DeploymentsPanel'))
+const ProvenancePanel = lazy(() => import('./ProvenancePanel'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -122,6 +123,7 @@ const navItems: NavItem[] = [
   { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System' },
   { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
   { id: 'deployments', label: 'Deployments', icon: Rocket, category: 'System' },
+  { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
   { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System' },
 ]
@@ -265,6 +267,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />
       case 'deployments': return <DeploymentsPanel siteId={activeSite?.id || 'xtx396'} />
+      case 'provenance': return <ProvenancePanel />
       case 'audit': return <AuditLog />
       case 'leads': return <AdminLeadsViewer />
       default: return <ContentManager />

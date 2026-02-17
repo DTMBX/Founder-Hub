@@ -130,6 +130,42 @@ Before executing rollback:
 - [ ] **Check data impact** - Will rollback cause data issues?
 - [ ] **Notify stakeholders** - Alert team in #incidents
 - [ ] **Prepare verification** - Know how to confirm fix
+- [ ] **Verify target provenance** - Check the rollback target has valid provenance
+
+---
+
+## Rollback with Provenance Verification
+
+### Why Provenance Matters for Rollback
+
+When rolling back, you're deploying a previous build artifact. Provenance ensures:
+- The artifact was built by trusted CI/CD
+- The artifact matches a known commit SHA
+- No tampering occurred since the original build
+
+### Verifying Rollback Target
+
+1. **Identify the target deploy** in Admin → System → Deployments
+2. **Check provenance** for the target version:
+   - Workflow Run ID matches GitHub Actions
+   - Manifest hash is present
+   - Commit SHA is verified
+3. **Admin Panel**: Go to System → Build Provenance to see current provenance
+4. **CLI verification**:
+```bash
+# Fetch provenance from production
+curl -s https://xtx396.com/provenance.json | jq .
+
+# Compare with target commit
+gh api repos/DTMBX/XTX396/commits/<SHA> --jq '.sha'
+```
+
+### Rollback Selection Priority
+
+When choosing a rollback target, prefer (in order):
+1. Most recent successful deploy **with verified provenance**
+2. Most recent successful deploy with provenance (unverified signature)
+3. Most recent successful deploy without provenance (legacy)
 
 ---
 

@@ -1187,6 +1187,41 @@ export interface DeploymentLog {
 }
 
 /**
+ * Build provenance attestation.
+ * Provides verifiable metadata about build origin and integrity.
+ */
+export interface BuildProvenance {
+  /** Schema version for forward compatibility */
+  schemaVersion: '1.0.0'
+  /** Workflow run ID from GitHub Actions */
+  workflowRunId: string
+  /** Workflow name */
+  workflowName: string
+  /** Repository owner/name */
+  repository: string
+  /** Git commit SHA */
+  commitSha: string
+  /** Git ref (branch or tag) */
+  ref: string
+  /** Build timestamp ISO 8601 */
+  builtAt: string
+  /** Builder identity (GitHub Actions runner) */
+  builderId: string
+  /** Artifact manifest hash (SHA-256) */
+  manifestHash: string
+  /** Total artifact size in bytes */
+  artifactSize: number
+  /** File count in artifact */
+  fileCount: number
+  /** Hash of the provenance record itself (excluding this field) */
+  provenanceHash?: string
+  /** Signature verification status from commit */
+  signatureVerified?: boolean
+  /** Signature verification reason */
+  signatureReason?: string
+}
+
+/**
  * Record of a deployment attempt.
  * Tracks version, environment, status, and build artifacts.
  */
@@ -1209,6 +1244,8 @@ export interface Deployment {
   /** Bounded log entries (max 200) */
   logs: DeploymentLog[]
   errorMessage?: string
+  /** Build provenance attestation for verifiable deployments */
+  provenance?: BuildProvenance
 }
 
 // ─── Canonical Site Core Schema ──────────────────────────────

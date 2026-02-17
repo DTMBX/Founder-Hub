@@ -29,6 +29,8 @@ import {
   ArrowCounterClockwise,
   Eye,
   Warning,
+  ShieldCheck,
+  Package,
 } from '@phosphor-icons/react'
 import type { Deployment, DeploymentStatus, DeploymentEnvironment } from '@/lib/types'
 import { getDeploymentService } from '@/lib/deployment-service'
@@ -215,6 +217,19 @@ export function DeploymentsPanel({
                           build: {deployment.buildHash.slice(0, 8)}
                         </span>
                       )}
+                    </div>
+                  )}
+                  {/* Provenance Info */}
+                  {deployment.provenance && (
+                    <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+                      <ShieldCheck className={`h-3.5 w-3.5 ${deployment.provenance.signatureVerified ? 'text-green-400' : 'text-muted-foreground'}`} />
+                      <span>
+                        Run #{deployment.provenance.workflowRunId}
+                      </span>
+                      <Package className="h-3.5 w-3.5 ml-1" />
+                      <span>
+                        {deployment.provenance.fileCount} files
+                      </span>
                     </div>
                   )}
                   {deployment.errorMessage && (

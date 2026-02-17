@@ -135,7 +135,7 @@ export class DeploymentService {
     siteId: string,
     deploymentId: string,
     status: DeploymentStatus,
-    fields?: Partial<Pick<Deployment, 'commitSha' | 'buildHash' | 'previewUrl' | 'approvedBy' | 'errorMessage'>>,
+    fields?: Partial<Pick<Deployment, 'commitSha' | 'buildHash' | 'previewUrl' | 'approvedBy' | 'errorMessage' | 'provenance'>>,
   ): Promise<Deployment> {
     const registry = getSiteRegistry(this.adapter)
     const deployment = await this.getDeployment(siteId, deploymentId)
@@ -153,6 +153,7 @@ export class DeploymentService {
       if (fields.previewUrl !== undefined) deployment.previewUrl = fields.previewUrl
       if (fields.approvedBy !== undefined) deployment.approvedBy = fields.approvedBy
       if (fields.errorMessage !== undefined) deployment.errorMessage = fields.errorMessage
+      if (fields.provenance !== undefined) deployment.provenance = fields.provenance
     }
 
     // Set completedAt for terminal states
@@ -237,6 +238,7 @@ export class DeploymentService {
   /**
    * Create a rollback deployment.
    * Creates a new deployment record pointing to a previous version.
+   * Copies provenance from the target deployment if available.
    */
   async rollback(
     siteId: string,
@@ -246,6 +248,12 @@ export class DeploymentService {
   ): Promise<Deployment> {
     const registry = getSiteRegistry(this.adapter)
 
+    // Find the deployment with the target version to copy provenance
+    const allDeployments = await this.listDeployments(siteId)
+    const sourceDeployment = allDeployments.find(
+      (d) => d.versionId === toVersionId && d.status === 'success'
+    )
+
     // Create new deployment with rolled-back as initial intent
     const deployment = await this.createDeployment(
       siteId,
@@ -253,6 +261,26 @@ export class DeploymentService {
       environment,
       actor,
     )
+
+    // Copy provenance from source deployment if available
+    if (sourceDeployment?.provenance) {
+      await this.setDeploymentStatus(
+        siteId,
+        deployment.deploymentId,
+        'pending',
+        {
+          commitSha: sourceDeployment.commitSha,
+          buildHash: sourceDeployment.buildHash,
+          provenance: sourceDeployment.provenance,
+        }
+      )
+      await this.appendDeploymentLog(
+        siteId,
+        deployment.deploymentId,
+        'info',
+        `Rollback using provenance from Run #${sourceDeployment.provenance.workflowRunId}`,
+      )
+    }
 
     // Update status to indicate rollback
     await this.appendDeploymentLog(

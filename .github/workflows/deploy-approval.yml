@@ -75,6 +75,8 @@ jobs:
     outputs:
       signature_verified: ${{ steps.verify-signature.outputs.verified }}
       signature_reason: ${{ steps.verify-signature.outputs.reason }}
+      provenance_hash: ${{ steps.provenance.outputs.provenance_hash }}
+      manifest_hash: ${{ steps.provenance.outputs.manifest_hash }}
     
     steps:
       - name: Checkout
@@ -188,6 +190,64 @@ jobs:
             console.log('   Files:', manifest.stats.totalFiles);
             console.log('   Size:', Math.round(manifest.stats.totalSize / 1024), 'KB');
             console.log('   Hash:', manifest.manifestHash.substring(0, 12) + '...');
+          "
+      
+      - name: Generate build provenance
+        id: provenance
+        run: |
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Read manifest for hash and stats
+            const manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
+            
+            // Build provenance record
+            const provenance = {
+              schemaVersion: '1.0.0',
+              workflowRunId: '${{ github.run_id }}',
+              workflowName: '${{ github.workflow }}',
+              repository: '${{ github.repository }}',
+              commitSha: '${{ github.sha }}',
+              ref: '${{ github.ref }}',
+              builtAt: new Date().toISOString(),
+              builderId: 'github-actions',
+              manifestHash: manifest.manifestHash,
+              artifactSize: manifest.stats.totalSize,
+              fileCount: manifest.stats.totalFiles,
+              signatureVerified: '${{ steps.verify-signature.outputs.verified }}' === 'true',
+              signatureReason: '${{ steps.verify-signature.outputs.reason }}'
+            };
+            
+            // Compute provenance hash (excluding the hash field itself)
+            const { provenanceHash, ...rest } = provenance;
+            provenance.provenanceHash = crypto
+              .createHash('sha256')
+              .update(JSON.stringify(rest, Object.keys(rest).sort()))
+              .digest('hex');
+            
+            // Write provenance file
+            fs.writeFileSync(
+              './dist/provenance.json',
+              JSON.stringify(provenance, null, 2)
+            );
+            
+            // Output key values for later steps
+            console.log('✅ Generated provenance.json');
+            console.log('   Run ID:', provenance.workflowRunId);
+            console.log('   Commit:', provenance.commitSha.substring(0, 7));
+            console.log('   Hash:', provenance.provenanceHash.substring(0, 12) + '...');
+            console.log('   Signature:', provenance.signatureVerified ? '✓ Verified' : '○ Not verified');
+            
+            // Export for GitHub Actions
+            const outputFile = process.env.GITHUB_OUTPUT;
+            if (outputFile) {
+              fs.appendFileSync(outputFile, 
+                'provenance_hash=' + provenance.provenanceHash + '\n' +
+                'manifest_hash=' + provenance.manifestHash + '\n'
+              );
+            }
           "
       
       - name: Upload build
@@ -419,8 +479,17 @@ jobs:
             console.log(`Production deployment recorded: ${sha} at ${timestamp}`);
             console.log(`Deployed by: ${actor}`);
             
-            // Output deployment metadata for manifest
+            // Output deployment metadata with provenance for audit
             const fs = require('fs');
+            
+            // Read provenance from build artifact
+            let provenance = null;
+            try {
+              provenance = JSON.parse(fs.readFileSync('./dist/provenance.json', 'utf8'));
+            } catch (e) {
+              console.log('Provenance file not found, continuing without it');
+            }
+            
             const deployMeta = {
               environment: 'production',
               commitSha: fullSha,
@@ -431,7 +500,15 @@ jobs:
               verification: {
                 signatureVerified: '${{ needs.build.outputs.signature_verified }}' === 'true',
                 signatureReason: '${{ needs.build.outputs.signature_reason }}'
-              }
+              },
+              provenance: provenance ? {
+                workflowRunId: provenance.workflowRunId,
+                manifestHash: provenance.manifestHash,
+                provenanceHash: provenance.provenanceHash,
+                artifactSize: provenance.artifactSize,
+                fileCount: provenance.fileCount,
+                builtAt: provenance.builtAt
+              } : null
             };
             
             console.log('Deploy metadata:', JSON.stringify(deployMeta, null, 2));
