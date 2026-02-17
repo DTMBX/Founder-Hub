@@ -813,3 +813,187 @@ describe('B13-P4 — ArtifactEscrowService', () => {
     expect(escrowSvc.get('nope')).toBeUndefined();
   });
 });
+
+// ── B13-P8 — Anti-Deletion Guardrails ───────────────────────────
+
+import {
+  matchGlob,
+  evaluateDeletions,
+  formatGuardReport,
+  DEFAULT_PROTECTED_PATTERNS,
+  MASS_DELETE_THRESHOLD,
+  type DeletedFile,
+} from '../backup/AntiDeletionGuard';
+
+describe('B13-P8 — matchGlob', () => {
+  it('matches exact file path', () => {
+    expect(matchGlob('src/lib/secret-vault.ts', 'src/lib/secret-vault.ts')).toBe(true);
+  });
+
+  it('rejects non-matching exact path', () => {
+    expect(matchGlob('src/lib/secret-vault.ts', 'src/lib/other.ts')).toBe(false);
+  });
+
+  it('matches ** at end (deep children)', () => {
+    expect(matchGlob('governance/**', 'governance/security/backup_policy.md')).toBe(true);
+  });
+
+  it('matches ** for direct children', () => {
+    expect(matchGlob('governance/**', 'governance/README.md')).toBe(true);
+  });
+
+  it('rejects path outside ** pattern', () => {
+    expect(matchGlob('governance/**', 'src/index.ts')).toBe(false);
+  });
+
+  it('matches * wildcard within a segment', () => {
+    expect(matchGlob('src/*.ts', 'src/main.ts')).toBe(true);
+  });
+
+  it('rejects * when path has deeper segments', () => {
+    expect(matchGlob('src/*.ts', 'src/lib/main.ts')).toBe(false);
+  });
+
+  it('normalises backslashes', () => {
+    expect(matchGlob('governance/**', 'governance\\security\\policy.md')).toBe(true);
+  });
+});
+
+describe('B13-P8 — evaluateDeletions', () => {
+  const del = (path: string): DeletedFile => ({ path });
+
+  it('passes when no files are deleted', () => {
+    const result = evaluateDeletions([]);
+    expect(result.pass).toBe(true);
+    expect(result.violations).toHaveLength(0);
+    expect(result.totalDeleted).toBe(0);
+    expect(result.massDeleteTriggered).toBe(false);
+  });
+
+  it('passes when deleted files are not protected', () => {
+    const result = evaluateDeletions(
+      [del('README.md'), del('docs/notes.md')],
+      { totalRepoFiles: 100 },
+    );
+    expect(result.pass).toBe(true);
+    expect(result.violations).toHaveLength(0);
+  });
+
+  it('fails when a protected path is deleted', () => {
+    const result = evaluateDeletions(
+      [del('governance/security/backup_policy.md')],
+      { totalRepoFiles: 100 },
+    );
+    expect(result.pass).toBe(false);
+    expect(result.violations).toHaveLength(1);
+    expect(result.violations[0].file).toBe('governance/security/backup_policy.md');
+    expect(result.violations[0].matchedPattern).toBe('governance/**');
+  });
+
+  it('detects multiple violations', () => {
+    const result = evaluateDeletions(
+      [
+        del('governance/security/policy.md'),
+        del('scripts/verify.ps1'),
+        del('ops/runner/index.ts'),
+        del('README.md'),
+      ],
+      { totalRepoFiles: 100 },
+    );
+    expect(result.pass).toBe(false);
+    expect(result.violations).toHaveLength(3); // governance, scripts, ops/runner
+  });
+
+  it('detects mass deletion', () => {
+    const deletions = Array.from({ length: 30 }, (_, i) => del(`file${i}.txt`));
+    const result = evaluateDeletions(deletions, { totalRepoFiles: 100 });
+    expect(result.pass).toBe(false);
+    expect(result.massDeleteTriggered).toBe(true);
+    expect(result.deletionRatio).toBe(0.3);
+  });
+
+  it('does not trigger mass deletion below threshold', () => {
+    const deletions = Array.from({ length: 10 }, (_, i) => del(`file${i}.txt`));
+    const result = evaluateDeletions(deletions, { totalRepoFiles: 100 });
+    expect(result.massDeleteTriggered).toBe(false);
+  });
+
+  it('uses custom threshold', () => {
+    const deletions = Array.from({ length: 11 }, (_, i) => del(`file${i}.txt`));
+    const result = evaluateDeletions(deletions, {
+      totalRepoFiles: 100,
+      massDeleteThreshold: 0.10,
+    });
+    expect(result.massDeleteTriggered).toBe(true);
+  });
+
+  it('uses custom protected patterns', () => {
+    const result = evaluateDeletions(
+      [del('custom/important.ts')],
+      { protectedPatterns: ['custom/**'], totalRepoFiles: 100 },
+    );
+    expect(result.pass).toBe(false);
+    expect(result.violations[0].matchedPattern).toBe('custom/**');
+  });
+
+  it('detects src/lib/secret-vault.ts deletion (exact match)', () => {
+    const result = evaluateDeletions(
+      [del('src/lib/secret-vault.ts')],
+      { totalRepoFiles: 100 },
+    );
+    expect(result.pass).toBe(false);
+    expect(result.violations[0].matchedPattern).toBe('src/lib/secret-vault.ts');
+  });
+});
+
+describe('B13-P8 — formatGuardReport', () => {
+  it('formats passing result', () => {
+    const report = formatGuardReport({
+      pass: true,
+      violations: [],
+      totalDeleted: 2,
+      deletionRatio: 0.02,
+      massDeleteTriggered: false,
+    });
+    expect(report).toContain('PASS');
+    expect(report).toContain('2 file(s) deleted');
+  });
+
+  it('formats failing result with violations', () => {
+    const report = formatGuardReport({
+      pass: false,
+      violations: [{ file: 'governance/x.md', matchedPattern: 'governance/**' }],
+      totalDeleted: 1,
+      deletionRatio: 0.01,
+      massDeleteTriggered: false,
+    });
+    expect(report).toContain('FAIL');
+    expect(report).toContain('governance/x.md');
+    expect(report).toContain('EVIDENT_GUARD_OVERRIDE');
+  });
+
+  it('formats mass deletion warning', () => {
+    const report = formatGuardReport({
+      pass: false,
+      violations: [],
+      totalDeleted: 50,
+      deletionRatio: 0.5,
+      massDeleteTriggered: true,
+    });
+    expect(report).toContain('Mass deletion');
+    expect(report).toContain('50.0%');
+  });
+});
+
+describe('B13-P8 — constants', () => {
+  it('exports DEFAULT_PROTECTED_PATTERNS with expected entries', () => {
+    expect(DEFAULT_PROTECTED_PATTERNS).toContain('governance/**');
+    expect(DEFAULT_PROTECTED_PATTERNS).toContain('.github/workflows/**');
+    expect(DEFAULT_PROTECTED_PATTERNS).toContain('src/lib/secret-vault.ts');
+    expect(DEFAULT_PROTECTED_PATTERNS.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it('exports MASS_DELETE_THRESHOLD as 0.25', () => {
+    expect(MASS_DELETE_THRESHOLD).toBe(0.25);
+  });
+});
