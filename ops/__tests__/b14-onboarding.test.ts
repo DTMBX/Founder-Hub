@@ -449,3 +449,206 @@ describe('B14-P3 — ProposalService', () => {
     expect(svc.list({ status: 'reviewed' })).toHaveLength(1);
   });
 });
+
+// ── B14-P4: Billing Core ────────────────────────────────────────
+
+import {
+  computeLineAmount,
+  computeSubtotal,
+  computeTotal,
+  hashInvoice,
+} from '../billing/models/Invoice';
+import { BillingLedger } from '../billing/ledger/BillingLedger';
+import { LocalManualAdapter } from '../billing/adapters/LocalManualAdapter';
+
+describe('B14-P4 — Invoice model helpers', () => {
+  it('computes line amount', () => {
+    expect(computeLineAmount(2, 150)).toBe(300);
+    expect(computeLineAmount(3, 33.33)).toBe(99.99);
+  });
+
+  it('computes subtotal from line items', () => {
+    const items = [
+      { description: 'A', quantity: 1, unitPrice: 100, amount: 100 },
+      { description: 'B', quantity: 2, unitPrice: 50, amount: 100 },
+    ];
+    expect(computeSubtotal(items)).toBe(200);
+  });
+
+  it('computes total with tax', () => {
+    expect(computeTotal(200, 20)).toBe(220);
+  });
+});
+
+describe('B14-P4 — BillingLedger', () => {
+  let ledger: BillingLedger;
+
+  beforeEach(() => {
+    ledger = new BillingLedger();
+  });
+
+  it('creates an invoice in draft status', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'Service', quantity: 10, unitPrice: 150 }],
+    });
+    expect(inv.invoiceId).toMatch(/^INV-/);
+    expect(inv.status).toBe('draft');
+    expect(inv.subtotal).toBe(1500);
+    expect(inv.total).toBe(1500);
+    expect(inv.integrityHash).toBeTruthy();
+  });
+
+  it('applies tax rate', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 1000 }],
+      taxRate: 0.1,
+    });
+    expect(inv.tax).toBe(100);
+    expect(inv.total).toBe(1100);
+  });
+
+  it('issues a draft invoice', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    const issued = ledger.issue(inv.invoiceId, 'user', '2026-03-01');
+    expect(issued.status).toBe('issued');
+    expect(issued.dueDate).toBe('2026-03-01');
+  });
+
+  it('records payment', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    ledger.issue(inv.invoiceId, 'u', '2026-03-01');
+    const paid = ledger.recordPayment(inv.invoiceId, 'u');
+    expect(paid.status).toBe('paid');
+    expect(paid.paidAt).toBeTruthy();
+  });
+
+  it('rejects payment on draft', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    expect(() => ledger.recordPayment(inv.invoiceId, 'u')).toThrow();
+  });
+
+  it('voids an invoice with reason', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    ledger.issue(inv.invoiceId, 'u', '2026-03-01');
+    const voided = ledger.void(inv.invoiceId, 'u', 'Client cancelled');
+    expect(voided.status).toBe('void');
+  });
+
+  it('rejects voiding a paid invoice', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    ledger.issue(inv.invoiceId, 'u', '2026-03-01');
+    ledger.recordPayment(inv.invoiceId, 'u');
+    expect(() => ledger.void(inv.invoiceId, 'u', 'reason')).toThrow();
+  });
+
+  it('disputes an issued invoice', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    ledger.issue(inv.invoiceId, 'u', '2026-03-01');
+    const disputed = ledger.dispute(inv.invoiceId, 'u', 'Incorrect amount');
+    expect(disputed.status).toBe('disputed');
+  });
+
+  it('maintains append-only ledger entries', () => {
+    const inv = ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    ledger.issue(inv.invoiceId, 'u', '2026-03-01');
+    ledger.recordPayment(inv.invoiceId, 'u');
+
+    const entries = ledger.getEntries(inv.invoiceId);
+    expect(entries).toHaveLength(3);
+    expect(entries[0].action).toBe('invoice.created');
+    expect(entries[1].action).toBe('invoice.issued');
+    expect(entries[2].action).toBe('invoice.paid');
+  });
+
+  it('verifies ledger integrity', () => {
+    ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'Acme',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    const result = ledger.verifyLedger();
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('lists invoices with filters', () => {
+    ledger.createInvoice({
+      clientId: 'c1',
+      clientName: 'A',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 100 }],
+    });
+    const inv2 = ledger.createInvoice({
+      clientId: 'c2',
+      clientName: 'B',
+      lineItems: [{ description: 'S', quantity: 1, unitPrice: 200 }],
+    });
+    ledger.issue(inv2.invoiceId, 'u', '2026-03-01');
+
+    expect(ledger.list({ status: 'draft' })).toHaveLength(1);
+    expect(ledger.list({ clientId: 'c2' })).toHaveLength(1);
+  });
+});
+
+describe('B14-P4 — LocalManualAdapter', () => {
+  it('processes a payment', async () => {
+    const adapter = new LocalManualAdapter();
+    const result = await adapter.processPayment({
+      invoiceId: 'INV-test',
+      amount: 500,
+      currency: 'USD',
+      method: 'check',
+    });
+    expect(result.success).toBe(true);
+    expect(result.transactionId).toMatch(/^TXN-/);
+    expect(result.amount).toBe(500);
+  });
+
+  it('reports healthy', async () => {
+    const adapter = new LocalManualAdapter();
+    const health = await adapter.healthCheck();
+    expect(health.healthy).toBe(true);
+  });
+
+  it('records transactions', async () => {
+    const adapter = new LocalManualAdapter();
+    await adapter.processPayment({
+      invoiceId: 'INV-1',
+      amount: 100,
+      currency: 'USD',
+      method: 'manual',
+    });
+    expect(adapter.getTransactions()).toHaveLength(1);
+  });
+});
