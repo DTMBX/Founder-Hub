@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-17T00:00:00Z",
+  "description": "XTX396 Runtime Policy Engine - Terminal & Assistant Governance",
+
+  "commands": {
+    "allowed": [
+      { "pattern": "^git (status|log|diff|branch|show|blame).*", "description": "Read-only git commands", "riskLevel": "low" },
+      { "pattern": "^git (add|commit|push|pull|fetch|checkout|merge|rebase).*", "description": "Git write operations", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^npm (run|test|lint|build|install|ci).*", "description": "NPM operations", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^npx.*", "description": "NPX execution", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^pnpm (run|test|lint|build|install).*", "description": "PNPM operations", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^yarn (run|test|lint|build|install).*", "description": "Yarn operations", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^(ls|dir|cat|type|head|tail|less|more|tree).*", "description": "Read file system", "riskLevel": "low" },
+      { "pattern": "^(echo|printf|write-output).*", "description": "Output commands", "riskLevel": "low" },
+      { "pattern": "^(cd|pushd|popd|pwd|Get-Location).*", "description": "Directory navigation", "riskLevel": "low" },
+      { "pattern": "^(grep|rg|ag|find|fd|where|Select-String).*", "description": "Search commands", "riskLevel": "low" },
+      { "pattern": "^(node|tsx|ts-node) .+\\.ts$", "description": "Run TypeScript", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^python3? .+\\.py$", "description": "Run Python", "riskLevel": "medium", "requiresRole": "editor" },
+      { "pattern": "^vitest.*", "description": "Run tests", "riskLevel": "low", "requiresRole": "viewer" },
+      { "pattern": "^playwright.*", "description": "Run E2E tests", "riskLevel": "low", "requiresRole": "viewer" },
+      { "pattern": "^tsc( --.*)?$", "description": "TypeScript compiler", "riskLevel": "low" },
+      { "pattern": "^eslint.*", "description": "Linting", "riskLevel": "low" }
+    ],
+    "forbidden": [
+      { "pattern": "^rm -rf /.*", "reason": "Destructive recursive delete from root", "riskLevel": "critical" },
+      { "pattern": "^(rm|del|Remove-Item).*-Force.*-Recurse.*", "reason": "Forced recursive deletion", "riskLevel": "critical" },
+      { "pattern": "^(curl|wget|Invoke-WebRequest).*(\\||>).*", "reason": "Piping remote content to execution", "riskLevel": "critical" },
+      { "pattern": "^(sudo|runas|gsudo).*", "reason": "Privilege escalation", "riskLevel": "critical" },
+      { "pattern": "^(chmod|chown|icacls).*", "reason": "Permission modification", "riskLevel": "high" },
+      { "pattern": "^git push.*--force.*", "reason": "Force push can rewrite history", "riskLevel": "high" },
+      { "pattern": "^git reset --hard.*", "reason": "Hard reset can lose work", "riskLevel": "high" },
+      { "pattern": "^npm publish.*", "reason": "Publishing requires explicit approval", "riskLevel": "high" },
+      { "pattern": ".*(password|secret|token|key|credential).*=.*", "reason": "Potential secret in command", "riskLevel": "high" },
+      { "pattern": "^eval .*", "reason": "Arbitrary code execution", "riskLevel": "critical" },
+      { "pattern": "^(nc|netcat|ncat).*", "reason": "Network tool can be exploited", "riskLevel": "high" },
+      { "pattern": "^(ssh|scp|rsync).*", "reason": "Remote access requires approval", "riskLevel": "medium" },
+      { "pattern": "^docker (run|exec).*--privileged.*", "reason": "Privileged container access", "riskLevel": "critical" },
+      { "pattern": "^(powershell|pwsh|bash|sh|cmd) -c .*", "reason": "Subshell execution hides intent", "riskLevel": "high" }
+    ]
+  },
+
+  "paths": {
+    "allowed": [
+      { "pattern": "^src/.*", "description": "Source code" },
+      { "pattern": "^public/.*", "description": "Public assets" },
+      { "pattern": "^scripts/.*", "description": "Build scripts" },
+      { "pattern": "^tests?/.*", "description": "Test files" },
+      { "pattern": "^governance/.*", "description": "Governance docs", "requiresRole": "admin" },
+      { "pattern": "^docs?/.*", "description": "Documentation" },
+      { "pattern": "^\\.github/.*", "description": "GitHub config", "requiresRole": "admin" },
+      { "pattern": "^(package|tsconfig|vite\\.config|vitest\\.config).*\\.json$", "description": "Config files" },
+      { "pattern": "^(README|CHANGELOG|LICENSE).*", "description": "Root docs" }
+    ],
+    "forbidden": [
+      { "pattern": "^/.*", "reason": "Absolute paths outside workspace" },
+      { "pattern": "^\\.\\./.*", "reason": "Parent directory traversal" },
+      { "pattern": ".*\\.env.*", "reason": "Environment files contain secrets" },
+      { "pattern": ".*\\.pem$", "reason": "Private key files" },
+      { "pattern": ".*\\.key$", "reason": "Key files" },
+      { "pattern": ".*/\\.ssh/.*", "reason": "SSH directory" },
+      { "pattern": ".*/\\.aws/.*", "reason": "AWS credentials" },
+      { "pattern": ".*/\\.gnupg/.*", "reason": "GPG keys" },
+      { "pattern": ".*node_modules/.*", "reason": "Dependencies should not be modified directly" }
+    ]
+  },
+
+  "actions": {
+    "requiresOwnerApproval": [
+      { "action": "publish_production", "description": "Publish to production environment" },
+      { "action": "modify_security_settings", "description": "Change security configuration" },
+      { "action": "role_change", "description": "Modify user roles" },
+      { "action": "delete_case_data", "description": "Delete case or evidence data" },
+      { "action": "export_all_data", "description": "Bulk data export" },
+      { "action": "modify_policy", "description": "Change governance policy" },
+      { "action": "revoke_all_sessions", "description": "Mass session revocation" },
+      { "action": "delete_audit_data", "description": "Remove audit records" },
+      { "action": "modify_backup_config", "description": "Change backup settings" }
+    ],
+    "requiresAdminApproval": [
+      { "action": "git_force_push", "description": "Force push to repository" },
+      { "action": "delete_project", "description": "Delete a project" },
+      { "action": "bulk_import", "description": "Import large datasets" },
+      { "action": "modify_templates", "description": "Change document templates" }
+    ],
+    "requiresStepUpAuth": [
+      { "action": "publish_production", "validityMinutes": 5 },
+      { "action": "modify_security_settings", "validityMinutes": 5 },
+      { "action": "role_change", "validityMinutes": 5 },
+      { "action": "delete_case_data", "validityMinutes": 5 },
+      { "action": "git_force_push", "validityMinutes": 5 },
+      { "action": "export_all_data", "validityMinutes": 5 },
+      { "action": "modify_policy", "validityMinutes": 5 }
+    ]
+  },
+
+  "rateLimits": {
+    "terminal": {
+      "maxCommandsPerMinute": 30,
+      "maxCommandsPerHour": 500,
+      "cooldownAfterDenialSeconds": 60
+    },
+    "assistant": {
+      "maxToolCallsPerMinute": 60,
+      "maxToolCallsPerHour": 1000,
+      "cooldownAfterDenialSeconds": 30
+    },
+    "api": {
+      "maxRequestsPerMinute": 100,
+      "maxRequestsPerHour": 3000
+    }
+  },
+
+  "execution": {
+    "maxExecutionTimeMs": {
+      "default": 30000,
+      "build": 300000,
+      "test": 600000,
+      "deploy": 600000
+    },
+    "timeoutAction": "kill",
+    "outputLimits": {
+      "maxOutputBytes": 1048576,
+      "truncateStrategy": "tail"
+    }
+  },
+
+  "dryRun": {
+    "enabledByDefault": false,
+    "description": "When enabled, policy engine will evaluate but not execute actions",
+    "logLevel": "info"
+  },
+
+  "audit": {
+    "logAllEvaluations": true,
+    "logDenials": true,
+    "logApprovals": true,
+    "retentionDays": 365,
+    "sensitiveFieldsRedacted": ["password", "token", "secret", "key", "credential"]
+  },
+
+  "roles": {
+    "owner": {
+      "inherits": ["admin"],
+      "canModifyPolicy": true,
+      "canBypassRateLimits": false,
+      "maxConcurrentTerminals": 5
+    },
+    "admin": {
+      "inherits": ["editor"],
+      "canApproveActions": true,
+      "canViewAuditLogs": true,
+      "maxConcurrentTerminals": 3
+    },
+    "editor": {
+      "inherits": ["viewer"],
+      "canExecuteCommands": true,
+      "canModifyFiles": true,
+      "maxConcurrentTerminals": 2
+    },
+    "support": {
+      "inherits": ["viewer"],
+      "canViewCases": true,
+      "canAddNotes": true,
+      "maxConcurrentTerminals": 1
+    },
+    "viewer": {
+      "inherits": [],
+      "canExecuteCommands": false,
+      "canModifyFiles": false,
+      "maxConcurrentTerminals": 0
+    }
+  }
+}

@@ -18,6 +18,7 @@ export type AuditCategory =
   | 'access'
   | 'authentication'
   | 'authorization'
+  | 'policy'
   | 'data'
   | 'configuration'
   | 'deployment'
