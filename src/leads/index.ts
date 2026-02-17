@@ -19,6 +19,15 @@ export type {
   LeadEnrichment,
   LeadListQuery,
   LeadListResult,
+  // Chain 1: New types
+  LeadAttachment,
+  FollowUpTask,
+  FollowUpTaskStatus,
+  FollowUpTaskType,
+  AutoReplyTemplate,
+  NotificationConfig,
+  AutomationEvent,
+  AutomationAction,
 } from './types'
 
 // Service
@@ -73,3 +82,33 @@ export type { IntakePacket } from './intake'
 // Admin
 export { AdminLeadsViewer } from './AdminLeadsViewer'
 export type { AdminLeadsViewerProps } from './AdminLeadsViewer'
+
+// Chain 1: Follow-Up Tasks
+export {
+  FollowUpTaskService,
+  getFollowUpTaskService,
+} from './follow-up-task.service'
+
+export type {
+  CreateTaskInput,
+  TaskListQuery,
+  TaskListResult,
+} from './follow-up-task.service'
+
+// Chain 1: Lead Automation
+export {
+  LeadAutomationService,
+  getLeadAutomationService,
+} from './lead-automation.service'
+
+export type {
+  AutomationServiceConfig,
+} from './lead-automation.service'
+
+// Chain 1: Mobile Intake Form
+export { MobileLeadIntakeForm } from './MobileLeadIntakeForm'
+export type { MobileLeadIntakeFormProps } from './MobileLeadIntakeForm'
+
+// Chain 1: Follow-Up Dashboard
+export { FollowUpDashboard } from './FollowUpDashboard'
+export type { FollowUpDashboardProps } from './FollowUpDashboard'
