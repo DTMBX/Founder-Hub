@@ -95,6 +95,76 @@ jobs:
         env:
           NODE_ENV: production
       
+      - name: Generate site manifest
+        run: |
+          node -e "
+            const crypto = require('crypto');
+            const fs = require('fs');
+            const path = require('path');
+            
+            function sha256(content) {
+              return crypto.createHash('sha256').update(content).digest('hex');
+            }
+            
+            function hashFile(filePath) {
+              const content = fs.readFileSync(filePath);
+              return sha256(content);
+            }
+            
+            function walkDir(dir, baseDir = dir) {
+              const files = [];
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                  files.push(...walkDir(fullPath, baseDir));
+                } else {
+                  files.push({
+                    path: path.relative(baseDir, fullPath).replace(/\\\\/g, '/'),
+                    sha256: hashFile(fullPath),
+                    size: fs.statSync(fullPath).size
+                  });
+                }
+              }
+              return files;
+            }
+            
+            const distDir = './dist';
+            const files = walkDir(distDir);
+            files.sort((a, b) => a.path.localeCompare(b.path));
+            
+            const manifest = {
+              schemaVersion: '1.0.0',
+              siteId: 'xtx396',
+              siteName: 'XTX396',
+              versionId: '${{ github.sha }}'.substring(0, 7),
+              build: {
+                buildId: crypto.randomUUID(),
+                buildStartedAt: new Date().toISOString(),
+                sourceCommitSha: '${{ github.sha }}',
+                branch: '${{ github.ref_name }}',
+              },
+              files: files,
+              stats: {
+                totalFiles: files.length,
+                totalSize: files.reduce((sum, f) => sum + f.size, 0),
+              }
+            };
+            
+            // Compute manifest hash
+            const { manifestHash, ...rest } = manifest;
+            manifest.manifestHash = sha256(JSON.stringify(rest, Object.keys(rest).sort()));
+            
+            fs.writeFileSync(
+              path.join(distDir, 'manifest.json'),
+              JSON.stringify(manifest, null, 2)
+            );
+            
+            console.log('✅ Generated manifest.json');
+            console.log('   Files:', manifest.stats.totalFiles);
+            console.log('   Size:', Math.round(manifest.stats.totalSize / 1024), 'KB');
+            console.log('   Hash:', manifest.manifestHash.substring(0, 12) + '...');
+          "
+      
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -140,12 +210,40 @@ jobs:
           script: |
             const url = '${{ steps.deploy.outputs.NETLIFY_URL }}';
             const sha = '${{ github.sha }}'.substring(0, 7);
+            const fullSha = '${{ github.sha }}';
+            const prNumber = context.issue.number;
+            const actor = '${{ github.actor }}';
+            const timestamp = new Date().toISOString();
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            // Create GitHub deployment record for preview
+            const deployment = await github.rest.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `## 🚀 Preview Deployed\n\n**URL:** ${url}\n**Commit:** \`${sha}\`\n\nThis preview will be updated on each push.`
+              ref: fullSha,
+              environment: `preview-pr-${prNumber}`,
+              auto_merge: false,
+              required_contexts: [],
+              transient_environment: true,
+              description: `Preview deploy for PR #${prNumber}`
+            });
+            
+            if (deployment.data.id) {
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.data.id,
+                state: 'success',
+                environment_url: url,
+                description: `Preview deployed for commit ${sha}`
+              });
+            }
+            
+            // Comment on the PR
+            github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Preview Deployed\n\n| Property | Value |\n|----------|-------|\n| **URL** | ${url} |\n| **Commit** | \`${sha}\` |\n| **Branch** | \`${{ github.head_ref }}\` |\n| **Deployed** | ${timestamp} |\n\nThis preview will be updated on each push.\n\n---\n*Manifest hash available at ${url}/manifest.json*`
             });
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -258,8 +356,10 @@ jobs:
         with:
           script: |
             const sha = '${{ github.sha }}'.substring(0, 7);
+            const fullSha = '${{ github.sha }}';
             const url = 'https://xtx396.com';
             const timestamp = new Date().toISOString();
+            const actor = '${{ github.actor }}';
             
             // Create a deployment tag
             await github.rest.git.createRef({
@@ -269,7 +369,43 @@ jobs:
               sha: context.sha
             }).catch(() => console.log('Tag may already exist'));
             
+            // Create GitHub deployment record
+            const deployment = await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: fullSha,
+              environment: 'production',
+              auto_merge: false,
+              required_contexts: [],
+              description: `Production deploy by ${actor}`
+            });
+            
+            if (deployment.data.id) {
+              await github.rest.repos.createDeploymentStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                deployment_id: deployment.data.id,
+                state: 'success',
+                environment_url: url,
+                description: `Deployed commit ${sha} to production`
+              });
+            }
+            
             console.log(`Production deployment recorded: ${sha} at ${timestamp}`);
+            console.log(`Deployed by: ${actor}`);
+            
+            // Output deployment metadata for manifest
+            const fs = require('fs');
+            const deployMeta = {
+              environment: 'production',
+              commitSha: fullSha,
+              branch: '${{ github.ref_name }}',
+              deployedAt: timestamp,
+              deployedBy: actor,
+              approvedBy: actor
+            };
+            
+            console.log('Deploy metadata:', JSON.stringify(deployMeta, null, 2));
 
   # ─────────────────────────────────────────────────────────────────────────────
   # POST-DEPLOY NOTIFICATION

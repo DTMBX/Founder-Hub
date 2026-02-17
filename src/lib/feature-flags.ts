@@ -35,6 +35,10 @@ export interface FeatureFlags {
   // Feature rollout flags
   newEditorEnabled: boolean   // New editor experience
   aiAssistEnabled: boolean    // AI assistance features
+  
+  // GitHub integration flags (Chain A6)
+  githubAppAuth: boolean      // Use GitHub App instead of PAT
+  previewDeploysEnabled: boolean // Enable preview deployments on PR
 }
 
 /**
@@ -60,6 +64,10 @@ export const DEFAULT_FLAGS: FeatureFlags = {
   // Features
   newEditorEnabled: false,
   aiAssistEnabled: false,
+  
+  // GitHub integration (Chain A6)
+  githubAppAuth: false,       // Use PAT by default, enable for GitHub App
+  previewDeploysEnabled: true, // Enable PR preview deployments
 }
 
 // ─── Flag Categories ─────────────────────────────────────────
@@ -77,6 +85,8 @@ export const FLAG_CATEGORIES: Record<keyof FeatureFlags, FlagCategory> = {
   mockData: 'development',
   newEditorEnabled: 'feature',
   aiAssistEnabled: 'feature',
+  githubAppAuth: 'feature',
+  previewDeploysEnabled: 'feature',
 }
 
 /**

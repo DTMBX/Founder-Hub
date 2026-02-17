@@ -210,6 +210,11 @@ export function DeploymentsPanel({
                     <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1 font-mono">
                       <GitBranch className="h-3.5 w-3.5" />
                       {deployment.commitSha.slice(0, 7)}
+                      {deployment.buildHash && (
+                        <span className="ml-2 text-muted-foreground/70">
+                          build: {deployment.buildHash.slice(0, 8)}
+                        </span>
+                      )}
                     </div>
                   )}
                   {deployment.errorMessage && (
