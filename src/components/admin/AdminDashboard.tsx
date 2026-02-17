@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -18,42 +18,59 @@ import {
   Certificate, ClipboardText, Tray, ShieldCheck, VideoCamera, 
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
-  Buildings, Storefront, Kanban, UsersFour
+  Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X
 } from '@phosphor-icons/react'
-import ContentManager from './ContentManager'
-import EnhancedProjectsManager from './EnhancedProjectsManager'
-import EnhancedCourtManager from './EnhancedCourtManager'
-import DocumentsManager from './DocumentsManager'
-import AdminInbox from './AdminInbox'
-import UploadQueueManager from './UploadQueueManager'
-import StagingReviewManager from './StagingReviewManager'
-import FilingTypesManager from './FilingTypesManager'
-import TemplatesManager from './TemplatesManager'
-import HeroMediaManager from './HeroMediaManager'
-import ThemeManager from './ThemeManager'
-import SettingsManager from './SettingsManager'
-import SecurityManager from './SecurityManager'
-import AuditLog from './AuditLog'
-import AssetScanner from './AssetScanner'
-import AssetUsagePolicyManager from './AssetUsagePolicyManager'
-import VisualModulesManager from './VisualModulesManager'
-import CaseJacketManager from './CaseJacketManager'
-import AboutManager from './AboutManager'
-import LinksManager from './LinksManager'
-import ProfileManager from './ProfileManager'
-import HonorFlagBarManager from './HonorFlagBarManager'
-import OfferingsManager from './OfferingsManager'
-import InvestorManager from './InvestorManager'
-import EvidentManager from './EvidentManager'
 import SitePicker from './SitePicker'
-import SitesManager from './SitesManager'
-import LawFirmShowcaseManager from './LawFirmShowcaseManager'
-import SMBTemplateManager from './SMBTemplateManager'
-import AgencyFrameworkManager from './AgencyFrameworkManager'
-import ClientSiteManager from './ClientSiteManager'
 import { useClientSites } from '@/hooks/use-client-sites'
-import { AdminLeadsViewer } from '@/leads'
 import { cn } from '@/lib/utils'
+
+// Lazy-load all admin modules for code splitting
+const ContentManager = lazy(() => import('./ContentManager'))
+const EnhancedProjectsManager = lazy(() => import('./EnhancedProjectsManager'))
+const EnhancedCourtManager = lazy(() => import('./EnhancedCourtManager'))
+const DocumentsManager = lazy(() => import('./DocumentsManager'))
+const AdminInbox = lazy(() => import('./AdminInbox'))
+const UploadQueueManager = lazy(() => import('./UploadQueueManager'))
+const StagingReviewManager = lazy(() => import('./StagingReviewManager'))
+const FilingTypesManager = lazy(() => import('./FilingTypesManager'))
+const TemplatesManager = lazy(() => import('./TemplatesManager'))
+const HeroMediaManager = lazy(() => import('./HeroMediaManager'))
+const ThemeManager = lazy(() => import('./ThemeManager'))
+const SettingsManager = lazy(() => import('./SettingsManager'))
+const SecurityManager = lazy(() => import('./SecurityManager'))
+const AuditLog = lazy(() => import('./AuditLog'))
+const AssetScanner = lazy(() => import('./AssetScanner'))
+const AssetUsagePolicyManager = lazy(() => import('./AssetUsagePolicyManager'))
+const VisualModulesManager = lazy(() => import('./VisualModulesManager'))
+const CaseJacketManager = lazy(() => import('./CaseJacketManager'))
+const AboutManager = lazy(() => import('./AboutManager'))
+const LinksManager = lazy(() => import('./LinksManager'))
+const ProfileManager = lazy(() => import('./ProfileManager'))
+const HonorFlagBarManager = lazy(() => import('./HonorFlagBarManager'))
+const OfferingsManager = lazy(() => import('./OfferingsManager'))
+const InvestorManager = lazy(() => import('./InvestorManager'))
+const EvidentManager = lazy(() => import('./EvidentManager'))
+const SitesManager = lazy(() => import('./SitesManager'))
+const LawFirmShowcaseManager = lazy(() => import('./LawFirmShowcaseManager'))
+const SMBTemplateManager = lazy(() => import('./SMBTemplateManager'))
+const AgencyFrameworkManager = lazy(() => import('./AgencyFrameworkManager'))
+const ClientSiteManager = lazy(() => import('./ClientSiteManager'))
+const AdminLeadsViewer = lazy(() => import('@/leads').then(m => ({ default: m.AdminLeadsViewer })))
+
+// Mobile Quick Actions (lazy-loaded for code splitting)
+const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
+
+// Loading fallback for lazy-loaded modules
+function ModuleLoader() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <CircleNotch className="h-8 w-8 animate-spin" />
+        <span className="text-sm">Loading module...</span>
+      </div>
+    </div>
+  )
+}
 
 interface AdminDashboardProps {
   onExit: () => void
@@ -114,6 +131,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { activeSite, activeSatellite } = useSite()
   const [activeTab, setActiveTab] = useState('content')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
   const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
@@ -252,9 +270,9 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+      {/* Sidebar — hidden on mobile, quick actions bar used instead */}
       <aside className={cn(
-        'sticky top-0 h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex flex-col transition-all duration-300',
+        'hidden lg:flex sticky top-0 h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col transition-all duration-300',
         sidebarCollapsed ? 'w-16' : 'w-64'
       )}>
         {/* Sidebar header */}
@@ -401,12 +419,96 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         </div>
       </aside>
 
+      {/* Mobile sidebar drawer overlay */}
+      {mobileSidebarOpen && (
+        <div className="lg:hidden fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileSidebarOpen(false)} />
+          <aside className="absolute left-0 top-0 h-full w-72 bg-card border-r border-border shadow-xl flex flex-col">
+            {/* Mobile sidebar header */}
+            <div className="p-4 border-b border-border/50 flex items-center justify-between">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-sm font-bold tracking-tight truncate">Control Center</h1>
+                  <Badge variant={permissions.isFounderMode ? 'default' : 'secondary'} className="text-[9px] px-1.5 py-0">
+                    {permissions.isFounderMode ? 'FOUNDER' : 'OPS'}
+                  </Badge>
+                </div>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {currentUser?.email} • {permissions.role}
+                </p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMobileSidebarOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            {/* Mobile nav items */}
+            <ScrollArea className="flex-1 py-2">
+              <div className="px-2 space-y-4">
+                {visibleCategories.map(category => {
+                  const items = filteredNavItems.filter(item => item.category === category)
+                  if (items.length === 0) return null
+                  return (
+                    <div key={category}>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold px-3 mb-1">
+                        {category}
+                      </p>
+                      <div className="space-y-0.5">
+                        {items.map(item => {
+                          const Icon = item.icon
+                          const isActive = activeTab === item.id
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => { setActiveTab(item.id); setMobileSidebarOpen(false) }}
+                              className={cn(
+                                'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm px-3 py-2',
+                                isActive 
+                                  ? 'bg-primary text-primary-foreground shadow-sm' 
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
+                              )}
+                            >
+                              <Icon className="h-4 w-4 shrink-0" weight={isActive ? 'fill' : 'regular'} />
+                              <span className="truncate font-medium">{item.label}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                      {category !== visibleCategories[visibleCategories.length - 1] && (
+                        <Separator className="mt-3 opacity-50" />
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </ScrollArea>
+            {/* Mobile sidebar footer */}
+            <div className="p-3 border-t border-border/50 space-y-1.5">
+              <Button variant="ghost" size="sm" onClick={() => { onExit(); setMobileSidebarOpen(false) }} className="w-full gap-2 text-xs justify-start">
+                <House className="h-4 w-4 shrink-0" /> Public Site
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full gap-2 text-xs text-muted-foreground justify-start">
+                <SignOut className="h-4 w-4 shrink-0" /> Logout
+              </Button>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* Main content */}
       <main className="flex-1 min-w-0">
         {/* Top bar */}
         <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl">
-          <div className="flex items-center justify-between h-14 px-6">
+          <div className="flex items-center justify-between h-14 px-4 lg:px-6">
             <div className="flex items-center gap-3">
+              {/* Mobile menu toggle */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="lg:hidden h-8 w-8"
+                onClick={() => setMobileSidebarOpen(true)}
+              >
+                <List className="h-5 w-5" />
+              </Button>
               {activeItem && (
                 <>
                   <activeItem.icon className="h-5 w-5 text-primary" weight="duotone" />
@@ -423,11 +525,24 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           </div>
         </header>
 
-        {/* Page content */}
-        <div className="p-6 lg:p-8 max-w-6xl">
-          {renderContent()}
+        {/* Page content — extra bottom padding on mobile for Quick Actions bar */}
+        <div className="p-6 lg:p-8 max-w-6xl pb-24 lg:pb-8">
+          <Suspense fallback={<ModuleLoader />}>
+            {renderContent()}
+          </Suspense>
         </div>
       </main>
+
+      {/* Mobile Quick Actions Bar (Chain A5) */}
+      <Suspense fallback={null}>
+        <MobileQuickActions
+          onNavigate={setActiveTab}
+          onPublish={handlePublish}
+          onPreview={onExit}
+          isPublishing={isPublishing}
+          canPublish={canPublish}
+        />
+      </Suspense>
 
       {/* Publish Confirmation Dialog (Chain A4) */}
       <ConfirmDialog

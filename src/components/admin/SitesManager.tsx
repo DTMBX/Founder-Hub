@@ -10,7 +10,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useKV } from '@/lib/local-storage-kv'
 import { ManagedSite, SatelliteApp, SitesConfig } from '@/lib/types'
 import { useSite } from '@/lib/site-context'
-import { useAuthStore } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
 import { toast } from 'sonner'
 import { 
   Plus, Trash, PencilSimple, Globe, Folder, TreeStructure,
@@ -27,7 +27,7 @@ const defaultSitesConfig: SitesConfig = {
 export default function SitesManager() {
   const [config, setConfig] = useKV<SitesConfig>(SITES_KEY, defaultSitesConfig)
   const { refreshSites } = useSite()
-  const { user } = useAuthStore()
+  const { currentUser: user } = useAuth()
   const [editingSite, setEditingSite] = useState<ManagedSite | null>(null)
   const [editingSatellite, setEditingSatellite] = useState<{ siteId: string; satellite: SatelliteApp } | null>(null)
   const [isAddingSite, setIsAddingSite] = useState(false)
