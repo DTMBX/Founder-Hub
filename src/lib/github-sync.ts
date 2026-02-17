@@ -6,10 +6,14 @@
  * 
  * Supports multi-site publishing for worktree repositories.
  * 
- * SECURITY: GitHub PAT stored encrypted via secret-vault module.
+ * SECURITY:
+ * - CHAIN B2: Prefers GitHub App (installation tokens, least privilege)
+ * - Falls back to PAT if App not connected (legacy mode)
+ * - GitHub PAT stored encrypted via secret-vault module
  */
 
 import { storeGitHubPAT, getGitHubPAT, hasGitHubPAT as vaultHasGitHubPAT, clearGitHubPAT } from './secret-vault'
+import * as GitHubApp from './github-app'
 
 // Default repo (for backward compatibility)
 const DEFAULT_REPO_OWNER = 'DTMBX'
@@ -479,3 +483,149 @@ export async function testGitHubToken(
     return { valid: false, error: String(error) }
   }
 }
+
+// ─── CHAIN B2: GitHub App Integration Layer ─────────────────────────────────
+
+/**
+ * Connection method type
+ */
+export type GitHubConnectionMethod = 'app' | 'pat' | 'none'
+
+/**
+ * Get current connection method
+ * Prefers GitHub App if available (more secure)
+ */
+export async function getConnectionMethod(): Promise<GitHubConnectionMethod> {
+  return GitHubApp.getConnectionMethod()
+}
+
+/**
+ * Check if any GitHub connection is available
+ */
+export async function isGitHubConnected(): Promise<boolean> {
+  const method = await getConnectionMethod()
+  return method !== 'none'
+}
+
+/**
+ * Get saved repo mapping (for GitHub App)
+ */
+function getSavedRepoMapping(): { owner: string; repo: string; dataPath: string } | null {
+  const raw = localStorage.getItem('xtx396:github-app-repo-mapping')
+  if (!raw) return null
+  try {
+    const mapping = JSON.parse(raw)
+    const [owner, repo] = mapping.repoFullName.split('/')
+    return { owner, repo, dataPath: mapping.dataPath }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Unified publish function
+ * Routes to GitHub App or PAT-based publish based on connection
+ */
+export async function publish(
+  siteConfig?: {
+    owner: string
+    repo: string
+    dataPath: string
+    siteId?: string
+  },
+  mode: PublishMode = 'branch'
+): Promise<CommitResult> {
+  const method = await getConnectionMethod()
+
+  if (method === 'app') {
+    return publishViaApp(siteConfig)
+  }
+
+  if (method === 'pat') {
+    return publishToGitHub(siteConfig, mode)
+  }
+
+  return {
+    success: false,
+    error: 'No GitHub connection configured. Connect via GitHub App or add a PAT in Settings.',
+  }
+}
+
+/**
+ * Publish via GitHub App (least privilege)
+ */
+async function publishViaApp(siteConfig?: {
+  owner: string
+  repo: string
+  dataPath: string
+  siteId?: string
+}): Promise<CommitResult> {
+  // Get config from saved mapping if not provided
+  const mapping = getSavedRepoMapping()
+  const config = siteConfig || mapping
+
+  if (!config) {
+    return {
+      success: false,
+      error: 'No repository mapped. Select a repository in GitHub settings.',
+    }
+  }
+
+  const storagePrefix = siteConfig?.siteId
+    ? getSiteStoragePrefix(siteConfig.siteId)
+    : STORAGE_PREFIX
+
+  // Collect files to push
+  const files: GitHubApp.FileChange[] = []
+
+  for (const [kvKey, fileName] of Object.entries(DATA_FILES)) {
+    const data = localStorage.getItem(storagePrefix + kvKey)
+    if (data) {
+      let prettyJson: string
+      try {
+        prettyJson = JSON.stringify(JSON.parse(data), null, 2)
+      } catch {
+        prettyJson = data
+      }
+      const fullPath = `${config.dataPath}/${fileName}`.replace(/^\//, '')
+      files.push({ path: fullPath, content: prettyJson })
+    }
+  }
+
+  if (files.length === 0) {
+    return {
+      success: false,
+      error: 'No data to publish. Make changes in the admin panel first.',
+    }
+  }
+
+  // Publish using GitHub App operations
+  const result = await GitHubApp.publishChanges(
+    {
+      owner: config.owner,
+      repo: config.repo,
+      dataPath: config.dataPath,
+      branch: BRANCH,
+    },
+    files
+  )
+
+  return {
+    success: result.success,
+    error: result.error,
+    commitUrl: result.commitUrl,
+    branch: result.branch,
+    pullRequestUrl: result.pullRequestUrl,
+    mode: 'branch',
+  }
+}
+
+/**
+ * Re-export GitHub App functions for convenience
+ */
+export {
+  GitHubApp,
+  // Connection
+  getConnectionMethod as getGitHubConnectionMethod,
+}
+

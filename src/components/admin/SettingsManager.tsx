@@ -20,6 +20,7 @@ import {
   testGitHubToken 
 } from '@/lib/github-sync'
 import { exportKeyfileToFile, storeKeyfileLocally } from '@/lib/keyfile'
+import GitHubAppConnectPanel from './GitHubAppConnectPanel'
 
 export default function SettingsManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
@@ -378,63 +379,8 @@ export default function SettingsManager() {
         </CardContent>
       </Card>
 
-      {/* GitHub Integration */}
-      <Card>
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <GithubLogo className="h-4 w-4 text-primary" weight="duotone" />
-            GitHub Integration
-          </CardTitle>
-          <CardDescription>Configure auto-publish to GitHub. Changes will be committed directly to your repo.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="github-token">Personal Access Token</Label>
-            <div className="flex gap-2">
-              <Input
-                id="github-token"
-                type={githubToken.startsWith('••') ? 'text' : 'password'}
-                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
-                value={githubToken}
-                onChange={(e) => {
-                  setGithubTokenState(e.target.value)
-                  setTokenStatus('unchecked')
-                }}
-                className="font-mono text-sm"
-              />
-              <Button 
-                variant="outline" 
-                onClick={handleTestToken}
-                disabled={isTestingToken || !githubToken}
-              >
-                {isTestingToken ? 'Testing...' : 'Test'}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Create a token at GitHub Settings → Developer settings → Personal access tokens (classic). 
-              Requires <code className="bg-muted px-1 rounded">repo</code> scope.
-            </p>
-          </div>
-          
-          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-            <div className="flex items-center gap-2">
-              {tokenStatus === 'valid' && <CheckCircle className="h-4 w-4 text-green-500" weight="fill" />}
-              {tokenStatus === 'invalid' && <XCircle className="h-4 w-4 text-red-500" weight="fill" />}
-              {tokenStatus === 'unchecked' && <div className="h-4 w-4 rounded-full bg-muted-foreground/30" />}
-              <span className="text-sm">
-                {tokenStatus === 'valid' && 'Token configured and valid'}
-                {tokenStatus === 'invalid' && 'Token is invalid or expired'}
-                {tokenStatus === 'unchecked' && 'Token not verified'}
-              </span>
-            </div>
-            {tokenStatus === 'valid' && (
-              <Button variant="ghost" size="sm" onClick={handleClearToken}>
-                Clear
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      {/* GitHub Integration (GitHub App) */}
+      <GitHubAppConnectPanel />
 
       {/* Stripe Integration */}
       <Card>
