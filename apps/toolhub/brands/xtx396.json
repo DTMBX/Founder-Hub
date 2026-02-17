@@ -1,0 +1,29 @@
+{
+  "brandId": "xtx396",
+  "name": "XTX396",
+  "domain": "xtx396.com",
+  "tagline": "Tactical technology operations",
+  "description": "Technology operations platform for business intelligence and infrastructure.",
+  "primaryColor": "#0f172a",
+  "accentColor": "#f59e0b",
+  "logoPath": "assets/branding/xtx396-logo.svg",
+  "toolCategories": [
+    "app",
+    "dev-tool",
+    "service",
+    "template"
+  ],
+  "defaultCapabilities": [
+    "ops.read",
+    "tools.execute"
+  ],
+  "policies": {
+    "requireAuditLog": true,
+    "requireIntegrityHash": true,
+    "immutableOriginals": false,
+    "appendOnlyLogs": true
+  },
+  "contact": {
+    "supportEmail": "support@xtx396.com"
+  }
+}

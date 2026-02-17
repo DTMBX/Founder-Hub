@@ -1,0 +1,31 @@
+{
+  "brandId": "evident",
+  "name": "Evident Technologies",
+  "domain": "evidenttechnologies.com",
+  "tagline": "Making truth legible and durable",
+  "description": "Legal technology platform for evidence integrity, due process, and auditability.",
+  "primaryColor": "#1a2744",
+  "accentColor": "#3b82f6",
+  "logoPath": "assets/branding/evident-logo.svg",
+  "toolCategories": [
+    "app",
+    "algorithm",
+    "service",
+    "chat-tool",
+    "api-client"
+  ],
+  "defaultCapabilities": [
+    "evidence.read",
+    "evidence.search",
+    "case.read"
+  ],
+  "policies": {
+    "requireAuditLog": true,
+    "requireIntegrityHash": true,
+    "immutableOriginals": true,
+    "appendOnlyLogs": true
+  },
+  "contact": {
+    "supportEmail": "support@evidenttechnologies.com"
+  }
+}

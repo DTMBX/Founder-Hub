@@ -332,3 +332,105 @@ describe('ToolHub', () => {
     expect(hub.getHealth('tool-a')).toBeUndefined();
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P3 — Brand Profiles
+// ═══════════════════════════════════════════════════════════════
+
+import {
+  validateBrandProfile,
+  BrandRegistry,
+  type BrandProfile,
+} from '../../apps/toolhub/BrandProfile';
+import evidentBrand from '../../apps/toolhub/brands/evident.json';
+import xtx396Brand from '../../apps/toolhub/brands/xtx396.json';
+
+const validBrand: BrandProfile = {
+  brandId: 'test-brand',
+  name: 'Test Brand',
+  domain: 'testbrand.com',
+  tagline: 'Testing',
+  description: 'A test brand',
+  primaryColor: '#112233',
+  accentColor: '#aabbcc',
+  logoPath: 'assets/test.svg',
+  toolCategories: ['app'],
+  defaultCapabilities: ['read'],
+  policies: {
+    requireAuditLog: true,
+    requireIntegrityHash: true,
+    immutableOriginals: true,
+    appendOnlyLogs: true,
+  },
+  contact: { supportEmail: 'test@test.com' },
+};
+
+describe('validateBrandProfile', () => {
+  it('accepts a valid profile', () => {
+    expect(validateBrandProfile(validBrand).valid).toBe(true);
+  });
+
+  it('rejects missing brandId', () => {
+    const result = validateBrandProfile({ ...validBrand, brandId: '' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects invalid hex color', () => {
+    const result = validateBrandProfile({ ...validBrand, primaryColor: 'red' });
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('hex color');
+  });
+
+  it('rejects missing policies', () => {
+    const partial = { ...validBrand } as Partial<BrandProfile>;
+    delete partial.policies;
+    expect(validateBrandProfile(partial).valid).toBe(false);
+  });
+});
+
+describe('BrandRegistry', () => {
+  let registry: BrandRegistry;
+
+  beforeEach(() => {
+    registry = new BrandRegistry();
+  });
+
+  it('registers a valid brand', () => {
+    registry.register(validBrand);
+    expect(registry.count()).toBe(1);
+  });
+
+  it('retrieves brand by id', () => {
+    registry.register(validBrand);
+    expect(registry.get('test-brand')?.name).toBe('Test Brand');
+  });
+
+  it('rejects duplicate brand', () => {
+    registry.register(validBrand);
+    expect(() => registry.register(validBrand)).toThrow('already registered');
+  });
+
+  it('lists all brands', () => {
+    registry.register(validBrand);
+    registry.register({ ...validBrand, brandId: 'other', name: 'Other', domain: 'o.com' });
+    expect(registry.list()).toHaveLength(2);
+  });
+});
+
+describe('Brand JSON files', () => {
+  it('evident.json passes validation', () => {
+    expect(validateBrandProfile(evidentBrand as BrandProfile).valid).toBe(true);
+  });
+
+  it('xtx396.json passes validation', () => {
+    expect(validateBrandProfile(xtx396Brand as BrandProfile).valid).toBe(true);
+  });
+
+  it('evident.json has correct brandId', () => {
+    expect(evidentBrand.brandId).toBe('evident');
+  });
+
+  it('xtx396.json has correct brandId', () => {
+    expect(xtx396Brand.brandId).toBe('xtx396');
+  });
+});
