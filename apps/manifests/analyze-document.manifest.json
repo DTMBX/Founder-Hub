@@ -1,0 +1,14 @@
+{
+  "id": "analyze-document",
+  "name": "Analyze Document",
+  "description": "OCR processing, key section extraction, and legal term identification",
+  "version": "1.0.0",
+  "category": "chat-tool",
+  "status": "active",
+  "brand": "evident",
+  "entryPoint": "services/tool_implementations.py#analyze_document",
+  "capabilities": ["evidence.read", "ocr"],
+  "tags": ["ocr", "analysis", "documents", "chat"],
+  "author": "Evident Technologies",
+  "license": "proprietary"
+}

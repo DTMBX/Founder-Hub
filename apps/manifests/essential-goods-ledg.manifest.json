@@ -1,0 +1,14 @@
+{
+  "id": "essential-goods-ledg",
+  "name": "Essential Goods Ledger",
+  "description": "Essential goods price-tracking ledger with data connectors, quality monitoring, and RBAC",
+  "version": "1.0.0",
+  "category": "app",
+  "status": "active",
+  "brand": "evident",
+  "entryPoint": "apps/essential-goods-ledg/index.html",
+  "capabilities": ["data.read", "data.write", "admin"],
+  "tags": ["finance", "ledger", "price-tracking", "goods"],
+  "author": "Evident Technologies",
+  "license": "proprietary"
+}

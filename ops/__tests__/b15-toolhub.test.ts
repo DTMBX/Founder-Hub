@@ -434,3 +434,48 @@ describe('Brand JSON files', () => {
     expect(xtx396Brand.brandId).toBe('xtx396');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P4 — Per-App Manifest Validation
+// ═══════════════════════════════════════════════════════════════
+
+import civicsManifest from '../../apps/manifests/civics-hierarchy.manifest.json';
+import epsteinManifest from '../../apps/manifests/epstein-library-evid.manifest.json';
+import goodsManifest from '../../apps/manifests/essential-goods-ledg.manifest.json';
+import genevaManifest from '../../apps/manifests/geneva-bible-study-t.manifest.json';
+import searchLegalManifest from '../../apps/manifests/search-legal-documents.manifest.json';
+import analyzeDocManifest from '../../apps/manifests/analyze-document.manifest.json';
+import batesManifest from '../../apps/manifests/bates-generator.manifest.json';
+import integritySweepManifest from '../../apps/manifests/integrity-sweep.manifest.json';
+
+const allManifests = [
+  { name: 'civics-hierarchy', data: civicsManifest },
+  { name: 'epstein-library-evid', data: epsteinManifest },
+  { name: 'essential-goods-ledg', data: goodsManifest },
+  { name: 'geneva-bible-study-t', data: genevaManifest },
+  { name: 'search-legal-documents', data: searchLegalManifest },
+  { name: 'analyze-document', data: analyzeDocManifest },
+  { name: 'bates-generator', data: batesManifest },
+  { name: 'integrity-sweep', data: integritySweepManifest },
+];
+
+describe('Per-app manifest validation', () => {
+  for (const { name, data } of allManifests) {
+    it(`${name}.manifest.json passes schema validation`, () => {
+      const result = validateManifest(data as ToolManifest);
+      expect(result.valid).toBe(true);
+    });
+
+    it(`${name}.manifest.json has matching id field`, () => {
+      expect(data.id).toBe(name);
+    });
+  }
+
+  it('all manifests register without collision', () => {
+    const reg = new ManifestRegistry();
+    for (const { data } of allManifests) {
+      reg.register(data as ToolManifest);
+    }
+    expect(reg.count()).toBe(allManifests.length);
+  });
+});

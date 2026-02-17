@@ -1,0 +1,14 @@
+{
+  "id": "epstein-library-evid",
+  "name": "Epstein Library",
+  "description": "DOJ data research library — documents, entities, graph, search, annotations, audit log",
+  "version": "1.0.0",
+  "category": "app",
+  "status": "active",
+  "brand": "evident",
+  "entryPoint": "apps/epstein-library-evid/index.html",
+  "capabilities": ["evidence.read", "evidence.search", "audit.read"],
+  "tags": ["research", "doj", "documents", "entities", "graph"],
+  "author": "Evident Technologies",
+  "license": "proprietary"
+}
