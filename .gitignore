@@ -34,3 +34,4 @@ pids
 .spark-workbench-id
 build_log.txt
 build_out.txt
+vitest-output.txt
