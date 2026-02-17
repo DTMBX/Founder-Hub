@@ -150,7 +150,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       return
     }
     
-    if (!hasGitHubToken()) {
+    if (!(await hasGitHubToken())) {
       toast.error('Configure GitHub token in Settings first')
       setActiveTab('settings')
       return

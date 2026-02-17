@@ -20,6 +20,28 @@ env:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
+  # SECRET SCAN JOB - Chain A3: Prevent accidental secret commits
+  # ─────────────────────────────────────────────────────────────────────────────
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Scan for secrets
+        run: node scripts/scan-secrets.mjs --all
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # BUILD JOB - Required for branch protection
   # ─────────────────────────────────────────────────────────────────────────────
   build:

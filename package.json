@@ -23,7 +23,9 @@
         "site:list": "node scripts/site-manager.mjs list",
         "site:status": "node scripts/site-manager.mjs status",
         "site:deploy": "node scripts/site-manager.mjs deploy",
-        "site:presets": "node scripts/generate-site.mjs --list-presets"
+        "site:presets": "node scripts/generate-site.mjs --list-presets",
+        "scan:secrets": "node scripts/scan-secrets.mjs --all",
+        "prepare": "husky"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
@@ -104,6 +106,7 @@
         "eslint-plugin-react-hooks": "^7.0.1",
         "eslint-plugin-react-refresh": "^0.4.19",
         "globals": "^16.0.0",
+        "husky": "^9.1.7",
         "jsdom": "^28.1.0",
         "tailwindcss": "^4.1.18",
         "typescript": "~5.7.2",

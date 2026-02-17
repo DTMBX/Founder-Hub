@@ -5,9 +5,11 @@
  * Admin panel changes → GitHub commit → Auto-deploy via Actions.
  * 
  * Supports multi-site publishing for worktree repositories.
+ * 
+ * SECURITY: GitHub PAT stored encrypted via secret-vault module.
  */
 
-const GITHUB_TOKEN_KEY = 'xtx396:github-pat'
+import { storeGitHubPAT, getGitHubPAT, hasGitHubPAT as vaultHasGitHubPAT, clearGitHubPAT } from './secret-vault'
 
 // Default repo (for backward compatibility)
 const DEFAULT_REPO_OWNER = 'DTMBX'
@@ -79,32 +81,31 @@ interface CommitResult {
 }
 
 /**
- * Get stored GitHub PAT
+ * Get stored GitHub PAT (encrypted via vault)
  */
-export function getGitHubToken(): string | null {
-  return localStorage.getItem(GITHUB_TOKEN_KEY)
+export async function getGitHubToken(): Promise<string | null> {
+  return getGitHubPAT()
 }
 
 /**
- * Save GitHub PAT
+ * Save GitHub PAT (encrypted via vault)
  */
-export function setGitHubToken(token: string): void {
-  localStorage.setItem(GITHUB_TOKEN_KEY, token)
+export async function setGitHubToken(token: string): Promise<void> {
+  await storeGitHubPAT(token)
 }
 
 /**
  * Remove GitHub PAT
  */
-export function clearGitHubToken(): void {
-  localStorage.removeItem(GITHUB_TOKEN_KEY)
+export async function clearGitHubToken(): Promise<void> {
+  await clearGitHubPAT()
 }
 
 /**
  * Check if GitHub token is configured
  */
-export function hasGitHubToken(): boolean {
-  const token = getGitHubToken()
-  return !!token && token.length > 0
+export async function hasGitHubToken(): Promise<boolean> {
+  return vaultHasGitHubPAT()
 }
 
 interface RepoConfig {
@@ -199,7 +200,7 @@ export async function publishToGitHub(siteConfig?: {
   dataPath: string
   siteId?: string
 }): Promise<CommitResult> {
-  const token = getGitHubToken()
+  const token = await getGitHubToken()
   
   if (!token) {
     return { success: false, error: 'GitHub token not configured. Go to Settings to add your PAT.' }

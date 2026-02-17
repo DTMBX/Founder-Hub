@@ -52,15 +52,18 @@ export default function SettingsManager() {
   } | null>(null)
   
   useEffect(() => {
-    const existing = getGitHubToken()
-    if (existing) {
-      setGithubTokenState('••••••••••••••••') // Masked
-      setTokenStatus('valid') // Assume valid if exists
+    const initToken = async () => {
+      const existing = await getGitHubToken()
+      if (existing) {
+        setGithubTokenState('••••••••••••••••') // Masked
+        setTokenStatus('valid') // Assume valid if exists
+      }
     }
+    initToken()
   }, [])
   
   const handleTestToken = async () => {
-    const tokenToTest = githubToken.startsWith('••') ? getGitHubToken() : githubToken
+    const tokenToTest = githubToken.startsWith('••') ? await getGitHubToken() : githubToken
     if (!tokenToTest) {
       toast.error('Please enter a token')
       return
@@ -73,7 +76,7 @@ export default function SettingsManager() {
     if (result.valid) {
       setTokenStatus('valid')
       if (!githubToken.startsWith('••')) {
-        setGitHubToken(tokenToTest)
+        await setGitHubToken(tokenToTest)
         setGithubTokenState('••••••••••••••••')
       }
       toast.success('GitHub token is valid!')
@@ -83,8 +86,8 @@ export default function SettingsManager() {
     }
   }
   
-  const handleClearToken = () => {
-    clearGitHubToken()
+  const handleClearToken = async () => {
+    await clearGitHubToken()
     setGithubTokenState('')
     setTokenStatus('unchecked')
     toast.success('GitHub token removed')
