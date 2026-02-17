@@ -652,3 +652,179 @@ describe('B14-P4 — LocalManualAdapter', () => {
     expect(adapter.getTransactions()).toHaveLength(1);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P5 — Handoff Package Service
+// ═══════════════════════════════════════════════════════════════
+
+import {
+  HandoffPackageService,
+  type AuditExtractEntry,
+} from '../portal/HandoffPackageService';
+
+function makeFiles(paths: string[]): Map<string, Buffer> {
+  const m = new Map<string, Buffer>();
+  for (const p of paths) {
+    m.set(p, Buffer.from(`content-of-${p}`));
+  }
+  return m;
+}
+
+describe('HandoffPackageService', () => {
+  let svc: HandoffPackageService;
+
+  beforeEach(() => {
+    svc = new HandoffPackageService();
+  });
+
+  // ── assemble ──────────────────────────────────────────────────
+
+  it('assembles a package with correct manifest', () => {
+    const files = makeFiles(['report.pdf', 'data.csv']);
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files,
+    });
+    expect(pkg.status).toBe('assembling');
+    expect(pkg.manifest.fileCount).toBe(2);
+    expect(pkg.manifest.totalSize).toBeGreaterThan(0);
+    expect(pkg.manifest.manifestHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('sorts files alphabetically in manifest', () => {
+    const files = makeFiles(['z-file.txt', 'a-file.txt', 'm-file.txt']);
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files,
+    });
+    const paths = pkg.manifest.files.map((f) => f.path);
+    expect(paths).toEqual(['a-file.txt', 'm-file.txt', 'z-file.txt']);
+  });
+
+  it('attaches audit extract', () => {
+    const extract: AuditExtractEntry[] = [
+      { timestamp: new Date().toISOString(), action: 'intake.created', actor: 'admin' },
+    ];
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+      auditExtract: extract,
+    });
+    expect(pkg.auditExtract).toHaveLength(1);
+    expect(pkg.auditExtract[0].action).toBe('intake.created');
+  });
+
+  // ── finalize ──────────────────────────────────────────────────
+
+  it('finalizes an assembling package', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    const finalized = svc.finalize(pkg.packageId);
+    expect(finalized.status).toBe('finalized');
+    expect(finalized.finalizedAt).toBeDefined();
+  });
+
+  it('rejects finalize on empty package', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: new Map(),
+    });
+    expect(() => svc.finalize(pkg.packageId)).toThrow('empty');
+  });
+
+  it('rejects double finalize', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    svc.finalize(pkg.packageId);
+    expect(() => svc.finalize(pkg.packageId)).toThrow('Cannot finalize');
+  });
+
+  // ── deliver ───────────────────────────────────────────────────
+
+  it('records delivery on finalized package', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    svc.finalize(pkg.packageId);
+    const delivered = svc.recordDelivery(pkg.packageId, 'client@example.com');
+    expect(delivered.status).toBe('delivered');
+    expect(delivered.deliveredTo).toBe('client@example.com');
+    expect(delivered.deliveredAt).toBeDefined();
+  });
+
+  it('rejects delivery on non-finalized package', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    expect(() => svc.recordDelivery(pkg.packageId, 'x@y.com')).toThrow(
+      'must be finalized',
+    );
+  });
+
+  // ── verify ────────────────────────────────────────────────────
+
+  it('verifies intact manifest', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    const result = svc.verifyManifest(pkg.packageId);
+    expect(result.valid).toBe(true);
+  });
+
+  it('returns invalid for unknown package', () => {
+    const result = svc.verifyManifest('PKG-nonexistent');
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain('not found');
+  });
+
+  it('detects tampered manifest', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['f.txt']),
+    });
+    // Tamper with the manifest hash
+    pkg.manifest.manifestHash = 'a'.repeat(64);
+    const result = svc.verifyManifest(pkg.packageId);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain('mismatch');
+  });
+
+  // ── list / filter ─────────────────────────────────────────────
+
+  it('lists packages by clientId', () => {
+    svc.assemble({ clientId: 'C-1', engagementId: 'E-1', files: makeFiles(['a.txt']) });
+    svc.assemble({ clientId: 'C-2', engagementId: 'E-2', files: makeFiles(['b.txt']) });
+    const list = svc.list({ clientId: 'C-1' });
+    expect(list).toHaveLength(1);
+    expect(list[0].clientId).toBe('C-1');
+  });
+
+  it('lists packages by status', () => {
+    const pkg = svc.assemble({
+      clientId: 'C-1',
+      engagementId: 'E-1',
+      files: makeFiles(['a.txt']),
+    });
+    svc.finalize(pkg.packageId);
+    svc.assemble({ clientId: 'C-2', engagementId: 'E-2', files: makeFiles(['b.txt']) });
+    expect(svc.list({ status: 'finalized' })).toHaveLength(1);
+    expect(svc.list({ status: 'assembling' })).toHaveLength(1);
+  });
+});
