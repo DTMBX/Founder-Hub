@@ -24,6 +24,28 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # SECURITY-SENSITIVE MODULES
 # ─────────────────────────────────────────────────────────────────────────────
+# These files handle authentication, authorization, and secrets
+# All changes require Owner review for Chain B1 compliance
+
+# Core security modules
+/src/lib/auth.ts                @DTMBX
+/src/lib/secret-vault.ts        @DTMBX
+/src/lib/redaction.ts           @DTMBX
+/src/lib/permissions.ts         @DTMBX
+/src/lib/route-guards.ts        @DTMBX
+/src/lib/feature-flags.ts       @DTMBX
+/src/lib/destructive-action-safety.ts @DTMBX
+/src/lib/deploy-tracking.ts     @DTMBX
+/src/lib/github-sync.ts         @DTMBX
+
+# Security tests
+/src/lib/__tests__/secret-vault.test.ts   @DTMBX
+/src/lib/__tests__/redaction.test.ts      @DTMBX
+/src/lib/__tests__/permissions.test.ts    @DTMBX
+
+# Scripts that handle secrets or deployment
+/scripts/scan-secrets.mjs       @DTMBX
+
 # Assistant with governance controls
 /src/assistant/                 @DTMBX
 
