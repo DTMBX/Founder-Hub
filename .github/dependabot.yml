@@ -1,5 +1,6 @@
 # Dependabot Configuration
 # https://docs.github.com/en/code-security/dependabot
+# Chain B9 - Continuous Monitoring
 
 version: 2
 
@@ -26,9 +27,17 @@ updates:
     labels:
       - "dependencies"
       - "automated"
+      - "security-review"
     reviewers:
       - "DTMBX"
+    # Security updates are prioritized
+    allow:
+      - dependency-type: "all"
     groups:
+      security-patches:
+        applies-to: security-updates
+        patterns:
+          - "*"
       production-deps:
         patterns:
           - "react*"
