@@ -19,7 +19,7 @@ import {
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
-  Warning, Link
+  Warning, Link, DeviceMobile
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import { useClientSites } from '@/hooks/use-client-sites'
@@ -61,6 +61,7 @@ const DeploymentsPanel = lazy(() => import('./DeploymentsPanel'))
 const ProvenancePanel = lazy(() => import('./ProvenancePanel'))
 const IncidentDashboard = lazy(() => import('./IncidentDashboard'))
 const AuditIntegrity = lazy(() => import('./AuditIntegrity'))
+const SecuritySettings = lazy(() => import('./SecuritySettings'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -125,6 +126,7 @@ const navItems: NavItem[] = [
   { id: 'theme', label: 'Theme', icon: Palette, category: 'System' },
   { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System' },
   { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
+  { id: 'session-security', label: 'Sessions & Devices', icon: DeviceMobile, category: 'System' },
   { id: 'deployments', label: 'Deployments', icon: Rocket, category: 'System' },
   { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System' },
   { id: 'incidents', label: 'Incidents', icon: Warning, category: 'System' },
@@ -271,6 +273,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
       case 'security': return <SecurityManager />
+      case 'session-security': return <SecuritySettings userId={currentUser?.id ?? 'unknown'} userRole={(currentUser?.role as any) ?? 'viewer'} />
       case 'deployments': return <DeploymentsPanel siteId={activeSite?.id || 'xtx396'} />
       case 'provenance': return <ProvenancePanel />
       case 'incidents': return <IncidentDashboard />
