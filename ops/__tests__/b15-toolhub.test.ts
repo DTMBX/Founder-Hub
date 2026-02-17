@@ -479,3 +479,101 @@ describe('Per-app manifest validation', () => {
     expect(reg.count()).toBe(allManifests.length);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P5 — Highlight Tools (Risk + Acceptance)
+// ═══════════════════════════════════════════════════════════════
+
+import {
+  evaluateRisk,
+  evaluateAcceptance,
+  type RiskFactor,
+  type AcceptanceCriterion,
+} from '../../apps/tooling/HighlightTools';
+
+const sampleFactors: RiskFactor[] = [
+  { id: 'F1', label: 'Data leak risk', weight: 0.5, present: true },
+  { id: 'F2', label: 'Unauthorized access', weight: 0.3, present: false },
+  { id: 'F3', label: 'Compliance gap', weight: 0.2, present: true },
+];
+
+describe('evaluateRisk', () => {
+  it('computes weighted risk score', () => {
+    const report = evaluateRisk('subj-1', 'engagement', sampleFactors);
+    // present weights: 0.5 + 0.2 = 0.7; total: 1.0 → score = 70
+    expect(report.score).toBe(70);
+    expect(report.level).toBe('high');
+  });
+
+  it('returns low risk when nothing is present', () => {
+    const factors = sampleFactors.map((f) => ({ ...f, present: false }));
+    const report = evaluateRisk('subj-1', 'engagement', factors);
+    expect(report.score).toBe(0);
+    expect(report.level).toBe('low');
+  });
+
+  it('returns critical when all present', () => {
+    const factors = sampleFactors.map((f) => ({ ...f, present: true }));
+    const report = evaluateRisk('subj-1', 'engagement', factors);
+    expect(report.score).toBe(100);
+    expect(report.level).toBe('critical');
+  });
+
+  it('includes SHA-256 report hash', () => {
+    const report = evaluateRisk('subj-1', 'engagement', sampleFactors);
+    expect(report.reportHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('rejects empty factors', () => {
+    expect(() => evaluateRisk('subj-1', 'engagement', [])).toThrow('At least one');
+  });
+
+  it('rejects empty subjectId', () => {
+    expect(() => evaluateRisk('', 'engagement', sampleFactors)).toThrow('subjectId');
+  });
+});
+
+describe('evaluateAcceptance', () => {
+  it('passes when all required criteria pass', () => {
+    const criteria: AcceptanceCriterion[] = [
+      { id: 'C1', label: 'Has hash', required: true, check: () => 'pass' },
+      { id: 'C2', label: 'Has audit', required: true, check: () => 'pass' },
+      { id: 'C3', label: 'Nice-to-have', required: false, check: () => 'skip' },
+    ];
+    const report = evaluateAcceptance('target-1', criteria);
+    expect(report.passed).toBe(true);
+    expect(report.passCount).toBe(2);
+    expect(report.skipCount).toBe(1);
+  });
+
+  it('fails when a required criterion fails', () => {
+    const criteria: AcceptanceCriterion[] = [
+      { id: 'C1', label: 'Has hash', required: true, check: () => 'pass' },
+      { id: 'C2', label: 'Has audit', required: true, check: () => 'fail' },
+    ];
+    const report = evaluateAcceptance('target-1', criteria);
+    expect(report.passed).toBe(false);
+    expect(report.failCount).toBe(1);
+  });
+
+  it('passes when only optional criteria fail', () => {
+    const criteria: AcceptanceCriterion[] = [
+      { id: 'C1', label: 'Required', required: true, check: () => 'pass' },
+      { id: 'C2', label: 'Optional', required: false, check: () => 'fail' },
+    ];
+    const report = evaluateAcceptance('target-1', criteria);
+    expect(report.passed).toBe(true);
+  });
+
+  it('includes report hash', () => {
+    const criteria: AcceptanceCriterion[] = [
+      { id: 'C1', label: 'Check', required: true, check: () => 'pass' },
+    ];
+    const report = evaluateAcceptance('target-1', criteria);
+    expect(report.reportHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('rejects empty criteria', () => {
+    expect(() => evaluateAcceptance('target-1', [])).toThrow('At least one');
+  });
+});
