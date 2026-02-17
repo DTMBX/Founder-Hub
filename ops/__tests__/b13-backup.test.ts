@@ -33,6 +33,7 @@ import {
 import { LocalProvider } from '../backup/providers/LocalProvider';
 import { OffsiteProviderStub } from '../backup/providers/OffsiteProviderStub';
 import { RestoreService } from '../backup/RestoreService';
+import { ArtifactEscrowService } from '../backup/ArtifactEscrowService';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -682,5 +683,133 @@ describe('B13-P3 — RestoreService.conductDrill', () => {
 
     expect(report.result.status).not.toBe('success');
     expect(report.buildCheck.passed).toBe(false);
+  });
+});
+
+// ── ArtifactEscrowService ───────────────────────────────────────
+
+describe('B13-P4 — ArtifactEscrowService', () => {
+  let escrowSvc: ArtifactEscrowService;
+
+  beforeEach(() => {
+    escrowSvc = new ArtifactEscrowService();
+    escrowSvc._reset();
+  });
+
+  it('escrows an artifact and returns a record', async () => {
+    const content = Buffer.from('build output');
+    const record = await escrowSvc.escrow(content, 'dist/bundle.js', 'xtx396', 'abc123', 'ci-pipeline');
+
+    expect(record.escrowId).toContain('escrow_');
+    expect(record.artifactPath).toBe('dist/bundle.js');
+    expect(record.sha256).toBe(sha256(content));
+    expect(record.sizeBytes).toBe(content.length);
+    expect(record.status).toBe('held');
+    expect(record.createdBy).toBe('ci-pipeline');
+  });
+
+  it('lists escrow records', async () => {
+    await escrowSvc.escrow(Buffer.from('a'), 'a.js', 'repo', 'abc', 'user');
+    await escrowSvc.escrow(Buffer.from('b'), 'b.js', 'repo', 'abc', 'user');
+
+    const all = escrowSvc.list();
+    expect(all).toHaveLength(2);
+  });
+
+  it('filters by status', async () => {
+    const record = await escrowSvc.escrow(Buffer.from('a'), 'a.js', 'repo', 'abc', 'user');
+    await escrowSvc.release(record.escrowId, 'admin', 'Testing release');
+
+    const held = escrowSvc.list({ status: 'held' });
+    expect(held).toHaveLength(0);
+
+    const released = escrowSvc.list({ status: 'released' });
+    expect(released).toHaveLength(1);
+  });
+
+  it('releases with justification', async () => {
+    const record = await escrowSvc.escrow(Buffer.from('data'), 'file.bin', 'repo', 'abc', 'user');
+    const released = await escrowSvc.release(record.escrowId, 'admin', 'Deploy to production');
+
+    expect(released).not.toBeNull();
+    expect(released!.status).toBe('released');
+    expect(released!.releaseJustification).toBe('Deploy to production');
+    expect(released!.releasedBy).toBe('admin');
+  });
+
+  it('rejects release without justification', async () => {
+    const record = await escrowSvc.escrow(Buffer.from('data'), 'file.bin', 'repo', 'abc', 'user');
+
+    await expect(
+      escrowSvc.release(record.escrowId, 'admin', ''),
+    ).rejects.toThrow('justification');
+  });
+
+  it('rejects double release', async () => {
+    const record = await escrowSvc.escrow(Buffer.from('data'), 'file.bin', 'repo', 'abc', 'user');
+    await escrowSvc.release(record.escrowId, 'admin', 'First release');
+
+    await expect(
+      escrowSvc.release(record.escrowId, 'admin', 'Second attempt'),
+    ).rejects.toThrow('released');
+  });
+
+  it('returns null for non-existent release', async () => {
+    const result = await escrowSvc.release('escrow_nonexistent', 'admin', 'reason');
+    expect(result).toBeNull();
+  });
+
+  it('verifies artifact integrity', async () => {
+    const content = Buffer.from('important artifact');
+    const record = await escrowSvc.escrow(content, 'build/out.js', 'repo', 'abc', 'user');
+
+    const result = escrowSvc.verify(record.escrowId, content);
+    expect(result.valid).toBe(true);
+    expect(result.hashMatch).toBe(true);
+    expect(result.statusValid).toBe(true);
+  });
+
+  it('detects hash mismatch on verify', async () => {
+    const content = Buffer.from('original');
+    const record = await escrowSvc.escrow(content, 'build/out.js', 'repo', 'abc', 'user');
+
+    const tampered = Buffer.from('tampered');
+    const result = escrowSvc.verify(record.escrowId, tampered);
+    expect(result.valid).toBe(false);
+    expect(result.hashMatch).toBe(false);
+  });
+
+  it('returns invalid for non-existent escrow', () => {
+    const result = escrowSvc.verify('escrow_ghost', Buffer.from('x'));
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Escrow record not found.');
+  });
+
+  it('exports a manifest', async () => {
+    await escrowSvc.escrow(Buffer.from('a'), 'a.js', 'repo', 'abc', 'user');
+    const manifest = escrowSvc.exportManifest();
+
+    expect(manifest.version).toBe('1.0.0');
+    expect(manifest.records).toHaveLength(1);
+    expect(manifest.lastUpdated).toBeTruthy();
+  });
+
+  it('sets expiry when expiresInDays provided', async () => {
+    const record = await escrowSvc.escrow(
+      Buffer.from('data'), 'file.bin', 'repo', 'abc', 'user',
+      { expiresInDays: 30 },
+    );
+    expect(record.expiresAt).not.toBeNull();
+  });
+
+  it('gets a record by ID', async () => {
+    const record = await escrowSvc.escrow(Buffer.from('x'), 'x.js', 'repo', 'abc', 'user');
+    const found = escrowSvc.get(record.escrowId);
+    expect(found).toBeDefined();
+    expect(found!.escrowId).toBe(record.escrowId);
+  });
+
+  it('returns undefined for non-existent get', () => {
+    expect(escrowSvc.get('nope')).toBeUndefined();
   });
 });
