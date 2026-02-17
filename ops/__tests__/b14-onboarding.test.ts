@@ -337,3 +337,115 @@ describe('B14-P2 — Contract template placeholder linter', () => {
     });
   }
 });
+
+// ── B14-P3: Proposal + SOW Generator ────────────────────────────
+
+import {
+  ProposalService,
+  fillTemplate,
+} from '../onboarding/proposals/ProposalService';
+
+describe('B14-P3 — fillTemplate', () => {
+  it('fills known placeholders', () => {
+    const { rendered, unfilled } = fillTemplate(
+      'Hello {{NAME}}, your project is {{PROJECT}}.',
+      { NAME: 'Acme', PROJECT: 'Alpha' },
+    );
+    expect(rendered).toBe('Hello Acme, your project is Alpha.');
+    expect(unfilled).toHaveLength(0);
+  });
+
+  it('reports unfilled placeholders', () => {
+    const { rendered, unfilled } = fillTemplate(
+      '{{A}} and {{B}}',
+      { A: 'yes' },
+    );
+    expect(rendered).toBe('yes and {{B}}');
+    expect(unfilled).toEqual(['B']);
+  });
+
+  it('handles template with no placeholders', () => {
+    const { rendered, unfilled } = fillTemplate('plain text', {});
+    expect(rendered).toBe('plain text');
+    expect(unfilled).toHaveLength(0);
+  });
+});
+
+describe('B14-P3 — ProposalService', () => {
+  let svc: ProposalService;
+
+  beforeEach(() => {
+    svc = new ProposalService();
+    svc.registerTemplate({
+      name: 'test',
+      content: 'For {{CLIENT}}: {{DESCRIPTION}}',
+    });
+  });
+
+  it('generates a draft proposal', () => {
+    const p = svc.generate('test', { CLIENT: 'Acme', DESCRIPTION: 'Work' });
+    expect(p.proposalId).toMatch(/^PROP-/);
+    expect(p.status).toBe('draft');
+    expect(p.renderedContent).toBe('For Acme: Work');
+    expect(p.contentHash).toBeTruthy();
+  });
+
+  it('errors on unknown template', () => {
+    expect(() => svc.generate('nope', {})).toThrow('Template not found');
+  });
+
+  it('rejects template without name or content', () => {
+    expect(() => svc.registerTemplate({ name: '', content: 'x' })).toThrow();
+  });
+
+  it('marks proposal as reviewed', () => {
+    const p = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    const reviewed = svc.markReviewed(p.proposalId, 'reviewer@co.com');
+    expect(reviewed.status).toBe('reviewed');
+    expect(reviewed.reviewedBy).toBe('reviewer@co.com');
+  });
+
+  it('marks reviewed proposal as sent', () => {
+    const p = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    svc.markReviewed(p.proposalId, 'r');
+    const sent = svc.markSent(p.proposalId);
+    expect(sent.status).toBe('sent');
+    expect(sent.sentAt).toBeTruthy();
+  });
+
+  it('rejects sending unreviewed proposal', () => {
+    const p = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    expect(() => svc.markSent(p.proposalId)).toThrow('must be reviewed');
+  });
+
+  it('records client decision', () => {
+    const p = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    svc.markReviewed(p.proposalId, 'r');
+    svc.markSent(p.proposalId);
+    const accepted = svc.recordDecision(p.proposalId, 'accepted');
+    expect(accepted.status).toBe('accepted');
+  });
+
+  it('verifies content integrity', () => {
+    const p = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    expect(svc.verify(p.proposalId).valid).toBe(true);
+  });
+
+  it('returns invalid for unknown proposal verify', () => {
+    expect(svc.verify('nope').valid).toBe(false);
+  });
+
+  it('deterministic hash — same input → same hash', () => {
+    const a = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    const b = svc.generate('test', { CLIENT: 'X', DESCRIPTION: 'Y' });
+    expect(a.contentHash).toBe(b.contentHash);
+  });
+
+  it('lists proposals with status filter', () => {
+    svc.generate('test', { CLIENT: 'A', DESCRIPTION: 'a' });
+    const p = svc.generate('test', { CLIENT: 'B', DESCRIPTION: 'b' });
+    svc.markReviewed(p.proposalId, 'r');
+    expect(svc.list({ status: 'draft' })).toHaveLength(1);
+    expect(svc.list({ status: 'reviewed' })).toHaveLength(1);
+  });
+});
