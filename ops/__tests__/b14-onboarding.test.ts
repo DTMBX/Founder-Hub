@@ -291,3 +291,49 @@ describe('B14-P1 — Checklist JSON schema validation', () => {
     expect(Array.isArray(json.items)).toBe(true);
   });
 });
+
+// ── B14-P2: Contract Template Placeholder Linter ────────────────
+
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+function readTemplate(name: string): string {
+  return readFileSync(
+    resolve(__dirname, '../../contracts/templates', name),
+    'utf-8',
+  );
+}
+
+function extractPlaceholders(content: string): string[] {
+  const matches = content.match(/\{\{[A-Z_0-9]+\}\}/g) ?? [];
+  return [...new Set(matches)];
+}
+
+describe('B14-P2 — Contract template placeholder linter', () => {
+  const templates = [
+    'MSA_template.md',
+    'SOW_template.md',
+    'NDA_lite_template.md',
+  ];
+
+  for (const tpl of templates) {
+    it(`${tpl} uses valid UPPER_SNAKE_CASE placeholders`, () => {
+      const content = readTemplate(tpl);
+      const placeholders = extractPlaceholders(content);
+      expect(placeholders.length).toBeGreaterThan(0);
+      for (const ph of placeholders) {
+        expect(ph).toMatch(/^\{\{[A-Z][A-Z_0-9]*\}\}$/);
+      }
+    });
+
+    it(`${tpl} contains no empty placeholders {{}}`, () => {
+      const content = readTemplate(tpl);
+      expect(content).not.toContain('{{}}');
+    });
+
+    it(`${tpl} includes the legal review warning`, () => {
+      const content = readTemplate(tpl);
+      expect(content.toLowerCase()).toContain('legal review');
+    });
+  }
+});
