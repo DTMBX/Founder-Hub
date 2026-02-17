@@ -1,10 +1,12 @@
 // B11 – Operations + Growth Automation Layer
 // Ops Console global context: auth, safe mode, audit
+// B11.1 — Hardened: subscribes to SafeMode SSOT (D2)
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { OpsUser, OpsRole } from './rbac';
 import { DEV_USER, hasPermission } from './rbac';
 import { getOpsAuditLogger } from '../../../automation/audit/OpsAuditLogger';
+import { SafeMode } from '../../../core/SafeMode';
 
 interface OpsContextValue {
   /** Current authenticated user. */
@@ -12,6 +14,8 @@ interface OpsContextValue {
   /** Global Safe Mode toggle — disables external sends, forces mock adapters. */
   safeMode: boolean;
   setSafeMode: (v: boolean) => void;
+  /** B11.1 — Panic: force Safe Mode ON + lockout (D2). */
+  panic: () => void;
   /** Check if current user has a permission. */
   can: (permission: string) => boolean;
   /** Log an ops audit event (convenience). */
@@ -33,11 +37,24 @@ const DEV_TOKEN_KEY = 'ops_dev_token';
 const EXPECTED_DEV_TOKEN = 'ops-dev-2026';
 
 export function OpsProvider({ children }: { children: ReactNode }) {
-  const [safeMode, setSafeModeState] = useState(true); // Safe Mode ON by default
+  // B11.1 — Safe Mode state driven by SSOT singleton (D2)
+  const [safeMode, setSafeModeState] = useState(() => !SafeMode.isExternalAllowed());
   const [user] = useState<OpsUser>(DEV_USER);
 
+  // Subscribe to SafeMode SSOT changes
+  useEffect(() => {
+    const unsubscribe = SafeMode.subscribe(() => {
+      setSafeModeState(!SafeMode.isExternalAllowed());
+    });
+    return unsubscribe;
+  }, []);
+
   const setSafeMode = useCallback((v: boolean) => {
-    setSafeModeState(v);
+    if (v) {
+      SafeMode.enable();
+    } else {
+      SafeMode.disable();
+    }
     getOpsAuditLogger().log({
       category: 'console.safe_mode_toggled',
       severity: 'warn',
@@ -51,6 +68,18 @@ export function OpsProvider({ children }: { children: ReactNode }) {
     (permission: string) => hasPermission(user.role, permission),
     [user.role]
   );
+
+  // B11.1 — Panic button: force Safe Mode ON + lockout (D2)
+  const panic = useCallback(() => {
+    SafeMode.panic();
+    getOpsAuditLogger().log({
+      category: 'console.safe_mode_panic',
+      severity: 'error',
+      actor: user.username,
+      description: 'PANIC: Safe Mode forced ON with lockout',
+      payload: { safeMode: true, lockout: true },
+    });
+  }, [user.username]);
 
   const auditLog = useCallback(
     async (
@@ -70,7 +99,7 @@ export function OpsProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <OpsContext.Provider value={{ user, safeMode, setSafeMode, can, auditLog }}>
+    <OpsContext.Provider value={{ user, safeMode, setSafeMode, panic, can, auditLog }}>
       {children}
     </OpsContext.Provider>
   );

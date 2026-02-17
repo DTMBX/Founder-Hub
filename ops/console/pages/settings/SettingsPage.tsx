@@ -1,7 +1,10 @@
 // B11 – Operations + Growth Automation Layer
 // Settings page — integration status, safe mode config (no secrets displayed)
+// B11.1 — Hardened: panic button, typed confirmation for Danger Zone
 
+import { useState } from 'react';
 import { useOps } from '../../app/lib/OpsContext';
+import { ConfirmActionSheet } from '../../app/components/ConfirmActionSheet';
 
 interface IntegrationRow {
   name: string;
@@ -29,7 +32,8 @@ function statusLabel(s: IntegrationRow['status']): string {
 }
 
 export function SettingsPage() {
-  const { user, safeMode, setSafeMode, can } = useOps();
+  const { user, safeMode, setSafeMode, panic, can } = useOps();
+  const [showDisableConfirm, setShowDisableConfirm] = useState(false);
 
   return (
     <div>
@@ -53,7 +57,14 @@ export function SettingsPage() {
             </p>
           </div>
           <button
-            onClick={() => setSafeMode(!safeMode)}
+            onClick={() => {
+              if (safeMode) {
+                // B11.1 — Disabling Safe Mode requires typed confirmation (D6)
+                setShowDisableConfirm(true);
+              } else {
+                setSafeMode(true);
+              }
+            }}
             disabled={!can('settings.toggle_safe_mode')}
             aria-label={safeMode ? 'Disable safe mode' : 'Enable safe mode'}
             style={{
@@ -123,6 +134,46 @@ export function SettingsPage() {
           environment variables or server-side config.
         </p>
       </div>
+
+      {/* B11.1 — Panic Button (D6) */}
+      <div style={{
+        marginTop: '16px', padding: '16px', borderRadius: '12px',
+        background: '#fef2f2', border: '1px solid #fca5a5',
+      }}>
+        <p style={{ fontSize: '13px', fontWeight: 700, color: '#991b1b', marginBottom: '8px' }}>
+          Emergency Controls
+        </p>
+        <button
+          onClick={panic}
+          style={{
+            padding: '10px 20px', borderRadius: '8px', border: 'none',
+            background: '#dc2626', color: '#fff', fontWeight: 700, fontSize: '13px',
+            cursor: 'pointer', width: '100%',
+          }}
+          aria-label="Activate panic mode: force safe mode on with lockout"
+        >
+          PANIC — Force Safe Mode + Lock
+        </button>
+        <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '6px' }}>
+          Immediately enables Safe Mode and locks it on. Requires admin clearance to unlock.
+        </p>
+      </div>
+
+      {/* B11.1 — Typed confirmation for disabling Safe Mode (D6) */}
+      {showDisableConfirm && (
+        <ConfirmActionSheet
+          title="Disable Safe Mode"
+          description="Disabling Safe Mode will allow external sends (CRM, email, webhooks). This action should only be performed when the system is ready for live operation."
+          confirmPhrase="DISABLE SAFE MODE"
+          actionLabel="Disable Safe Mode"
+          permitted={can('settings.toggle_safe_mode')}
+          onConfirm={() => {
+            setSafeMode(false);
+            setShowDisableConfirm(false);
+          }}
+          onCancel={() => setShowDisableConfirm(false)}
+        />
+      )}
     </div>
   );
 }

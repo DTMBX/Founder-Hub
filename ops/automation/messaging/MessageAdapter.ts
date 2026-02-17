@@ -1,7 +1,12 @@
 // B11 – Operations + Growth Automation Layer
 // B11-06 — Messaging Adapters (email + SMS, pluggable, mock-default)
+// B11.1 — Hardened: SafeMode SSOT, egress validation, PII redaction
 
 import { getOpsAuditLogger } from '../audit/OpsAuditLogger';
+import { SafeMode } from '../../core/SafeMode';
+import { validateEgressUrl, safeFetch } from '../../security/egress/DomainAllowlist';
+import { redactForAudit } from '../../security/pii/redact';
+import { currentCorrelationId } from '../../core/correlation';
 
 // ─── Message Types ───────────────────────────────────────────────
 
@@ -83,13 +88,14 @@ export class MockEmailAdapter implements IMessageAdapter {
   readonly sentMessages: OutboundMessage[] = [];
 
   async send(message: OutboundMessage, safeMode: boolean): Promise<SendResult> {
-    if (safeMode) {
+    // B11.1 — Safe Mode enforced via SSOT (D2), parameter kept for interface compat
+    if (safeMode || !SafeMode.isExternalAllowed()) {
       await getOpsAuditLogger().log({
         category: 'message.send_blocked',
         severity: 'info',
         actor: 'system',
         description: `Email blocked (safe mode): ${message.to}`,
-        payload: { messageId: message.id, to: message.to, channel: 'email' },
+        payload: redactForAudit({ messageId: message.id, to: message.to, channel: 'email' }),
       });
       return { success: true, messageId: message.id, error: 'Blocked by safe mode.' };
     }
@@ -132,13 +138,14 @@ export class MockSmsAdapter implements IMessageAdapter {
   readonly sentMessages: OutboundMessage[] = [];
 
   async send(message: OutboundMessage, safeMode: boolean): Promise<SendResult> {
-    if (safeMode) {
+    // B11.1 — Safe Mode enforced via SSOT (D2)
+    if (safeMode || !SafeMode.isExternalAllowed()) {
       await getOpsAuditLogger().log({
         category: 'message.send_blocked',
         severity: 'info',
         actor: 'system',
         description: `SMS blocked (safe mode): ${message.to}`,
-        payload: { messageId: message.id, to: message.to, channel: 'sms' },
+        payload: redactForAudit({ messageId: message.id, to: message.to, channel: 'sms' }),
       });
       return { success: true, messageId: message.id, error: 'Blocked by safe mode.' };
     }
@@ -190,13 +197,14 @@ export class WebhookEmailAdapter implements IMessageAdapter {
   }
 
   async send(message: OutboundMessage, safeMode: boolean): Promise<SendResult> {
-    if (safeMode) {
+    // B11.1 — Safe Mode enforced via SSOT (D2)
+    if (safeMode || !SafeMode.isExternalAllowed()) {
       await getOpsAuditLogger().log({
         category: 'message.send_blocked',
         severity: 'info',
         actor: 'system',
         description: `Webhook email blocked (safe mode): ${message.to}`,
-        payload: { messageId: message.id, to: message.to },
+        payload: redactForAudit({ messageId: message.id, to: message.to }),
       });
       return { success: true, messageId: message.id, error: 'Blocked by safe mode.' };
     }
@@ -207,9 +215,25 @@ export class WebhookEmailAdapter implements IMessageAdapter {
         severity: 'warn',
         actor: 'system',
         description: `Webhook email blocked (allowlist): ${message.to}`,
-        payload: { messageId: message.id, to: message.to },
+        payload: redactForAudit({ messageId: message.id, to: message.to }),
       });
       return { success: false, messageId: message.id, error: 'Recipient not in allowlist.' };
+    }
+
+    // B11.1 — Centralized egress validation (D1)
+    const egressResult = validateEgressUrl(this.config.endpoint);
+    if (!egressResult.allowed) {
+      await getOpsAuditLogger().log({
+        category: 'message.send_blocked',
+        severity: 'warn',
+        actor: 'system',
+        description: `Webhook email blocked (egress): ${egressResult.reason}`,
+        payload: redactForAudit({
+          messageId: message.id, to: message.to,
+          reason: egressResult.reason, correlationId: currentCorrelationId(),
+        }),
+      });
+      return { success: false, messageId: message.id, error: `Egress blocked: ${egressResult.reason}` };
     }
 
     try {
@@ -219,15 +243,16 @@ export class WebhookEmailAdapter implements IMessageAdapter {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (this.config.authHeader) headers['Authorization'] = this.config.authHeader;
 
-      const response = await fetch(this.config.endpoint, {
+      // B11.1 — safeFetch validates redirects against egress allowlist (D1)
+      const response = await safeFetch(this.config.endpoint, {
         method: 'POST',
         headers,
-        body: JSON.stringify({
+        body: JSON.stringify(redactForAudit({
           to: message.to,
           subject: message.subject,
           body: message.body,
           messageId: message.id,
-        }),
+        })),
         signal: controller.signal,
       });
 

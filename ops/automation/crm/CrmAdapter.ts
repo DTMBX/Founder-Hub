@@ -1,8 +1,13 @@
 // B11 – Operations + Growth Automation Layer
 // B11-04 — CRM Adapter Interface & Implementations
+// B11.1 — Hardened: SafeMode SSOT, centralized egress, PII redaction, correlation IDs
 
 import type { Lead } from '../leads/LeadModel';
 import { getOpsAuditLogger } from '../audit/OpsAuditLogger';
+import { SafeMode } from '../../core/SafeMode';
+import { validateEgressUrl, safeFetch } from '../../security/egress/DomainAllowlist';
+import { redactForAudit } from '../../security/pii/redact';
+import { currentCorrelationId } from '../../core/correlation';
 
 // ─── CRM Record ──────────────────────────────────────────────────
 
@@ -113,55 +118,31 @@ export interface WebhookCrmConfig {
   timeoutMs?: number;
 }
 
-/** Allowlist of permitted outbound domains (config-driven). */
-const DOMAIN_ALLOWLIST: Set<string> = new Set([
-  // populated from env/config at startup
-]);
-
-export function addAllowedCrmDomain(domain: string): void {
-  DOMAIN_ALLOWLIST.add(domain.toLowerCase());
-}
-
-export function removeAllowedCrmDomain(domain: string): void {
-  DOMAIN_ALLOWLIST.delete(domain.toLowerCase());
-}
-
-export function getAllowedCrmDomains(): string[] {
-  return Array.from(DOMAIN_ALLOWLIST);
-}
-
-function isDomainAllowed(url: string): boolean {
-  try {
-    const hostname = new URL(url).hostname.toLowerCase();
-    return DOMAIN_ALLOWLIST.has(hostname);
-  } catch {
-    return false;
-  }
-}
+/**
+ * B11.1 — Domain validation now delegated to centralized DomainAllowlist (D1).
+ * Legacy per-adapter allowlist removed. Use addAllowedEgressDomain() from
+ * ops/security/egress/DomainAllowlist.ts instead.
+ */
 
 export class WebhookCrmAdapter implements ICrmAdapter {
   readonly name = 'webhook';
   private config: WebhookCrmConfig;
-  private safeMode: boolean;
 
-  constructor(config: WebhookCrmConfig, safeMode = true) {
+  constructor(config: WebhookCrmConfig) {
     this.config = config;
-    this.safeMode = safeMode;
-  }
-
-  setSafeMode(enabled: boolean): void {
-    this.safeMode = enabled;
   }
 
   async pushLead(lead: Lead): Promise<CrmSyncResult> {
-    // Safe mode: do not send externally
-    if (this.safeMode) {
+    const correlationId = currentCorrelationId();
+
+    // B11.1 — Safe Mode enforced via SSOT (D2)
+    if (!SafeMode.isExternalAllowed()) {
       await getOpsAuditLogger().log({
         category: 'crm.sync_outbound',
         severity: 'info',
         actor: 'system',
         description: `CRM push blocked (safe mode): ${lead.name}`,
-        payload: { leadId: lead.id, adapter: this.name, blocked: true },
+        payload: redactForAudit({ leadId: lead.id, adapter: this.name, blocked: true, correlationId }),
       });
       return {
         success: true,
@@ -170,20 +151,21 @@ export class WebhookCrmAdapter implements ICrmAdapter {
       };
     }
 
-    // Domain allowlist check
-    if (!isDomainAllowed(this.config.endpoint)) {
+    // B11.1 — Centralized egress validation (D1) replaces per-adapter allowlist
+    const egressResult = validateEgressUrl(this.config.endpoint);
+    if (!egressResult.allowed) {
       await getOpsAuditLogger().log({
         category: 'crm.sync_outbound',
         severity: 'warn',
         actor: 'system',
-        description: `CRM push blocked (domain not in allowlist): ${this.config.endpoint}`,
-        payload: { leadId: lead.id, adapter: this.name, endpoint: this.config.endpoint },
+        description: `CRM push blocked (egress): ${egressResult.reason}`,
+        payload: redactForAudit({ leadId: lead.id, adapter: this.name, reason: egressResult.reason, correlationId }),
       });
       return {
         success: false,
         direction: 'outbound',
         contactId: '',
-        error: 'Domain not in allowlist.',
+        error: `Egress blocked: ${egressResult.reason}`,
       };
     }
 
@@ -201,10 +183,12 @@ export class WebhookCrmAdapter implements ICrmAdapter {
         headers['Authorization'] = this.config.authHeader;
       }
 
-      const response = await fetch(this.config.endpoint, {
+      // B11.1 — safeFetch validates redirects against egress allowlist (D1)
+      // B11.1 — PII redacted from outbound webhook payload (D5)
+      const response = await safeFetch(this.config.endpoint, {
         method: 'POST',
         headers,
-        body: JSON.stringify({
+        body: JSON.stringify(redactForAudit({
           leadId: lead.id,
           name: lead.name,
           email: lead.email,
@@ -213,7 +197,7 @@ export class WebhookCrmAdapter implements ICrmAdapter {
           source: lead.source,
           tags: lead.tags,
           createdAt: lead.createdAt,
-        }),
+        })),
         signal: controller.signal,
       });
 
@@ -269,8 +253,8 @@ export class WebhookCrmAdapter implements ICrmAdapter {
   }
 
   async healthCheck(): Promise<boolean> {
-    if (this.safeMode) return true; // assume healthy in safe mode
-    if (!isDomainAllowed(this.config.endpoint)) return false;
+    if (!SafeMode.isExternalAllowed()) return true; // assume healthy in safe mode
+    if (!validateEgressUrl(this.config.endpoint).allowed) return false;
 
     try {
       const controller = new AbortController();

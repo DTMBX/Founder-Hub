@@ -1,7 +1,10 @@
 // B11 – Operations + Growth Automation Layer
 // B11-07 — Content Ops (workflow dispatch, preview generation, publish pipeline)
+// B11.1 — Hardened: SafeMode SSOT, safeFetch for egress, PII redaction
 
 import { getOpsAuditLogger } from '../audit/OpsAuditLogger';
+import { SafeMode } from '../../core/SafeMode';
+import { safeFetch } from '../../security/egress/DomainAllowlist';
 
 // ─── Content Request Model ──────────────────────────────────────
 
@@ -111,7 +114,8 @@ export class GitHubActionsDispatcher implements IContentWorkflowDispatcher {
   }
 
   async dispatch(request: ContentRequest, safeMode: boolean): Promise<{ success: boolean; detail?: string }> {
-    if (safeMode) {
+    // B11.1 — Safe Mode enforced via SSOT (D2)
+    if (safeMode || !SafeMode.isExternalAllowed()) {
       await getOpsAuditLogger().log({
         category: 'content.workflow_dispatched',
         severity: 'info',
@@ -125,7 +129,8 @@ export class GitHubActionsDispatcher implements IContentWorkflowDispatcher {
     try {
       const url = `https://api.github.com/repos/${this.config.repo}/actions/workflows/${this.config.workflowId}/dispatches`;
 
-      const response = await fetch(url, {
+      // B11.1 — safeFetch validates egress and redirect targets (D1)
+      const response = await safeFetch(url, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.config.token}`,
@@ -176,7 +181,8 @@ export class GitHubActionsDispatcher implements IContentWorkflowDispatcher {
   async healthCheck(): Promise<boolean> {
     try {
       const url = `https://api.github.com/repos/${this.config.repo}`;
-      const response = await fetch(url, {
+      // B11.1 — safeFetch for health checks too (D1)
+      const response = await safeFetch(url, {
         headers: {
           'Authorization': `Bearer ${this.config.token}`,
           'Accept': 'application/vnd.github.v3+json',

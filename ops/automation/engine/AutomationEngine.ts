@@ -1,8 +1,12 @@
 // B11 – Operations + Growth Automation Layer
 // B11-05 — Follow-up Automations Engine
+// B11.1 — Hardened: SafeMode SSOT, idempotent execution, retry+DLQ
 
 import type { Lead } from '../leads/LeadModel';
 import { getOpsAuditLogger } from '../audit/OpsAuditLogger';
+import { SafeMode } from '../../core/SafeMode';
+import { IdempotentExecutor } from './IdempotentExecutor';
+import { currentCorrelationId } from '../../core/correlation';
 
 // ─── Rule Definition ─────────────────────────────────────────────
 
@@ -138,14 +142,10 @@ export class AutomationEngine {
   private rules = new Map<string, AutomationRule>();
   private executions: AutomationExecution[] = [];
   private executionCounts = new Map<string, number>(); // key: `${ruleId}:${leadId}`
-  private safeMode: boolean;
+  private idempotent = new IdempotentExecutor();
 
-  constructor(safeMode = true) {
-    this.safeMode = safeMode;
-  }
-
-  setSafeMode(enabled: boolean): void {
-    this.safeMode = enabled;
+  constructor() {
+    // B11.1 — Safe Mode no longer stored locally; uses SafeMode SSOT (D2)
   }
 
   // ── Rule management ──
@@ -253,6 +253,7 @@ export class AutomationEngine {
   }
 
   private async executeRule(rule: AutomationRule, lead: Lead): Promise<AutomationExecution> {
+    const correlationId = currentCorrelationId();
     const execution: AutomationExecution = {
       id: crypto.randomUUID(),
       ruleId: rule.id,
@@ -267,8 +268,11 @@ export class AutomationEngine {
       severity: 'info',
       actor: 'system',
       description: `Automation started: ${rule.name} for lead ${lead.id}`,
-      payload: { ruleId: rule.id, leadId: lead.id, executionId: execution.id },
+      payload: { ruleId: rule.id, leadId: lead.id, executionId: execution.id, correlationId },
     });
+
+    // B11.1 — Read safe mode from SSOT (D2)
+    const safeMode = !SafeMode.isExternalAllowed();
 
     try {
       for (const action of rule.actions) {
@@ -285,17 +289,31 @@ export class AutomationEngine {
           continue;
         }
 
+        // B11.1 — Idempotent execution with retry + DLQ (D4)
+        const idempotencyKey = {
+          ruleId: rule.id,
+          subjectId: `${lead.id}:${action.type}`,
+          timeWindowMs: 60_000, // 1-minute dedup window
+        };
+
         const handler = actionHandlers.get(action.type) ?? stubHandler;
-        const result = await handler(action, lead, this.safeMode);
+        const execResult = await this.idempotent.execute(
+          idempotencyKey,
+          async () => {
+            const hr = await handler(action, lead, safeMode);
+            return hr as Record<string, unknown>;
+          },
+        );
+
         execution.results.push({
           actionType: action.type,
-          success: result.success,
-          detail: result.detail,
+          success: execResult.status === 'completed',
+          detail: execResult.skippedReason ?? execResult.record.lastError,
         });
 
-        if (!result.success) {
+        if (execResult.status !== 'completed') {
           execution.status = 'failed';
-          execution.error = result.detail ?? 'Action failed.';
+          execution.error = execResult.record.lastError ?? 'Action failed.';
           break;
         }
       }
@@ -342,9 +360,9 @@ export class AutomationEngine {
 
 let _engine: AutomationEngine | null = null;
 
-export function getAutomationEngine(safeMode = true): AutomationEngine {
+export function getAutomationEngine(): AutomationEngine {
   if (!_engine) {
-    _engine = new AutomationEngine(safeMode);
+    _engine = new AutomationEngine();
   }
   return _engine;
 }
