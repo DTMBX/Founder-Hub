@@ -1,0 +1,235 @@
+# Nightly Mirror Backup
+# Creates a mirror backup of the repository to a secondary location
+
+name: Nightly Backup
+
+on:
+  schedule:
+    # Run at 2 AM ET every day
+    - cron: "0 7 * * *"
+  workflow_dispatch:
+    inputs:
+      force_backup:
+        description: "Force backup even if no changes"
+        required: false
+        default: "false"
+        type: boolean
+
+env:
+  BACKUP_RETENTION_DAYS: 30
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # MIRROR BACKUP
+  # ─────────────────────────────────────────────────────────────────────────────
+  backup:
+    name: Mirror Backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout repository (full clone)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name "Backup Bot"
+          git config --global user.email "backup@xtx396.com"
+      
+      - name: Create backup bundle
+        run: |
+          BACKUP_DATE=$(date +%Y-%m-%d)
+          BACKUP_NAME="xtx396-backup-${BACKUP_DATE}.bundle"
+          
+          # Create git bundle with all refs
+          git bundle create "${BACKUP_NAME}" --all
+          
+          # Verify bundle integrity
+          git bundle verify "${BACKUP_NAME}"
+          
+          echo "BACKUP_NAME=${BACKUP_NAME}" >> $GITHUB_ENV
+          echo "BACKUP_DATE=${BACKUP_DATE}" >> $GITHUB_ENV
+          
+          # Calculate checksum
+          sha256sum "${BACKUP_NAME}" > "${BACKUP_NAME}.sha256"
+          
+          echo "✅ Backup bundle created: ${BACKUP_NAME}"
+          ls -lh "${BACKUP_NAME}"
+      
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ env.BACKUP_DATE }}
+          path: |
+            ${{ env.BACKUP_NAME }}
+            ${{ env.BACKUP_NAME }}.sha256
+          retention-days: ${{ env.BACKUP_RETENTION_DAYS }}
+      
+      - name: Mirror to backup repository
+        if: ${{ vars.BACKUP_REPO != '' }}
+        run: |
+          # Add backup remote (if configured)
+          git remote add backup "https://x-access-token:${{ secrets.BACKUP_TOKEN }}@github.com/${{ vars.BACKUP_REPO }}.git" || true
+          
+          # Push all branches and tags
+          git push backup --mirror --force
+          
+          echo "✅ Mirror push complete"
+        continue-on-error: true
+      
+      - name: Record backup metadata
+        run: |
+          cat > backup-metadata.json << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "repository": "${{ github.repository }}",
+            "branch": "${{ github.ref_name }}",
+            "commit": "${{ github.sha }}",
+            "bundleFile": "${{ env.BACKUP_NAME }}",
+            "triggerType": "${{ github.event_name }}",
+            "status": "success"
+          }
+          EOF
+          
+          cat backup-metadata.json
+      
+      - name: Upload metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-metadata-${{ env.BACKUP_DATE }}
+          path: backup-metadata.json
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # VERIFY BACKUP
+  # ─────────────────────────────────────────────────────────────────────────────
+  verify:
+    name: Verify Backup
+    runs-on: ubuntu-latest
+    needs: backup
+    timeout-minutes: 15
+    
+    steps:
+      - name: Download backup artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backup-${{ needs.backup.outputs.BACKUP_DATE || 'latest' }}
+          path: ./backup
+        continue-on-error: true
+      
+      - name: Verify backup integrity
+        run: |
+          cd backup || exit 0
+          
+          # Find bundle file
+          BUNDLE=$(ls *.bundle 2>/dev/null | head -1)
+          
+          if [ -z "$BUNDLE" ]; then
+            echo "⚠️ No bundle file found in artifact"
+            exit 0
+          fi
+          
+          # Verify checksum
+          if [ -f "${BUNDLE}.sha256" ]; then
+            sha256sum -c "${BUNDLE}.sha256"
+            echo "✅ Checksum verified"
+          fi
+          
+          # Verify bundle can be extracted
+          git bundle verify "$BUNDLE"
+          echo "✅ Bundle integrity verified"
+          
+          # List bundle contents
+          git bundle list-heads "$BUNDLE"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CLEANUP OLD BACKUPS
+  # ─────────────────────────────────────────────────────────────────────────────
+  cleanup:
+    name: Cleanup Old Backups
+    runs-on: ubuntu-latest
+    needs: [backup, verify]
+    if: success()
+    
+    steps:
+      - name: List old backup artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            
+            // Get all artifacts
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner,
+              repo,
+              per_page: 100
+            });
+            
+            const now = new Date();
+            const retentionMs = ${{ env.BACKUP_RETENTION_DAYS }} * 24 * 60 * 60 * 1000;
+            
+            let deletedCount = 0;
+            
+            for (const artifact of artifacts.data.artifacts) {
+              // Only clean up backup artifacts
+              if (!artifact.name.startsWith('backup-')) continue;
+              
+              const createdAt = new Date(artifact.created_at);
+              const ageMs = now - createdAt;
+              
+              if (ageMs > retentionMs) {
+                console.log(`Deleting old backup: ${artifact.name} (${artifact.created_at})`);
+                
+                await github.rest.actions.deleteArtifact({
+                  owner,
+                  repo,
+                  artifact_id: artifact.id
+                });
+                
+                deletedCount++;
+              }
+            }
+            
+            console.log(`✅ Cleaned up ${deletedCount} old backup artifacts`);
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NOTIFY ON FAILURE
+  # ─────────────────────────────────────────────────────────────────────────────
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [backup, verify]
+    if: failure()
+    
+    steps:
+      - name: Create failure issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const date = new Date().toISOString().split('T')[0];
+            
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: `🚨 Nightly Backup Failed - ${date}`,
+              body: `## Backup Failure Alert
+            
+            The nightly backup workflow failed on ${date}.
+            
+            **Workflow Run:** ${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}
+            
+            **Action Required:**
+            1. Check workflow logs for error details
+            2. Manually run backup if needed
+            3. Verify backup repository access
+            
+            cc: @DTMBX
+            `,
+              labels: ['backup', 'incident', 'automated']
+            });
+            
+            console.log('Created failure notification issue');

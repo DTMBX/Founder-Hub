@@ -1,0 +1,62 @@
+# CODEOWNERS - XTX396
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything in the repo
+* @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GOVERNANCE & SECURITY
+# ─────────────────────────────────────────────────────────────────────────────
+# These files require admin review
+/governance/                    @DTMBX
+/.github/                       @DTMBX
+/SECURITY.md                    @DTMBX
+/CODEOWNERS                     @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CORE APPLICATION
+# ─────────────────────────────────────────────────────────────────────────────
+/src/                           @DTMBX
+/src/components/                @DTMBX
+/src/hooks/                     @DTMBX
+/src/core/                      @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SECURITY-SENSITIVE MODULES
+# ─────────────────────────────────────────────────────────────────────────────
+# Assistant with governance controls
+/src/assistant/                 @DTMBX
+
+# Terminal with allowlist controls
+/src/terminal/                  @DTMBX
+
+# Billing and payments
+/src/billing/                   @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────────
+package.json                    @DTMBX
+package-lock.json               @DTMBX
+tsconfig.json                   @DTMBX
+vite.config.ts                  @DTMBX
+tailwind.config.js              @DTMBX
+netlify.toml                    @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TESTS
+# ─────────────────────────────────────────────────────────────────────────────
+**/__tests__/                   @DTMBX
+*.test.ts                       @DTMBX
+*.test.tsx                      @DTMBX
+*.spec.ts                       @DTMBX
+*.spec.tsx                      @DTMBX
+/vitest.config.ts               @DTMBX
+/playwright.config.ts           @DTMBX
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DOCUMENTATION
+# ─────────────────────────────────────────────────────────────────────────────
+*.md                            @DTMBX
+/docs/                          @DTMBX
+/public/                        @DTMBX
