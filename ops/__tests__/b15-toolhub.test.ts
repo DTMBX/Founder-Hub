@@ -3,6 +3,7 @@
  *
  * Covers:
  *   P1: ToolManifest schema validation + ManifestRegistry
+ *   P2: ToolHub host app (search, launch, access, health)
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -200,5 +201,134 @@ describe('ManifestRegistry', () => {
     registry.register(validManifest);
     expect(registry.unregister('civics-hierarchy')).toBe(true);
     expect(registry.count()).toBe(0);
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// P2 — ToolHub Host App
+// ═══════════════════════════════════════════════════════════════
+
+import { ToolHub } from '../../apps/toolhub/ToolHub';
+import { ManifestRegistry } from '../../apps/tooling/ToolManifest';
+
+const toolA: ToolManifest = {
+  ...validManifest,
+  id: 'tool-a',
+  name: 'Tool Alpha',
+  description: 'First test tool',
+  tags: ['legal', 'alpha'],
+  capabilities: ['read', 'write'],
+};
+
+const toolB: ToolManifest = {
+  ...validManifest,
+  id: 'tool-b',
+  name: 'Tool Beta',
+  description: 'Second test tool',
+  brand: 'xtx396',
+  tags: ['finance'],
+  status: 'active' as const,
+};
+
+const archivedTool: ToolManifest = {
+  ...validManifest,
+  id: 'tool-old',
+  name: 'Archived Tool',
+  status: 'archived',
+};
+
+describe('ToolHub', () => {
+  let hub: ToolHub;
+
+  beforeEach(() => {
+    const reg = new ManifestRegistry();
+    reg.register(toolA);
+    reg.register(toolB);
+    reg.register(archivedTool);
+    hub = new ToolHub(reg);
+  });
+
+  // ── search ──────────────────────────────────────────────────
+
+  it('searches by name', () => {
+    const result = hub.search('Alpha');
+    expect(result.totalCount).toBe(1);
+    expect(result.tools[0].id).toBe('tool-a');
+  });
+
+  it('returns all tools for empty query', () => {
+    const result = hub.search('');
+    expect(result.totalCount).toBe(3);
+  });
+
+  it('searches across tags', () => {
+    const result = hub.search('finance');
+    expect(result.totalCount).toBe(1);
+    expect(result.tools[0].id).toBe('tool-b');
+  });
+
+  // ── discover ────────────────────────────────────────────────
+
+  it('discovers by brand', () => {
+    const results = hub.discover({ brand: 'xtx396' });
+    expect(results).toHaveLength(1);
+    expect(results[0].id).toBe('tool-b');
+  });
+
+  // ── launch ──────────────────────────────────────────────────
+
+  it('launches a tool and records audit trail', () => {
+    const record = hub.launch('tool-a', 'user-1');
+    expect(record.toolId).toBe('tool-a');
+    expect(record.userId).toBe('user-1');
+    expect(record.sessionHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('rejects launch of unknown tool', () => {
+    expect(() => hub.launch('nonexistent', 'user-1')).toThrow('not found');
+  });
+
+  it('rejects launch of archived tool', () => {
+    expect(() => hub.launch('tool-old', 'user-1')).toThrow('archived');
+  });
+
+  it('tracks launch history', () => {
+    hub.launch('tool-a', 'user-1');
+    hub.launch('tool-b', 'user-1');
+    hub.launch('tool-a', 'user-2');
+    expect(hub.getLaunches({ toolId: 'tool-a' })).toHaveLength(2);
+    expect(hub.getLaunches({ userId: 'user-1' })).toHaveLength(2);
+  });
+
+  // ── access ──────────────────────────────────────────────────
+
+  it('grants access when all capabilities present', () => {
+    const result = hub.checkAccess('tool-a', ['read', 'write', 'admin']);
+    expect(result.allowed).toBe(true);
+    expect(result.missing).toHaveLength(0);
+  });
+
+  it('denies access when capabilities missing', () => {
+    const result = hub.checkAccess('tool-a', ['read']);
+    expect(result.allowed).toBe(false);
+    expect(result.missing).toContain('write');
+  });
+
+  it('grants access when tool has no required capabilities', () => {
+    const result = hub.checkAccess('tool-b', []);
+    expect(result.allowed).toBe(true);
+  });
+
+  // ── health ──────────────────────────────────────────────────
+
+  it('records and retrieves health status', () => {
+    hub.recordHealth('tool-a', true);
+    const status = hub.getHealth('tool-a');
+    expect(status?.healthy).toBe(true);
+    expect(status?.checkedAt).toBeDefined();
+  });
+
+  it('returns undefined for unchecked tool', () => {
+    expect(hub.getHealth('tool-a')).toBeUndefined();
   });
 });
