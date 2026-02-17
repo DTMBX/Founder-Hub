@@ -1018,3 +1018,120 @@ describe('ReferralService', () => {
     expect(svc2.list({ referrerId: 'C-1' })).toHaveLength(1);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P7 — Confidence Builder Publishing Hooks
+// ═══════════════════════════════════════════════════════════════
+
+import {
+  ContentPublisher,
+  validateRequest,
+  type ContentRequest,
+} from '../automation/content/ContentPublisher';
+
+const validReq: ContentRequest = {
+  type: 'case_study',
+  title: 'Sample Case Study',
+  body: 'This engagement demonstrated our capability.',
+  author: 'admin',
+  clientId: 'C-1',
+  tags: ['ediscovery'],
+};
+
+describe('validateRequest', () => {
+  it('accepts a valid request', () => {
+    const result = validateRequest(validReq);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('rejects missing title', () => {
+    const result = validateRequest({ ...validReq, title: '' });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('Title is required');
+  });
+
+  it('rejects missing body', () => {
+    const result = validateRequest({ ...validReq, body: '' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects invalid content type', () => {
+    const result = validateRequest({ ...validReq, type: 'invalid' as ContentRequest['type'] });
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('ContentPublisher', () => {
+  let pub: ContentPublisher;
+
+  beforeEach(() => {
+    pub = new ContentPublisher();
+  });
+
+  it('creates a draft content record', () => {
+    const record = pub.create(validReq);
+    expect(record.status).toBe('draft');
+    expect(record.contentHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(record.tags).toContain('ediscovery');
+  });
+
+  it('rejects invalid create request', () => {
+    expect(() => pub.create({ ...validReq, author: '' })).toThrow('Invalid content request');
+  });
+
+  it('follows draft → in_review → approved → published lifecycle', () => {
+    const record = pub.create(validReq);
+    pub.submitForReview(record.contentId);
+    pub.approve(record.contentId, 'reviewer-1');
+    const published = pub.publish(record.contentId);
+    expect(published.status).toBe('published');
+    expect(published.publishedAt).toBeDefined();
+    expect(published.reviewedBy).toBe('reviewer-1');
+  });
+
+  it('rejects skipping review stage', () => {
+    const record = pub.create(validReq);
+    expect(() => pub.approve(record.contentId, 'reviewer-1')).toThrow(
+      'Cannot approve',
+    );
+  });
+
+  it('rejects publishing without approval', () => {
+    const record = pub.create(validReq);
+    pub.submitForReview(record.contentId);
+    expect(() => pub.publish(record.contentId)).toThrow('must be approved');
+  });
+
+  it('archives published content', () => {
+    const record = pub.create(validReq);
+    pub.submitForReview(record.contentId);
+    pub.approve(record.contentId, 'r');
+    pub.publish(record.contentId);
+    const archived = pub.archive(record.contentId);
+    expect(archived.status).toBe('archived');
+  });
+
+  it('rejects archiving non-published content', () => {
+    const record = pub.create(validReq);
+    expect(() => pub.archive(record.contentId)).toThrow('Only published');
+  });
+
+  it('verifies content integrity', () => {
+    const record = pub.create(validReq);
+    expect(pub.verifyIntegrity(record.contentId).valid).toBe(true);
+  });
+
+  it('detects tampered content', () => {
+    const record = pub.create(validReq);
+    record.contentHash = 'c'.repeat(64);
+    expect(pub.verifyIntegrity(record.contentId).valid).toBe(false);
+  });
+
+  it('lists by type and status', () => {
+    pub.create(validReq);
+    pub.create({ ...validReq, type: 'testimonial' });
+    expect(pub.list({ type: 'case_study' })).toHaveLength(1);
+    expect(pub.list({ status: 'draft' })).toHaveLength(2);
+  });
+});
