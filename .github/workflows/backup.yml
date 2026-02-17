@@ -1,22 +1,37 @@
-# Nightly Mirror Backup
-# Creates a mirror backup of the repository to a secondary location
+# Nightly Mirror Backup (Chain B5)
+# Creates an encrypted mirror backup of the repository
+# Features: AES-256 encryption, S3 upload, retention policy, verification
 
 name: Nightly Backup
 
 on:
   schedule:
-    # Run at 2 AM ET every day
-    - cron: "0 7 * * *"
+    # Run at 2 AM UTC every day
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
-      force_backup:
-        description: "Force backup even if no changes"
+      backup_type:
+        description: "Backup type"
+        required: true
+        type: choice
+        options:
+          - daily
+          - monthly
+        default: daily
+      dry_run:
+        description: "Dry run (skip S3 upload)"
         required: false
-        default: "false"
+        default: false
         type: boolean
+
+permissions:
+  contents: read
+  actions: write
 
 env:
   BACKUP_RETENTION_DAYS: 30
+  BACKUP_RETENTION_MONTHS: 12
+  BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET || 'xtx396-backups' }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -39,10 +54,41 @@ jobs:
           git config --global user.name "Backup Bot"
           git config --global user.email "backup@xtx396.com"
       
-      - name: Create backup bundle
+      - name: Generate backup metadata
+        id: meta
         run: |
-          BACKUP_DATE=$(date +%Y-%m-%d)
-          BACKUP_NAME="xtx396-backup-${BACKUP_DATE}.bundle"
+          TIMESTAMP=$(date -u +"%Y%m%d-%H%M")
+          BACKUP_DATE=$(date -u +%Y-%m-%d)
+          MONTH=$(date -u +"%Y%m")
+          DAY_OF_MONTH=$(date -u +"%d")
+          
+          # Determine backup type
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BACKUP_TYPE="${{ inputs.backup_type }}"
+          elif [ "$DAY_OF_MONTH" = "01" ]; then
+            BACKUP_TYPE="monthly"
+          else
+            BACKUP_TYPE="daily"
+          fi
+          
+          BACKUP_NAME="xtx396-backup-${TIMESTAMP}"
+          
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "date=$BACKUP_DATE" >> $GITHUB_OUTPUT
+          echo "month=$MONTH" >> $GITHUB_OUTPUT
+          echo "backup_type=$BACKUP_TYPE" >> $GITHUB_OUTPUT
+          echo "backup_name=$BACKUP_NAME" >> $GITHUB_OUTPUT
+          
+          # Also set env for compatibility
+          echo "BACKUP_NAME=${BACKUP_NAME}.bundle" >> $GITHUB_ENV
+          echo "BACKUP_DATE=${BACKUP_DATE}" >> $GITHUB_ENV
+          
+          echo "📦 Backup: $BACKUP_NAME ($BACKUP_TYPE)"
+      
+      - name: Create backup bundle
+        id: bundle
+        run: |
+          BACKUP_NAME="${{ steps.meta.outputs.backup_name }}.bundle"
           
           # Create git bundle with all refs
           git bundle create "${BACKUP_NAME}" --all
@@ -50,22 +96,149 @@ jobs:
           # Verify bundle integrity
           git bundle verify "${BACKUP_NAME}"
           
-          echo "BACKUP_NAME=${BACKUP_NAME}" >> $GITHUB_ENV
-          echo "BACKUP_DATE=${BACKUP_DATE}" >> $GITHUB_ENV
-          
-          # Calculate checksum
+          # Calculate checksum and size
           sha256sum "${BACKUP_NAME}" > "${BACKUP_NAME}.sha256"
+          BUNDLE_SIZE=$(stat -c%s "${BACKUP_NAME}" 2>/dev/null || stat -f%z "${BACKUP_NAME}")
+          BUNDLE_SHA256=$(sha256sum "${BACKUP_NAME}" | cut -d' ' -f1)
+          
+          echo "bundle_size=$BUNDLE_SIZE" >> $GITHUB_OUTPUT
+          echo "bundle_sha256=$BUNDLE_SHA256" >> $GITHUB_OUTPUT
           
           echo "✅ Backup bundle created: ${BACKUP_NAME}"
           ls -lh "${BACKUP_NAME}"
       
+      - name: Export GitHub metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p backup-meta
+          
+          # Repository info
+          gh api repos/${{ github.repository }} > backup-meta/repository.json 2>/dev/null || echo "{}" > backup-meta/repository.json
+          
+          # Branches
+          gh api repos/${{ github.repository }}/branches --paginate > backup-meta/branches.json 2>/dev/null || echo "[]" > backup-meta/branches.json
+          
+          # Tags
+          gh api repos/${{ github.repository }}/tags --paginate > backup-meta/tags.json 2>/dev/null || echo "[]" > backup-meta/tags.json
+          
+          # Recent releases
+          gh api repos/${{ github.repository }}/releases --paginate > backup-meta/releases.json 2>/dev/null || echo "[]" > backup-meta/releases.json
+          
+          echo "✅ Exported GitHub metadata"
+      
+      - name: Create backup manifest
+        run: |
+          BACKUP_NAME="${{ steps.meta.outputs.backup_name }}"
+          
+          cat > backup-manifest.json << EOF
+          {
+            "schemaVersion": "1.0.0",
+            "backupId": "$BACKUP_NAME",
+            "backupType": "${{ steps.meta.outputs.backup_type }}",
+            "repository": "${{ github.repository }}",
+            "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "commit": {
+              "sha": "${{ github.sha }}",
+              "ref": "${{ github.ref }}"
+            },
+            "workflow": {
+              "runId": "${{ github.run_id }}",
+              "runNumber": "${{ github.run_number }}"
+            },
+            "contents": {
+              "bundle": {
+                "file": "${BACKUP_NAME}.bundle",
+                "sha256": "${{ steps.bundle.outputs.bundle_sha256 }}",
+                "size": ${{ steps.bundle.outputs.bundle_size }}
+              }
+            },
+            "encryption": {
+              "algorithm": "AES-256-CBC",
+              "keyDerivation": "PBKDF2",
+              "iterations": 100000
+            }
+          }
+          EOF
+          
+          echo "✅ Created backup manifest"
+      
+      - name: Create and encrypt archive
+        id: encrypt
+        env:
+          BACKUP_ENCRYPTION_KEY: ${{ secrets.BACKUP_ENCRYPTION_KEY }}
+        run: |
+          BACKUP_NAME="${{ steps.meta.outputs.backup_name }}"
+          ARCHIVE_NAME="${BACKUP_NAME}.tar.gz"
+          ENCRYPTED_NAME="${BACKUP_NAME}.tar.gz.enc"
+          
+          # Create archive
+          tar -czf "$ARCHIVE_NAME" \
+            "${BACKUP_NAME}.bundle" \
+            backup-manifest.json \
+            "${BACKUP_NAME}.bundle.sha256" \
+            backup-meta/
+          
+          # Encrypt archive
+          if [ -z "$BACKUP_ENCRYPTION_KEY" ]; then
+            echo "⚠️ BACKUP_ENCRYPTION_KEY not set, using derived key"
+            BACKUP_ENCRYPTION_KEY=$(echo -n "backup-${{ github.repository }}-${{ github.run_id }}" | sha256sum | cut -d' ' -f1)
+          fi
+          
+          openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt \
+            -in "$ARCHIVE_NAME" \
+            -out "$ENCRYPTED_NAME" \
+            -pass pass:"$BACKUP_ENCRYPTION_KEY"
+          
+          ENCRYPTED_SHA256=$(sha256sum "$ENCRYPTED_NAME" | cut -d' ' -f1)
+          ENCRYPTED_SIZE=$(stat -c%s "$ENCRYPTED_NAME" 2>/dev/null || stat -f%z "$ENCRYPTED_NAME")
+          
+          echo "encrypted_name=$ENCRYPTED_NAME" >> $GITHUB_OUTPUT
+          echo "encrypted_sha256=$ENCRYPTED_SHA256" >> $GITHUB_OUTPUT
+          echo "encrypted_size=$ENCRYPTED_SIZE" >> $GITHUB_OUTPUT
+          
+          echo "🔐 Encrypted archive: $ENCRYPTED_NAME ($(numfmt --to=iec-i --suffix=B $ENCRYPTED_SIZE 2>/dev/null || echo ${ENCRYPTED_SIZE}B))"
+      
+      - name: Upload to S3
+        if: ${{ inputs.dry_run != true }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BACKUP_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ vars.BACKUP_AWS_REGION || 'us-east-1' }}
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "⚠️ AWS credentials not configured, skipping S3 upload"
+            echo "   Set BACKUP_AWS_ACCESS_KEY_ID and BACKUP_AWS_SECRET_ACCESS_KEY secrets"
+            exit 0
+          fi
+          
+          BACKUP_TYPE="${{ steps.meta.outputs.backup_type }}"
+          ENCRYPTED_NAME="${{ steps.encrypt.outputs.encrypted_name }}"
+          BUCKET="${{ env.BACKUP_BUCKET }}"
+          
+          # Upload to appropriate path
+          if [ "$BACKUP_TYPE" = "monthly" ]; then
+            S3_PATH="s3://${BUCKET}/monthly/${{ steps.meta.outputs.month }}/"
+          else
+            S3_PATH="s3://${BUCKET}/daily/${{ steps.meta.outputs.date }}/"
+          fi
+          
+          aws s3 cp "$ENCRYPTED_NAME" "${S3_PATH}${ENCRYPTED_NAME}"
+          aws s3 cp backup-manifest.json "${S3_PATH}backup-manifest.json"
+          
+          # Update latest symlink
+          aws s3 cp "$ENCRYPTED_NAME" "s3://${BUCKET}/latest/backup-latest.tar.gz.enc"
+          aws s3 cp backup-manifest.json "s3://${BUCKET}/latest/backup-manifest.json"
+          
+          echo "☁️ Uploaded to $S3_PATH"
+      
       - name: Upload backup artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backup-${{ env.BACKUP_DATE }}
+          name: backup-${{ steps.meta.outputs.date }}
           path: |
-            ${{ env.BACKUP_NAME }}
-            ${{ env.BACKUP_NAME }}.sha256
+            ${{ steps.encrypt.outputs.encrypted_name }}
+            backup-manifest.json
           retention-days: ${{ env.BACKUP_RETENTION_DAYS }}
       
       - name: Mirror to backup repository
@@ -80,28 +253,25 @@ jobs:
           echo "✅ Mirror push complete"
         continue-on-error: true
       
-      - name: Record backup metadata
+      - name: Backup summary
         run: |
-          cat > backup-metadata.json << EOF
-          {
-            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "repository": "${{ github.repository }}",
-            "branch": "${{ github.ref_name }}",
-            "commit": "${{ github.sha }}",
-            "bundleFile": "${{ env.BACKUP_NAME }}",
-            "triggerType": "${{ github.event_name }}",
-            "status": "success"
-          }
-          EOF
-          
-          cat backup-metadata.json
-      
-      - name: Upload metadata
-        uses: actions/upload-artifact@v4
-        with:
-          name: backup-metadata-${{ env.BACKUP_DATE }}
-          path: backup-metadata.json
-          retention-days: 90
+          echo "## 📦 Backup Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Backup ID | \`${{ steps.meta.outputs.backup_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Type | ${{ steps.meta.outputs.backup_type }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Repository | ${{ github.repository }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Encrypted Size | ${{ steps.encrypt.outputs.encrypted_size }} bytes |" >> $GITHUB_STEP_SUMMARY
+          echo "| SHA256 | \`${{ steps.encrypt.outputs.encrypted_sha256 }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Encryption | AES-256-CBC (PBKDF2) |" >> $GITHUB_STEP_SUMMARY
+    
+    outputs:
+      backup_date: ${{ steps.meta.outputs.date }}
+      backup_name: ${{ steps.meta.outputs.backup_name }}
+      backup_type: ${{ steps.meta.outputs.backup_type }}
+      encrypted_sha256: ${{ steps.encrypt.outputs.encrypted_sha256 }}
 
   # ─────────────────────────────────────────────────────────────────────────────
   # VERIFY BACKUP
@@ -116,7 +286,7 @@ jobs:
       - name: Download backup artifact
         uses: actions/download-artifact@v4
         with:
-          name: backup-${{ needs.backup.outputs.BACKUP_DATE || 'latest' }}
+          name: backup-${{ needs.backup.outputs.backup_date }}
           path: ./backup
         continue-on-error: true
       
@@ -124,26 +294,36 @@ jobs:
         run: |
           cd backup || exit 0
           
-          # Find bundle file
-          BUNDLE=$(ls *.bundle 2>/dev/null | head -1)
+          # Find encrypted file
+          ENCRYPTED=$(ls *.tar.gz.enc 2>/dev/null | head -1)
           
-          if [ -z "$BUNDLE" ]; then
-            echo "⚠️ No bundle file found in artifact"
+          if [ -z "$ENCRYPTED" ]; then
+            echo "⚠️ No encrypted backup found in artifact"
             exit 0
           fi
           
-          # Verify checksum
-          if [ -f "${BUNDLE}.sha256" ]; then
-            sha256sum -c "${BUNDLE}.sha256"
-            echo "✅ Checksum verified"
+          # Verify manifest exists
+          if [ -f "backup-manifest.json" ]; then
+            echo "✅ Backup manifest found"
+            cat backup-manifest.json | head -20
+          else
+            echo "⚠️ No manifest found"
           fi
           
-          # Verify bundle can be extracted
-          git bundle verify "$BUNDLE"
-          echo "✅ Bundle integrity verified"
+          # Verify encrypted file hash matches expected
+          EXPECTED_HASH="${{ needs.backup.outputs.encrypted_sha256 }}"
+          ACTUAL_HASH=$(sha256sum "$ENCRYPTED" | cut -d' ' -f1)
           
-          # List bundle contents
-          git bundle list-heads "$BUNDLE"
+          if [ "$EXPECTED_HASH" = "$ACTUAL_HASH" ]; then
+            echo "✅ Encrypted archive hash verified"
+          else
+            echo "❌ Hash mismatch!"
+            echo "   Expected: $EXPECTED_HASH"
+            echo "   Actual:   $ACTUAL_HASH"
+            exit 1
+          fi
+          
+          echo "✅ Backup verification complete"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # CLEANUP OLD BACKUPS
