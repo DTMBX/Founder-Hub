@@ -1,4 +1,11 @@
-export type UserRole = 'owner' | 'editor' | 'viewer'
+/**
+ * User roles hierarchy (highest to lowest):
+ * - owner: Full system access, production deploys, user management
+ * - admin: Operations + deploy to preview/staging, no prod deploys
+ * - editor: Content editing only, no destructive actions
+ * - support: Read-only + ticket notes, no edits
+ */
+export type UserRole = 'owner' | 'admin' | 'editor' | 'support'
 
 export interface User {
   id: string

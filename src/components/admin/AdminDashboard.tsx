@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
 import { downloadDataFiles } from '@/lib/local-storage-kv'
 import { publishToGitHub, hasGitHubToken } from '@/lib/github-sync'
 import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
+import { usePermissions, FOUNDER_MODE_ROUTES } from '@/lib/route-guards'
+import { useFeatureFlags, activateFounderMode, activateOpsMode } from '@/lib/feature-flags'
 import {
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
@@ -113,6 +116,26 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const [isPublishing, setIsPublishing] = useState(false)
   const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
   
+  // RBAC & Feature Flags
+  const permissions = usePermissions()
+  const { flags } = useFeatureFlags()
+  
+  // Filter nav items based on role and mode
+  const filteredNavItems = useMemo(() => {
+    return permissions.filterNavItems(navItems)
+  }, [permissions])
+  
+  // Filter categories that have visible items
+  const visibleCategories = useMemo(() => {
+    return categories.filter(category =>
+      filteredNavItems.some(item => item.category === category)
+    )
+  }, [filteredNavItems])
+  
+  // Check action permissions
+  const canPublish = permissions.canExecuteAction('publish')
+  const canExport = permissions.canExecuteAction('export-data')
+  
   useInitializeDocumentTypes()
 
   const handleLogout = async () => {
@@ -121,6 +144,12 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   }
 
   const handlePublish = async () => {
+    // RBAC check at service level
+    if (!canPublish) {
+      toast.error('You do not have permission to publish')
+      return
+    }
+    
     if (!hasGitHubToken()) {
       toast.error('Configure GitHub token in Settings first')
       setActiveTab('settings')
@@ -211,8 +240,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           <div className="flex items-center justify-between">
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <h1 className="text-sm font-bold tracking-tight truncate">Control Center</h1>
-                <p className="text-[10px] text-muted-foreground truncate">{currentUser?.email}</p>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-sm font-bold tracking-tight truncate">Control Center</h1>
+                  <Badge variant={permissions.isFounderMode ? 'default' : 'secondary'} className="text-[9px] px-1.5 py-0">
+                    {permissions.isFounderMode ? 'FOUNDER' : 'OPS'}
+                  </Badge>
+                </div>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {currentUser?.email} • {permissions.role}
+                </p>
               </div>
             )}
             <Button 
@@ -234,8 +270,9 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         {/* Nav items */}
         <ScrollArea className="flex-1 py-2">
           <div className="px-2 space-y-4">
-            {categories.map(category => {
-              const items = navItems.filter(item => item.category === category)
+            {visibleCategories.map(category => {
+              const items = filteredNavItems.filter(item => item.category === category)
+              if (items.length === 0) return null
               return (
                 <div key={category}>
                   {!sidebarCollapsed && (
@@ -266,7 +303,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                       )
                     })}
                   </div>
-                  {category !== 'System' && !sidebarCollapsed && (
+                  {category !== visibleCategories[visibleCategories.length - 1] && !sidebarCollapsed && (
                     <Separator className="mt-3 opacity-50" />
                   )}
                 </div>
@@ -275,30 +312,52 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           </div>
         </ScrollArea>
 
+        {/* Mode Toggle */}
+        {!sidebarCollapsed && (
+          <div className="px-3 py-2 border-t border-border/50">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => permissions.isFounderMode ? activateOpsMode() : activateFounderMode()}
+              className="w-full text-xs justify-start gap-2"
+            >
+              {permissions.isFounderMode ? '↑ Switch to Ops Mode' : '↓ Switch to Founder Mode'}
+            </Button>
+          </div>
+        )}
+
         {/* Sidebar footer */}
         <div className="p-3 border-t border-border/50 space-y-1.5">
-          <Button 
-            variant="default" 
-            size="sm" 
-            onClick={handlePublish}
-            disabled={isPublishing}
-            className={cn('w-full gap-2 text-xs', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
-          >
-            <GithubLogo className="h-4 w-4 shrink-0" weight={isPublishing ? 'light' : 'bold'} />
-            {!sidebarCollapsed && (isPublishing ? 'Publishing...' : 'Publish to Live')}
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => {
-              downloadDataFiles()
-              toast.success('Data files downloaded! Copy to public/data/ and commit to deploy.')
-            }}
-            className={cn('w-full gap-2 text-xs border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
-          >
-            <Export className="h-4 w-4 shrink-0" />
-            {!sidebarCollapsed && 'Export Data'}
-          </Button>
+          {canPublish && (
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={handlePublish}
+              disabled={isPublishing}
+              className={cn('w-full gap-2 text-xs', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+            >
+              <GithubLogo className="h-4 w-4 shrink-0" weight={isPublishing ? 'light' : 'bold'} />
+              {!sidebarCollapsed && (isPublishing ? 'Publishing...' : 'Publish to Live')}
+            </Button>
+          )}
+          {canExport && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                if (!canExport) {
+                  toast.error('You do not have permission to export data')
+                  return
+                }
+                downloadDataFiles()
+                toast.success('Data files downloaded! Copy to public/data/ and commit to deploy.')
+              }}
+              className={cn('w-full gap-2 text-xs border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+            >
+              <Export className="h-4 w-4 shrink-0" />
+              {!sidebarCollapsed && 'Export Data'}
+            </Button>
+          )}
           <Button 
             variant="ghost" 
             size="sm" 
