@@ -828,3 +828,193 @@ describe('HandoffPackageService', () => {
     expect(svc.list({ status: 'assembling' })).toHaveLength(1);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// P6 — Retention Engine + Referral Service
+// ═══════════════════════════════════════════════════════════════
+
+import {
+  RetentionEngine,
+  ReferralService,
+  type RetentionRuleSet,
+} from '../automation/retention/RetentionEngine';
+import retentionRulesJson from '../automation/rules/retention_rules.json';
+
+const retentionRules = retentionRulesJson as RetentionRuleSet;
+
+describe('RetentionEngine', () => {
+  let engine: RetentionEngine;
+
+  beforeEach(() => {
+    engine = new RetentionEngine();
+  });
+
+  // ── rule loading ──────────────────────────────────────────────
+
+  it('loads valid rule set from JSON', () => {
+    engine.loadRules(retentionRules);
+    expect(engine.getRules().length).toBe(retentionRules.rules.length);
+  });
+
+  it('rejects rule set without version', () => {
+    expect(() =>
+      engine.loadRules({ version: '', rules: [] } as RetentionRuleSet),
+    ).toThrow('Invalid rule set');
+  });
+
+  it('rejects rule missing required fields', () => {
+    expect(() =>
+      engine.loadRules({
+        version: '1.0.0',
+        rules: [{ ruleId: '', trigger: 'engagement_complete', action: 'send_thank_you', enabled: true }],
+      }),
+    ).toThrow('missing required fields');
+  });
+
+  // ── evaluation ────────────────────────────────────────────────
+
+  it('fires matching rules on trigger', () => {
+    engine.loadRules(retentionRules);
+    const fired = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'engagement_complete',
+    });
+    expect(fired.length).toBeGreaterThan(0);
+    expect(fired.every((f) => f.trigger === 'engagement_complete')).toBe(true);
+  });
+
+  it('does not fire disabled rules', () => {
+    engine.loadRules(retentionRules);
+    const fired = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'days_since_delivery',
+      daysSince: 200,
+    });
+    // RET-006 (180 days, disabled) should NOT fire
+    expect(fired.find((f) => f.ruleId === 'RET-006')).toBeUndefined();
+  });
+
+  it('respects daysSince condition', () => {
+    engine.loadRules(retentionRules);
+    const tooEarly = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'days_since_delivery',
+      daysSince: 10,
+    });
+    expect(tooEarly).toHaveLength(0);
+
+    const atThreshold = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'days_since_delivery',
+      daysSince: 30,
+    });
+    expect(atThreshold.find((f) => f.ruleId === 'RET-002')).toBeDefined();
+  });
+
+  it('respects minEngagements condition', () => {
+    engine.loadRules(retentionRules);
+    const tooFew = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'invoice_paid',
+      engagementCount: 1,
+    });
+    expect(tooFew).toHaveLength(0);
+
+    const enough = engine.evaluate({
+      clientId: 'C-1',
+      trigger: 'invoice_paid',
+      engagementCount: 3,
+    });
+    expect(enough.find((f) => f.ruleId === 'RET-005')).toBeDefined();
+  });
+
+  it('records firings for audit', () => {
+    engine.loadRules(retentionRules);
+    engine.evaluate({ clientId: 'C-1', trigger: 'engagement_complete' });
+    engine.evaluate({ clientId: 'C-2', trigger: 'engagement_complete' });
+
+    expect(engine.getFirings().length).toBeGreaterThanOrEqual(2);
+    expect(engine.getFirings('C-1').every((f) => f.clientId === 'C-1')).toBe(true);
+  });
+});
+
+describe('ReferralService', () => {
+  let svc2: ReferralService;
+
+  beforeEach(() => {
+    svc2 = new ReferralService();
+  });
+
+  it('submits a referral with integrity hash', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane Doe',
+      referredEmail: 'jane@example.com',
+    });
+    expect(ref.status).toBe('submitted');
+    expect(ref.integrityHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('rejects incomplete referral', () => {
+    expect(() =>
+      svc2.submit({ referrerId: '', referredName: 'A', referredEmail: 'a@b.com' }),
+    ).toThrow('requires');
+  });
+
+  it('follows submitted → verified → credited lifecycle', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane',
+      referredEmail: 'jane@ex.com',
+    });
+    svc2.verify(ref.referralId);
+    const credited = svc2.credit(ref.referralId, 50);
+    expect(credited.status).toBe('credited');
+    expect(credited.creditAmount).toBe(50);
+  });
+
+  it('rejects crediting unverified referral', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane',
+      referredEmail: 'jane@ex.com',
+    });
+    expect(() => svc2.credit(ref.referralId, 50)).toThrow('must be verified');
+  });
+
+  it('rejects expiring a credited referral', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane',
+      referredEmail: 'jane@ex.com',
+    });
+    svc2.verify(ref.referralId);
+    svc2.credit(ref.referralId, 50);
+    expect(() => svc2.expire(ref.referralId)).toThrow('Cannot expire');
+  });
+
+  it('verifies referral integrity', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane',
+      referredEmail: 'jane@ex.com',
+    });
+    expect(svc2.verifyIntegrity(ref.referralId).valid).toBe(true);
+  });
+
+  it('detects tampered referral', () => {
+    const ref = svc2.submit({
+      referrerId: 'C-1',
+      referredName: 'Jane',
+      referredEmail: 'jane@ex.com',
+    });
+    ref.integrityHash = 'b'.repeat(64);
+    expect(svc2.verifyIntegrity(ref.referralId).valid).toBe(false);
+  });
+
+  it('lists referrals by referrerId', () => {
+    svc2.submit({ referrerId: 'C-1', referredName: 'A', referredEmail: 'a@x.com' });
+    svc2.submit({ referrerId: 'C-2', referredName: 'B', referredEmail: 'b@x.com' });
+    expect(svc2.list({ referrerId: 'C-1' })).toHaveLength(1);
+  });
+});
