@@ -3,7 +3,12 @@
     "private": true,
     "version": "0.0.0",
     "type": "module",
+    "engines": {
+        "node": ">=20"
+    },
     "scripts": {
+        "verify": "node scripts/verify-prereqs.mjs",
+        "check": "npm run verify && npm run lint && npm run test",
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",
         "build": "tsc -b --noCheck && vite build",
@@ -13,7 +18,12 @@
         "generate:images": "node scripts/generate-og-images.js",
         "generate:previews": "node scripts/generate-previews.mjs",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "site:generate": "node scripts/generate-site.mjs",
+        "site:list": "node scripts/site-manager.mjs list",
+        "site:status": "node scripts/site-manager.mjs status",
+        "site:deploy": "node scripts/site-manager.mjs deploy",
+        "site:presets": "node scripts/generate-site.mjs --list-presets"
     },
     "dependencies": {
         "@github/spark": ">=0.43.1 <1",
@@ -83,6 +93,8 @@
         "@eslint/js": "^9.21.0",
         "@playwright/test": "^1.52.0",
         "@tailwindcss/postcss": "^4.1.8",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
         "@types/react": "^19.0.10",
         "@types/react-dom": "^19.0.4",
         "@vitejs/plugin-react-swc": "^4.2.2",
@@ -90,6 +102,7 @@
         "eslint-plugin-react-hooks": "^7.0.1",
         "eslint-plugin-react-refresh": "^0.4.19",
         "globals": "^16.0.0",
+        "jsdom": "^28.1.0",
         "tailwindcss": "^4.1.18",
         "typescript": "~5.7.2",
         "typescript-eslint": "^8.55.0",
