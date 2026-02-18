@@ -427,3 +427,147 @@ describe('P2 — DemoGuard audit', () => {
     expect(log[0].tenantId).toBe('public-demo');
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P3 — Tenant-Scoped API Keys + RBAC Hardening
+// ═════════════════════════════════════════════════════════════════
+
+import { ApiKeyManager } from '../../ops/auth/ApiKeyManager';
+
+describe('P3 — ApiKeyManager create + validate', () => {
+  let mgr: ApiKeyManager;
+
+  beforeEach(() => {
+    mgr = new ApiKeyManager();
+  });
+
+  it('creates a key with evk_ prefix', () => {
+    const result = mgr.create('tenant-1', 'read_only');
+    expect(result.plainKey).toMatch(/^evk_[a-f0-9]{64}$/);
+    expect(result.keyId).toMatch(/^key-/);
+    expect(result.scope).toBe('read_only');
+  });
+
+  it('validates a created key', () => {
+    const { plainKey } = mgr.create('tenant-1', 'export');
+    const result = mgr.validate(plainKey);
+    expect(result.valid).toBe(true);
+    expect(result.tenantId).toBe('tenant-1');
+    expect(result.scope).toBe('export');
+  });
+
+  it('rejects unknown key', () => {
+    const result = mgr.validate('evk_unknown');
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain('Unknown');
+  });
+
+  it('rejects empty key', () => {
+    expect(mgr.validate('').valid).toBe(false);
+  });
+
+  it('throws on invalid scope', () => {
+    expect(() => mgr.create('t', 'superadmin' as any)).toThrow('Invalid scope');
+  });
+
+  it('throws on empty tenantId', () => {
+    expect(() => mgr.create('', 'read_only')).toThrow('tenantId');
+  });
+});
+
+describe('P3 — ApiKeyManager revocation', () => {
+  let mgr: ApiKeyManager;
+
+  beforeEach(() => {
+    mgr = new ApiKeyManager();
+  });
+
+  it('revokes a key', () => {
+    const { keyId, plainKey } = mgr.create('t', 'read_only');
+    mgr.revoke(keyId);
+    const result = mgr.validate(plainKey);
+    expect(result.valid).toBe(false);
+    expect(result.reason).toContain('revoked');
+  });
+
+  it('throws revoking unknown key', () => {
+    expect(() => mgr.revoke('nonexistent')).toThrow('not found');
+  });
+
+  it('throws revoking already-revoked key', () => {
+    const { keyId } = mgr.create('t', 'admin');
+    mgr.revoke(keyId);
+    expect(() => mgr.revoke(keyId)).toThrow('already revoked');
+  });
+});
+
+describe('P3 — ApiKeyManager scope checks', () => {
+  let mgr: ApiKeyManager;
+
+  beforeEach(() => {
+    mgr = new ApiKeyManager();
+  });
+
+  it('admin includes all scopes', () => {
+    expect(mgr.checkScope('admin', 'read_only')).toBe(true);
+    expect(mgr.checkScope('admin', 'export')).toBe(true);
+    expect(mgr.checkScope('admin', 'admin')).toBe(true);
+  });
+
+  it('read_only cannot export', () => {
+    expect(mgr.checkScope('read_only', 'export')).toBe(false);
+  });
+
+  it('export cannot admin', () => {
+    expect(mgr.checkScope('export', 'admin')).toBe(false);
+  });
+});
+
+describe('P3 — ApiKeyManager tenant isolation', () => {
+  it('key is bound to its tenant', () => {
+    const mgr = new ApiKeyManager();
+    const { plainKey } = mgr.create('tenant-a', 'read_only');
+    const result = mgr.validate(plainKey);
+    expect(result.tenantId).toBe('tenant-a');
+    // Not tenant-b
+    expect(result.tenantId).not.toBe('tenant-b');
+  });
+
+  it('lists keys only for the specified tenant', () => {
+    const mgr = new ApiKeyManager();
+    mgr.create('tenant-a', 'read_only');
+    mgr.create('tenant-b', 'export');
+    mgr.create('tenant-a', 'admin');
+    const aKeys = mgr.listForTenant('tenant-a');
+    expect(aKeys.length).toBe(2);
+    for (const k of aKeys) {
+      expect(k.tenantId).toBe('tenant-a');
+    }
+  });
+});
+
+describe('P3 — ApiKeyManager audit', () => {
+  it('logs key creation', () => {
+    const mgr = new ApiKeyManager();
+    mgr.create('t', 'read_only');
+    const log = mgr.getAuditLog();
+    expect(log.some((e) => e.action === 'key_created')).toBe(true);
+  });
+
+  it('logs key revocation', () => {
+    const mgr = new ApiKeyManager();
+    const { keyId } = mgr.create('t', 'admin');
+    mgr.revoke(keyId);
+    const log = mgr.getAuditLog();
+    expect(log.some((e) => e.action === 'key_revoked')).toBe(true);
+  });
+
+  it('logs revoked key usage attempt', () => {
+    const mgr = new ApiKeyManager();
+    const { keyId, plainKey } = mgr.create('t', 'admin');
+    mgr.revoke(keyId);
+    mgr.validate(plainKey);
+    const log = mgr.getAuditLog();
+    expect(log.some((e) => e.action === 'revoked_key_attempt')).toBe(true);
+  });
+});
