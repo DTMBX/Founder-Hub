@@ -571,3 +571,128 @@ describe('P3 — ApiKeyManager audit', () => {
     expect(log.some((e) => e.action === 'revoked_key_attempt')).toBe(true);
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P4 — Production Monitoring + SLOs
+// ═════════════════════════════════════════════════════════════════
+
+import {
+  HealthMonitor,
+  type SLOConfig,
+} from '../../ops/monitoring/HealthMonitor';
+import sloRaw from '../../ops/monitoring/SLOConfig.json';
+
+const sloConfig = sloRaw as unknown as SLOConfig;
+
+describe('P4 — SLO Config loading', () => {
+  it('loads SLO targets from JSON', () => {
+    expect(sloConfig.slos.length).toBeGreaterThan(0);
+    expect(sloConfig.alertThresholds).toBeDefined();
+  });
+
+  it('contains uptime SLOs for public and pro', () => {
+    const ids = sloConfig.slos.map((s) => s.id);
+    expect(ids).toContain('SLO-UPTIME-PUBLIC');
+    expect(ids).toContain('SLO-UPTIME-PRO');
+  });
+
+  it('contains search latency SLO', () => {
+    const lat = sloConfig.slos.find((s) => s.id === 'SLO-LATENCY-SEARCH');
+    expect(lat).toBeDefined();
+    expect(lat!.target).toBe(1500);
+  });
+});
+
+describe('P4 — HealthMonitor checks', () => {
+  let monitor: HealthMonitor;
+
+  beforeEach(() => {
+    monitor = new HealthMonitor(sloConfig);
+  });
+
+  it('records a healthy check', () => {
+    const result = monitor.recordCheck('api', 99.9, 200, 0.1);
+    expect(result.status).toBe('healthy');
+    expect(result.checkHash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('marks degraded when latency exceeds warning', () => {
+    const result = monitor.recordCheck('api', 99.9, 2000, 0.1);
+    expect(result.status).toBe('degraded');
+  });
+
+  it('marks down when uptime is critical', () => {
+    const result = monitor.recordCheck('api', 95, 200, 0.1);
+    expect(result.status).toBe('down');
+  });
+
+  it('marks down when error rate is critical', () => {
+    const result = monitor.recordCheck('api', 99.9, 200, 10);
+    expect(result.status).toBe('down');
+  });
+
+  it('accumulates health checks', () => {
+    monitor.recordCheck('a', 99.9, 100, 0);
+    monitor.recordCheck('b', 99.5, 200, 0.5);
+    expect(monitor.getChecks().length).toBe(2);
+  });
+});
+
+describe('P4 — HealthMonitor alerts', () => {
+  let monitor: HealthMonitor;
+
+  beforeEach(() => {
+    monitor = new HealthMonitor(sloConfig);
+  });
+
+  it('generates critical alert for low uptime', () => {
+    monitor.recordCheck('api', 95, 200, 0.1);
+    const alerts = monitor.getAlerts();
+    expect(alerts.some((a) => a.severity === 'critical' && a.sloId.includes('UPTIME'))).toBe(true);
+  });
+
+  it('generates warning alert for borderline uptime', () => {
+    monitor.recordCheck('api', 98.5, 200, 0.1);
+    const alerts = monitor.getAlerts();
+    expect(alerts.some((a) => a.severity === 'warning' && a.sloId.includes('UPTIME'))).toBe(true);
+  });
+
+  it('generates no alerts when healthy', () => {
+    monitor.recordCheck('api', 99.9, 200, 0.1);
+    expect(monitor.getAlerts().length).toBe(0);
+  });
+
+  it('generates latency warning', () => {
+    monitor.recordCheck('api', 99.9, 2000, 0.1);
+    const alerts = monitor.getAlerts();
+    expect(alerts.some((a) => a.sloId.includes('LATENCY'))).toBe(true);
+  });
+
+  it('generates error rate critical', () => {
+    monitor.recordCheck('api', 99.9, 200, 10);
+    const alerts = monitor.getAlerts();
+    expect(alerts.some((a) => a.severity === 'critical' && a.sloId.includes('ERROR'))).toBe(true);
+  });
+});
+
+describe('P4 — HealthMonitor checkSLO', () => {
+  let monitor: HealthMonitor;
+
+  beforeEach(() => {
+    monitor = new HealthMonitor(sloConfig);
+  });
+
+  it('uptime SLO met when above target', () => {
+    const result = monitor.checkSLO('SLO-UPTIME-PUBLIC', 99.5);
+    expect(result.met).toBe(true);
+  });
+
+  it('uptime SLO not met when below target', () => {
+    const result = monitor.checkSLO('SLO-UPTIME-PUBLIC', 98);
+    expect(result.met).toBe(false);
+  });
+
+  it('throws for unknown SLO', () => {
+    expect(() => monitor.checkSLO('NONEXISTENT', 99)).toThrow('not found');
+  });
+});
