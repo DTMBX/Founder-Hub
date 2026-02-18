@@ -696,3 +696,114 @@ describe('P4 — HealthMonitor checkSLO', () => {
     expect(() => monitor.checkSLO('NONEXISTENT', 99)).toThrow('not found');
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P5 — WAF-Like Abuse Protection Layer
+// ═════════════════════════════════════════════════════════════════
+
+import {
+  AbuseProtection,
+  DEFAULT_ABUSE_CONFIG,
+} from '../../ops/security/AbuseProtection';
+
+describe('P5 — AbuseProtection basic checks', () => {
+  it('allows normal request', () => {
+    const ap = new AbuseProtection();
+    expect(ap.check('10.0.0.1').action).toBe('allowed');
+  });
+
+  it('blocks empty IP', () => {
+    const ap = new AbuseProtection();
+    expect(ap.check('').action).toBe('blocked');
+  });
+
+  it('blocks after exceeding rate limit', () => {
+    const ap = new AbuseProtection({
+      ...DEFAULT_ABUSE_CONFIG,
+      maxRequestsPerWindow: 5,
+      windowMs: 60_000,
+    });
+    for (let i = 0; i < 5; i++) {
+      ap.check('10.0.0.1');
+    }
+    const result = ap.check('10.0.0.1');
+    expect(result.action).toBe('blocked');
+    expect(result.reason).toContain('Rate limit');
+  });
+});
+
+describe('P5 — AbuseProtection burst detection', () => {
+  it('throttles burst requests', () => {
+    const ap = new AbuseProtection({
+      ...DEFAULT_ABUSE_CONFIG,
+      burstThreshold: 3,
+      burstWindowMs: 60_000,  // large window so all requests are in-window
+      maxRequestsPerWindow: 100,
+    });
+    for (let i = 0; i < 3; i++) {
+      ap.check('10.0.0.2');
+    }
+    const result = ap.check('10.0.0.2');
+    expect(result.action).toBe('throttled');
+    expect(result.retryAfterMs).toBeGreaterThan(0);
+  });
+});
+
+describe('P5 — AbuseProtection soft ban', () => {
+  it('soft bans an IP', () => {
+    const ap = new AbuseProtection();
+    ap.softBan('10.0.0.3', 'Test ban');
+    expect(ap.isBanned('10.0.0.3')).toBe(true);
+  });
+
+  it('banned IP is rejected', () => {
+    const ap = new AbuseProtection();
+    ap.softBan('10.0.0.3', 'Test ban');
+    const result = ap.check('10.0.0.3');
+    expect(result.action).toBe('banned');
+    expect(result.retryAfterMs).toBeGreaterThan(0);
+  });
+
+  it('removes a ban', () => {
+    const ap = new AbuseProtection();
+    ap.softBan('10.0.0.3', 'Test ban');
+    ap.removeBan('10.0.0.3');
+    expect(ap.isBanned('10.0.0.3')).toBe(false);
+  });
+});
+
+describe('P5 — AbuseProtection backoff', () => {
+  it('calculates exponential backoff', () => {
+    const ap = new AbuseProtection({ ...DEFAULT_ABUSE_CONFIG, baseBackoffMs: 1000, maxBackoffMs: 60000 });
+    expect(ap.calculateBackoff(0)).toBe(1000);
+    expect(ap.calculateBackoff(1)).toBe(2000);
+    expect(ap.calculateBackoff(2)).toBe(4000);
+  });
+
+  it('caps at maxBackoffMs', () => {
+    const ap = new AbuseProtection({ ...DEFAULT_ABUSE_CONFIG, baseBackoffMs: 1000, maxBackoffMs: 5000 });
+    expect(ap.calculateBackoff(10)).toBe(5000);
+  });
+});
+
+describe('P5 — AbuseProtection audit', () => {
+  it('logs abuse events', () => {
+    const ap = new AbuseProtection({
+      ...DEFAULT_ABUSE_CONFIG,
+      maxRequestsPerWindow: 2,
+    });
+    ap.check('10.0.0.1');
+    ap.check('10.0.0.1');
+    ap.check('10.0.0.1'); // exceeds
+    const log = ap.getAuditLog();
+    expect(log.length).toBeGreaterThan(0);
+    expect(log.some((e) => e.action === 'blocked')).toBe(true);
+  });
+
+  it('logs ban events', () => {
+    const ap = new AbuseProtection();
+    ap.softBan('10.0.0.5', 'manual');
+    const log = ap.getAuditLog();
+    expect(log.some((e) => e.action === 'banned')).toBe(true);
+  });
+});
