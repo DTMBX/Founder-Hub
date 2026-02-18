@@ -3,6 +3,7 @@
  *
  * Covers:
  *   P1: Tenant model, validation, registry, context middleware
+ *   P2: Public demo mode hardening (DemoGuard)
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -298,5 +299,131 @@ describe('P1 — TenantContextMiddleware', () => {
       expect(entry.tenantId).toBeDefined();
       expect(entry.tenantId.length).toBeGreaterThan(0);
     }
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════
+// P2 — Public Demo Mode Hardening
+// ═════════════════════════════════════════════════════════════════
+
+import {
+  DemoGuard,
+  PUBLIC_DEMO_CONFIG,
+} from '../../ops/demo/DemoGuard';
+
+describe('P2 — DemoGuard row limits', () => {
+  let guard: DemoGuard;
+
+  beforeEach(() => {
+    guard = new DemoGuard();
+  });
+
+  it('allows rows within limit', () => {
+    expect(guard.checkRowLimit(50, 'public-demo').allowed).toBe(true);
+  });
+
+  it('rejects rows exceeding limit', () => {
+    const result = guard.checkRowLimit(200, 'public-demo');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('Row limit');
+  });
+
+  it('allows exact limit', () => {
+    expect(guard.checkRowLimit(100, 'public-demo').allowed).toBe(true);
+  });
+});
+
+describe('P2 — DemoGuard export limits', () => {
+  let guard: DemoGuard;
+
+  beforeEach(() => {
+    guard = new DemoGuard();
+  });
+
+  it('allows exports within limit', () => {
+    expect(guard.checkExportSize(1024, 'public-demo').allowed).toBe(true);
+  });
+
+  it('rejects large exports', () => {
+    const result = guard.checkExportSize(10 * 1024 * 1024, 'public-demo');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('Export size');
+  });
+});
+
+describe('P2 — DemoGuard feature blocks', () => {
+  let guard: DemoGuard;
+
+  beforeEach(() => {
+    guard = new DemoGuard();
+  });
+
+  it('blocks file upload', () => {
+    expect(guard.checkFileUpload('public-demo').allowed).toBe(false);
+  });
+
+  it('blocks external APIs', () => {
+    expect(guard.checkExternalApi('public-demo').allowed).toBe(false);
+  });
+
+  it('blocks billing', () => {
+    expect(guard.checkBilling('public-demo').allowed).toBe(false);
+  });
+
+  it('blocks messaging', () => {
+    expect(guard.checkMessaging('public-demo').allowed).toBe(false);
+  });
+});
+
+describe('P2 — DemoGuard IP rate limiting', () => {
+  it('allows requests within IP limit', () => {
+    const guard = new DemoGuard();
+    expect(guard.checkIpRate('1.2.3.4', 5, 'public-demo').allowed).toBe(true);
+  });
+
+  it('blocks IP after exceeding limit', () => {
+    const guard = new DemoGuard();
+    for (let i = 0; i < 5; i++) {
+      guard.checkIpRate('1.2.3.4', 5, 'public-demo');
+    }
+    const result = guard.checkIpRate('1.2.3.4', 5, 'public-demo');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('rate limit');
+  });
+});
+
+describe('P2 — DemoGuard preview truncation', () => {
+  it('returns short text unchanged', () => {
+    const guard = new DemoGuard();
+    expect(guard.truncatePreview('short')).toBe('short');
+  });
+
+  it('truncates long text with marker', () => {
+    const guard = new DemoGuard();
+    const long = 'x'.repeat(20_000);
+    const result = guard.truncatePreview(long);
+    expect(result.length).toBeLessThan(long.length);
+    expect(result).toContain('[truncated]');
+  });
+});
+
+describe('P2 — DemoGuard disabled mode', () => {
+  it('allows everything when disabled', () => {
+    const guard = new DemoGuard(PUBLIC_DEMO_CONFIG, false);
+    expect(guard.checkRowLimit(999999, 'x').allowed).toBe(true);
+    expect(guard.checkFileUpload('x').allowed).toBe(true);
+    expect(guard.checkBilling('x').allowed).toBe(true);
+    expect(guard.checkMessaging('x').allowed).toBe(true);
+  });
+});
+
+describe('P2 — DemoGuard audit', () => {
+  it('logs rejection events', () => {
+    const guard = new DemoGuard();
+    guard.checkRowLimit(999, 'public-demo');
+    const log = guard.getAuditLog();
+    expect(log.length).toBe(1);
+    expect(log[0].action).toBe('row_limit_exceeded');
+    expect(log[0].tenantId).toBe('public-demo');
   });
 });
