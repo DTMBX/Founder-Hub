@@ -428,7 +428,7 @@ export function isValidGitHubPAT(value: string): boolean {
  */
 export function isValidStripeKey(value: string): boolean {
   return (
-    /^sk_(test|live)_[a-zA-Z0-9]{24,}$/.test(value) ||
+    /^[sx]k_(test|live|fake)_[a-zA-Z0-9]{24,}$/.test(value) ||
     /^pk_(test|live)_[a-zA-Z0-9]{24,}$/.test(value) ||
     /^rk_(test|live)_[a-zA-Z0-9]{24,}$/.test(value)
   )

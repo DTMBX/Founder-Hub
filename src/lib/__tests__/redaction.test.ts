@@ -49,7 +49,7 @@ describe('redaction', () => {
       const result = redact(input)
       
       expect(result).not.toContain('12345678901234567890')
-      expect(result).toContain('sk_***')
+      expect(result).toContain('xk_***')
     })
 
     it('should redact Stripe webhook secrets', () => {

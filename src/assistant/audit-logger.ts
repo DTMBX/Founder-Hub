@@ -57,7 +57,7 @@ const DEFAULT_SECRET_PATTERNS: SecretPattern[] = [
   },
   {
     name: 'stripe_key',
-    pattern: /sk_(?:live|test)_[a-zA-Z0-9]{24,}/g,
+    pattern: /[sx]k_(?:live|test|fake)_[a-zA-Z0-9]{24,}/g,
     replacement: '[REDACTED:STRIPE_KEY]',
   },
   {

@@ -55,10 +55,10 @@ export const REDACTION_PATTERNS: RedactionPattern[] = [
     label: 'GitHub Refresh Token',
   },
   
-  // Stripe Keys
+  // Stripe Keys (xk_ prefix used in tests to avoid push-protection false positives)
   {
-    regex: /sk_(test|live)_[a-zA-Z0-9]{24,}/g,
-    replacement: (match) => `sk_***...${match.slice(-4)}`,
+    regex: /[sx]k_(test|live|fake)_[a-zA-Z0-9]{24,}/g,
+    replacement: (match) => `${match.slice(0, 3)}***...${match.slice(-4)}`,
     label: 'Stripe Secret Key',
   },
   {

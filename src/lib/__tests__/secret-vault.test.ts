@@ -233,11 +233,11 @@ describe('secret-vault', () => {
 
   describe('isValidStripeKey', () => {
     it('should validate test secret keys', () => {
-      expect(isValidStripeKey('xk_fake_1234567890abcdefghijklmnopqrs')).toBe(true)
+      expect(isValidStripeKey('xk_test_1234567890abcdefghijklmnopqrs')).toBe(true)
     })
 
     it('should validate live secret keys', () => {
-      expect(isValidStripeKey('xk_fake_1234567890abcdefghijklmnopqrs')).toBe(true)
+      expect(isValidStripeKey('xk_live_1234567890abcdefghijklmnopqrs')).toBe(true)
     })
 
     it('should validate publishable keys', () => {

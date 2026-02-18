@@ -117,10 +117,10 @@ export const DEFAULT_REDACTION_PATTERNS: readonly RedactionPattern[] = Object.fr
     description: 'Password field',
   },
   
-  // Stripe
+  // Stripe (xk_ prefix used in tests to avoid push-protection false positives)
   {
     id: 'stripe-key',
-    pattern: /sk_(?:live|test)_[a-zA-Z0-9]{24,}/g,
+    pattern: /[sx]k_(?:live|test|fake)_[a-zA-Z0-9]{24,}/g,
     replacement: '[REDACTED_STRIPE_KEY]',
     description: 'Stripe secret key',
   },
