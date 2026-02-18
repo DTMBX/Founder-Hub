@@ -807,3 +807,192 @@ describe('P5 — AbuseProtection audit', () => {
     expect(log.some((e) => e.action === 'banned')).toBe(true);
   });
 });
+
+// ═════════════════════════════════════════════════════════════════
+// P7 — Law Firm Export Hardening (ExportIntegrity)
+// ═════════════════════════════════════════════════════════════════
+
+import {
+  ExportIntegrity,
+  sortRecords,
+  hashRecords,
+  type ExportRecord,
+  type ExportManifest,
+} from '../../ops/export/ExportIntegrity';
+
+const TENANT_A = '550e8400-e29b-41d4-a716-446655440000';
+const TENANT_B = '660f9500-f30c-52e5-b827-557766550000';
+
+function makeRecords(tenantId: string, count: number): ExportRecord[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `rec-${String(i).padStart(4, '0')}`,
+    tenantId,
+    data: { index: i, label: `Record ${i}` },
+  }));
+}
+
+describe('P7 — sortRecords', () => {
+  it('sorts by ID lexicographically ascending', () => {
+    const records: ExportRecord[] = [
+      { id: 'c', tenantId: TENANT_A, data: {} },
+      { id: 'a', tenantId: TENANT_A, data: {} },
+      { id: 'b', tenantId: TENANT_A, data: {} },
+    ];
+    const sorted = sortRecords(records);
+    expect(sorted.map((r) => r.id)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('does not mutate the original array', () => {
+    const records: ExportRecord[] = [
+      { id: 'z', tenantId: TENANT_A, data: {} },
+      { id: 'a', tenantId: TENANT_A, data: {} },
+    ];
+    sortRecords(records);
+    expect(records[0].id).toBe('z');
+  });
+});
+
+describe('P7 — hashRecords', () => {
+  it('produces consistent hash for same input', () => {
+    const records = makeRecords(TENANT_A, 5);
+    const h1 = hashRecords(sortRecords(records));
+    const h2 = hashRecords(sortRecords(records));
+    expect(h1).toBe(h2);
+  });
+
+  it('produces different hash for different data', () => {
+    const r1 = makeRecords(TENANT_A, 3);
+    const r2 = makeRecords(TENANT_A, 4);
+    expect(hashRecords(sortRecords(r1))).not.toBe(hashRecords(sortRecords(r2)));
+  });
+});
+
+describe('P7 — ExportIntegrity.createExport', () => {
+  let ei: ExportIntegrity;
+
+  beforeEach(() => {
+    ei = new ExportIntegrity();
+  });
+
+  it('creates a manifest with watermark', () => {
+    const records = makeRecords(TENANT_A, 3);
+    const manifest = ei.createExport(TENANT_A, records, '2025-01-01T00:00:00Z', 'exp-001');
+    expect(manifest.watermark.tenantId).toBe(TENANT_A);
+    expect(manifest.watermark.exportedAt).toBe('2025-01-01T00:00:00Z');
+    expect(manifest.watermark.exportId).toBe('exp-001');
+    expect(manifest.watermark.system).toBe('evident-xtx396');
+    expect(manifest.watermark.version).toBe(1);
+  });
+
+  it('sorts records deterministically', () => {
+    const records: ExportRecord[] = [
+      { id: 'rec-0002', tenantId: TENANT_A, data: { v: 2 } },
+      { id: 'rec-0000', tenantId: TENANT_A, data: { v: 0 } },
+      { id: 'rec-0001', tenantId: TENANT_A, data: { v: 1 } },
+    ];
+    const manifest = ei.createExport(TENANT_A, records);
+    expect(manifest.records.map((r) => r.id)).toEqual(['rec-0000', 'rec-0001', 'rec-0002']);
+  });
+
+  it('includes integrity hash', () => {
+    const records = makeRecords(TENANT_A, 5);
+    const manifest = ei.createExport(TENANT_A, records);
+    expect(manifest.integrityHash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('produces reproducible manifests', () => {
+    const records = makeRecords(TENANT_A, 10);
+    const ts = '2025-06-01T12:00:00Z';
+    const eid = 'repro-001';
+    const m1 = ei.createExport(TENANT_A, records, ts, eid);
+    const m2 = ei.createExport(TENANT_A, records, ts, eid);
+    expect(m1.integrityHash).toBe(m2.integrityHash);
+    expect(m1.recordIds).toEqual(m2.recordIds);
+  });
+
+  it('rejects empty tenantId', () => {
+    expect(() => ei.createExport('', makeRecords(TENANT_A, 1))).toThrow('tenant ID');
+  });
+
+  it('rejects cross-tenant records', () => {
+    const records: ExportRecord[] = [
+      { id: 'r1', tenantId: TENANT_A, data: {} },
+      { id: 'r2', tenantId: TENANT_B, data: {} },
+    ];
+    expect(() => ei.createExport(TENANT_A, records)).toThrow('Cross-tenant export denied');
+  });
+});
+
+describe('P7 — ExportIntegrity.verifyExport', () => {
+  let ei: ExportIntegrity;
+
+  beforeEach(() => {
+    ei = new ExportIntegrity();
+  });
+
+  it('verifies a valid manifest', () => {
+    const records = makeRecords(TENANT_A, 5);
+    const manifest = ei.createExport(TENANT_A, records);
+    const result = ei.verifyExport(manifest);
+    expect(result.valid).toBe(true);
+  });
+
+  it('detects tampered record data', () => {
+    const records = makeRecords(TENANT_A, 5);
+    const manifest = ei.createExport(TENANT_A, records);
+    // Tamper with one record
+    manifest.records[2] = { ...manifest.records[2], data: { index: 999, label: 'TAMPERED' } };
+    const result = ei.verifyExport(manifest);
+    expect(result.valid).toBe(false);
+    if (!result.valid) {
+      expect(result.reason).toContain('hash mismatch');
+    }
+  });
+
+  it('detects record count manipulation', () => {
+    const records = makeRecords(TENANT_A, 5);
+    const manifest = ei.createExport(TENANT_A, records);
+    manifest.records.pop();
+    const result = ei.verifyExport(manifest);
+    expect(result.valid).toBe(false);
+  });
+
+  it('detects missing watermark', () => {
+    const manifest = {
+      watermark: { tenantId: '', exportedAt: '', exportId: '', system: 'evident-xtx396' as const, version: 1 as const },
+      recordCount: 0,
+      recordIds: [],
+      integrityHash: '',
+      records: [],
+    };
+    const result = ei.verifyExport(manifest);
+    expect(result.valid).toBe(false);
+  });
+});
+
+describe('P7 — ExportIntegrity audit', () => {
+  it('logs export creation events', () => {
+    const ei = new ExportIntegrity();
+    ei.createExport(TENANT_A, makeRecords(TENANT_A, 3));
+    const log = ei.getAuditLog();
+    expect(log.length).toBe(1);
+    expect(log[0].action).toBe('export_created');
+  });
+
+  it('logs verification events', () => {
+    const ei = new ExportIntegrity();
+    const manifest = ei.createExport(TENANT_A, makeRecords(TENANT_A, 3));
+    ei.verifyExport(manifest);
+    const log = ei.getAuditLog();
+    expect(log.some((e) => e.action === 'export_verified')).toBe(true);
+  });
+
+  it('logs tamper detection events', () => {
+    const ei = new ExportIntegrity();
+    const manifest = ei.createExport(TENANT_A, makeRecords(TENANT_A, 3));
+    manifest.records[0].data = { TAMPERED: true };
+    ei.verifyExport(manifest);
+    const log = ei.getAuditLog();
+    expect(log.some((e) => e.action === 'export_tampered')).toBe(true);
+  });
+});
