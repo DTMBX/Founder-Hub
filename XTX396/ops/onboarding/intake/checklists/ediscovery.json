@@ -1,0 +1,58 @@
+{
+  "engagementType": "ediscovery",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "ed-001",
+      "label": "Client identity verified (government-issued ID or corporate registration)",
+      "required": true
+    },
+    {
+      "id": "ed-002",
+      "label": "Engagement letter / MSA signed",
+      "required": true
+    },
+    {
+      "id": "ed-003",
+      "label": "Scope of matter defined (custodians, date range, data sources)",
+      "required": true
+    },
+    {
+      "id": "ed-004",
+      "label": "Legal hold notice confirmed",
+      "required": true
+    },
+    {
+      "id": "ed-005",
+      "label": "Data transfer protocol agreed (encryption, chain of custody)",
+      "required": true
+    },
+    {
+      "id": "ed-006",
+      "label": "Conflict check completed",
+      "required": true
+    },
+    {
+      "id": "ed-007",
+      "label": "Billing terms confirmed (hourly, fixed, hybrid)",
+      "required": true
+    },
+    {
+      "id": "ed-008",
+      "label": "Retention / destruction policy acknowledged",
+      "required": false,
+      "notes": "Recommended for long-running matters"
+    },
+    {
+      "id": "ed-009",
+      "label": "Technical contact identified for data collection",
+      "required": false
+    },
+    {
+      "id": "ed-010",
+      "label": "Privilege review workflow agreed",
+      "required": false,
+      "notes": "Required when outside counsel is involved"
+    }
+  ]
+}

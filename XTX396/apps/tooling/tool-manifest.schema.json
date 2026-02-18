@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ToolManifest",
+  "description": "Schema for tool/app registration in the ToolHub platform.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "version",
+    "category",
+    "status",
+    "brand",
+    "entryPoint"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique tool identifier (lowercase, hyphens allowed)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable tool name"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Short tool description"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9.]+)?$",
+      "description": "Semantic version"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "app",
+        "algorithm",
+        "service",
+        "chat-tool",
+        "dev-tool",
+        "template",
+        "api-client"
+      ],
+      "description": "Tool category"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "deprecated", "experimental", "archived"],
+      "description": "Current tool status"
+    },
+    "brand": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Brand this tool belongs to"
+    },
+    "entryPoint": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Entry point path or URL"
+    },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Required capabilities or permissions"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Tags for discovery and filtering"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author or team"
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier"
+    },
+    "minPlatformVersion": {
+      "type": "string",
+      "description": "Minimum platform version required"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Generate OG Images - xTx396</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e1a;
+            color: #fff;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #9de0ad;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            background: oklch(0.18 0.015 50);
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            line-height: 1.8;
+        }
+        
+        .success {
+            color: #9de0ad;
+            font-weight: 600;
+        }
+        
+        canvas {
+            display: none;
+        }
+        
+        .preview {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 2px solid #9de0ad;
+            border-radius: 8px;
+        }
+        
+        .files {
+            margin-top: 30px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            background: oklch(0.18 0.015 50);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .files li {
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            color: #9de0ad;
+        }
+    </style>
+</head>
+<body>
+    <h1>xTx396 Image Generator</h1>
+    
+    <div class="status" id="status">
+        <p>Generating images...</p>
+    </div>
+    
+    <img id="preview" class="preview" style="display: none;" alt="OG Preview">
+    
+    <div class="files" style="display: none;" id="files">
+        <h3>Files Generated:</h3>
+        <ul>
+            <li>✓ og-preview.png (1200x630)</li>
+            <li>✓ favicon-32x32.png (32x32)</li>
+            <li>✓ apple-touch-icon.png (180x180)</li>
+        </ul>
+        <p style="margin-top: 20px; color: #f0f3f5;">
+            <strong>Next step:</strong> Copy these files to your /public directory
+        </p>
+    </div>
+
+    <canvas id="og-canvas" width="1200" height="630"></canvas>
+    <canvas id="favicon-canvas" width="32" height="32"></canvas>
+    <canvas id="apple-canvas" width="180" height="180"></canvas>
+
+    <script>
+        function drawOGImage(canvas) {
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 1200, 630);
+            gradient.addColorStop(0, '#0a0e1a');
+            gradient.addColorStop(0.5, '#12172b');
+            gradient.addColorStop(1, '#0a0e1a');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 1200, 630);
+            
+            ctx.fillStyle = 'rgba(157, 224, 173, 0.08)';
+            const spacing = 40;
+            for (let x = spacing; x < 1200; x += spacing) {
+                for (let y = spacing; y < 630; y += spacing) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            ctx.fillStyle = 'rgba(157, 224, 173, 0.15)';
+            ctx.font = 'bold 180px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('xTx', 600, 200);
+            
+            const accentGradient = ctx.createLinearGradient(200, 250, 1000, 250);
+            accentGradient.addColorStop(0, 'rgba(157, 224, 173, 0)');
+            accentGradient.addColorStop(0.5, 'rgba(157, 224, 173, 0.6)');
+            accentGradient.addColorStop(1, 'rgba(157, 224, 173, 0)');
+            ctx.fillStyle = accentGradient;
+            ctx.fillRect(200, 248, 800, 2);
+            
+            ctx.fillStyle = '#f0f3f5';
+            ctx.font = 'bold 64px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Devon Tyler Barber', 600, 340);
+            
+            ctx.fillStyle = '#9de0ad';
+            ctx.font = '500 32px sans-serif';
+            ctx.fillText('Founder & Innovator', 600, 400);
+            
+            ctx.fillStyle = 'rgba(240, 243, 245, 0.75)';
+            ctx.font = '400 24px sans-serif';
+            ctx.fillText('Transformative solutions at the intersection', 600, 460);
+            ctx.fillText('of technology, transparency, and justice', 600, 495);
+            
+            ctx.fillStyle = 'rgba(157, 224, 173, 0.8)';
+            ctx.font = '500 22px monospace';
+            ctx.fillText('xTx396.com', 600, 560);
+        }
+
+        function drawFavicon(canvas) {
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#0a0e1a';
+            ctx.fillRect(0, 0, 32, 32);
+            
+            ctx.fillStyle = '#9de0ad';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('xTx', 16, 16);
+        }
+
+        function drawAppleIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 180, 180);
+            gradient.addColorStop(0, '#0a0e1a');
+            gradient.addColorStop(1, '#12172b');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 180, 180);
+            
+            ctx.strokeStyle = '#9de0ad';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, 160, 160);
+            
+            ctx.fillStyle = '#9de0ad';
+            ctx.font = 'bold 48px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('xTx', 90, 75);
+            
+            ctx.fillStyle = 'rgba(157, 224, 173, 0.6)';
+            ctx.font = '500 18px sans-serif';
+            ctx.fillText('396', 90, 115);
+        }
+
+        function downloadCanvasAsImage(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        async function generateAll() {
+            const ogCanvas = document.getElementById('og-canvas');
+            const faviconCanvas = document.getElementById('favicon-canvas');
+            const appleCanvas = document.getElementById('apple-canvas');
+            
+            drawOGImage(ogCanvas);
+            drawFavicon(faviconCanvas);
+            drawAppleIcon(appleCanvas);
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            downloadCanvasAsImage(ogCanvas, 'og-preview.png');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            downloadCanvasAsImage(faviconCanvas, 'favicon-32x32.png');
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            downloadCanvasAsImage(appleCanvas, 'apple-touch-icon.png');
+            
+            document.getElementById('preview').src = ogCanvas.toDataURL('image/png');
+            document.getElementById('preview').style.display = 'block';
+            
+            document.getElementById('status').innerHTML = '<p class="success">✓ All images generated and downloaded!</p><p>Check your Downloads folder for the files.</p>';
+            document.getElementById('files').style.display = 'block';
+        }
+
+        window.onload = () => {
+            setTimeout(generateAll, 1000);
+        };
+    </script>
+</body>
+</html>

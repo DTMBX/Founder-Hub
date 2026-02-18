@@ -1,0 +1,134 @@
+{
+  "$schema": "./Blueprint.schema.json",
+  "id": "agency",
+  "name": "Creative Agency",
+  "version": "2.0.0",
+  "business_type": "agency_creative",
+  "site_type": "agency",
+  "audience": "Creative and marketing agencies showcasing portfolio work, service capabilities, and team expertise to prospective clients.",
+
+  "required_pages": [
+    { "slug": "home", "title": "Home", "template": "agency-home", "required_sections": ["hero", "featured-work", "services-overview", "testimonials", "cta"] },
+    { "slug": "work", "title": "Our Work", "template": "agency-work", "required_sections": ["portfolio", "case-studies"] },
+    { "slug": "services", "title": "Services", "template": "agency-services", "required_sections": ["service-list", "process", "pricing"] },
+    { "slug": "about", "title": "About", "template": "agency-about", "required_sections": ["about-intro", "team", "stats"] },
+    { "slug": "contact", "title": "Contact", "template": "agency-contact", "required_sections": ["contact-form", "map"] },
+    { "slug": "faq", "title": "FAQ", "template": "agency-faq", "required_sections": ["faq-section"] }
+  ],
+
+  "required_sections": [
+    { "id": "hero", "label": "Hero", "component": "hero-banner", "order": 0, "required": true },
+    { "id": "featured-work", "label": "Featured Work", "component": "portfolio-grid", "order": 1, "required": true },
+    { "id": "services-overview", "label": "Services Overview", "component": "icon-card-grid", "order": 2, "required": true },
+    { "id": "testimonials", "label": "Client Testimonials", "component": "testimonial-carousel", "order": 3, "required": true },
+    { "id": "cta", "label": "Start a Project", "component": "cta-block", "order": 4, "required": true },
+    { "id": "trust-badges", "label": "Client Trust Badges", "component": "trust-badge-row", "order": 5, "required": true },
+    { "id": "portfolio", "label": "Portfolio", "component": "portfolio-grid", "order": 0, "required": true },
+    { "id": "case-studies", "label": "Case Studies", "component": "project-showcase", "order": 1, "required": true },
+    { "id": "service-list", "label": "Service Details", "component": "service-list", "order": 0, "required": true },
+    { "id": "process", "label": "Our Process", "component": "process-timeline", "order": 1, "required": true },
+    { "id": "pricing", "label": "Pricing Overview", "component": "pricing-table", "order": 2, "required": true },
+    { "id": "about-intro", "label": "About Introduction", "component": "text-block", "order": 0, "required": true },
+    { "id": "team", "label": "Team Members", "component": "team-grid", "order": 1, "required": true },
+    { "id": "stats", "label": "Company Stats", "component": "stats-counter", "order": 2, "required": true },
+    { "id": "contact-form", "label": "Contact Form", "component": "contact-form", "order": 0, "required": true },
+    { "id": "map", "label": "Location", "component": "map-embed", "order": 1, "required": true },
+    { "id": "faq-section", "label": "Frequently Asked Questions", "component": "faq-accordion", "order": 0, "required": true }
+  ],
+
+  "required_components": [
+    "hero-banner",
+    "site-header",
+    "nav-bar",
+    "site-footer",
+    "cta-block",
+    "contact-form",
+    "faq-accordion",
+    "testimonial-carousel",
+    "trust-badge-row",
+    "icon-card-grid",
+    "portfolio-grid",
+    "project-showcase",
+    "service-list",
+    "text-block",
+    "team-grid",
+    "map-embed"
+  ],
+
+  "optional_components": [
+    "blog-feed",
+    "video-hero",
+    "stats-counter",
+    "process-timeline",
+    "pricing-table",
+    "logo-bar",
+    "social-proof-bar",
+    "chat-widget"
+  ],
+
+  "style_presets": [
+    "agency-bold",
+    "agency-minimal",
+    "agency-dark",
+    "agency-neon",
+    "agency-editorial"
+  ],
+
+  "compliance_blocks": [
+    {
+      "id": "privacy-policy",
+      "label": "Privacy Policy",
+      "type": "privacy",
+      "required": true,
+      "default_text": "We respect your privacy. Information collected through this website is handled in accordance with our privacy policy."
+    },
+    {
+      "id": "terms-of-service",
+      "label": "Terms of Service",
+      "type": "terms",
+      "required": true,
+      "default_text": "Use of this website and our services is subject to these terms. All work samples shown are presented with client consent."
+    },
+    {
+      "id": "accessibility-statement",
+      "label": "Accessibility Statement",
+      "type": "accessibility",
+      "required": true,
+      "default_text": "We are committed to ensuring that our website is accessible to everyone. If you have difficulty accessing any content, please contact us."
+    }
+  ],
+
+  "content_requirements": {
+    "min_pages": 5,
+    "min_sections": 12,
+    "min_words_per_page": 100,
+    "require_contact_info": true,
+    "require_business_name": true,
+    "require_address": false,
+    "require_hours": false
+  },
+
+  "demo_watermark_profile": {
+    "enabled": true,
+    "text": "PREVIEW — NOT A LIVE SITE",
+    "opacity": 0.15,
+    "position": "diagonal"
+  },
+
+  "seo_profile": {
+    "title_pattern": "{{businessName}} — {{serviceType}} Agency | {{city}}, {{state}}",
+    "description_pattern": "{{businessName}} is a {{serviceType}} agency in {{city}}, {{state}}. View our portfolio and start your project today.",
+    "schema_type": "ProfessionalService",
+    "og_image_pattern": "{{businessName}} — Creative Agency",
+    "keywords": ["creative agency", "marketing", "design", "branding", "portfolio"]
+  },
+
+  "feature_flags": {
+    "enable_intake_form": false,
+    "enable_chat_widget": false,
+    "enable_blog": false,
+    "enable_case_results": false,
+    "enable_video_hero": true,
+    "safe_mode": true
+  }
+}

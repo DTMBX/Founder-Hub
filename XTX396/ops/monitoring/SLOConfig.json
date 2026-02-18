@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SLO Configuration",
+  "description": "Service Level Objective targets for production monitoring (B16-P4)",
+  "slos": [
+    {
+      "id": "SLO-UPTIME-PUBLIC",
+      "name": "Public Demo Uptime",
+      "target": 99.0,
+      "unit": "percent",
+      "window": "30d",
+      "tier": "public",
+      "description": "99% uptime for public demo tier over a rolling 30-day window"
+    },
+    {
+      "id": "SLO-UPTIME-PRO",
+      "name": "Paid Tenant Uptime",
+      "target": 99.5,
+      "unit": "percent",
+      "window": "30d",
+      "tier": "pro",
+      "description": "99.5% uptime for paid tenants over a rolling 30-day window"
+    },
+    {
+      "id": "SLO-UPTIME-INTERNAL",
+      "name": "Internal Uptime",
+      "target": 99.9,
+      "unit": "percent",
+      "window": "30d",
+      "tier": "internal",
+      "description": "99.9% uptime for internal services over a rolling 30-day window"
+    },
+    {
+      "id": "SLO-LATENCY-SEARCH",
+      "name": "Search Latency (p95)",
+      "target": 1500,
+      "unit": "ms",
+      "window": "7d",
+      "tier": "all",
+      "description": "p95 search response time under 1.5 seconds over a 7-day window"
+    },
+    {
+      "id": "SLO-ERROR-RATE",
+      "name": "Error Rate",
+      "target": 1.0,
+      "unit": "percent",
+      "window": "7d",
+      "tier": "all",
+      "description": "Error rate below 1% over a 7-day window"
+    }
+  ],
+  "alertThresholds": {
+    "uptimeCritical": 98.0,
+    "uptimeWarning": 99.0,
+    "latencyCritical": 3000,
+    "latencyWarning": 1500,
+    "errorRateCritical": 5.0,
+    "errorRateWarning": 1.0
+  }
+}

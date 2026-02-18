@@ -1,0 +1,660 @@
+import { useKV } from '@/lib/local-storage-kv'
+import { SiteSettings } from '@/lib/types'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
+import { toast } from 'sonner'
+import { useAuth, logAudit } from '@/lib/auth'
+import { Info, Globe, Eye, Gauge, Palette, GithubLogo, CheckCircle, XCircle, CreditCard, ShieldCheck, Usb, Key, Warning } from '@phosphor-icons/react'
+import { useState, useEffect } from 'react'
+import { 
+  getGitHubToken, 
+  setGitHubToken, 
+  clearGitHubToken, 
+  hasGitHubToken, 
+  testGitHubToken 
+} from '@/lib/github-sync'
+import { exportKeyfileToFile, storeKeyfileLocally } from '@/lib/keyfile'
+import GitHubAppConnectPanel from './GitHubAppConnectPanel'
+
+export default function SettingsManager() {
+  const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
+    siteName: 'Devon Tyler Barber',
+    tagline: 'Founder & Innovator',
+    description: 'Building transformative solutions at the intersection of technology and justice.',
+    primaryDomain: 'xTx396.online',
+    domainRedirects: [],
+    analyticsEnabled: true,
+    indexingEnabled: true,
+    investorModeAvailable: true
+  })
+  const { currentUser, setupKeyfileAuth, disableKeyfileAuth } = useAuth()
+  
+  // GitHub integration state
+  const [githubToken, setGithubTokenState] = useState('')
+  const [tokenStatus, setTokenStatus] = useState<'unchecked' | 'valid' | 'invalid'>('unchecked')
+  const [isTestingToken, setIsTestingToken] = useState(false)
+  
+  // Keyfile setup state
+  const [showKeyfileSetup, setShowKeyfileSetup] = useState(false)
+  const [keyfilePassword, setKeyfilePassword] = useState('')
+  const [backupPassphrase, setBackupPassphrase] = useState('')
+  const [keyfileLabel, setKeyfileLabel] = useState('USB Key')
+  const [isSettingUpKeyfile, setIsSettingUpKeyfile] = useState(false)
+  const [setupComplete, setSetupComplete] = useState(false)
+  const [recoveryData, setRecoveryData] = useState<{
+    backupCodes: string[]
+    recoveryPhrase: string
+  } | null>(null)
+  
+  useEffect(() => {
+    const initToken = async () => {
+      const existing = await getGitHubToken()
+      if (existing) {
+        setGithubTokenState('••••••••••••••••') // Masked
+        setTokenStatus('valid') // Assume valid if exists
+      }
+    }
+    initToken()
+  }, [])
+  
+  const handleTestToken = async () => {
+    const tokenToTest = githubToken.startsWith('••') ? await getGitHubToken() : githubToken
+    if (!tokenToTest) {
+      toast.error('Please enter a token')
+      return
+    }
+    
+    setIsTestingToken(true)
+    const result = await testGitHubToken(tokenToTest)
+    setIsTestingToken(false)
+    
+    if (result.valid) {
+      setTokenStatus('valid')
+      if (!githubToken.startsWith('••')) {
+        await setGitHubToken(tokenToTest)
+        setGithubTokenState('••••••••••••••••')
+      }
+      toast.success('GitHub token is valid!')
+    } else {
+      setTokenStatus('invalid')
+      toast.error(result.error || 'Invalid token')
+    }
+  }
+  
+  const handleClearToken = async () => {
+    await clearGitHubToken()
+    setGithubTokenState('')
+    setTokenStatus('unchecked')
+    toast.success('GitHub token removed')
+  }
+
+  const handleSave = async () => {
+    if (currentUser) {
+      await logAudit(currentUser.id, currentUser.email, 'update_settings', 'Updated site settings')
+    }
+    toast.success('Settings saved successfully')
+  }
+
+  const handleSetupKeyfile = async () => {
+    if (!keyfilePassword || !backupPassphrase) {
+      toast.error('Please enter your password and a backup passphrase')
+      return
+    }
+    
+    if (backupPassphrase.length < 8) {
+      toast.error('Backup passphrase must be at least 8 characters')
+      return
+    }
+    
+    setIsSettingUpKeyfile(true)
+    
+    try {
+      const result = await setupKeyfileAuth(keyfilePassword, backupPassphrase, keyfileLabel)
+      
+      if (result.success && result.recovery) {
+        // Store keyfile locally for this computer
+        storeKeyfileLocally(result.recovery.keyfile)
+        
+        // Export keyfile for USB
+        exportKeyfileToFile(result.recovery.keyfile)
+        
+        // Store recovery data so user can copy it
+        setRecoveryData({
+          backupCodes: result.recovery.backupCodes,
+          recoveryPhrase: result.recovery.recoveryPhrase
+        })
+        
+        setSetupComplete(true)
+        toast.success('USB keyfile setup complete! File downloaded.')
+      } else {
+        toast.error(result.error || 'Setup failed')
+      }
+    } catch (err) {
+      console.error('Keyfile setup error:', err)
+      toast.error('An error occurred during setup')
+    }
+    
+    setIsSettingUpKeyfile(false)
+  }
+
+  const handleDisableKeyfile = async () => {
+    if (!keyfilePassword) {
+      toast.error('Please enter your password to disable keyfile auth')
+      return
+    }
+    
+    const result = await disableKeyfileAuth(keyfilePassword)
+    if (result.success) {
+      toast.success('USB keyfile authentication disabled')
+      setShowKeyfileSetup(false)
+      setSetupComplete(false)
+      setRecoveryData(null)
+    } else {
+      toast.error(result.error || 'Failed to disable')
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-1">Site Settings</h2>
+        <p className="text-sm text-muted-foreground">Configure your site identity, features, and display preferences.</p>
+      </div>
+
+      {/* Identity */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Info className="h-4 w-4 text-primary" weight="duotone" />
+            Identity & Branding
+          </CardTitle>
+          <CardDescription>Your site's name, tagline, and metadata.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="siteName">Site Name</Label>
+              <Input
+                id="siteName"
+                value={settings?.siteName || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, siteName: e.target.value }))}
+                placeholder="Devon Tyler Barber"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tagline">Tagline</Label>
+              <Input
+                id="tagline"
+                value={settings?.tagline || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, tagline: e.target.value }))}
+                placeholder="Founder & Innovator"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Site Description</Label>
+            <Textarea
+              id="description"
+              value={settings?.description || ''}
+              onChange={(e) => setSettings(prev => ({ ...prev!, description: e.target.value }))}
+              rows={2}
+              placeholder="A brief description for search engines and social previews"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="socialPreview">Social Preview Image URL</Label>
+            <Input
+              id="socialPreview"
+              value={settings?.socialPreviewImage || ''}
+              onChange={(e) => setSettings(prev => ({ ...prev!, socialPreviewImage: e.target.value }))}
+              placeholder="https://example.com/og-image.png"
+            />
+            <p className="text-xs text-muted-foreground">Used for Open Graph / social media previews (1200×630 recommended)</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Domain */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Globe className="h-4 w-4 text-primary" weight="duotone" />
+            Domain Configuration
+          </CardTitle>
+          <CardDescription>Primary domain and redirect settings.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="primaryDomain">Primary Domain</Label>
+            <Input
+              id="primaryDomain"
+              value={settings?.primaryDomain || ''}
+              onChange={(e) => setSettings(prev => ({ ...prev!, primaryDomain: e.target.value }))}
+              placeholder="xTx396.online"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Domain Redirects</Label>
+            <div className="flex flex-wrap gap-2">
+              {(settings?.domainRedirects || []).map((domain, i) => (
+                <span key={i} className="inline-flex items-center gap-1 bg-muted px-2 py-1 rounded text-xs font-mono">
+                  {domain}
+                  <button
+                    onClick={() => setSettings(prev => ({
+                      ...prev!,
+                      domainRedirects: (prev?.domainRedirects || []).filter((_, idx) => idx !== i)
+                    }))}
+                    className="text-muted-foreground hover:text-foreground ml-1"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+            <Input
+              placeholder="Add redirect domain (press Enter)"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                  setSettings(prev => ({
+                    ...prev!,
+                    domainRedirects: [...(prev?.domainRedirects || []), e.currentTarget.value.trim()]
+                  }))
+                  e.currentTarget.value = ''
+                }
+              }}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Features */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Gauge className="h-4 w-4 text-primary" weight="duotone" />
+            Features & Privacy
+          </CardTitle>
+          <CardDescription>Toggle site-wide features on or off.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {[
+            {
+              id: 'investorMode',
+              label: 'Investor Pathway',
+              description: 'Show investor-focused pathway option on landing page',
+              checked: settings?.investorModeAvailable,
+              onChange: (checked: boolean) => setSettings(prev => ({ ...prev!, investorModeAvailable: checked }))
+            },
+            {
+              id: 'analytics',
+              label: 'Page View Tracking',
+              description: 'Track basic page views for internal analytics',
+              checked: settings?.analyticsEnabled,
+              onChange: (checked: boolean) => setSettings(prev => ({ ...prev!, analyticsEnabled: checked }))
+            },
+            {
+              id: 'indexing',
+              label: 'Search Engine Indexing',
+              description: 'Allow search engines to discover and index pages',
+              checked: settings?.indexingEnabled,
+              onChange: (checked: boolean) => setSettings(prev => ({ ...prev!, indexingEnabled: checked }))
+            },
+          ].map((feature) => (
+            <div key={feature.id} className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor={feature.id} className="text-sm font-medium">{feature.label}</Label>
+                <p className="text-xs text-muted-foreground">{feature.description}</p>
+              </div>
+              <Switch
+                id={feature.id}
+                checked={feature.checked}
+                onCheckedChange={feature.onChange}
+              />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {/* Display Preferences */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Eye className="h-4 w-4 text-primary" weight="duotone" />
+            Display Preferences
+          </CardTitle>
+          <CardDescription>Control motion, glass effects, and contrast across the site.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label>Motion Level</Label>
+              <Select
+                value={settings?.motionLevel || 'full'}
+                onValueChange={(value) => setSettings(prev => ({ ...prev!, motionLevel: value as any }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full">Full animations</SelectItem>
+                  <SelectItem value="reduced">Reduced motion</SelectItem>
+                  <SelectItem value="off">No motion</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Glass Effect Intensity</Label>
+              <Select
+                value={settings?.glassIntensity || 'medium'}
+                onValueChange={(value) => setSettings(prev => ({ ...prev!, glassIntensity: value as any }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Subtle</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">Strong</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Contrast Mode</Label>
+              <Select
+                value={settings?.contrastMode || 'standard'}
+                onValueChange={(value) => setSettings(prev => ({ ...prev!, contrastMode: value as any }))}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="extra">Extra contrast</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* GitHub Integration (GitHub App) */}
+      <GitHubAppConnectPanel />
+
+      {/* Stripe Integration */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <CreditCard className="h-4 w-4 text-primary" weight="duotone" />
+            Stripe Payments
+          </CardTitle>
+          <CardDescription>Enable secure checkout for offerings. Payments are processed through Stripe.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={settings?.stripeEnabled || false}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev!, stripeEnabled: checked }))}
+              />
+              <div>
+                <p className="text-sm font-medium">Enable Stripe Checkout</p>
+                <p className="text-xs text-muted-foreground">Allow customers to pay directly on your site</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="stripe-pk">Publishable Key</Label>
+            <Input
+              id="stripe-pk"
+              type="password"
+              placeholder="pk_live_xxxxxxxxxxxxxxxxxxxx"
+              value={settings?.stripePublishableKey || ''}
+              onChange={(e) => setSettings(prev => ({ ...prev!, stripePublishableKey: e.target.value }))}
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Find this in your{' '}
+              <a 
+                href="https://dashboard.stripe.com/apikeys" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                Stripe Dashboard → API Keys
+              </a>
+              . Use your <strong>Publishable key</strong> (starts with pk_).
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="stripe-success">Success URL</Label>
+              <Input
+                id="stripe-success"
+                placeholder="/checkout/success"
+                value={settings?.stripeSuccessUrl || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, stripeSuccessUrl: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Redirect after successful payment</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stripe-cancel">Cancel URL</Label>
+              <Input
+                id="stripe-cancel"
+                placeholder="/checkout/cancel"
+                value={settings?.stripeCancelUrl || ''}
+                onChange={(e) => setSettings(prev => ({ ...prev!, stripeCancelUrl: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">Redirect if checkout is cancelled</p>
+            </div>
+          </div>
+
+          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <p className="text-xs text-amber-200">
+              <strong>Important:</strong> For each offering price tier, add the Stripe Price ID from your{' '}
+              <a 
+                href="https://dashboard.stripe.com/products" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-amber-400 hover:underline"
+              >
+                Stripe Products
+              </a>
+              . Create products in Stripe Dashboard → Products, then copy the Price ID (price_xxx).
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Security - USB Keyfile Setup */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ShieldCheck className="h-4 w-4 text-primary" weight="duotone" />
+            Security &amp; Authentication
+          </CardTitle>
+          <CardDescription>
+            Set up USB keyfile authentication for enhanced security.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {currentUser?.keyfileEnabled ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle className="h-5 w-5" weight="fill" />
+                <span className="font-medium">USB Keyfile Authentication Enabled</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Your account requires a USB keyfile for login. Store your keyfile securely on your USB drive.
+              </p>
+              
+              <Separator />
+              
+              <div className="space-y-2">
+                <Label>Enter password to disable keyfile auth</Label>
+                <Input
+                  type="password"
+                  placeholder="Current password"
+                  value={keyfilePassword}
+                  onChange={(e) => setKeyfilePassword(e.target.value)}
+                />
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={handleDisableKeyfile}
+                >
+                  Disable USB Keyfile Auth
+                </Button>
+              </div>
+            </div>
+          ) : setupComplete && recoveryData ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-emerald-400">
+                <CheckCircle className="h-5 w-5" weight="fill" />
+                <span className="font-medium">Setup Complete!</span>
+              </div>
+              
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg space-y-3">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <Warning className="h-4 w-4" weight="fill" />
+                  <span className="font-medium text-sm">Save these recovery options NOW</span>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">1. USB Keyfile (downloaded automatically)</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Move the downloaded .json file to your USB drive (D:)
+                  </p>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">2. Backup Codes (one-time use)</p>
+                  <div className="grid grid-cols-2 gap-1 font-mono text-xs bg-background/50 p-2 rounded">
+                    {recoveryData.backupCodes.map((code, i) => (
+                      <div key={i} className="text-center py-0.5">{code}</div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Backup passphrase required to use these codes.
+                  </p>
+                </div>
+                
+                <Separator />
+                
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground">3. Recovery Phrase (emergency only)</p>
+                  <div className="font-mono text-xs bg-background/50 p-2 rounded break-words">
+                    {recoveryData.recoveryPhrase}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Write this down and store somewhere safe (not digital).
+                  </p>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => {
+                  setSetupComplete(false)
+                  setRecoveryData(null)
+                  setShowKeyfileSetup(false)
+                }}
+              >
+                I've Saved Everything
+              </Button>
+            </div>
+          ) : showKeyfileSetup ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Current Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={keyfilePassword}
+                  onChange={(e) => setKeyfilePassword(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Backup Passphrase</Label>
+                <Input
+                  type="password"
+                  placeholder="Create a separate passphrase for backup codes"
+                  value={backupPassphrase}
+                  onChange={(e) => setBackupPassphrase(e.target.value)}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  This is different from your password. You'll need it to use backup codes.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Keyfile Label</Label>
+                <Input
+                  placeholder="e.g., USB Key, Work Computer"
+                  value={keyfileLabel}
+                  onChange={(e) => setKeyfileLabel(e.target.value)}
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleSetupKeyfile}
+                  disabled={isSettingUpKeyfile}
+                  className="gap-2"
+                >
+                  <Usb className="h-4 w-4" />
+                  {isSettingUpKeyfile ? 'Setting up...' : 'Create USB Keyfile'}
+                </Button>
+                <Button 
+                  variant="ghost"
+                  onClick={() => setShowKeyfileSetup(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Enable USB keyfile authentication to require a physical key for login.
+                This provides stronger security than password-only authentication.
+              </p>
+              
+              <div className="flex items-start gap-3 text-xs text-muted-foreground">
+                <Usb className="h-4 w-4 mt-0.5 text-primary" />
+                <div>
+                  <p className="font-medium text-foreground">How it works:</p>
+                  <ul className="mt-1 space-y-1 list-disc list-inside">
+                    <li>A keyfile is generated and saved to your USB drive</li>
+                    <li>Login requires both password + USB keyfile</li>
+                    <li>Backup codes for emergency access</li>
+                    <li>Recovery phrase as last resort</li>
+                  </ul>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={() => setShowKeyfileSetup(true)}
+                className="gap-2"
+              >
+                <Key className="h-4 w-4" />
+                Set Up USB Keyfile
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end">
+        <Button onClick={handleSave} size="lg">Save Settings</Button>
+      </div>
+    </div>
+  )
+}

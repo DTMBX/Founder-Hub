@@ -1,0 +1,48 @@
+{
+  "blueprint_id": "law-firm",
+  "business_name": "Harrison & Clarke LLP",
+  "tagline": "Trusted Legal Counsel Since 1998",
+  "city": "Austin",
+  "state": "TX",
+  "phone": "(512) 555-0142",
+  "email": "info@harrisonclarkellp.demo",
+  "address": "200 Congress Ave, Suite 1400, Austin, TX 78701",
+  "practiceArea": "Personal Injury",
+  "pages": {
+    "home": {
+      "hero": {
+        "headline": "Experienced Attorneys. Proven Results.",
+        "subheadline": "Personal injury, family law, and business litigation — serving Central Texas for over 25 years.",
+        "cta_text": "Schedule a Free Consultation",
+        "cta_url": "/contact"
+      },
+      "practice_areas": [
+        { "title": "Personal Injury", "description": "Aggressive representation for accident victims." },
+        { "title": "Family Law", "description": "Compassionate guidance through divorce, custody, and support matters." },
+        { "title": "Business Litigation", "description": "Strategic counsel for commercial disputes." },
+        { "title": "Estate Planning", "description": "Wills, trusts, and probate administration." }
+      ],
+      "testimonials": [
+        { "quote": "They fought for my family when we needed it most.", "author": "Client Review", "rating": 5 },
+        { "quote": "Professional, thorough, and honest representation.", "author": "Client Review", "rating": 5 }
+      ],
+      "trust_badges": [
+        { "label": "Super Lawyers", "icon": "award" },
+        { "label": "AV Rated", "icon": "shield" },
+        { "label": "State Bar Certified", "icon": "certificate" }
+      ]
+    },
+    "about": {
+      "intro": "Harrison & Clarke LLP was founded on the principle that every client deserves vigorous, principled legal representation. With more than 25 years of combined experience, our attorneys have handled thousands of cases across Central Texas.",
+      "attorneys": [
+        { "name": "Sarah Harrison", "title": "Managing Partner", "bio": "Board-certified in personal injury trial law." },
+        { "name": "James Clarke", "title": "Senior Partner", "bio": "Former prosecutor with 20 years of courtroom experience." }
+      ]
+    },
+    "contact": {
+      "heading": "Contact Our Office",
+      "subheading": "Schedule a free, confidential consultation.",
+      "form_fields": ["name", "email", "phone", "case_type", "message"]
+    }
+  }
+}

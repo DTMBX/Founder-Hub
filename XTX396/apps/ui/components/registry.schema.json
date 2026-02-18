@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xtx396.com/schemas/component-registry.schema.json",
+  "title": "Component Registry",
+  "description": "Schema for the UI component registry. Each entry defines a reusable component that blueprints can reference.",
+  "type": "object",
+  "required": ["version", "categories", "components"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "categories": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Category" }
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Component" }
+    }
+  },
+  "$defs": {
+    "Category": {
+      "type": "object",
+      "required": ["id", "label"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+        "label": { "type": "string", "minLength": 2 },
+        "description": { "type": "string" }
+      }
+    },
+    "Component": {
+      "type": "object",
+      "required": ["id", "label", "category", "a11y"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]+$",
+          "description": "Unique component identifier referenced by blueprints."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 2,
+          "description": "Display name."
+        },
+        "description": {
+          "type": "string",
+          "description": "What this component renders."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category ID this component belongs to."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Searchable tags."
+        },
+        "a11y": {
+          "$ref": "#/$defs/A11yRules",
+          "description": "Accessibility requirements for this component."
+        },
+        "props": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PropDef" },
+          "description": "Component property definitions."
+        },
+        "slots": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named content slots."
+        },
+        "variants": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Visual variant names."
+        },
+        "responsive": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this component adapts to viewport width."
+        },
+        "interactive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this component has interactive behavior."
+        }
+      }
+    },
+    "A11yRules": {
+      "type": "object",
+      "required": ["role", "keyboard_navigable", "min_contrast"],
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "type": "string",
+          "description": "ARIA role (e.g., 'navigation', 'banner', 'region', 'none')."
+        },
+        "keyboard_navigable": {
+          "type": "boolean",
+          "description": "Whether this component must support keyboard navigation."
+        },
+        "min_contrast": {
+          "type": "string",
+          "enum": ["AA", "AAA"],
+          "description": "Minimum WCAG contrast level."
+        },
+        "requires_label": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether an aria-label or visible label is required."
+        },
+        "focus_visible": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether focus indicators must be visible."
+        },
+        "reduced_motion_safe": {
+          "type": "boolean",
+          "default": true,
+          "description": "Component must respect prefers-reduced-motion."
+        },
+        "screen_reader_text": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether screen-reader-only text is required."
+        }
+      }
+    },
+    "PropDef": {
+      "type": "object",
+      "required": ["name", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["string", "number", "boolean", "array", "object", "enum"] },
+        "required": { "type": "boolean", "default": false },
+        "default": {},
+        "description": { "type": "string" },
+        "enum_values": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

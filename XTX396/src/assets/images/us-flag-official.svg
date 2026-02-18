@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 1000">
+  <defs>
+    <clipPath id="s">
+      <path d="M0,0 v1000 h1900 V0 Z"/>
+    </clipPath>
+    <clipPath id="c">
+      <rect width="760" height="520"/>
+    </clipPath>
+  </defs>
+  <rect width="1900" height="1000" fill="#B22234" clip-path="url(#s)"/>
+  <path d="M0,115.38 h1900 M0,230.77 h1900 M0,346.15 h1900 M0,461.54 h1900 M0,576.92 h1900 M0,692.31 h1900 M0,807.69 h1900 M0,923.08 h1900" stroke="#FFF" stroke-width="76.92"/>
+  <rect width="760" height="520" fill="#3C3B6E" clip-path="url(#c)"/>
+  <g fill="#FFF">
+    <g id="s5">
+      <g id="s4">
+        <path id="s" d="M 95,45 L 103.04,69.098 L 79.389,54.098 L 110.611,54.098 L 86.96,69.098 Z"/>
+        <use href="#s" y="104"/>
+        <use href="#s" y="208"/>
+        <use href="#s" y="312"/>
+      </g>
+      <use href="#s" y="416"/>
+    </g>
+    <use href="#s5" x="152"/>
+    <use href="#s5" x="304"/>
+    <use href="#s5" x="456"/>
+    <use href="#s5" x="608"/>
+    <g id="s4o">
+      <use href="#s" x="76" y="52"/>
+      <use href="#s" x="76" y="156"/>
+      <use href="#s" x="76" y="260"/>
+      <use href="#s" x="76" y="364"/>
+    </g>
+    <use href="#s4o" x="152"/>
+    <use href="#s4o" x="304"/>
+    <use href="#s4o" x="456"/>
+    <use href="#s4o" x="608"/>
+  </g>
+</svg>

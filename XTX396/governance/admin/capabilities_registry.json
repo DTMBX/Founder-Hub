@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "admin-capabilities-registry",
+  "title": "Admin Capabilities Registry",
+  "description": "Authoritative reference of all admin roles, permissions, action guards, and feature flags. Exported from the TypeScript source of truth in src/lib/permissions.ts and src/lib/feature-flags.ts.",
+  "version": "1.0.0",
+  "generatedFrom": [
+    "src/lib/permissions.ts",
+    "src/lib/feature-flags.ts",
+    "src/lib/route-guards.ts"
+  ],
+  "roles": {
+    "owner": {
+      "level": 100,
+      "description": "Full system access, production deploys, user management, dangerous actions"
+    },
+    "admin": {
+      "level": 75,
+      "description": "Operations + deploy to preview/staging, no production deploys, no role management"
+    },
+    "editor": {
+      "level": 50,
+      "description": "Content editing only, no destructive actions"
+    },
+    "operator": {
+      "level": 40,
+      "description": "Guided site generation only. Wizard-locked. Cannot access admin internals.",
+      "operatorModeDefault": true,
+      "capabilities": ["create_site_wizard", "preview_site", "publish_site", "view_audit", "manage_leads"],
+      "allowedRoutes": ["sites", "client-sites", "leads", "audit", "law-firm", "smb-template", "agency"]
+    },
+    "reviewer": {
+      "level": 35,
+      "description": "Case jacket review, notes, and exports. No content editing.",
+      "capabilities": ["case_jacket_review", "case_jacket_notes", "case_jacket_export", "view_audit"],
+      "allowedRoutes": ["case-jackets", "documents", "court", "audit"]
+    },
+    "support": {
+      "level": 25,
+      "description": "Read-only + ticket notes, no edits"
+    }
+  },
+  "permissions": {
+    "content:read":       { "minRole": "support" },
+    "content:edit":       { "minRole": "editor" },
+    "content:delete":     { "minRole": "admin" },
+    "deploy:preview":     { "minRole": "admin" },
+    "deploy:staging":     { "minRole": "admin" },
+    "deploy:production":  { "minRole": "owner" },
+    "publish:execute":    { "minRole": "admin" },
+    "export:data":        { "minRole": "admin" },
+    "users:read":         { "minRole": "admin" },
+    "users:edit":         { "minRole": "admin" },
+    "users:delete":       { "minRole": "owner" },
+    "users:manage-roles": { "minRole": "owner" },
+    "settings:read":      { "minRole": "admin" },
+    "settings:edit":      { "minRole": "admin" },
+    "security:read":      { "minRole": "admin" },
+    "security:edit":      { "minRole": "owner" },
+    "audit:read":         { "minRole": "admin" },
+    "audit:export":       { "minRole": "owner" },
+    "cases:read":         { "minRole": "editor" },
+    "cases:edit":         { "minRole": "editor" },
+    "cases:delete":       { "minRole": "admin" },
+    "documents:read":     { "minRole": "editor" },
+    "documents:edit":     { "minRole": "editor" },
+    "documents:delete":   { "minRole": "admin" },
+    "assets:read":        { "minRole": "editor" },
+    "assets:upload":      { "minRole": "editor" },
+    "assets:delete":      { "minRole": "admin" },
+    "tickets:read":       { "minRole": "support" },
+    "tickets:note":       { "minRole": "support" },
+    "dangerous:bulk-delete":  { "minRole": "owner", "requiresFlag": "dangerousActions" },
+    "dangerous:wipe-data":    { "minRole": "owner", "requiresFlag": "dangerousActions" },
+    "dangerous:disable-2fa":  { "minRole": "owner", "requiresFlag": "dangerousActions" }
+  },
+  "actionGuards": {
+    "publish": {
+      "confirmationType": "typed",
+      "confirmText": "PUBLISH",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "export-data": {
+      "confirmationType": "typed",
+      "confirmText": "EXPORT",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "deploy-preview": {
+      "confirmationType": "simple",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "deploy-staging": {
+      "confirmationType": "simple",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "deploy-production": {
+      "confirmationType": "typed",
+      "confirmText": "DEPLOY-PROD",
+      "auditRequired": true,
+      "minRole": "owner"
+    },
+    "delete-content": {
+      "confirmationType": "simple",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "delete-document": {
+      "confirmationType": "simple",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "delete-case": {
+      "confirmationType": "simple",
+      "auditRequired": true,
+      "minRole": "admin"
+    },
+    "delete-user": {
+      "confirmationType": "typed",
+      "confirmText": "DELETE-USER",
+      "auditRequired": true,
+      "minRole": "owner"
+    },
+    "disable-2fa": {
+      "confirmationType": "typed",
+      "confirmText": "DISABLE-2FA",
+      "auditRequired": true,
+      "minRole": "owner",
+      "dangerous": true
+    },
+    "bulk-delete": {
+      "confirmationType": "typed",
+      "confirmText": "BULK-DELETE",
+      "auditRequired": true,
+      "minRole": "owner",
+      "dangerous": true
+    },
+    "wipe-data": {
+      "confirmationType": "typed",
+      "confirmText": "WIPE-ALL-DATA",
+      "auditRequired": true,
+      "minRole": "owner",
+      "dangerous": true
+    }
+  },
+  "featureFlags": {
+    "founderMode":           { "category": "mode",        "default": true,  "ownerOnly": false, "audited": false },
+    "opsMode":               { "category": "mode",        "default": false, "ownerOnly": false, "audited": true  },
+    "dangerousActions":      { "category": "security",    "default": false, "ownerOnly": true,  "audited": true  },
+    "terminalEnabled":       { "category": "security",    "default": false, "ownerOnly": true,  "audited": true  },
+    "darkModeForced":        { "category": "experience",  "default": false, "ownerOnly": false, "audited": false },
+    "animationsReduced":     { "category": "experience",  "default": false, "ownerOnly": false, "audited": false },
+    "debugMode":             { "category": "development", "default": false, "ownerOnly": true,  "audited": false },
+    "mockData":              { "category": "development", "default": false, "ownerOnly": true,  "audited": false },
+    "newEditorEnabled":      { "category": "feature",     "default": false, "ownerOnly": false, "audited": false },
+    "aiAssistEnabled":       { "category": "feature",     "default": false, "ownerOnly": false, "audited": false },
+    "githubAppAuth":         { "category": "feature",     "default": false, "ownerOnly": false, "audited": false },
+    "previewDeploysEnabled": { "category": "feature",     "default": true,  "ownerOnly": false, "audited": false }
+  },
+  "routePermissions": {
+    "editor": [
+      "content", "about", "links", "profile", "hero-media", "visual-modules",
+      "honor-flag-bar", "investor", "offerings", "evident", "projects", "court",
+      "documents", "case-jackets", "templates", "inbox", "upload", "assets", "leads"
+    ],
+    "admin": [
+      "sites", "staging", "filing-types", "client-sites", "law-firm",
+      "smb-template", "agency", "theme", "audit"
+    ],
+    "owner": [
+      "settings", "security", "asset-policy"
+    ]
+  },
+  "founderModeRoutes": [
+    "content", "inbox", "leads", "sites", "projects", "upload"
+  ]
+}

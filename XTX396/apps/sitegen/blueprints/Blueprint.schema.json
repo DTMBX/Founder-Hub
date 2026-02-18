@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xtx396.com/schemas/blueprint.schema.json",
+  "title": "Site Blueprint",
+  "description": "Defines the required pages, sections, components, styles, compliance blocks, and content requirements for a specific business-type site.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "version",
+    "business_type",
+    "site_type",
+    "audience",
+    "required_pages",
+    "required_sections",
+    "required_components",
+    "optional_components",
+    "style_presets",
+    "compliance_blocks",
+    "content_requirements",
+    "demo_watermark_profile",
+    "seo_profile",
+    "feature_flags"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference (optional in data files)."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{2,48}$",
+      "description": "Unique blueprint identifier. Kebab or snake_case, 3-49 chars."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120,
+      "description": "Human-readable blueprint name."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of this blueprint definition."
+    },
+    "business_type": {
+      "type": "string",
+      "description": "Primary business type this blueprint targets. Maps to a BusinessType in the vertical registry."
+    },
+    "site_type": {
+      "type": "string",
+      "enum": ["law-firm", "small-business", "agency"],
+      "description": "Parent site type from the platform's SiteType union."
+    },
+    "audience": {
+      "type": "string",
+      "minLength": 5,
+      "maxLength": 500,
+      "description": "Description of the target audience for sites built from this blueprint."
+    },
+    "required_pages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Page" },
+      "description": "Pages that MUST be present in every generated site. Generation fails if any are missing."
+    },
+    "required_sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/Section" },
+      "description": "Sections that MUST appear in the generated site."
+    },
+    "required_components": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Component IDs that MUST be rendered. References the Component Registry."
+    },
+    "optional_components": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Component IDs that MAY be included based on operator or vertical selection."
+    },
+    "style_presets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Preset IDs from the preset registry that are compatible with this blueprint."
+    },
+    "compliance_blocks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ComplianceBlock" },
+      "description": "Regulatory or professional compliance blocks required for this business type."
+    },
+    "content_requirements": {
+      "$ref": "#/$defs/ContentRequirements",
+      "description": "Minimum content thresholds. Generation MUST fail closed if requirements are not met."
+    },
+    "demo_watermark_profile": {
+      "$ref": "#/$defs/WatermarkProfile",
+      "description": "Watermark settings applied to demo/preview renders."
+    },
+    "seo_profile": {
+      "$ref": "#/$defs/SEOProfile",
+      "description": "SEO defaults for sites generated from this blueprint."
+    },
+    "feature_flags": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" },
+      "description": "Feature flags governing optional behaviors for this blueprint."
+    }
+  },
+  "$defs": {
+    "Page": {
+      "type": "object",
+      "required": ["slug", "title", "template"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "description": "URL slug for the page (e.g., 'about', 'contact')."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Default page title."
+        },
+        "template": {
+          "type": "string",
+          "description": "Template identifier for rendering this page."
+        },
+        "required_sections": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Section IDs that must appear on this page."
+        }
+      }
+    },
+    "Section": {
+      "type": "object",
+      "required": ["id", "label", "component"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique section identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable section name."
+        },
+        "component": {
+          "type": "string",
+          "description": "Component ID used to render this section."
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Default display order (0 = first)."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this section is mandatory."
+        }
+      }
+    },
+    "ComplianceBlock": {
+      "type": "object",
+      "required": ["id", "label", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique compliance block identifier."
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable label."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["disclaimer", "privacy", "terms", "accessibility", "licensing", "regulatory", "tax-exempt"],
+          "description": "Category of compliance block."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether this block MUST be present."
+        },
+        "default_text": {
+          "type": "string",
+          "description": "Default template text for this compliance block."
+        }
+      }
+    },
+    "ContentRequirements": {
+      "type": "object",
+      "required": ["min_pages", "min_sections", "min_words_per_page", "require_contact_info", "require_business_name"],
+      "additionalProperties": false,
+      "properties": {
+        "min_pages": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum number of pages."
+        },
+        "min_sections": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum total sections across all pages."
+        },
+        "min_words_per_page": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum word count per page."
+        },
+        "require_contact_info": {
+          "type": "boolean",
+          "description": "Whether a contact method (phone/email/form) is mandatory."
+        },
+        "require_business_name": {
+          "type": "boolean",
+          "description": "Whether a business name is mandatory."
+        },
+        "require_address": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether a physical address is mandatory."
+        },
+        "require_hours": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether business hours are mandatory."
+        }
+      }
+    },
+    "WatermarkProfile": {
+      "type": "object",
+      "required": ["enabled", "text", "opacity", "position"],
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether demo watermark is active."
+        },
+        "text": {
+          "type": "string",
+          "description": "Watermark text overlay."
+        },
+        "opacity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Watermark opacity (0 = invisible, 1 = fully opaque)."
+        },
+        "position": {
+          "type": "string",
+          "enum": ["top-left", "top-right", "bottom-left", "bottom-right", "center", "diagonal"],
+          "description": "Watermark placement."
+        }
+      }
+    },
+    "SEOProfile": {
+      "type": "object",
+      "required": ["title_pattern", "description_pattern", "schema_type"],
+      "additionalProperties": false,
+      "properties": {
+        "title_pattern": {
+          "type": "string",
+          "description": "Page title template using {{placeholder}} syntax."
+        },
+        "description_pattern": {
+          "type": "string",
+          "description": "Meta description template."
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Schema.org @type for structured data (e.g., 'LegalService', 'LocalBusiness')."
+        },
+        "og_image_pattern": {
+          "type": "string",
+          "description": "OG image overlay text pattern."
+        },
+        "keywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Default SEO keywords."
+        }
+      }
+    }
+  }
+}

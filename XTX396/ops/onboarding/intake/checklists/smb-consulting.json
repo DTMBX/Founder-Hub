@@ -1,0 +1,47 @@
+{
+  "engagementType": "smb-consulting",
+  "version": "1.0.0",
+  "items": [
+    {
+      "id": "smb-001",
+      "label": "Business entity verified (name, registration, jurisdiction)",
+      "required": true
+    },
+    {
+      "id": "smb-002",
+      "label": "Primary contact and decision-maker identified",
+      "required": true
+    },
+    {
+      "id": "smb-003",
+      "label": "Scope of engagement defined (objectives, timeline, deliverables)",
+      "required": true
+    },
+    {
+      "id": "smb-004",
+      "label": "Service agreement or SOW signed",
+      "required": true
+    },
+    {
+      "id": "smb-005",
+      "label": "Billing rate and payment terms agreed",
+      "required": true
+    },
+    {
+      "id": "smb-006",
+      "label": "NDA executed (if applicable)",
+      "required": false,
+      "notes": "Required when accessing proprietary systems or data"
+    },
+    {
+      "id": "smb-007",
+      "label": "Access credentials or system inventory provided",
+      "required": false
+    },
+    {
+      "id": "smb-008",
+      "label": "Communication channel established (email, portal, scheduled calls)",
+      "required": false
+    }
+  ]
+}

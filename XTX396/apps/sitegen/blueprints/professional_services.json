@@ -1,0 +1,141 @@
+{
+  "$schema": "./Blueprint.schema.json",
+  "id": "professional-services",
+  "name": "Professional Services",
+  "version": "2.0.0",
+  "business_type": "professional_services",
+  "site_type": "professional-services",
+  "audience": "Professional service providers — accountants, consultants, therapists, financial advisors — seeking a credible online presence.",
+
+  "required_pages": [
+    { "slug": "home", "title": "Home", "template": "proserv-home", "required_sections": ["hero", "services-overview", "trust-badges", "testimonials", "cta"] },
+    { "slug": "services", "title": "Services", "template": "proserv-services", "required_sections": ["service-list", "pricing", "process"] },
+    { "slug": "about", "title": "About", "template": "proserv-about", "required_sections": ["about-intro", "team", "credentials"] },
+    { "slug": "resources", "title": "Resources", "template": "proserv-resources", "required_sections": ["blog", "faq-section"] },
+    { "slug": "contact", "title": "Contact", "template": "proserv-contact", "required_sections": ["appointment-form", "location", "hours"] },
+    { "slug": "faq", "title": "FAQ", "template": "proserv-faq", "required_sections": ["faq-full"] }
+  ],
+
+  "required_sections": [
+    { "id": "hero", "label": "Hero", "component": "hero-banner", "order": 0, "required": true },
+    { "id": "services-overview", "label": "Services Overview", "component": "card-grid", "order": 1, "required": true },
+    { "id": "trust-badges", "label": "Trust Badges", "component": "trust-badge-row", "order": 2, "required": true },
+    { "id": "testimonials", "label": "Client Testimonials", "component": "testimonial-carousel", "order": 3, "required": true },
+    { "id": "cta", "label": "Schedule Consultation", "component": "cta-block", "order": 4, "required": true },
+    { "id": "service-list", "label": "Service Details", "component": "service-list", "order": 0, "required": true },
+    { "id": "pricing", "label": "Pricing", "component": "pricing-table", "order": 1, "required": true },
+    { "id": "process", "label": "Our Process", "component": "process-timeline", "order": 2, "required": true },
+    { "id": "about-intro", "label": "About Introduction", "component": "text-block", "order": 0, "required": true },
+    { "id": "team", "label": "Team Members", "component": "team-grid", "order": 1, "required": true },
+    { "id": "credentials", "label": "Credentials & Certifications", "component": "badge-grid", "order": 2, "required": true },
+    { "id": "blog", "label": "Latest Resources", "component": "blog-feed", "order": 0, "required": true },
+    { "id": "faq-section", "label": "Frequently Asked Questions", "component": "faq-accordion", "order": 1, "required": true },
+    { "id": "appointment-form", "label": "Appointment Request", "component": "contact-form", "order": 0, "required": true },
+    { "id": "location", "label": "Office Location", "component": "map-embed", "order": 1, "required": true },
+    { "id": "hours", "label": "Business Hours", "component": "hours-widget", "order": 2, "required": true },
+    { "id": "faq-full", "label": "Full FAQ", "component": "faq-accordion", "order": 0, "required": true }
+  ],
+
+  "required_components": [
+    "hero-banner",
+    "site-header",
+    "nav-bar",
+    "site-footer",
+    "cta-block",
+    "contact-form",
+    "faq-accordion",
+    "testimonial-carousel",
+    "trust-badge-row",
+    "card-grid",
+    "service-list",
+    "text-block",
+    "team-grid",
+    "map-embed"
+  ],
+
+  "optional_components": [
+    "pricing-table",
+    "process-timeline",
+    "badge-grid",
+    "blog-feed",
+    "hours-widget",
+    "appointment-form",
+    "social-proof-bar",
+    "stats-counter",
+    "insurance-list",
+    "logo-bar"
+  ],
+
+  "style_presets": [
+    "proserv-classic",
+    "proserv-modern",
+    "proserv-warm",
+    "proserv-slate",
+    "proserv-navy"
+  ],
+
+  "compliance_blocks": [
+    {
+      "id": "regulatory-disclosure",
+      "label": "Regulatory Disclosure",
+      "type": "disclaimer",
+      "required": true,
+      "default_text": "Services described on this website are provided by licensed professionals. Specific licensing and regulatory information available upon request."
+    },
+    {
+      "id": "privacy-policy",
+      "label": "Privacy Policy",
+      "type": "privacy",
+      "required": true,
+      "default_text": "We respect your privacy. Information collected through this website is handled in accordance with our privacy policy."
+    },
+    {
+      "id": "terms-of-service",
+      "label": "Terms of Service",
+      "type": "terms",
+      "required": true,
+      "default_text": "Use of this website is subject to our terms of service. Content on this site is for general informational purposes and does not constitute professional advice."
+    },
+    {
+      "id": "accessibility-statement",
+      "label": "Accessibility Statement",
+      "type": "accessibility",
+      "required": true,
+      "default_text": "We are committed to ensuring that our website is accessible to everyone. If you have difficulty accessing any content, please contact us."
+    }
+  ],
+
+  "content_requirements": {
+    "min_pages": 5,
+    "min_sections": 12,
+    "min_words_per_page": 100,
+    "require_contact_info": true,
+    "require_business_name": true,
+    "require_address": true,
+    "require_hours": true
+  },
+
+  "demo_watermark_profile": {
+    "enabled": true,
+    "text": "PREVIEW — NOT A LIVE SITE",
+    "opacity": 0.15,
+    "position": "diagonal"
+  },
+
+  "seo_profile": {
+    "title_pattern": "{{businessName}} — {{serviceType}} | {{city}}, {{state}}",
+    "description_pattern": "{{businessName}} offers professional {{serviceType}} services in {{city}}, {{state}}. Schedule a consultation today.",
+    "schema_type": "ProfessionalService",
+    "og_image_pattern": "{{businessName}} — Professional Services",
+    "keywords": ["professional services", "consulting", "advisory", "appointment", "expert"]
+  },
+
+  "feature_flags": {
+    "enable_intake_form": false,
+    "enable_chat_widget": false,
+    "enable_blog": true,
+    "enable_case_results": false,
+    "enable_video_hero": false,
+    "safe_mode": true
+  }
+}

@@ -1,0 +1,421 @@
+# Greenline Release Workflow
+# Creates signed release tags with reproducible release records
+#
+# Chain: B3 - Signed Commits + Verified Releases
+# Purpose: Production releases with verification and audit trail
+
+name: Create Greenline Release
+
+on:
+  # Triggered after successful production deployment
+  workflow_run:
+    workflows: ["Deploy with Approval"]
+    types:
+      - completed
+    branches:
+      - main
+
+  # Manual release creation
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: 'Commit SHA to release (defaults to latest main)'
+        required: false
+        type: string
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - greenline
+          - hotfix
+        default: greenline
+      notes:
+        description: 'Additional release notes (optional)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  deployments: read
+  pull-requests: read
+  actions: read
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # Check if this should create a release
+  should-release:
+    name: Check Release Conditions
+    runs-on: ubuntu-latest
+    outputs:
+      should_create: ${{ steps.check.outputs.should_create }}
+      commit_sha: ${{ steps.check.outputs.commit_sha }}
+      release_type: ${{ steps.check.outputs.release_type }}
+    steps:
+      - name: Check conditions
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Determine if we should create a release
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Manual trigger - always create
+            SHA="${{ inputs.commit_sha || github.sha }}"
+            echo "should_create=true" >> $GITHUB_OUTPUT
+            echo "commit_sha=$SHA" >> $GITHUB_OUTPUT
+            echo "release_type=${{ inputs.release_type }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "workflow_run" ]; then
+            # Triggered by deploy workflow
+            if [ "${{ github.event.workflow_run.conclusion }}" = "success" ]; then
+              # Check if production deploy happened
+              SHA="${{ github.event.workflow_run.head_sha }}"
+              
+              # Look for production deployment
+              PRODUCTION_DEPLOY=$(gh api repos/${{ github.repository }}/deployments \
+                --jq "[.[] | select(.sha == \"$SHA\" and .environment == \"production\")] | length" \
+                2>/dev/null || echo "0")
+              
+              if [ "$PRODUCTION_DEPLOY" -gt "0" ]; then
+                echo "should_create=true" >> $GITHUB_OUTPUT
+                echo "commit_sha=$SHA" >> $GITHUB_OUTPUT
+                echo "release_type=greenline" >> $GITHUB_OUTPUT
+              else
+                echo "should_create=false" >> $GITHUB_OUTPUT
+                echo "No production deployment found for SHA $SHA"
+              fi
+            else
+              echo "should_create=false" >> $GITHUB_OUTPUT
+              echo "Workflow run did not succeed"
+            fi
+          else
+            echo "should_create=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Verify commit signature
+  verify-signature:
+    name: Verify Commit Signature
+    runs-on: ubuntu-latest
+    needs: should-release
+    if: needs.should-release.outputs.should_create == 'true'
+    outputs:
+      verified: ${{ steps.verify.outputs.verified }}
+      reason: ${{ steps.verify.outputs.reason }}
+    steps:
+      - name: Verify commit signature
+        id: verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          
+          # Get commit verification status from GitHub API
+          VERIFICATION=$(gh api repos/${{ github.repository }}/commits/$SHA \
+            --jq '.commit.verification | {verified, reason}')
+          
+          VERIFIED=$(echo "$VERIFICATION" | jq -r '.verified')
+          REASON=$(echo "$VERIFICATION" | jq -r '.reason')
+          
+          echo "verified=$VERIFIED" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+          
+          if [ "$VERIFIED" = "true" ]; then
+            echo "✅ Commit signature verified: $REASON"
+          else
+            echo "⚠️ Commit signature not verified: $REASON"
+            echo "Note: GitHub web merges are signed by GitHub"
+          fi
+
+  # Generate release notes from PRs
+  generate-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: should-release
+    if: needs.should-release.outputs.should_create == 'true'
+    outputs:
+      notes: ${{ steps.notes.outputs.notes }}
+      changelog: ${{ steps.notes.outputs.changelog }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.should-release.outputs.commit_sha }}
+          fetch-depth: 0
+
+      - name: Find last release tag
+        id: last-release
+        run: |
+          # Find the most recent greenline tag
+          LAST_TAG=$(git tag -l 'greenline-*' | sort -r | head -1)
+          
+          if [ -z "$LAST_TAG" ]; then
+            # No previous release, use first commit
+            LAST_SHA=$(git rev-list --max-parents=0 HEAD)
+            echo "last_tag=" >> $GITHUB_OUTPUT
+            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
+          else
+            LAST_SHA=$(git rev-list -n 1 "$LAST_TAG")
+            echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+            echo "last_sha=$LAST_SHA" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate release notes
+        id: notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          LAST_SHA="${{ steps.last-release.outputs.last_sha }}"
+          LAST_TAG="${{ steps.last-release.outputs.last_tag }}"
+          
+          # Get commits since last release
+          COMMITS=$(git log --oneline $LAST_SHA..$SHA 2>/dev/null || git log --oneline)
+          
+          # Get merged PRs since last release
+          PRS=$(gh pr list --state merged --base main --limit 100 \
+            --json number,title,labels,mergedAt,author \
+            --jq "[.[] | select(.mergedAt > \"$(git log -1 --format=%cI $LAST_SHA 2>/dev/null || echo '2020-01-01')\")] | sort_by(.mergedAt)")
+          
+          # Initialize categories
+          FEATURES=""
+          FIXES=""
+          SECURITY=""
+          PERF=""
+          DOCS=""
+          DEPS=""
+          BREAKING=""
+          OTHER=""
+          
+          # Process PRs by label
+          while IFS= read -r pr; do
+            [ -z "$pr" ] && continue
+            NUMBER=$(echo "$pr" | jq -r '.number')
+            TITLE=$(echo "$pr" | jq -r '.title')
+            AUTHOR=$(echo "$pr" | jq -r '.author.login')
+            LABELS=$(echo "$pr" | jq -r '.labels[].name' 2>/dev/null | tr '\n' ',')
+            
+            ENTRY="- $TITLE (#$NUMBER) @$AUTHOR"
+            
+            case "$LABELS" in
+              *feat*|*feature*|*enhancement*)
+                FEATURES="$FEATURES\n$ENTRY"
+                ;;
+              *fix*|*bug*)
+                FIXES="$FIXES\n$ENTRY"
+                ;;
+              *security*)
+                SECURITY="$SECURITY\n$ENTRY"
+                ;;
+              *perf*|*performance*)
+                PERF="$PERF\n$ENTRY"
+                ;;
+              *docs*|*documentation*)
+                DOCS="$DOCS\n$ENTRY"
+                ;;
+              *deps*|*dependencies*)
+                DEPS="$DEPS\n$ENTRY"
+                ;;
+              *breaking*)
+                BREAKING="$BREAKING\n$ENTRY"
+                ;;
+              *)
+                OTHER="$OTHER\n$ENTRY"
+                ;;
+            esac
+          done < <(echo "$PRS" | jq -c '.[]')
+          
+          # Build release notes
+          NOTES=""
+          
+          [ -n "$BREAKING" ] && NOTES="$NOTES\n## ⚠️ Breaking Changes\n$BREAKING\n"
+          [ -n "$FEATURES" ] && NOTES="$NOTES\n## ✨ Features\n$FEATURES\n"
+          [ -n "$FIXES" ] && NOTES="$NOTES\n## 🐛 Bug Fixes\n$FIXES\n"
+          [ -n "$SECURITY" ] && NOTES="$NOTES\n## 🔒 Security\n$SECURITY\n"
+          [ -n "$PERF" ] && NOTES="$NOTES\n## ⚡ Performance\n$PERF\n"
+          [ -n "$DOCS" ] && NOTES="$NOTES\n## 📚 Documentation\n$DOCS\n"
+          [ -n "$DEPS" ] && NOTES="$NOTES\n## 📦 Dependencies\n$DEPS\n"
+          [ -n "$OTHER" ] && NOTES="$NOTES\n## 🔧 Other Changes\n$OTHER\n"
+          
+          # Add manual notes if provided
+          MANUAL_NOTES="${{ inputs.notes }}"
+          [ -n "$MANUAL_NOTES" ] && NOTES="$NOTES\n## 📝 Additional Notes\n$MANUAL_NOTES\n"
+          
+          # Add comparison link
+          if [ -n "$LAST_TAG" ]; then
+            NOTES="$NOTES\n---\n**Full Changelog:** [$LAST_TAG...HEAD](https://github.com/${{ github.repository }}/compare/$LAST_TAG...HEAD)"
+          fi
+          
+          # Save notes (escape for GitHub output)
+          NOTES_ESCAPED=$(echo -e "$NOTES" | base64 -w 0)
+          echo "notes=$NOTES_ESCAPED" >> $GITHUB_OUTPUT
+          
+          # Generate simple changelog
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  # Create release
+  create-release:
+    name: Create Greenline Release
+    runs-on: ubuntu-latest
+    needs: [should-release, verify-signature, generate-notes]
+    if: needs.should-release.outputs.should_create == 'true'
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      release_url: ${{ steps.release.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.should-release.outputs.commit_sha }}
+          fetch-depth: 0
+
+      - name: Generate tag name
+        id: tag
+        run: |
+          TYPE="${{ needs.should-release.outputs.release_type }}"
+          TIMESTAMP=$(date -u +"%Y%m%d-%H%M")
+          TAG="${TYPE}-${TIMESTAMP}"
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "version=1.0.0-${TYPE}.${TIMESTAMP}" >> $GITHUB_OUTPUT
+
+      - name: Get deployment info
+        id: deployment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          
+          # Get production deployment
+          DEPLOYMENT=$(gh api repos/${{ github.repository }}/deployments \
+            --jq "[.[] | select(.sha == \"$SHA\" and .environment == \"production\")] | sort_by(.created_at) | last")
+          
+          if [ -n "$DEPLOYMENT" ] && [ "$DEPLOYMENT" != "null" ]; then
+            DEPLOY_ID=$(echo "$DEPLOYMENT" | jq -r '.id')
+            DEPLOY_URL=$(echo "$DEPLOYMENT" | jq -r '.payload.web_url // empty')
+            DEPLOYED_AT=$(echo "$DEPLOYMENT" | jq -r '.created_at')
+            
+            echo "id=$DEPLOY_ID" >> $GITHUB_OUTPUT
+            echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+            echo "deployed_at=$DEPLOYED_AT" >> $GITHUB_OUTPUT
+          else
+            echo "id=" >> $GITHUB_OUTPUT
+            echo "url=" >> $GITHUB_OUTPUT
+            echo "deployed_at=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate release record
+        id: record
+        run: |
+          mkdir -p release
+          
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          TAG="${{ steps.tag.outputs.tag }}"
+          
+          # Calculate build hash from manifest if exists
+          BUILD_HASH=""
+          if [ -f "dist/manifest.json" ]; then
+            BUILD_HASH=$(sha256sum dist/manifest.json | cut -d' ' -f1)
+          fi
+          
+          # Create release record
+          cat > release/release-record.json << EOF
+          {
+            "release": {
+              "tag": "$TAG",
+              "version": "${{ steps.tag.outputs.version }}",
+              "commitSha": "$SHA",
+              "branch": "main",
+              "createdAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            },
+            "build": {
+              "manifestHash": "${BUILD_HASH:-not-available}",
+              "builtAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            },
+            "deployment": {
+              "id": "${{ steps.deployment.outputs.id }}",
+              "environment": "production",
+              "url": "${{ steps.deployment.outputs.url }}",
+              "deployedAt": "${{ steps.deployment.outputs.deployed_at }}"
+            },
+            "verification": {
+              "signatureVerified": ${{ needs.verify-signature.outputs.verified }},
+              "signatureReason": "${{ needs.verify-signature.outputs.reason }}",
+              "workflowRun": "${{ github.run_id }}"
+            }
+          }
+          EOF
+          
+          echo "Created release record:"
+          cat release/release-record.json
+
+      - name: Create release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          
+          # Create annotated tag
+          gh api repos/${{ github.repository }}/git/tags \
+            -f tag="$TAG" \
+            -f message="Greenline Release $TAG" \
+            -f object="$SHA" \
+            -f type="commit"
+          
+          # Create tag reference
+          gh api repos/${{ github.repository }}/git/refs \
+            -f ref="refs/tags/$TAG" \
+            -f sha="$SHA"
+          
+          echo "✅ Created tag: $TAG"
+
+      - name: Create GitHub Release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          NOTES='${{ needs.generate-notes.outputs.changelog }}'
+          SHA="${{ needs.should-release.outputs.commit_sha }}"
+          
+          # Build release body
+          BODY="## Release $TAG
+          
+          **Commit:** \`$SHA\`
+          **Deployed:** ${{ steps.deployment.outputs.deployed_at }}
+          **Signature Verified:** ${{ needs.verify-signature.outputs.verified }} (${{ needs.verify-signature.outputs.reason }})
+          
+          $NOTES"
+          
+          # Create release
+          RELEASE_URL=$(gh release create "$TAG" \
+            --title "Release $TAG" \
+            --notes "$BODY" \
+            release/release-record.json \
+            --verify-tag)
+          
+          echo "url=$RELEASE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Created release: $RELEASE_URL"
+
+  # Summary
+  summary:
+    name: Release Summary
+    runs-on: ubuntu-latest
+    needs: [should-release, verify-signature, create-release]
+    if: always() && needs.should-release.outputs.should_create == 'true'
+    steps:
+      - name: Post summary
+        run: |
+          echo "## 🏷️ Greenline Release Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | \`${{ needs.create-release.outputs.tag }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ needs.should-release.outputs.commit_sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Signature | ${{ needs.verify-signature.outputs.verified }} (${{ needs.verify-signature.outputs.reason }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release | ${{ needs.create-release.outputs.release_url }} |" >> $GITHUB_STEP_SUMMARY

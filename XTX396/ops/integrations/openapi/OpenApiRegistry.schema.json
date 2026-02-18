@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openapi-registry.schema.json",
+  "title": "OpenAPI Integration Registry",
+  "description": "Schema for the allowlisted OpenAPI endpoints registry. All external integrations must be explicitly registered here.",
+  "type": "object",
+  "required": ["$schema", "version", "endpoints"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "JSON Schema reference"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Registry version (semver)"
+    },
+    "endpoints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Endpoint" },
+      "description": "Allowlisted API endpoints"
+    }
+  },
+  "$defs": {
+    "Endpoint": {
+      "type": "object",
+      "required": ["id", "name", "baseUrl", "methods", "auth", "rateLimit", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9_-]+$",
+          "description": "Unique endpoint identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this endpoint does"
+        },
+        "baseUrl": {
+          "type": "string",
+          "pattern": "^https://",
+          "description": "Base URL (HTTPS only)"
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+          },
+          "minItems": 1,
+          "description": "Allowed HTTP methods"
+        },
+        "auth": {
+          "$ref": "#/$defs/AuthConfig"
+        },
+        "rateLimit": {
+          "$ref": "#/$defs/RateLimitConfig"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "deprecated", "disabled"],
+          "description": "Current status"
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Categorization tags"
+        }
+      }
+    },
+    "AuthConfig": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["none", "api-key", "bearer", "oauth2"],
+          "description": "Authentication mechanism"
+        },
+        "headerName": {
+          "type": "string",
+          "description": "Header name for api-key auth"
+        },
+        "tokenEnvVar": {
+          "type": "string",
+          "description": "Environment variable containing the token (never store secrets in config)"
+        }
+      }
+    },
+    "RateLimitConfig": {
+      "type": "object",
+      "required": ["maxRequests", "windowMs"],
+      "additionalProperties": false,
+      "properties": {
+        "maxRequests": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Max requests per window"
+        },
+        "windowMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "description": "Window duration in milliseconds"
+        }
+      }
+    }
+  }
+}

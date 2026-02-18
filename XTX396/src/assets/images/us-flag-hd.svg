@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7410 3900" width="1235" height="650">
+  <defs>
+    <clipPath id="canton">
+      <rect width="2964" height="2100"/>
+    </clipPath>
+  </defs>
+  <rect width="7410" height="3900" fill="#B22234"/>
+  <path d="M0,450h7410m0,600H0m0,600h7410m0,600H0m0,600h7410m0,600H0" stroke="#fff" stroke-width="300"/>
+  <rect width="2964" height="2100" fill="#3C3B6E"/>
+  <g fill="#fff" clip-path="url(#canton)">
+    <g id="row">
+      <g id="star">
+        <path d="M247,90 317.534,307.082 132.873,172.918h228.254L176.466,307.082z"/>
+      </g>
+      <use href="#star" x="494"/>
+      <use href="#star" x="988"/>
+      <use href="#star" x="1482"/>
+      <use href="#star" x="1976"/>
+      <use href="#star" x="2470"/>
+    </g>
+    <use href="#row" y="420"/>
+    <use href="#row" y="840"/>
+    <use href="#row" y="1260"/>
+    <use href="#row" y="1680"/>
+    <g id="offset-row">
+      <use href="#star" x="247" y="210"/>
+      <use href="#star" x="741" y="210"/>
+      <use href="#star" x="1235" y="210"/>
+      <use href="#star" x="1729" y="210"/>
+      <use href="#star" x="2223" y="210"/>
+    </g>
+    <use href="#offset-row" y="420"/>
+    <use href="#offset-row" y="840"/>
+    <use href="#offset-row" y="1260"/>
+  </g>
+</svg>

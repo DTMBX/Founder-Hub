@@ -1,0 +1,27 @@
+{
+  "id": "case-jacket",
+  "version": "1.0.0",
+  "name": "Case Jacket",
+  "description": "Organizes case-level evidence, generates AI summaries, and produces export-ready evidence packages.",
+  "category": "tools",
+  "status": "active",
+  "capabilities": [
+    "case-profile-management",
+    "evidence-indexing",
+    "ai-summary-generation",
+    "evidence-export"
+  ],
+  "required_roles": ["operator", "reviewer", "admin", "super-admin"],
+  "dependencies": [],
+  "feature_flags": {
+    "case_jacket_enabled": true,
+    "ai_summary_enabled": true,
+    "export_enabled": true
+  },
+  "audit": {
+    "log_access": true,
+    "log_mutations": true,
+    "log_exports": true,
+    "append_only": true
+  }
+}

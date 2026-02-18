@@ -1,0 +1,65 @@
+{
+  "blueprint_id": "agency",
+  "business_name": "Brightline Studio",
+  "tagline": "Strategy. Design. Results.",
+  "city": "Portland",
+  "state": "OR",
+  "phone": "(503) 555-0198",
+  "email": "hello@brightlinestudio.demo",
+  "address": "1120 NW Couch St, Suite 300, Portland, OR 97209",
+  "serviceType": "Creative & Digital Marketing",
+  "pages": {
+    "home": {
+      "hero": {
+        "headline": "We Build Brands That Move Markets.",
+        "subheadline": "Full-service creative agency specializing in brand strategy, web design, and digital marketing.",
+        "cta_text": "Start a Project",
+        "cta_url": "/contact"
+      },
+      "featured_work": [
+        { "title": "Cascade Coffee Rebrand", "category": "Branding", "description": "Complete visual identity overhaul." },
+        { "title": "NW Health Digital Platform", "category": "Web Development", "description": "Patient portal and marketing site." },
+        { "title": "Timber Athletics Campaign", "category": "Digital Marketing", "description": "Multi-channel launch campaign." }
+      ],
+      "testimonials": [
+        { "quote": "Brightline delivered a brand identity that exceeded every expectation.", "author": "Cascade Coffee, Founder", "rating": 5 },
+        { "quote": "Professional, responsive, and genuinely creative.", "author": "NW Health, Marketing Director", "rating": 5 }
+      ],
+      "trust_badges": [
+        { "label": "Google Partner", "icon": "badge" },
+        { "label": "Webby Honoree", "icon": "award" },
+        { "label": "B Corp Certified", "icon": "shield" }
+      ]
+    },
+    "services": {
+      "list": [
+        { "title": "Brand Strategy", "description": "Market research, positioning, and identity systems." },
+        { "title": "Web Design & Development", "description": "Responsive, accessible websites built for performance." },
+        { "title": "Digital Marketing", "description": "SEO, paid media, and content strategy." },
+        { "title": "Creative Production", "description": "Photography, video, and motion graphics." }
+      ],
+      "pricing": [
+        { "tier": "Starter", "price": "Starting at $5,000", "features": ["Brand audit", "Logo design", "Style guide"] },
+        { "tier": "Growth", "price": "Starting at $15,000", "features": ["Full identity", "Website", "Launch campaign"] },
+        { "tier": "Enterprise", "price": "Custom", "features": ["Dedicated team", "Ongoing retainer", "Quarterly strategy"] }
+      ]
+    },
+    "about": {
+      "intro": "Brightline Studio is a full-service creative agency founded in Portland, Oregon. We partner with organizations that value clarity, craft, and measurable outcomes.",
+      "team": [
+        { "name": "Mika Torres", "title": "Creative Director", "bio": "15 years in brand and identity design." },
+        { "name": "Devon Park", "title": "Head of Digital", "bio": "Former lead at a Fortune 500 digital agency." }
+      ],
+      "stats": [
+        { "label": "Projects Delivered", "value": "240+" },
+        { "label": "Client Retention", "value": "94%" },
+        { "label": "Years in Business", "value": "12" }
+      ]
+    },
+    "contact": {
+      "heading": "Start a Conversation",
+      "subheading": "Tell us about your project and we will be in touch within one business day.",
+      "form_fields": ["name", "email", "company", "project_type", "budget_range", "message"]
+    }
+  }
+}

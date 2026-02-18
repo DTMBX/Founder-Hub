@@ -1,0 +1,15 @@
+#!/bin/sh
+# Chain A3 — Pre-commit hook for secret scanning
+
+echo "🔒 Running secret scan..."
+node scripts/scan-secrets.mjs
+
+# If secret scan fails, abort commit
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Commit blocked: Secrets detected in staged files."
+  echo "   Please remove the secrets and try again."
+  exit 1
+fi
+
+echo "✓ Secret scan passed."

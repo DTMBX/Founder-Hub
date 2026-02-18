@@ -1,0 +1,19 @@
+{
+  "siteName": "XTX396",
+  "tagline": "Innovation through accountability",
+  "description": "Personal portfolio and professional services",
+  "primaryDomain": "xtx396.online",
+  "domainRedirects": [],
+  "socialPreviewImage": "",
+  "analyticsEnabled": false,
+  "indexingEnabled": true,
+  "investorModeAvailable": true,
+  "motionLevel": "full",
+  "glassIntensity": "medium",
+  "gradientUsage": "accent",
+  "contrastMode": "standard",
+  "stripeEnabled": false,
+  "stripePublishableKey": "",
+  "stripeSuccessUrl": "/checkout/success",
+  "stripeCancelUrl": "/checkout/cancel"
+}

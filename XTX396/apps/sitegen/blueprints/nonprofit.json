@@ -1,0 +1,144 @@
+{
+  "$schema": "./Blueprint.schema.json",
+  "id": "nonprofit",
+  "name": "Nonprofit Organization",
+  "version": "2.0.0",
+  "business_type": "nonprofit_general",
+  "site_type": "nonprofit",
+  "audience": "Nonprofit organizations seeking to communicate their mission, programs, and impact to donors, volunteers, and community members.",
+
+  "required_pages": [
+    { "slug": "home", "title": "Home", "template": "nonprofit-home", "required_sections": ["hero", "mission", "impact", "trust-badges", "testimonials", "cta"] },
+    { "slug": "about", "title": "About Us", "template": "nonprofit-about", "required_sections": ["about-intro", "team", "timeline", "partners"] },
+    { "slug": "programs", "title": "Programs", "template": "nonprofit-programs", "required_sections": ["program-list", "impact-stats"] },
+    { "slug": "events", "title": "Events", "template": "nonprofit-events", "required_sections": ["event-list", "gallery"] },
+    { "slug": "donate", "title": "Donate", "template": "nonprofit-donate", "required_sections": ["donate-cta", "transparency"] },
+    { "slug": "contact", "title": "Contact", "template": "nonprofit-contact", "required_sections": ["contact-form", "map"] },
+    { "slug": "faq", "title": "FAQ", "template": "nonprofit-faq", "required_sections": ["faq-section"] }
+  ],
+
+  "required_sections": [
+    { "id": "hero", "label": "Hero", "component": "hero-banner", "order": 0, "required": true },
+    { "id": "mission", "label": "Mission Statement", "component": "text-block", "order": 1, "required": true },
+    { "id": "impact", "label": "Impact Overview", "component": "stats-counter", "order": 2, "required": true },
+    { "id": "trust-badges", "label": "Trust & Accreditation", "component": "trust-badge-row", "order": 3, "required": true },
+    { "id": "testimonials", "label": "Community Testimonials", "component": "testimonial-carousel", "order": 4, "required": true },
+    { "id": "cta", "label": "Support Our Mission", "component": "cta-block", "order": 5, "required": true },
+    { "id": "about-intro", "label": "About Introduction", "component": "text-block", "order": 0, "required": true },
+    { "id": "team", "label": "Leadership Team", "component": "team-grid", "order": 1, "required": true },
+    { "id": "timeline", "label": "Organization History", "component": "process-timeline", "order": 2, "required": true },
+    { "id": "partners", "label": "Partners", "component": "partner-logo-bar", "order": 3, "required": true },
+    { "id": "program-list", "label": "Programs & Services", "component": "service-list", "order": 0, "required": true },
+    { "id": "impact-stats", "label": "Program Impact", "component": "stats-counter", "order": 1, "required": true },
+    { "id": "event-list", "label": "Upcoming Events", "component": "event-list", "order": 0, "required": true },
+    { "id": "gallery", "label": "Event Gallery", "component": "image-gallery", "order": 1, "required": true },
+    { "id": "donate-cta", "label": "Donation Call to Action", "component": "cta-block", "order": 0, "required": true },
+    { "id": "transparency", "label": "Financial Transparency", "component": "card-grid", "order": 1, "required": true },
+    { "id": "contact-form", "label": "Contact Form", "component": "contact-form", "order": 0, "required": true },
+    { "id": "map", "label": "Location", "component": "map-embed", "order": 1, "required": true },
+    { "id": "faq-section", "label": "Frequently Asked Questions", "component": "faq-accordion", "order": 0, "required": true }
+  ],
+
+  "required_components": [
+    "hero-banner",
+    "site-header",
+    "nav-bar",
+    "site-footer",
+    "cta-block",
+    "contact-form",
+    "faq-accordion",
+    "testimonial-carousel",
+    "trust-badge-row",
+    "text-block",
+    "stats-counter",
+    "team-grid",
+    "service-list",
+    "card-grid",
+    "map-embed"
+  ],
+
+  "optional_components": [
+    "event-list",
+    "image-gallery",
+    "partner-logo-bar",
+    "process-timeline",
+    "blog-feed",
+    "social-proof-bar",
+    "newsletter-form",
+    "video-hero",
+    "badge-grid"
+  ],
+
+  "style_presets": [
+    "nonprofit-warm",
+    "nonprofit-earth",
+    "nonprofit-bright",
+    "nonprofit-ocean",
+    "nonprofit-classic"
+  ],
+
+  "compliance_blocks": [
+    {
+      "id": "tax-exempt-disclosure",
+      "label": "Tax-Exempt Status",
+      "type": "disclaimer",
+      "required": true,
+      "default_text": "This organization is a tax-exempt 501(c)(3) nonprofit. Donations may be tax-deductible. Consult your tax advisor for details."
+    },
+    {
+      "id": "privacy-policy",
+      "label": "Privacy Policy",
+      "type": "privacy",
+      "required": true,
+      "default_text": "We respect your privacy. Information collected through this website is handled in accordance with our privacy policy."
+    },
+    {
+      "id": "terms-of-use",
+      "label": "Terms of Use",
+      "type": "terms",
+      "required": true,
+      "default_text": "Use of this website is subject to our terms of use. Donation processing is handled through our secure third-party payment provider."
+    },
+    {
+      "id": "accessibility-statement",
+      "label": "Accessibility Statement",
+      "type": "accessibility",
+      "required": true,
+      "default_text": "We are committed to ensuring that our website is accessible to everyone. If you have difficulty accessing any content, please contact us."
+    }
+  ],
+
+  "content_requirements": {
+    "min_pages": 5,
+    "min_sections": 12,
+    "min_words_per_page": 100,
+    "require_contact_info": true,
+    "require_business_name": true,
+    "require_address": true,
+    "require_hours": false
+  },
+
+  "demo_watermark_profile": {
+    "enabled": true,
+    "text": "PREVIEW — NOT A LIVE SITE",
+    "opacity": 0.15,
+    "position": "diagonal"
+  },
+
+  "seo_profile": {
+    "title_pattern": "{{businessName}} — {{missionType}} Nonprofit | {{city}}, {{state}}",
+    "description_pattern": "{{businessName}} is a nonprofit organization dedicated to {{missionType}} in {{city}}, {{state}}. Learn about our programs and how you can help.",
+    "schema_type": "NGO",
+    "og_image_pattern": "{{businessName}} — Making a Difference",
+    "keywords": ["nonprofit", "charity", "community", "volunteer", "donate"]
+  },
+
+  "feature_flags": {
+    "enable_intake_form": false,
+    "enable_chat_widget": false,
+    "enable_blog": false,
+    "enable_case_results": false,
+    "enable_video_hero": false,
+    "safe_mode": true
+  }
+}

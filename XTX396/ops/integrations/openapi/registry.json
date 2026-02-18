@@ -1,0 +1,90 @@
+{
+  "$schema": "./OpenApiRegistry.schema.json",
+  "version": "1.0.0",
+  "endpoints": [
+    {
+      "id": "court-listener",
+      "name": "CourtListener RECAP",
+      "description": "Federal court document search and retrieval via CourtListener's public API.",
+      "baseUrl": "https://www.courtlistener.com/api/rest/v4",
+      "methods": ["GET"],
+      "auth": {
+        "type": "api-key",
+        "headerName": "Authorization",
+        "tokenEnvVar": "COURTLISTENER_API_TOKEN"
+      },
+      "rateLimit": {
+        "maxRequests": 30,
+        "windowMs": 60000
+      },
+      "status": "active",
+      "tags": ["legal", "court-records", "federal"]
+    },
+    {
+      "id": "case-law-access",
+      "name": "Case Law Access Project",
+      "description": "Harvard Law case law access for historical decisions.",
+      "baseUrl": "https://api.case.law/v1",
+      "methods": ["GET"],
+      "auth": {
+        "type": "api-key",
+        "headerName": "Authorization",
+        "tokenEnvVar": "CASELAW_API_TOKEN"
+      },
+      "rateLimit": {
+        "maxRequests": 60,
+        "windowMs": 60000
+      },
+      "status": "active",
+      "tags": ["legal", "case-law", "historical"]
+    },
+    {
+      "id": "usa-spending",
+      "name": "USASpending.gov",
+      "description": "Federal spending and contract data.",
+      "baseUrl": "https://api.usaspending.gov/api/v2",
+      "methods": ["GET", "POST"],
+      "auth": {
+        "type": "none"
+      },
+      "rateLimit": {
+        "maxRequests": 120,
+        "windowMs": 60000
+      },
+      "status": "active",
+      "tags": ["government", "finance", "contracts"]
+    },
+    {
+      "id": "federal-register",
+      "name": "Federal Register",
+      "description": "Official journal of the federal government — rules, proposed rules, notices.",
+      "baseUrl": "https://www.federalregister.gov/api/v1",
+      "methods": ["GET"],
+      "auth": {
+        "type": "none"
+      },
+      "rateLimit": {
+        "maxRequests": 60,
+        "windowMs": 60000
+      },
+      "status": "active",
+      "tags": ["government", "regulations", "federal"]
+    },
+    {
+      "id": "sec-edgar",
+      "name": "SEC EDGAR",
+      "description": "Securities and Exchange Commission filings and company data.",
+      "baseUrl": "https://efts.sec.gov/LATEST",
+      "methods": ["GET"],
+      "auth": {
+        "type": "none"
+      },
+      "rateLimit": {
+        "maxRequests": 10,
+        "windowMs": 1000
+      },
+      "status": "active",
+      "tags": ["government", "finance", "securities"]
+    }
+  ]
+}

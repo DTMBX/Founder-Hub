@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "RET-001",
+      "trigger": "engagement_complete",
+      "action": "send_satisfaction_survey",
+      "templateId": "survey_post_engagement",
+      "enabled": true
+    },
+    {
+      "ruleId": "RET-002",
+      "trigger": "days_since_delivery",
+      "condition": { "daysSince": 30 },
+      "action": "send_retention_email",
+      "templateId": "retention_30day",
+      "enabled": true
+    },
+    {
+      "ruleId": "RET-003",
+      "trigger": "days_since_delivery",
+      "condition": { "daysSince": 90 },
+      "action": "schedule_check_in",
+      "enabled": true
+    },
+    {
+      "ruleId": "RET-004",
+      "trigger": "referral_submitted",
+      "action": "send_thank_you",
+      "templateId": "referral_thank_you",
+      "enabled": true
+    },
+    {
+      "ruleId": "RET-005",
+      "trigger": "invoice_paid",
+      "condition": { "minEngagements": 3 },
+      "action": "create_referral_credit",
+      "enabled": true
+    },
+    {
+      "ruleId": "RET-006",
+      "trigger": "days_since_delivery",
+      "condition": { "daysSince": 180 },
+      "action": "send_retention_email",
+      "templateId": "retention_6month",
+      "enabled": false
+    }
+  ]
+}
