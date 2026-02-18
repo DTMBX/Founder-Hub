@@ -1,0 +1,302 @@
+/**
+ * B16 — Multi-Tenant Isolation + Production Hardening Tests
+ *
+ * Covers:
+ *   P1: Tenant model, validation, registry, context middleware
+ */
+
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  validateTenant,
+  hashTenant,
+  TenantRegistry,
+  createTenant,
+  defaultRateLimits,
+  PUBLIC_DEMO_TENANT,
+  type Tenant,
+} from '../../ops/tenancy/TenantModel';
+import {
+  TenantContextMiddleware,
+} from '../../ops/tenancy/TenantContextMiddleware';
+
+// ═════════════════════════════════════════════════════════════════
+// P1 — Tenant Model + Isolation
+// ═════════════════════════════════════════════════════════════════
+
+// ── validateTenant ──────────────────────────────────────────────
+
+describe('P1 — validateTenant', () => {
+  const validTenant: Tenant = {
+    tenantId: '550e8400-e29b-41d4-a716-446655440000',
+    name: 'Test Tenant',
+    tier: 'pro',
+    status: 'active',
+    createdAt: new Date().toISOString(),
+    allowedTools: [],
+    featureFlags: {},
+    rateLimitProfile: defaultRateLimits('pro'),
+  };
+
+  it('accepts a valid tenant', () => {
+    expect(validateTenant(validTenant).valid).toBe(true);
+  });
+
+  it('accepts the public-demo reserved ID', () => {
+    expect(validateTenant(PUBLIC_DEMO_TENANT).valid).toBe(true);
+  });
+
+  it('rejects missing tenantId', () => {
+    const result = validateTenant({ ...validTenant, tenantId: '' });
+    expect(result.valid).toBe(false);
+    expect(result.errors).toContain('tenantId is required');
+  });
+
+  it('rejects invalid UUID format', () => {
+    const result = validateTenant({ ...validTenant, tenantId: 'not-a-uuid' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects missing name', () => {
+    const result = validateTenant({ ...validTenant, name: '' });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects invalid tier', () => {
+    const result = validateTenant({ ...validTenant, tier: 'gold' as any });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects invalid status', () => {
+    const result = validateTenant({ ...validTenant, status: 'deleted' as any });
+    expect(result.valid).toBe(false);
+  });
+
+  it('rejects missing rateLimitProfile', () => {
+    const { rateLimitProfile, ...rest } = validTenant;
+    const result = validateTenant(rest);
+    expect(result.valid).toBe(false);
+  });
+});
+
+// ── hashTenant ──────────────────────────────────────────────────
+
+describe('P1 — hashTenant', () => {
+  it('produces a 64-char hex hash', () => {
+    const tenant = createTenant('Test', 'pro');
+    const hash = hashTenant(tenant);
+    expect(hash).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  it('is deterministic for same input', () => {
+    const tenant: Tenant = { ...PUBLIC_DEMO_TENANT };
+    expect(hashTenant(tenant)).toBe(hashTenant(tenant));
+  });
+
+  it('differs for different tenants', () => {
+    const a = createTenant('A', 'pro');
+    const b = createTenant('B', 'pro');
+    expect(hashTenant(a)).not.toBe(hashTenant(b));
+  });
+});
+
+// ── TenantRegistry ──────────────────────────────────────────────
+
+describe('P1 — TenantRegistry', () => {
+  let registry: TenantRegistry;
+
+  beforeEach(() => {
+    registry = new TenantRegistry();
+  });
+
+  it('starts with public-demo tenant', () => {
+    expect(registry.get('public-demo')).toBeDefined();
+    expect(registry.count()).toBe(1);
+  });
+
+  it('registers a new tenant', () => {
+    const tenant = createTenant('Acme', 'pro');
+    registry.register(tenant);
+    expect(registry.get(tenant.tenantId)).toBeDefined();
+    expect(registry.count()).toBe(2);
+  });
+
+  it('rejects duplicate registration', () => {
+    const tenant = createTenant('Acme', 'pro');
+    registry.register(tenant);
+    expect(() => registry.register(tenant)).toThrow('already registered');
+  });
+
+  it('rejects invalid tenant', () => {
+    expect(() =>
+      registry.register({
+        tenantId: 'bad',
+        name: '',
+        tier: 'pro',
+        status: 'active',
+        createdAt: '',
+        allowedTools: [],
+        featureFlags: {},
+        rateLimitProfile: defaultRateLimits('pro'),
+      }),
+    ).toThrow('Invalid tenant');
+  });
+
+  it('suspends a tenant', () => {
+    const tenant = createTenant('Acme', 'pro');
+    registry.register(tenant);
+    registry.setStatus(tenant.tenantId, 'suspended');
+    expect(registry.get(tenant.tenantId)!.status).toBe('suspended');
+  });
+
+  it('filters by tier', () => {
+    const pub = createTenant('Pub', 'public');
+    const pro = createTenant('Pro', 'pro');
+    registry.register(pub);
+    registry.register(pro);
+    const publics = registry.list({ tier: 'public' });
+    // public-demo + pub
+    expect(publics.length).toBe(2);
+  });
+
+  it('filters by status', () => {
+    const tenant = createTenant('Acme', 'pro');
+    registry.register(tenant);
+    registry.setStatus(tenant.tenantId, 'suspended');
+    const suspended = registry.list({ status: 'suspended' });
+    expect(suspended.length).toBe(1);
+  });
+
+  it('resets to default state', () => {
+    registry.register(createTenant('X', 'pro'));
+    registry._reset();
+    expect(registry.count()).toBe(1);
+    expect(registry.get('public-demo')).toBeDefined();
+  });
+});
+
+// ── createTenant ────────────────────────────────────────────────
+
+describe('P1 — createTenant', () => {
+  it('creates a tenant with UUID', () => {
+    const t = createTenant('Test', 'pro');
+    expect(t.tenantId).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
+  it('sets tier-appropriate rate limits', () => {
+    const pub = createTenant('Pub', 'public');
+    expect(pub.rateLimitProfile.requestsPerMinute).toBe(30);
+
+    const pro = createTenant('Pro', 'pro');
+    expect(pro.rateLimitProfile.requestsPerMinute).toBe(300);
+  });
+
+  it('starts as active', () => {
+    expect(createTenant('T', 'internal').status).toBe('active');
+  });
+});
+
+// ── TenantContextMiddleware ─────────────────────────────────────
+
+describe('P1 — TenantContextMiddleware', () => {
+  let registry: TenantRegistry;
+  let mw: TenantContextMiddleware;
+
+  beforeEach(() => {
+    registry = new TenantRegistry();
+    mw = new TenantContextMiddleware(registry);
+  });
+
+  it('resolves public-demo tenant', () => {
+    const result = mw.resolve('public-demo');
+    expect(result.allowed).toBe(true);
+    expect(result.context?.tenantId).toBe('public-demo');
+    expect(result.context?.tier).toBe('public');
+  });
+
+  it('denies empty tenant_id', () => {
+    const result = mw.resolve('');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('required');
+  });
+
+  it('denies unknown tenant', () => {
+    const result = mw.resolve('nonexistent');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('not found');
+  });
+
+  it('denies suspended tenant', () => {
+    const tenant = createTenant('Susp', 'pro');
+    registry.register(tenant);
+    registry.setStatus(tenant.tenantId, 'suspended');
+    const result = mw.resolve(tenant.tenantId);
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('suspended');
+  });
+
+  it('blocks cross-tenant access', () => {
+    expect(() => mw.assertSameTenant('tenant-a', 'tenant-b')).toThrow(
+      'Cross-tenant access denied',
+    );
+  });
+
+  it('allows same-tenant access', () => {
+    expect(() => mw.assertSameTenant('tenant-a', 'tenant-a')).not.toThrow();
+  });
+
+  it('checks feature flags', () => {
+    const result = mw.resolve('public-demo');
+    const ctx = result.context!;
+    expect(mw.isFeatureEnabled(ctx, 'billing')).toBe(false);
+    expect(mw.isFeatureEnabled(ctx, 'nonexistent')).toBe(false);
+  });
+
+  it('checks tool access (empty = all allowed)', () => {
+    const result = mw.resolve('public-demo');
+    expect(mw.isToolAllowed(result.context!, 'any-tool')).toBe(true);
+  });
+
+  it('restricts tool access when list is populated', () => {
+    const tenant = createTenant('Restricted', 'pro', ['tool-a']);
+    registry.register(tenant);
+    const result = mw.resolve(tenant.tenantId);
+    expect(mw.isToolAllowed(result.context!, 'tool-a')).toBe(true);
+    expect(mw.isToolAllowed(result.context!, 'tool-b')).toBe(false);
+  });
+
+  it('logs audit events', () => {
+    mw.resolve('public-demo');
+    const log = mw.getAuditLog();
+    expect(log.length).toBeGreaterThan(0);
+    expect(log[0].tenantId).toBe('public-demo');
+    expect(log[0].action).toBe('context_resolved');
+  });
+
+  it('logs cross-tenant denial in audit', () => {
+    try { mw.assertSameTenant('a', 'b'); } catch { /* expected */ }
+    const log = mw.getAuditLog();
+    expect(log.some((e) => e.action === 'cross_tenant_blocked')).toBe(true);
+  });
+
+  it('enforces rate limits', () => {
+    // public-demo has 30 req/min
+    for (let i = 0; i < 30; i++) {
+      expect(mw.resolve('public-demo').allowed).toBe(true);
+    }
+    // 31st should be denied
+    const result = mw.resolve('public-demo');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain('Rate limit');
+  });
+
+  it('audit log includes tenant_id on all entries', () => {
+    mw.resolve('public-demo');
+    const log = mw.getAuditLog();
+    for (const entry of log) {
+      expect(entry.tenantId).toBeDefined();
+      expect(entry.tenantId.length).toBeGreaterThan(0);
+    }
+  });
+});
