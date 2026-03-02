@@ -171,6 +171,39 @@ async function initializeDefaultAdmin(): Promise<void> {
       }
       log('Default admin account created (PBKDF2 + AES-256-GCM)')
     } else {
+      // ── Auto-reset if env-configured credentials don't match stored ones ──
+      // This handles the case where a random password was baked in on first
+      // load (no env vars set), then env vars were later added via CI secrets.
+      // On next page load the stored "stale" credentials are wiped and
+      // re-bootstrapped from the env vars — no manual localStorage clear needed.
+      const envEmail = import.meta.env.VITE_ADMIN_EMAIL
+      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
+      if (envEmail && envPassword) {
+        const adminUser = users.find(u => u.role === 'owner' || u.role === 'admin')
+        if (adminUser && adminUser.email !== envEmail) {
+          log('[auth] Stored admin email mismatch — resetting to env credentials')
+          // Clear users + session so bootstrap runs fresh below
+          await kv.set(USERS_KEY, [])
+          await kv.set(SESSION_KEY, null)
+          // Now bootstrap with correct credentials
+          const adminConfig = getInitialAdminConfig()
+          const { hash, salt } = await hashPassword(adminConfig.password)
+          const freshAdmin: User = {
+            id: `user_${Date.now()}`,
+            email: adminConfig.email,
+            passwordHash: hash,
+            passwordSalt: salt,
+            role: 'owner',
+            createdAt: Date.now(),
+            lastLogin: 0,
+            requiresPasswordChange: false
+          }
+          await kv.set(USERS_KEY, [freshAdmin])
+          log('[auth] Admin credentials reset to env-configured values')
+          return
+        }
+      }
+
       // Migrate existing admin email if needed
       let changed = false
       const migrated = users.map(u => {
