@@ -116,6 +116,8 @@ jobs:
       - name: Run tests
         if: ${{ inputs.skip_tests != true }}
         run: npm test
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
       
       - name: Build
         run: npm run build
