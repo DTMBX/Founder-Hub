@@ -218,8 +218,10 @@ export function useAuth() {
       // Auto-refresh session if approaching expiration
       const timeRemaining = session.expiresAt - Date.now()
       if (timeRemaining < SESSION_REFRESH_THRESHOLD && timeRemaining > 0) {
+        const user = users?.find(u => u.id === session.userId)
         const refreshedSession: Session = {
           ...session,
+          role: user?.role ?? session.role ?? ('owner' as const),
           expiresAt: Date.now() + SESSION_DURATION
         }
         setSession(refreshedSession)
@@ -252,6 +254,19 @@ export function useAuth() {
       setIsLoading(false)
     }
   }, [session, users, setSession])
+
+  // Periodic session expiration check (every 60s)
+  useEffect(() => {
+    if (!session) return
+    const interval = setInterval(() => {
+      if (session.expiresAt <= Date.now()) {
+        log('[useAuth] Session expired (periodic check), clearing')
+        setSession(null)
+        setCurrentUser(null)
+      }
+    }, 60_000)
+    return () => clearInterval(interval)
+  }, [session, setSession])
 
   const login = async (
     emailOrOptions: string | LoginOptions,
@@ -478,6 +493,7 @@ export function useAuth() {
 
       const newSession: Session = {
         userId: user.id,
+        role: user.role,
         expiresAt: now + SESSION_DURATION
       }
 

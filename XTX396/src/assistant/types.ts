@@ -36,6 +36,8 @@ export interface ChatSession {
   createdAt: string
   updatedAt: string
   context?: SessionContext
+  /** Runtime audit entries displayed in the chat audit panel */
+  auditLog?: Array<{ level?: string; message: string }>
 }
 
 export interface SessionContext {

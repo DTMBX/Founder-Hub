@@ -17,28 +17,28 @@ export type {
   // Chat types
   ChatMessage,
   ChatSession,
-  ChatRole,
-  ChatContext,
-  MessageMetadata,
+  MessageRole,
+  SessionContext,
 
   // Policy types
   PolicyRule,
   PolicyAction,
   PolicyDecision,
   PolicyEvaluation,
-  PolicyContext,
+  PolicyCondition,
 
   // Repository types
   RepoState,
-  FileInfo,
-  BranchInfo,
+  CommitInfo,
 
   // Tool types
   ToolDefinition,
   ToolParameter,
   ToolCall,
   ToolResult,
+  ToolStatus,
   ExecutionMode,
+  ExecutionContext,
 
   // Proposal types
   ActionProposal,
@@ -48,7 +48,7 @@ export type {
   // Audit types
   AuditEvent,
   AuditEventType,
-  AuditSeverity,
+  AuditLog,
 
   // Security types
   SecretPattern,
@@ -56,6 +56,8 @@ export type {
   // Configuration types
   AssistantConfig,
   PRWorkflowConfig,
+  PRCreateRequest,
+  PRCreateResult,
 } from './types'
 
 // ─── Policy Engine ─────────────────────────────────────────

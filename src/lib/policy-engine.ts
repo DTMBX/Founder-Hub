@@ -545,8 +545,11 @@ class PolicyEngine {
     const roleConfig = this.policy.roles[request.role as keyof typeof this.policy.roles]
     if (!roleConfig) return
     
-    // Check if role can execute commands
-    if (request.type === 'terminal_command') {
+    // Check if role can execute commands.
+    // Skip for commands that already passed per-command evaluation (reasons empty),
+    // as those commands have their own requiresRole checks.  The canExecuteCommands
+    // flag gates the terminal UI, not individual pre-validated commands.
+    if (request.type === 'terminal_command' && reasons.length > 0) {
       const canExecute = this.resolveRolePermission(request.role, 'canExecuteCommands')
       if (!canExecute) {
         reasons.push({

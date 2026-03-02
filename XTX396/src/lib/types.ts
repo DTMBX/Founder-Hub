@@ -28,6 +28,7 @@ export interface User {
 
 export interface Session {
   userId: string
+  role: UserRole
   expiresAt: number
 }
 
@@ -508,8 +509,8 @@ export interface AuditEvent {
   entityType?: string
   entityId?: string
   metadata?: {
-    inputs?: any
-    outputs?: any
+    inputs?: Record<string, unknown>
+    outputs?: Record<string, unknown>
     errors?: string[]
   }
   timestamp: number
@@ -529,7 +530,7 @@ export interface BulkAction {
   type: 'rename' | 'reorder' | 'extract_metadata' | 'run_ocr' | 'optimize' | 'assign_case' | 'set_visibility' | 'add_tags'
   status: 'pending' | 'running' | 'completed' | 'failed'
   targetIds: string[]
-  parameters: Record<string, any>
+  parameters: Record<string, unknown>
   results?: {
     success: number
     failed: number
@@ -562,7 +563,7 @@ export interface ThemeSettings {
 export interface ContentDraft {
   entityType: string
   entityId: string
-  content: any
+  content: Record<string, unknown>
   lastSaved: number
 }
 

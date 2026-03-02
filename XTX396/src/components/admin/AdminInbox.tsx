@@ -45,6 +45,7 @@ export default function AdminInbox() {
   const [selectedCaseId, setSelectedCaseId] = useState<string>()
   const [dragOverCaseId, setDragOverCaseId] = useState<string>()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const dragCounterRef = useRef(0)
 
   const calculateChecksum = async (file: File): Promise<string> => {
     const buffer = await file.arrayBuffer()
@@ -226,12 +227,13 @@ export default function AdminInbox() {
     setQueue(prev => [...prev, ...newItems])
     
     for (const item of newItems) {
-      processFile(item)
+      await processFile(item)
     }
   }, [enableOCR, selectedCaseId])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+    dragCounterRef.current = 0
     setIsDragging(false)
     handleFiles(e.dataTransfer.files)
   }, [handleFiles])
@@ -245,7 +247,20 @@ export default function AdminInbox() {
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+  }, [])
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current++
     setIsDragging(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current--
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false)
+    }
   }, [])
 
   const handleCaseCardDragOver = useCallback((e: React.DragEvent, caseId: string) => {
@@ -258,10 +273,6 @@ export default function AdminInbox() {
     setDragOverCaseId(undefined)
   }, [])
 
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false)
-  }, [])
-
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       handleFiles(e.target.files)
@@ -269,7 +280,13 @@ export default function AdminInbox() {
   }, [handleFiles])
 
   const handleRemove = (id: string) => {
-    setQueue(prev => prev.filter(q => q.id !== id))
+    setQueue(prev => {
+      const item = prev.find(q => q.id === id)
+      if (item?.stagingData?.fileUrl) {
+        URL.revokeObjectURL(item.stagingData.fileUrl as string)
+      }
+      return prev.filter(q => q.id !== id)
+    })
   }
 
   const handleAssignToCase = (itemId: string, caseId: string) => {
@@ -329,12 +346,22 @@ export default function AdminInbox() {
   }
 
   const handleClearCompleted = () => {
-    setQueue(prev => prev.filter(q => q.status !== 'completed'))
+    setQueue(prev => {
+      prev.filter(q => q.status === 'completed').forEach(q => {
+        if (q.stagingData?.fileUrl) URL.revokeObjectURL(q.stagingData.fileUrl as string)
+      })
+      return prev.filter(q => q.status !== 'completed')
+    })
   }
 
   const handleClearAll = () => {
     if (!confirm('Clear all items from inbox?')) return
-    setQueue([])
+    setQueue(prev => {
+      prev.forEach(q => {
+        if (q.stagingData?.fileUrl) URL.revokeObjectURL(q.stagingData.fileUrl as string)
+      })
+      return []
+    })
   }
 
   const completedCount = queue.filter(q => q.status === 'completed').length
@@ -382,6 +409,7 @@ export default function AdminInbox() {
             )}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
           >
             <div className="text-center">
@@ -432,21 +460,22 @@ export default function AdminInbox() {
                       </Button>
                       <Button 
                         onClick={handlePublishToCase}
-                        disabled={assignedCount !== completedCount}
+                        disabled={completedCount === 0 || assignedCount !== completedCount}
                       >
                         <Archive size={16} />
                         Publish to Cases ({completedCount})
                       </Button>
                     </>
                   )}
-                  <Button variant="ghost" size="sm" onClick={handleClearAll}>
+                  <Button variant="ghost" size="sm" onClick={handleClearAll} aria-label="Clear all items">
                     <Trash size={16} />
+                    <span className="sr-only">Clear All</span>
                   </Button>
                 </div>
               </div>
 
               <GlassCard className="p-4">
-                <ScrollArea className="h-[600px] pr-4">
+                <ScrollArea className="max-h-[calc(100vh-24rem)] pr-4">
                   <div className="space-y-3">
                     <AnimatePresence mode="popLayout">
                       {queue.map(item => {
@@ -593,7 +622,7 @@ export default function AdminInbox() {
               />
             </div>
 
-            <ScrollArea className="h-[660px]">
+            <ScrollArea className="max-h-[calc(100vh-20rem)]">
               <div className="space-y-2 pr-3">
                 {filteredCases.length === 0 ? (
                   <div className="text-center py-8">
@@ -611,11 +640,14 @@ export default function AdminInbox() {
                     return (
                       <motion.div
                         key={caseItem.id}
+                        role="button"
+                        tabIndex={0}
                         className={cn(
                           'p-3 rounded-lg border-2 transition-all cursor-pointer',
                           dragOverCaseId === caseItem.id
                             ? 'border-accent bg-accent/10 scale-[1.02]'
-                            : 'border-border/50 hover:border-accent/50 hover:bg-card/50'
+                            : 'border-border/50 hover:border-accent/50 hover:bg-card/50',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
                         )}
                         onDrop={(e) => handleCaseCardDrop(e, caseItem.id)}
                         onDragOver={(e) => handleCaseCardDragOver(e, caseItem.id)}
@@ -628,6 +660,18 @@ export default function AdminInbox() {
                             handleAssignToCase(unassignedCompleted.id, caseItem.id)
                           }
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            const unassignedCompleted = queue.find(q => 
+                              q.status === 'completed' && !q.assignedCaseId
+                            )
+                            if (unassignedCompleted) {
+                              handleAssignToCase(unassignedCompleted.id, caseItem.id)
+                            }
+                          }
+                        }}
+                        aria-label={`Assign to case: ${caseItem.title}`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1 min-w-0">

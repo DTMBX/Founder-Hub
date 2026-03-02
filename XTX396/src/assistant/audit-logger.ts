@@ -19,7 +19,7 @@ import type {
 
 // ─── Default Secret Patterns ───────────────────────────────
 
-const DEFAULT_SECRET_PATTERNS: SecretPattern[] = [
+export const DEFAULT_SECRET_PATTERNS: SecretPattern[] = [
   {
     name: 'api_key',
     pattern: /(?:api[_-]?key|apikey)["\s:=]+["']?([a-zA-Z0-9_-]{20,})["']?/gi,
@@ -310,7 +310,7 @@ export class AuditLogger {
     obj: Record<string, unknown>
   ): { redacted: Record<string, unknown>; redactedFields: string[] } {
     const redactedFields: string[] = []
-    const redacted = this.deepRedact(obj, '', redactedFields)
+    const redacted = this.deepRedact(obj, '', redactedFields) as Record<string, unknown>
 
     return { redacted, redactedFields }
   }

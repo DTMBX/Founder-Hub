@@ -42,6 +42,7 @@ export default function UploadQueueManager() {
   const [preAssignCaseId, setPreAssignCaseId] = useState<string>('')
   const [preAssignFilingTypeId, setPreAssignFilingTypeId] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const dragCounterRef = useRef(0)
 
   const calculateChecksum = async (file: File): Promise<string> => {
     const buffer = await file.arrayBuffer()
@@ -59,7 +60,10 @@ export default function UploadQueueManager() {
     }
   }
 
-  const processFile = async (item: ExtendedUploadQueueItem) => {
+  const processFile = async (
+    item: ExtendedUploadQueueItem,
+    opts: { enableOCR: boolean; preAssignCaseId: string; preAssignFilingTypeId: string }
+  ) => {
     try {
       setQueue(prev => prev.map(q => 
         q.id === item.id ? { ...q, status: 'uploading', progress: 30 } : q
@@ -82,7 +86,7 @@ export default function UploadQueueManager() {
       let suggestedDocType: string | undefined
       let suggestedFilingDate: string | undefined
 
-      if (enableOCR) {
+      if (opts.enableOCR) {
         ocrResult = await OCRPipeline.processDocument(item.file, {
           extractText: true,
           detectStamp: true,
@@ -121,16 +125,16 @@ export default function UploadQueueManager() {
       const stagingData: Partial<PDFAsset> = {
         title: suggestedTitle,
         description: '',
-        caseId: preAssignCaseId || undefined,
+        caseId: opts.preAssignCaseId || undefined,
         documentType: suggestedDocType,
-        filingTypeId: preAssignFilingTypeId || undefined,
+        filingTypeId: opts.preAssignFilingTypeId || undefined,
         filingDate: suggestedFilingDate,
         tags: [],
         visibility: 'private',
         stage: 'staging',
         featured: false,
         fileSize: item.file.size,
-        ocrStatus: enableOCR ? 'completed' : 'none',
+        ocrStatus: opts.enableOCR ? 'completed' : 'none',
         metadata: fullMetadata,
         fileUrl,
       }
@@ -185,24 +189,35 @@ export default function UploadQueueManager() {
 
     setQueue(prev => [...prev, ...newItems])
     
+    const opts = { enableOCR, preAssignCaseId, preAssignFilingTypeId }
     for (const item of newItems) {
-      processFile(item)
+      await processFile(item, opts)
     }
-  }, [enableOCR])
+  }, [enableOCR, preAssignCaseId, preAssignFilingTypeId])
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+    dragCounterRef.current = 0
     setIsDragging(false)
     handleFiles(e.dataTransfer.files)
   }, [handleFiles])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+  }, [])
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current++
     setIsDragging(true)
   }, [])
 
-  const handleDragLeave = useCallback(() => {
-    setIsDragging(false)
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    dragCounterRef.current--
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false)
+    }
   }, [])
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,7 +230,8 @@ export default function UploadQueueManager() {
     setQueue(prev => prev.map(q => {
       if (q.id === id) {
         if (q.status === 'paused') {
-          processFile(q)
+          const opts = { enableOCR, preAssignCaseId, preAssignFilingTypeId }
+          processFile(q, opts).catch(() => {})
           return { ...q, status: 'uploading' }
         } else if (q.status === 'uploading' || q.status === 'processing') {
           return { ...q, status: 'paused' }
@@ -226,7 +242,13 @@ export default function UploadQueueManager() {
   }
 
   const handleRemove = (id: string) => {
-    setQueue(prev => prev.filter(q => q.id !== id))
+    setQueue(prev => {
+      const item = prev.find(q => q.id === id)
+      if (item?.stagingData?.fileUrl) {
+        URL.revokeObjectURL(item.stagingData.fileUrl as string)
+      }
+      return prev.filter(q => q.id !== id)
+    })
   }
 
   const handleRetry = (id: string) => {
@@ -235,7 +257,8 @@ export default function UploadQueueManager() {
       setQueue(prev => prev.map(q => 
         q.id === id ? { ...q, status: 'pending', progress: 0, validationErrors: [] } : q
       ))
-      processFile(item)
+      const opts = { enableOCR, preAssignCaseId, preAssignFilingTypeId }
+      processFile(item, opts).catch(() => {})
     }
   }
 
@@ -302,12 +325,12 @@ export default function UploadQueueManager() {
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <Folder size={14} className="text-muted-foreground shrink-0" />
-          <Select value={preAssignCaseId} onValueChange={setPreAssignCaseId}>
+          <Select value={preAssignCaseId || '__none__'} onValueChange={(v) => setPreAssignCaseId(v === '__none__' ? '' : v)}>
             <SelectTrigger className="h-8 text-xs w-52">
               <SelectValue placeholder="Pre-assign to case…" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No case (assign later)</SelectItem>
+              <SelectItem value="__none__">No case (assign later)</SelectItem>
               {cases.map(c => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.title} — {c.docket}
@@ -318,12 +341,12 @@ export default function UploadQueueManager() {
         </div>
         <div className="flex items-center gap-2">
           <Tag size={14} className="text-muted-foreground shrink-0" />
-          <Select value={preAssignFilingTypeId} onValueChange={setPreAssignFilingTypeId}>
+          <Select value={preAssignFilingTypeId || '__none__'} onValueChange={(v) => setPreAssignFilingTypeId(v === '__none__' ? '' : v)}>
             <SelectTrigger className="h-8 text-xs w-44">
               <SelectValue placeholder="Pre-assign type…" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">No type (assign later)</SelectItem>
+              <SelectItem value="__none__">No type (assign later)</SelectItem>
               {filingTypes.map(ft => (
                 <SelectItem key={ft.id} value={ft.id}>
                   {ft.icon} {ft.name}
@@ -346,7 +369,10 @@ export default function UploadQueueManager() {
         )}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
+        role="region"
+        aria-label="File drop zone"
       >
         <div className="text-center">
           <CloudArrowUp size={64} className="mx-auto mb-4 text-accent" />
@@ -467,7 +493,7 @@ export default function UploadQueueManager() {
                               <span>OCR Extraction Results</span>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {item.ocrResult.fields.docket && (
                                 <div className="p-2 bg-card/80 rounded border border-border/50">
                                   <div className="flex items-start justify-between gap-2">

@@ -190,6 +190,14 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   'theme': 'admin',
   'audit': 'admin',
   
+  // System routes - admin+
+  'session-security': 'admin',
+  'runtime-policy': 'admin',
+  'deployments': 'admin',
+  'provenance': 'admin',
+  'incidents': 'admin',
+  'audit-integrity': 'admin',
+  
   // Owner routes - owner only
   'settings': 'owner',
   'security': 'owner',

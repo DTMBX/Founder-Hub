@@ -8,7 +8,40 @@
  * 3. Flag changes are audited
  */
 
-import { useKV, kv } from './local-storage-kv'
+import type { UserRole } from './types'
+
+// ─── Role Check (inline to avoid circular dep with auth.ts) ──
+
+function getCurrentUserRole(): UserRole | null {
+  try {
+    const session = localStorage.getItem('xtx396:founder-hub-session')
+    if (!session) return null
+    const parsed = JSON.parse(session)
+    if (!parsed.userId || parsed.expiresAt <= Date.now()) return null
+    // Prefer role from session (set on login), fall back to user lookup
+    if (parsed.role && ['owner', 'admin', 'editor', 'support'].includes(parsed.role)) {
+      return parsed.role as UserRole
+    }
+    const usersJson = localStorage.getItem('xtx396:founder-hub-users')
+    if (!usersJson) return null
+    const users = JSON.parse(usersJson) as Array<{ id: string; role?: UserRole }>
+    const user = users.find(u => u.id === parsed.userId)
+    return (user?.role as UserRole) ?? 'editor'
+  } catch {
+    return null
+  }
+}
+
+const ROLE_LEVEL: Record<UserRole, number> = {
+  owner: 100,
+  admin: 75,
+  editor: 50,
+  support: 25,
+}
+
+function isOwnerRole(role: UserRole | null): boolean {
+  return role !== null && ROLE_LEVEL[role] >= ROLE_LEVEL.owner
+}
 
 // ─── Flag Definitions ────────────────────────────────────────
 
@@ -138,14 +171,33 @@ export function getFlag<K extends keyof FeatureFlags>(key: K): FeatureFlags[K] {
 
 /**
  * Set a single flag value
+ * Enforces OWNER_ONLY_FLAGS role requirement.
+ * Emits audit event for AUDITED_FLAGS changes.
  */
 export function setFlag<K extends keyof FeatureFlags>(
   key: K,
   value: FeatureFlags[K]
 ): void {
+  // Enforce owner-only flags
+  if ((OWNER_ONLY_FLAGS as readonly string[]).includes(key)) {
+    const role = getCurrentUserRole()
+    if (!isOwnerRole(role)) {
+      if (import.meta.env.DEV) {
+        console.warn(`[feature-flags] Blocked: "${key}" requires owner role (current: ${role})`)
+      }
+      return
+    }
+  }
+
   const flags = getFlags()
+  const oldValue = flags[key]
   flags[key] = value
   localStorage.setItem(FLAGS_KEY, JSON.stringify(flags))
+
+  // Audit logging for audited flags
+  if ((AUDITED_FLAGS as readonly string[]).includes(key) && oldValue !== value) {
+    emitFlagAuditEvent(key, String(oldValue), String(value))
+  }
   
   // Dispatch event for reactive updates
   window.dispatchEvent(new CustomEvent('feature-flags-changed', {
@@ -155,13 +207,38 @@ export function setFlag<K extends keyof FeatureFlags>(
 
 /**
  * Set multiple flags at once
+ * Enforces OWNER_ONLY_FLAGS role requirement.
+ * Emits audit events for AUDITED_FLAGS changes.
  */
 export function setFlags(updates: Partial<FeatureFlags>): void {
-  const flags = { ...getFlags(), ...updates }
+  const role = getCurrentUserRole()
+  const currentFlags = getFlags()
+
+  // Filter out owner-only flags if caller is not owner
+  const safeUpdates = { ...updates }
+  if (!isOwnerRole(role)) {
+    for (const key of OWNER_ONLY_FLAGS) {
+      if (key in safeUpdates) {
+        delete safeUpdates[key]
+        if (import.meta.env.DEV) {
+          console.warn(`[feature-flags] Blocked: "${key}" requires owner role (current: ${role})`)
+        }
+      }
+    }
+  }
+
+  const flags = { ...currentFlags, ...safeUpdates }
   localStorage.setItem(FLAGS_KEY, JSON.stringify(flags))
+
+  // Audit logging for audited flags that actually changed
+  for (const key of AUDITED_FLAGS) {
+    if (key in safeUpdates && currentFlags[key] !== flags[key]) {
+      emitFlagAuditEvent(key, String(currentFlags[key]), String(flags[key]))
+    }
+  }
   
   window.dispatchEvent(new CustomEvent('feature-flags-changed', {
-    detail: { updates, flags }
+    detail: { updates: safeUpdates, flags }
   }))
 }
 
@@ -174,6 +251,36 @@ export function resetFlags(): void {
   window.dispatchEvent(new CustomEvent('feature-flags-changed', {
     detail: { reset: true, flags: DEFAULT_FLAGS }
   }))
+}
+
+// ─── Audit Helpers ───────────────────────────────────────────
+
+/**
+ * Emit an audit event when a flag changes.
+ * Uses the audit ledger (hash-chained, tamper-evident).
+ * Import is dynamic to avoid circular dependencies at module init.
+ */
+function emitFlagAuditEvent(
+  flag: string,
+  oldValue: string,
+  newValue: string
+): void {
+  // Fire-and-forget; never block the setter on audit I/O
+  try {
+    import('./audit-ledger').then(({ auditConfig }) => {
+      auditConfig(
+        'feature_flag_changed',
+        `Flag "${flag}" changed from ${oldValue} to ${newValue}`,
+        { flag, oldValue, newValue, timestamp: Date.now() }
+      ).catch(() => {
+        // Audit failure must not break flag operations
+      })
+    }).catch(() => {
+      // Dynamic import failure must not break flag operations
+    })
+  } catch {
+    // Swallow — flag changes are never blocked by audit failures
+  }
 }
 
 // ─── React Hook ──────────────────────────────────────────────
@@ -231,9 +338,6 @@ export function isFlagEnabled(flag: keyof FeatureFlags): boolean {
  */
 export function requireFlag(flag: keyof FeatureFlags, context?: string): void {
   if (!isFlagEnabled(flag)) {
-    const message = context
-      ? `Feature not enabled: ${flag} (${context})`
-      : `Feature not enabled: ${flag}`
     throw new FeatureFlagDisabledError(flag, context)
   }
 }

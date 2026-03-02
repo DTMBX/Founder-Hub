@@ -260,13 +260,13 @@ export function MobileLeadIntakeForm({
           className,
         )}
       >
-        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle className="h-8 w-8 text-green-600" />
+        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+          <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
-        <h3 className="mb-2 text-xl font-semibold text-gray-900">
+        <h3 className="mb-2 text-xl font-semibold text-foreground">
           Thanks for reaching out!
         </h3>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           We've received your inquiry and will get back to you within 24 hours.
         </p>
       </div>
@@ -284,7 +284,7 @@ export function MobileLeadIntakeForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName" className="flex items-center gap-2 text-sm font-medium">
-            <User className="h-4 w-4 text-gray-500" />
+            <User className="h-4 w-4 text-muted-foreground" />
             First Name *
           </Label>
           <Input
@@ -323,7 +323,7 @@ export function MobileLeadIntakeForm({
       {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-          <Mail className="h-4 w-4 text-gray-500" />
+          <Mail className="h-4 w-4 text-muted-foreground" />
           Email *
         </Label>
         <Input
@@ -345,7 +345,7 @@ export function MobileLeadIntakeForm({
       {/* Phone */}
       <div className="space-y-2">
         <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium">
-          <Phone className="h-4 w-4 text-gray-500" />
+          <Phone className="h-4 w-4 text-muted-foreground" />
           Phone
         </Label>
         <Input
@@ -367,7 +367,7 @@ export function MobileLeadIntakeForm({
       {/* Company */}
       <div className="space-y-2">
         <Label htmlFor="company" className="flex items-center gap-2 text-sm font-medium">
-          <Briefcase className="h-4 w-4 text-gray-500" />
+          <Briefcase className="h-4 w-4 text-muted-foreground" />
           Company
         </Label>
         <Input
@@ -384,7 +384,7 @@ export function MobileLeadIntakeForm({
       {/* Project Type */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2 text-sm font-medium">
-          <FileText className="h-4 w-4 text-gray-500" />
+          <FileText className="h-4 w-4 text-muted-foreground" />
           Project Type
         </Label>
         <div className="flex flex-wrap gap-2">
@@ -396,8 +396,8 @@ export function MobileLeadIntakeForm({
               className={cn(
                 'rounded-full border px-4 py-2 text-sm transition-colors',
                 projectType === type
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400',
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-card text-foreground hover:border-primary/50',
               )}
             >
               {type}
@@ -417,7 +417,7 @@ export function MobileLeadIntakeForm({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Describe your project, goals, timeline..."
           rows={4}
-          className="w-full rounded-lg border border-gray-300 px-4 py-3 text-base focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
 
@@ -425,7 +425,7 @@ export function MobileLeadIntakeForm({
       {enableAttachments && (
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm font-medium">
-            <Camera className="h-4 w-4 text-gray-500" />
+            <Camera className="h-4 w-4 text-muted-foreground" />
             Attachments
           </Label>
 
@@ -437,7 +437,6 @@ export function MobileLeadIntakeForm({
             accept={allowedFileTypes.join(',')}
             onChange={handleFileSelect}
             className="hidden"
-            capture="environment"
           />
 
           {/* Upload buttons */}
@@ -455,7 +454,7 @@ export function MobileLeadIntakeForm({
 
           {/* Upload error */}
           {uploadError && (
-            <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">
+            <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
               <AlertCircle className="h-4 w-4" />
               {uploadError}
             </div>
@@ -467,7 +466,7 @@ export function MobileLeadIntakeForm({
               {attachments.map((attachment) => (
                 <div
                   key={attachment.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                  className="flex items-center justify-between rounded-lg border border-border bg-muted/50 px-4 py-3"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {attachment.mimeType.startsWith('image/') ? (
@@ -477,13 +476,13 @@ export function MobileLeadIntakeForm({
                         className="h-10 w-10 rounded object-cover"
                       />
                     ) : (
-                      <FileText className="h-10 w-10 text-gray-400" />
+                      <FileText className="h-10 w-10 text-muted-foreground" />
                     )}
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-gray-900">
+                      <p className="truncate text-sm font-medium text-foreground">
                         {attachment.filename}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         {formatFileSize(attachment.size)}
                       </p>
                     </div>
@@ -491,7 +490,7 @@ export function MobileLeadIntakeForm({
                   <button
                     type="button"
                     onClick={() => removeAttachment(attachment.id)}
-                    className="ml-2 rounded-full p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                    className="ml-2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
                     aria-label={`Remove ${attachment.filename}`}
                   >
                     <X className="h-5 w-5" />
@@ -505,7 +504,7 @@ export function MobileLeadIntakeForm({
 
       {/* Submit error */}
       {errors.submit && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="flex items-center gap-2 rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
           <AlertCircle className="h-4 w-4" />
           {errors.submit}
         </div>
@@ -527,7 +526,7 @@ export function MobileLeadIntakeForm({
         )}
       </Button>
 
-      <p className="text-center text-xs text-gray-500">
+      <p className="text-center text-xs text-muted-foreground">
         We'll respond within 24 hours. Your information is secure and never shared.
       </p>
     </form>

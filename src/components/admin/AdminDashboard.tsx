@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { usePermissions, FOUNDER_MODE_ROUTES } from '@/lib/route-guards'
 import { useFeatureFlags, activateFounderMode, activateOpsMode } from '@/lib/feature-flags'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import MigrationBanner from './MigrationBanner'
 import {
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
@@ -152,6 +153,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   // RBAC & Feature Flags
   const permissions = usePermissions()
   const { flags } = useFeatureFlags()
+
+  // Service-level route guard for tab switching
+  const guardedSetActiveTab = (tabId: string) => {
+    if (!permissions.canAccessRouteInCurrentMode(tabId)) {
+      toast.error('You do not have permission to access that section')
+      return
+    }
+    setActiveTab(tabId)
+  }
   
   // Filter nav items based on role and mode
   const filteredNavItems = useMemo(() => {
@@ -270,7 +280,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'client-sites': return <ClientSiteManager onNavigateToSite={(siteId, siteType) => {
         setActiveClientSiteId(siteId)
         const tabMap: Record<string, string> = { 'law-firm': 'law-firm', 'small-business': 'smb-template', agency: 'agency' }
-        setActiveTab(tabMap[siteType] ?? 'client-sites')
+        guardedSetActiveTab(tabMap[siteType] ?? 'client-sites')
       }} />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
@@ -288,12 +298,12 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex" style={{ paddingTop: 'var(--honor-bar-height, 64px)' }}>
       {/* Sidebar — hidden on mobile, quick actions bar used instead */}
       <aside className={cn(
-        'hidden lg:flex sticky top-0 h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col transition-all duration-300',
+        'hidden lg:flex sticky h-screen border-r border-border/50 bg-card/50 backdrop-blur-sm flex-col transition-all duration-300',
         sidebarCollapsed ? 'w-16' : 'w-64'
-      )}>
+      )} style={{ top: 'var(--honor-bar-height, 64px)', height: 'calc(100vh - var(--honor-bar-height, 64px))' }}>
         {/* Sidebar header */}
         <div className="p-4 border-b border-border/50">
           <div className="flex items-center justify-between">
@@ -346,7 +356,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                       return (
                         <button
                           key={item.id}
-                          onClick={() => setActiveTab(item.id)}
+                          onClick={() => guardedSetActiveTab(item.id)}
                           className={cn(
                             'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm',
                             sidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2',
@@ -478,7 +488,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                           return (
                             <button
                               key={item.id}
-                              onClick={() => { setActiveTab(item.id); setMobileSidebarOpen(false) }}
+                              onClick={() => { guardedSetActiveTab(item.id); setMobileSidebarOpen(false) }}
                               className={cn(
                                 'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm px-3 py-2',
                                 isActive 
@@ -516,7 +526,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       {/* Main content */}
       <main className="flex-1 min-w-0">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl">
+        <header className="sticky z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl" style={{ top: 'var(--honor-bar-height, 64px)' }}>
           <div className="flex items-center justify-between h-14 px-4 lg:px-6">
             <div className="flex items-center gap-3">
               {/* Mobile menu toggle */}
@@ -546,6 +556,24 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
         {/* Page content — extra bottom padding on mobile for Quick Actions bar */}
         <div className="p-6 lg:p-8 max-w-6xl pb-24 lg:pb-8">
+          {/* Dangerous Actions Warning Banner */}
+          {flags.dangerousActions && (
+            <div
+              role="alert"
+              className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+            >
+              <Warning className="h-5 w-5 shrink-0 text-red-500" weight="fill" />
+              <div className="min-w-0">
+                <span className="font-semibold">Dangerous Actions Enabled</span>
+                <span className="mx-1.5 text-red-500/60">&#x2022;</span>
+                <span className="text-red-400/80">Bulk delete, data wipe, and other destructive operations are unlocked. Disable when not in active use.</span>
+              </div>
+            </div>
+          )}
+          {/* B26: Legacy auth migration banner */}
+          {currentUser && (
+            <MigrationBanner userEmail={currentUser.email} />
+          )}
           <Suspense fallback={<ModuleLoader />}>
             {renderContent()}
           </Suspense>
@@ -555,7 +583,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       {/* Mobile Quick Actions Bar (Chain A5) */}
       <Suspense fallback={null}>
         <MobileQuickActions
-          onNavigate={setActiveTab}
+          onNavigate={guardedSetActiveTab}
           onPublish={handlePublish}
           onPreview={onExit}
           isPublishing={isPublishing}

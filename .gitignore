@@ -35,3 +35,6 @@ pids
 build_log.txt
 build_out.txt
 vitest-output.txt
+
+test-output.txt
+test-output.txt

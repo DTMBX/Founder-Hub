@@ -153,6 +153,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   // RBAC & Feature Flags
   const permissions = usePermissions()
   const { flags } = useFeatureFlags()
+
+  // Service-level route guard for tab switching
+  const guardedSetActiveTab = (tabId: string) => {
+    if (!permissions.canAccessRouteInCurrentMode(tabId)) {
+      toast.error('You do not have permission to access that section')
+      return
+    }
+    setActiveTab(tabId)
+  }
   
   // Filter nav items based on role and mode
   const filteredNavItems = useMemo(() => {
@@ -271,7 +280,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'client-sites': return <ClientSiteManager onNavigateToSite={(siteId, siteType) => {
         setActiveClientSiteId(siteId)
         const tabMap: Record<string, string> = { 'law-firm': 'law-firm', 'small-business': 'smb-template', agency: 'agency' }
-        setActiveTab(tabMap[siteType] ?? 'client-sites')
+        guardedSetActiveTab(tabMap[siteType] ?? 'client-sites')
       }} />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
@@ -347,7 +356,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                       return (
                         <button
                           key={item.id}
-                          onClick={() => setActiveTab(item.id)}
+                          onClick={() => guardedSetActiveTab(item.id)}
                           className={cn(
                             'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm',
                             sidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2',
@@ -479,7 +488,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
                           return (
                             <button
                               key={item.id}
-                              onClick={() => { setActiveTab(item.id); setMobileSidebarOpen(false) }}
+                              onClick={() => { guardedSetActiveTab(item.id); setMobileSidebarOpen(false) }}
                               className={cn(
                                 'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm px-3 py-2',
                                 isActive 
@@ -574,7 +583,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       {/* Mobile Quick Actions Bar (Chain A5) */}
       <Suspense fallback={null}>
         <MobileQuickActions
-          onNavigate={setActiveTab}
+          onNavigate={guardedSetActiveTab}
           onPublish={handlePublish}
           onPreview={onExit}
           isPublishing={isPublishing}

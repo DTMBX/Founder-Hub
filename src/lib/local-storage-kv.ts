@@ -249,7 +249,8 @@ export function downloadDataFiles(): void {
 }
 
 // Make kv available globally for backward compatibility
+// Window.spark already declared in vite-end.d.ts with index signature
 if (typeof window !== 'undefined') {
-  (window as any).spark = { kv }
+  window.spark = { ...window.spark, kv } as Window['spark']
 }
 

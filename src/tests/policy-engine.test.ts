@@ -141,7 +141,7 @@ describe('PolicyEngine', () => {
 
     it('requires admin role for governance directory', async () => {
       const decisionViewer = await evaluateFileAccess('governance/policy.json', 'user1', 'viewer')
-      const decisionAdmin = await evaluateFileAccess('governance/policy.json', 'user1', 'admin')
+      const decisionAdmin = await evaluateFileAccess('governance/policy.json', 'user2', 'admin')
       
       expect(decisionViewer.allowed).toBe(false)
       expect(decisionAdmin.allowed).toBe(true)

@@ -249,7 +249,11 @@ export function downloadDataFiles(): void {
 }
 
 // Make kv available globally for backward compatibility
+declare global {
+  interface Window { spark?: { kv: typeof kv } }
+}
+
 if (typeof window !== 'undefined') {
-  (window as any).spark = { kv }
+  window.spark = { kv }
 }
 

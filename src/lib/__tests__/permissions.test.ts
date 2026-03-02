@@ -191,6 +191,37 @@ describe('Permissions RBAC', () => {
       })
     })
 
+    describe('system routes (admin+)', () => {
+      const systemRoutes = [
+        'session-security', 'runtime-policy', 'deployments',
+        'provenance', 'incidents', 'audit-integrity'
+      ]
+
+      it('owner can access system routes', () => {
+        for (const route of systemRoutes) {
+          expect(canAccessRoute('owner', route)).toBe(true)
+        }
+      })
+
+      it('admin can access system routes', () => {
+        for (const route of systemRoutes) {
+          expect(canAccessRoute('admin', route)).toBe(true)
+        }
+      })
+
+      it('editor CANNOT access system routes', () => {
+        for (const route of systemRoutes) {
+          expect(canAccessRoute('editor', route)).toBe(false)
+        }
+      })
+
+      it('support CANNOT access system routes', () => {
+        for (const route of systemRoutes) {
+          expect(canAccessRoute('support', route)).toBe(false)
+        }
+      })
+    })
+
     describe('owner-only routes', () => {
       const ownerRoutes = ['settings', 'security', 'asset-policy']
       

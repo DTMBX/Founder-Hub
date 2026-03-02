@@ -8,17 +8,25 @@
  * 3. Flag changes are audited
  */
 
-import { useKV, kv } from './local-storage-kv'
 import type { UserRole } from './types'
 
 // ─── Role Check (inline to avoid circular dep with auth.ts) ──
 
 function getCurrentUserRole(): UserRole | null {
   try {
-    const session = localStorage.getItem('founder-hub-session')
+    const session = localStorage.getItem('xtx396:founder-hub-session')
     if (!session) return null
     const parsed = JSON.parse(session)
-    return parsed.role ?? 'editor'
+    if (!parsed.userId || parsed.expiresAt <= Date.now()) return null
+    // Prefer role from session (set on login), fall back to user lookup
+    if (parsed.role && ['owner', 'admin', 'editor', 'support'].includes(parsed.role)) {
+      return parsed.role as UserRole
+    }
+    const usersJson = localStorage.getItem('xtx396:founder-hub-users')
+    if (!usersJson) return null
+    const users = JSON.parse(usersJson) as Array<{ id: string; role?: UserRole }>
+    const user = users.find(u => u.id === parsed.userId)
+    return (user?.role as UserRole) ?? 'editor'
   } catch {
     return null
   }
@@ -330,9 +338,6 @@ export function isFlagEnabled(flag: keyof FeatureFlags): boolean {
  */
 export function requireFlag(flag: keyof FeatureFlags, context?: string): void {
   if (!isFlagEnabled(flag)) {
-    const message = context
-      ? `Feature not enabled: ${flag} (${context})`
-      : `Feature not enabled: ${flag}`
     throw new FeatureFlagDisabledError(flag, context)
   }
 }

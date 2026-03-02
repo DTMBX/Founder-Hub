@@ -28,7 +28,7 @@ import type {
  * These rules CANNOT be modified at runtime.
  * They represent the core security guarantees of the system.
  */
-const IMMUTABLE_RULES: PolicyRule[] = [
+export const IMMUTABLE_RULES: PolicyRule[] = [
   {
     id: 'block-main-commit',
     action: 'commit_to_main',
@@ -58,7 +58,7 @@ const IMMUTABLE_RULES: PolicyRule[] = [
 /**
  * Default rules that can be extended but not removed
  */
-const DEFAULT_RULES: PolicyRule[] = [
+export const DEFAULT_RULES: PolicyRule[] = [
   {
     id: 'allow-read',
     action: 'read_file',
