@@ -29,6 +29,15 @@ const USERS_KEY = 'founder-hub-users'
 const LOGIN_ATTEMPTS_KEY = 'founder-hub-login-attempts'
 const AUDIT_LOG_KEY = 'founder-hub-audit-log'
 const PENDING_2FA_KEY = 'founder-hub-pending-2fa'
+// Fingerprint of the env-configured credentials baked in at build time.
+// When this changes (password rotated via GitHub Secret), stale localStorage
+// credentials are automatically wiped and re-bootstrapped on next page load.
+const CRED_FINGERPRINT_KEY = 'founder-hub-cred-fp'
+
+/** Cheap change-detection token — NOT a security primitive. */
+function getCredFingerprint(email: string, password: string): string {
+  try { return btoa(unescape(encodeURIComponent(email + ':' + password))) } catch { return '' }
+}
 const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout
 const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
 const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions
@@ -162,6 +171,10 @@ async function initializeDefaultAdmin(): Promise<void> {
       }
     
       await kv.set(USERS_KEY, [defaultAdmin])
+      // Save credential fingerprint so future password rotations auto-detect
+      if (!adminConfig.requiresChange) {
+        localStorage.setItem(CRED_FINGERPRINT_KEY, getCredFingerprint(adminConfig.email, adminConfig.password))
+      }
       // Log initial password in development mode or when randomly generated
       if (IS_DEV || adminConfig.requiresChange) {
         console.warn(`[AUTH] Admin: ${adminConfig.email}`)
@@ -171,21 +184,25 @@ async function initializeDefaultAdmin(): Promise<void> {
       }
       log('Default admin account created (PBKDF2 + AES-256-GCM)')
     } else {
-      // ── Auto-reset if env-configured credentials don't match stored ones ──
-      // This handles the case where a random password was baked in on first
-      // load (no env vars set), then env vars were later added via CI secrets.
-      // On next page load the stored "stale" credentials are wiped and
-      // re-bootstrapped from the env vars — no manual localStorage clear needed.
+      // ── Auto-reset if env-configured credentials changed since last deploy ──
+      // Detects both email changes AND password rotations (via GitHub Secrets).
+      // The fingerprint is btoa(email:password) baked into the bundle at build
+      // time. When it differs from the stored fingerprint, stale localStorage
+      // credentials are wiped and re-bootstrapped — no manual clear needed.
       const envEmail = import.meta.env.VITE_ADMIN_EMAIL
       const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
       if (envEmail && envPassword) {
+        const currentFingerprint = getCredFingerprint(envEmail, envPassword)
+        const storedFingerprint = localStorage.getItem(CRED_FINGERPRINT_KEY)
         const adminUser = users.find(u => u.role === 'owner' || u.role === 'admin')
-        if (adminUser && adminUser.email !== envEmail) {
-          log('[auth] Stored admin email mismatch — resetting to env credentials')
-          // Clear users + session so bootstrap runs fresh below
+        const credsMismatch = adminUser && (
+          adminUser.email !== envEmail ||           // email changed
+          storedFingerprint !== currentFingerprint  // password rotated
+        )
+        if (credsMismatch) {
+          log('[auth] Credential mismatch detected — resetting to env credentials')
           await kv.set(USERS_KEY, [])
           await kv.set(SESSION_KEY, null)
-          // Now bootstrap with correct credentials
           const adminConfig = getInitialAdminConfig()
           const { hash, salt } = await hashPassword(adminConfig.password)
           const freshAdmin: User = {
@@ -199,8 +216,14 @@ async function initializeDefaultAdmin(): Promise<void> {
             requiresPasswordChange: false
           }
           await kv.set(USERS_KEY, [freshAdmin])
+          localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
           log('[auth] Admin credentials reset to env-configured values')
           return
+        }
+        // Fingerprint not yet saved (old install) — save it now to enable
+        // future password-rotation detection without a reset.
+        if (!storedFingerprint && adminUser && adminUser.email === envEmail) {
+          localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
         }
       }
 
