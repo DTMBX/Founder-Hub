@@ -43,6 +43,14 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          # ── Admin credentials (set in: GitHub repo → Settings → Secrets → Actions)
+          # Legacy localStorage auth — used when Supabase is not configured
+          VITE_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          VITE_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          # ── Supabase auth (optional — recommended for multi-device access)
+          # When set, overrides legacy auth entirely
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
