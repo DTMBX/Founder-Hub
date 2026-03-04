@@ -1,34 +1,37 @@
 /**
  * Auth Provider Abstraction — B26
  *
- * Provides a unified authentication interface that works with:
- * - Supabase Auth (when VITE_SUPABASE_URL is configured)
- * - Legacy localStorage auth (fallback for unconfigured installs)
+ * Provides a unified authentication interface using Supabase Auth.
  *
- * This abstraction allows the admin panel to work in both modes,
- * enabling a smooth migration from legacy to provider auth.
+ * SECURITY: localStorage-based fallback auth is DISABLED in production.
+ * Supabase Auth (VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY) is REQUIRED.
  *
  * PRINCIPLES:
  * - Fail-closed: if auth state is unclear, user is unauthenticated
- * - No secrets in client code
- * - RBAC roles sourced from provider metadata when available
+ * - No secrets in client code (no VITE_ADMIN_PASSWORD or similar)
+ * - RBAC roles sourced from Supabase user_metadata
  * - Audit events emitted for all auth lifecycle events
+ * - Production builds MUST have Supabase configured
  *
  * @module
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getSupabaseClient, isSupabaseConfigured } from './supabase'
-import { logAudit } from './auth'
+import { logAudit } from './audit-client'
 import type { UserRole } from './types'
 import type { Session as SupabaseSession, User as SupabaseUser, AuthError } from '@supabase/supabase-js'
 
 // ─── Types ──────────────────────────────────────────────────────
 
-export type AuthMode = 'supabase' | 'legacy'
+/**
+ * Auth mode is always Supabase. Legacy localStorage auth is removed.
+ * @deprecated This type exists for backward compatibility only.
+ */
+export type AuthMode = 'supabase'
 
 export interface AuthUser {
-  /** Unique user ID (Supabase UUID or legacy local ID) */
+  /** Unique user ID (Supabase UUID) */
   id: string
   /** User email */
   email: string
@@ -124,8 +127,10 @@ function formatAuthError(error: AuthError | null): string {
 // ─── useAuthProvider Hook ───────────────────────────────────────
 
 /**
- * Unified auth hook that detects Supabase configuration and falls
- * back to legacy auth when unavailable.
+ * Unified auth hook that requires Supabase configuration.
+ *
+ * SECURITY: Legacy localStorage auth is DISABLED.
+ * In production, if Supabase is not configured, auth will fail closed.
  *
  * Usage:
  * ```tsx
@@ -133,14 +138,34 @@ function formatAuthError(error: AuthError | null): string {
  * ```
  */
 export function useAuthProvider(): AuthState & AuthActions {
-  const mode: AuthMode = isSupabaseConfigured() ? 'supabase' : 'legacy'
+  const supabaseConfigured = isSupabaseConfigured()
+  
+  // In production, Supabase is REQUIRED. No fallback.
+  if (!supabaseConfigured && !import.meta.env.DEV) {
+    console.error('[AuthProvider] FATAL: Supabase not configured in production. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
+    // Return a fail-closed state
+    return {
+      user: null,
+      isLoading: false,
+      isAuthenticated: false,
+      authMode: 'supabase',
+      error: 'Authentication service not configured. Contact administrator.',
+      login: async () => ({ success: false, error: 'Auth not configured' }),
+      logout: async () => {},
+      sendMagicLink: async () => ({ success: false, error: 'Auth not configured' }),
+      changePassword: async () => ({ success: false, error: 'Auth not configured' }),
+      requestPasswordReset: async () => ({ success: false, error: 'Auth not configured' }),
+      getAuthMode: () => 'supabase',
+    }
+  }
+  
+  // In development without Supabase, warn but allow (for local testing)
+  if (!supabaseConfigured && import.meta.env.DEV) {
+    console.warn('[AuthProvider] DEV MODE: Supabase not configured. Auth features will not work.')
+  }
 
-  // Both hooks must be called unconditionally (React Rules of Hooks).
-  // We select the correct result based on mode after calling both.
-  const supabaseAuth = useSupabaseAuth(mode === 'supabase')
-  const legacyAuth = useLegacyAuthBridge()
-
-  return mode === 'supabase' ? supabaseAuth : legacyAuth
+  // Always use Supabase auth (legacy fallback removed)
+  return useSupabaseAuth(supabaseConfigured)
 }
 
 // ─── Supabase Auth Hook ─────────────────────────────────────────
@@ -397,64 +422,6 @@ function useSupabaseAuth(enabled = true): AuthState & AuthActions {
   }
 }
 
-// ─── Legacy Auth Bridge ─────────────────────────────────────────
-
-/**
- * Bridge that wraps the existing localStorage-based `useAuth()` hook
- * to match the AuthProvider interface. Used when Supabase is not configured.
- */
-function useLegacyAuthBridge(): AuthState & AuthActions {
-  // Lazy import to avoid circular dependency initialization issues
-  // The legacy auth module is only used when Supabase is not configured
-  const [legacyAuth, setLegacyAuth] = useState<ReturnType<typeof import('./auth').useAuth> | null>(null)
-  const [bridgeLoading, setBridgeLoading] = useState(true)
-
-  useEffect(() => {
-    // Dynamic import to break circular dependency
-    import('./auth').then(mod => {
-      // We cannot call hooks dynamically, so we use a different approach:
-      // The legacy auth re-exports are used directly by consumers.
-      // This bridge exists only as a type-compatible passthrough.
-      setBridgeLoading(false)
-    })
-  }, [])
-
-  // For legacy mode, consumers should use `useAuth()` directly.
-  // This bridge provides a compatible interface for code that checks `authMode`.
-  const user: AuthUser | null = null
-  const isLoading = bridgeLoading
-
-  const login = useCallback(async (_params: LoginParams): Promise<LoginResult> => {
-    return { success: false, error: 'Legacy auth: use useAuth().login() directly' }
-  }, [])
-
-  const logout = useCallback(async () => {}, [])
-  const sendMagicLink = useCallback(async (_email: string) => {
-    return { success: false, error: 'Magic links require Supabase configuration' }
-  }, [])
-  const changePassword = useCallback(async (_newPassword: string) => {
-    return { success: false, error: 'Legacy auth: use useAuth().changePassword() directly' }
-  }, [])
-  const requestPasswordReset = useCallback(async (_email: string) => {
-    return { success: false, error: 'Password reset requires Supabase configuration' }
-  }, [])
-  const getAuthMode = useCallback((): AuthMode => 'legacy', [])
-
-  return {
-    user,
-    isLoading,
-    isAuthenticated: false,
-    authMode: 'legacy',
-    error: null,
-    login,
-    logout,
-    sendMagicLink,
-    changePassword,
-    requestPasswordReset,
-    getAuthMode,
-  }
-}
-
 // ─── Utility: Check if user has admin access ────────────────────
 
 /**
@@ -467,7 +434,10 @@ export function isAdminRole(role: UserRole): boolean {
 
 /**
  * Get the effective auth mode for the current environment.
+ * 
+ * SECURITY: Legacy mode is deprecated. Always returns 'supabase'.
+ * If Supabase is not configured in production, auth will fail closed.
  */
 export function getEffectiveAuthMode(): AuthMode {
-  return isSupabaseConfigured() ? 'supabase' : 'legacy'
+  return 'supabase'
 }

@@ -99,7 +99,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
             }
           </p>
           {investorMode && (
-            <div className="flex flex-wrap items-center gap-3 mb-12 lg:mb-16">
+            <div className="flex flex-wrap items-center gap-3 mt-4">
               <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-sm px-4 py-1.5">
                 Open to Investment
               </Badge>
@@ -111,7 +111,6 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
               </a>
             </div>
           )}
-          {!investorMode && <div className="mb-12 lg:mb-16" />}
         </motion.div>
 
         {enabledProjects.length === 0 ? (

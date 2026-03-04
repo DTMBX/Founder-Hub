@@ -1,11 +1,14 @@
 /**
- * Supabase Client — B26 Auth Provider Integration
+ * Supabase Client — Identity Provider Integration
  *
  * Initializes the Supabase client for authentication.
  * Uses VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY from environment.
  *
  * These are PUBLIC values (anon key is designed to be client-exposed).
  * Row-Level Security (RLS) on Supabase enforces access control.
+ *
+ * SECURITY: Supabase is the ONLY authentication path.
+ * No fallback authentication is available.
  *
  * @module
  */
@@ -19,7 +22,9 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''
 
 /**
  * Whether Supabase auth is configured.
- * If not configured, falls back to legacy localStorage auth.
+ * 
+ * SECURITY: In production, Supabase MUST be configured.
+ * There is no fallback authentication mechanism.
  */
 export const isSupabaseConfigured = (): boolean =>
   Boolean(SUPABASE_URL) && Boolean(SUPABASE_ANON_KEY)

@@ -2,7 +2,7 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Link } from '@/lib/types'
 import { GlassCard } from '@/components/ui/glass-card'
 import { GlassButton } from '@/components/ui/glass-button'
-import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At } from '@phosphor-icons/react'
+import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 
 interface ContactSectionProps {
@@ -25,11 +25,14 @@ interface SiteProfile {
   domain: string
 }
 
+/** Primary contact - shown prominently */
+const PRIMARY_EMAIL = 'hello@xtx396.com'
+
+/** Department-specific contacts */
 const DEFAULT_EMAILS: ProfessionalEmail[] = [
-  { label: 'General Inquiries', email: 'x@xtx396.com', icon: 'envelope', desc: 'Main contact' },
-  { label: 'Legal & Court', email: 'legal@xtx396.com', icon: 'scales', desc: 'Case inquiries' },
-  { label: 'Investor Relations', email: 'invest@xtx396.com', icon: 'chart', desc: 'Projects & funding' },
-  { label: 'Partnerships', email: 'partner@xtx396.com', icon: 'handshake', desc: 'Collaborations' },
+  { label: 'Legal Services', email: 'legal@xtx396.com', icon: 'scales', desc: 'Court filings & case support' },
+  { label: 'Investor Relations', email: 'invest@xtx396.com', icon: 'chart', desc: 'Funding & partnerships' },
+  { label: 'Business Development', email: 'partner@xtx396.com', icon: 'handshake', desc: 'Collaborations & contracts' },
 ]
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -120,27 +123,48 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10"
+          className="space-y-6 mb-10"
         >
-          {emails.map((item, idx) => {
-            const Icon = ICON_MAP[item.icon] || EnvelopeSimple
-            return (
-              <a key={idx} href={`mailto:${item.email}`}>
-                <GlassCard intensity="medium" className="h-full hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 cursor-pointer group">
-                  <div className="p-5 flex items-center gap-4">
-                    <div className="shrink-0 p-3 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
-                      <Icon className="h-5 w-5 text-primary" weight="duotone" />
+          {/* Primary Contact - Prominent */}
+          <a href={`mailto:${PRIMARY_EMAIL}`} className="block cursor-pointer" style={{ pointerEvents: 'auto' }}>
+            <GlassCard intensity="high" className="hover:shadow-2xl hover:shadow-primary/15 hover:border-primary/40 transition-all duration-300 cursor-pointer group">
+              <div className="p-8 sm:p-10 text-center">
+                <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors mb-5">
+                  <EnvelopeSimple className="h-8 w-8 text-primary" weight="duotone" />
+                </div>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 group-hover:text-primary transition-colors">General Inquiries</h3>
+                <p className="text-lg font-mono text-primary/90 mb-3 underline decoration-primary/30 underline-offset-4">{PRIMARY_EMAIL}</p>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  For all inquiries not listed below, reach out here. Response within 24–48 hours.
+                </p>
+                <div className="mt-5 flex items-center justify-center gap-2 text-sm text-primary/70 group-hover:text-primary transition-colors">
+                  <span>Send a message</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </GlassCard>
+          </a>
+
+          {/* Department Contacts - Clean Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {emails.map((item, idx) => {
+              const Icon = ICON_MAP[item.icon] || EnvelopeSimple
+              return (
+                <a key={idx} href={`mailto:${item.email}`} className="block cursor-pointer" style={{ pointerEvents: 'auto' }}>
+                  <GlassCard intensity="medium" className="h-full hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-0.5 hover:border-primary/30 transition-all duration-300 cursor-pointer group">
+                    <div className="p-5 text-center">
+                      <div className="inline-flex items-center justify-center p-2.5 rounded-xl bg-muted/50 border border-border/50 group-hover:bg-primary/10 group-hover:border-primary/30 transition-colors mb-3">
+                        <Icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" weight="duotone" />
+                      </div>
+                      <p className="text-sm font-semibold mb-1 group-hover:text-primary transition-colors">{item.label}</p>
+                      <p className="text-xs font-mono text-muted-foreground truncate underline decoration-border underline-offset-2">{item.email}</p>
+                      <p className="text-[11px] text-muted-foreground/60 mt-1.5">{item.desc}</p>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold group-hover:text-primary transition-colors">{item.label}</p>
-                      <p className="text-xs text-muted-foreground font-mono truncate">{item.email}</p>
-                      <p className="text-[11px] text-muted-foreground/70 mt-0.5">{item.desc}</p>
-                    </div>
-                  </div>
-                </GlassCard>
-              </a>
-            )
-          })}
+                  </GlassCard>
+                </a>
+              )
+            })}
+          </div>
         </motion.div>
 
         {/* Additional contact links */}
