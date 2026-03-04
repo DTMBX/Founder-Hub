@@ -6,7 +6,7 @@
  * 1. Assistant barrel exports (all re-exported types/functions resolve)
  * 2. Supabase client singleton (isSupabaseConfigured, getSupabaseClient)
  * 3. KV store CRUD (async, with localStorage mock, prefix xtx396:)
- * 4. Auth-provider mode detection (defaults to legacy when no VITE_SUPABASE_URL)
+ * 4. Auth-provider mode detection (always 'supabase' — legacy removed)
  * 5. Feature-flags ↔ auth connection (getCurrentUserRole reads session from localStorage)
  * 6. Permissions ↔ role hierarchy (OWNER_ONLY_FLAGS enforcement, route guards)
  * 7. Policy-engine ↔ runtime-policy.json (evaluateCommand, evaluateFileAccess, evaluateAction)
@@ -190,9 +190,10 @@ describe('KV store (local-storage-kv)', () => {
 // ═══════════════════════════════════════════════════════════════
 
 describe('Auth-provider mode detection', () => {
-  it('getEffectiveAuthMode returns "legacy" when Supabase is not configured', async () => {
+  it('getEffectiveAuthMode always returns "supabase" (legacy removed)', async () => {
     const { getEffectiveAuthMode } = await import('@/lib/auth-provider')
-    expect(getEffectiveAuthMode()).toBe('legacy')
+    // Legacy auth is removed — always returns 'supabase' regardless of config
+    expect(getEffectiveAuthMode()).toBe('supabase')
   })
 
   it('isAdminRole identifies owner and admin as admin-level', async () => {
@@ -532,10 +533,11 @@ describe('Cross-module wiring', () => {
   it('supabase module exports align with auth-provider consumption', async () => {
     const { isSupabaseConfigured, getSupabaseClient, _resetClient } = await import('@/lib/supabase')
     const { getEffectiveAuthMode } = await import('@/lib/auth-provider')
-    // Both agree: supabase not configured → legacy mode
+    // Supabase not configured in test env, but getEffectiveAuthMode always returns 'supabase'
+    // Legacy auth has been removed — fail-closed if not configured in production
     expect(isSupabaseConfigured()).toBe(false)
-    expect(getEffectiveAuthMode()).toBe('legacy')
-    // Client is null
+    expect(getEffectiveAuthMode()).toBe('supabase')
+    // Client is null when not configured
     expect(getSupabaseClient()).toBeNull()
     // Reset doesn't break anything
     _resetClient()
