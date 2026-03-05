@@ -22,16 +22,16 @@ export const heroContent = {
   headline: 'Devon T. Barber',
   
   // Subtitle - appears under the headline
-  subtitle: 'Building transformative solutions at the intersection of technology and justice.',
+  subtitle: 'Founder & technologist building tools that bring clarity to complexity—from civic infrastructure to custom digital solutions.',
   
   // Call-to-action buttons
   buttons: {
     primary: {
-      text: 'View Projects',
+      text: 'Explore Projects',
       link: '#projects',
     },
     secondary: {
-      text: 'Contact Me',
+      text: 'Get in Touch',
       link: '#contact',
     },
   },
@@ -46,17 +46,17 @@ export const aboutContent = {
   title: 'About',
   
   // Your mission statement
-  mission: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
+  mission: 'I build technology that solves real problems—platforms that make complex systems accessible, transparent, and actionable.',
   
   // Current focus description
-  currentFocus: 'Building civic technology, home improvement platforms, and legal infrastructure that increase transparency and empower communities.',
+  currentFocus: 'Currently focused on civic technology infrastructure, custom web development for businesses, and tools that bridge the gap between technical capability and everyday usability.',
   
   // Core values (displayed as badges)
   coreValues: [
-    'Integrity',
-    'Stewardship', 
-    'Fortitude',
-    'Veracity',
+    'Clarity',
+    'Ownership', 
+    'Reliability',
+    'Results',
   ],
 }
 
@@ -66,10 +66,10 @@ export const aboutContent = {
 
 export const contactContent = {
   // Section title
-  title: "Let's Connect",
+  title: 'Start a Conversation',
   
   // Section description
-  description: 'Interested in collaborating or learning more? Reach out through the right channel.',
+  description: 'Have a project in mind or want to explore working together? Reach out directly.',
   
   // Primary email (shown prominently)
   primaryEmail: 'hello@devon-tyler.com',
@@ -77,19 +77,19 @@ export const contactContent = {
   // Department emails
   emails: [
     {
-      label: 'Legal Services',
-      email: 'legal@devon-tyler.com',
-      description: 'Court filings & case support',
+      label: 'Project Inquiries',
+      email: 'hello@devon-tyler.com',
+      description: 'New projects & general questions',
     },
     {
-      label: 'Investor Relations',
-      email: 'invest@devon-tyler.com',
-      description: 'Funding & partnerships',
-    },
-    {
-      label: 'Business Development',
+      label: 'Partnerships',
       email: 'partner@devon-tyler.com',
-      description: 'Collaborations & contracts',
+      description: 'Business collaborations & ventures',
+    },
+    {
+      label: 'Investment',
+      email: 'invest@devon-tyler.com',
+      description: 'Funding opportunities & investor relations',
     },
   ],
 }
@@ -100,10 +100,10 @@ export const contactContent = {
 
 export const projectsContent = {
   // Section title
-  title: 'What I Build',
+  title: 'Current Work',
   
   // Section description
-  description: 'I am actively building an MMORPG and managing multiple client web services. My work spans transformative solutions at the intersection of technology, gaming, transparency, and justice—delivering scalable, professional services for individuals, businesses, and agencies.',
+  description: 'From custom business websites to civic technology platforms, I ship solutions that work. Each project is built with clean code, full ownership, and long-term maintainability in mind.',
 }
 
 // ============================================================================
@@ -112,15 +112,15 @@ export const projectsContent = {
 
 export const footerContent = {
   // Copyright text (year is auto-generated)
-  copyrightName: 'XTX396',
+  copyrightName: 'Devon Tyler Barber',
   
   // Disclaimer text
-  disclaimer: 'This site is for informational purposes only and does not constitute legal advice.',
+  disclaimer: 'Professional services and information. Results depend on individual circumstances.',
   
   // Quick links in footer
   links: [
     { label: 'About', href: '#about' },
-    { label: 'Projects', href: '#projects' },
+    { label: 'Work', href: '#projects' },
     { label: 'Contact', href: '#contact' },
   ],
 }
@@ -131,11 +131,11 @@ export const footerContent = {
 
 export const seoContent = {
   // Page title (shows in browser tab)
-  pageTitle: 'Devon T. Barber | Technology & Justice',
+  pageTitle: 'Devon Tyler Barber | Founder & Technologist',
   
   // Meta description (shows in Google results)
-  metaDescription: 'Professional web development, civic technology, and legal infrastructure solutions.',
+  metaDescription: 'Custom web development, civic technology platforms, and digital infrastructure. Clean code, full ownership, real results.',
   
   // Keywords (comma-separated)
-  keywords: 'web development, legal technology, civic tech, justice',
+  keywords: 'web development, custom websites, business websites, civic technology, digital infrastructure',
 }
