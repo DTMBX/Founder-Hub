@@ -171,53 +171,6 @@
     "updatedAt": 1760000000000
   },
   {
-    "id": "agency-white-label",
-    "title": "Agency White-Label Website Development",
-    "slug": "agency-white-label",
-    "summary": "Professional HTML website builds delivered under your agency brand.",
-    "description": "Perfect for agencies that need reliable development support. You handle the client relationship while we build fast, clean websites delivered ready for your brand.",
-    "category": "whitelabel",
-    "pricingType": "paid",
-    "priceTiers": [
-      {
-        "id": "wl-project",
-        "name": "Single Client Project",
-        "price": 199000,
-        "currency": "USD",
-        "description": "White-label build for one client",
-        "features": [
-          "Custom HTML, CSS, and JavaScript",
-          "Agency white-label delivery",
-          "Source code transfer",
-          "Confidential agency NDA"
-        ]
-      },
-      {
-        "id": "wl-retainer",
-        "name": "Agency Retainer",
-        "price": 399000,
-        "currency": "USD",
-        "description": "Ongoing monthly development capacity",
-        "features": [
-          "Up to 3 active client projects",
-          "Priority development queue",
-          "Unlimited minor revisions",
-          "Dedicated production support"
-        ],
-        "isRecurring": true,
-        "recurringInterval": "month"
-      }
-    ],
-    "tags": ["agency support", "white label development", "reseller"],
-    "icon": "Briefcase",
-    "turnaround": "5 to 12 business days per project",
-    "order": 4,
-    "visibility": "public",
-    "contactCTA": "Apply for Agency Partnership",
-    "createdAt": 1739664000000,
-    "updatedAt": 1760000000000
-  },
-  {
     "id": "website-management",
     "title": "Website Care & Maintenance Plans",
     "slug": "website-management",
