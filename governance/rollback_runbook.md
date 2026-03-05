@@ -154,7 +154,7 @@ When rolling back, you're deploying a previous build artifact. Provenance ensure
 4. **CLI verification**:
 ```bash
 # Fetch provenance from production
-curl -s https://xtx396.com/provenance.json | jq .
+curl -s https://devon-tyler.com/provenance.json | jq .
 
 # Compare with target commit
 gh api repos/DTMBX/XTX396/commits/<SHA> --jq '.sha'
@@ -187,10 +187,10 @@ After rollback completes:
 ### Health Check
 ```bash
 # Check site responds
-curl -I https://xtx396.com
+curl -I https://devon-tyler.com
 
 # Check health endpoint
-curl https://xtx396.com/api/health
+curl https://devon-tyler.com/api/health
 
 # Expected: 200 OK
 ```
@@ -252,7 +252,7 @@ Updates will be posted here.
 ```bash
 netlify rollback
 # Verify homepage renders correctly
-curl -s https://xtx396.com | grep -q "expected content"
+curl -s https://devon-tyler.com | grep -q "expected content"
 ```
 
 ### Scenario 2: API Failure
@@ -265,7 +265,7 @@ curl -s https://xtx396.com | grep -q "expected content"
 netlify rollback
 
 # Verify API responds
-curl https://xtx396.com/api/health
+curl https://devon-tyler.com/api/health
 # Expected: {"status":"ok"}
 ```
 
@@ -307,7 +307,7 @@ netlify deploy:unlock
 | On-Call Engineer | Check PagerDuty | Immediate |
 | Tech Lead | @tech-lead | 5 minutes |
 | Platform Admin | @admin | 10 minutes |
-| Security Team | security@xtx396.com | 15 minutes |
+| Security Team | security@devon-tyler.com | 15 minutes |
 
 ---
 

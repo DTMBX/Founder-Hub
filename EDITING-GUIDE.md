@@ -55,10 +55,10 @@ Open `src/components/sections/ContactSection.tsx`
 
 Find these lines near the top:
 ```tsx
-const PRIMARY_EMAIL = 'hello@xtx396.com'
+const PRIMARY_EMAIL = 'hello@devon-tyler.com'
 
 const DEFAULT_EMAILS: ProfessionalEmail[] = [
-  { label: 'Legal Services', email: 'legal@xtx396.com', ...
+  { label: 'Legal Services', email: 'legal@devon-tyler.com', ...
 ```
 
 Change the email addresses to your own.

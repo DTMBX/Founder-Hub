@@ -24,7 +24,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
     description: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
-    primaryDomain: 'xTx396.com',
+    primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,
@@ -166,7 +166,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     "name": settings?.siteName || "Devon Tyler Barber",
     "alternateName": "xTx396",
     "description": settings?.description || "Founder & Innovator",
-    "url": `https://${settings?.primaryDomain || 'xtx396.com'}`,
+    "url": `https://${settings?.primaryDomain || 'devon-tyler.com'}`,
     "image": settings?.socialPreviewImage || "/og-preview.png",
     "sameAs": socialLinks.map(link => link.url).filter(Boolean),
     "jobTitle": settings?.tagline || "Founder & Innovator",
@@ -226,7 +226,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="text-center md:text-left">
               <p className="font-mono text-sm font-bold tracking-tight text-foreground">
-                {profile?.domain || settings?.primaryDomain || 'xTx396.com'}
+                {profile?.domain || settings?.primaryDomain || 'devon-tyler.com'}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {settings?.siteName || 'Devon Tyler Barber'}
@@ -252,7 +252,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 Projects
               </button>
               <a 
-                href="mailto:invest@xtx396.com"
+                href="mailto:invest@devon-tyler.com"
                 className="hover:text-emerald-400 transition-colors"
               >
                 Invest
@@ -277,8 +277,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               </button>
             </div>
             <div className="text-center md:text-right">
-              <a href={`mailto:${profile?.catchAllEmail || 'x@xtx396.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
-                {profile?.catchAllEmail || 'x@xtx396.com'}
+              <a href={`mailto:${profile?.catchAllEmail || 'x@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
+                {profile?.catchAllEmail || 'x@devon-tyler.com'}
               </a>
               <p className="text-[11px] text-muted-foreground/50 mt-1">
                 &copy; {new Date().getFullYear()} All rights reserved.

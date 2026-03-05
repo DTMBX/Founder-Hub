@@ -92,7 +92,7 @@ export default function CheckoutResult({ status, onBack }: CheckoutResultProps) 
 
           {isSuccess && (
             <p className="mt-6 text-xs text-muted-foreground">
-              Questions? Contact <a href="mailto:support@xtx396.com" className="text-primary hover:underline">support@xtx396.com</a>
+              Questions? Contact <a href="mailto:support@devon-tyler.com" className="text-primary hover:underline">support@devon-tyler.com</a>
             </p>
           )}
         </GlassCard>

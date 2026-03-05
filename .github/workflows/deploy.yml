@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────
-# GitHub Pages Deploy — xtx396.com (MANUAL FALLBACK)
+# GitHub Pages Deploy — devon-tyler.com (MANUAL FALLBACK)
 # Builds the Vite/React app and deploys dist/ to Pages.
 #
 # IMPORTANT: This deploys the STATIC frontend only.
@@ -76,7 +76,7 @@ jobs:
       - name: Generate static client sites
         run: node scripts/generate-static-sites.mjs
         env:
-          SITE_BASE_URL: https://xtx396.com
+          SITE_BASE_URL: https://devon-tyler.com
 
       - name: Generate preview artifacts
         run: npm run generate:previews -- --skip-server
@@ -89,7 +89,7 @@ jobs:
         continue-on-error: true
 
       - name: Inject CNAME for custom domain
-        run: echo 'xtx396.com' > dist/CNAME
+        run: echo 'devon-tyler.com' > dist/CNAME
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

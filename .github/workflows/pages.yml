@@ -1,7 +1,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 # GitHub Pages — Auto Deploy on push to main
 # Builds the Vite/React SPA and deploys dist/ to GitHub Pages.
-# Custom domain: xtx396.com (CNAME injected into dist/)
+# Custom domain: devon-tyler.com (CNAME injected into dist/)
 # ──────────────────────────────────────────────────────────────────────────────
 
 name: Pages

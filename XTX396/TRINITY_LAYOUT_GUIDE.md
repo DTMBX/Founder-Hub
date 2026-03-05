@@ -270,10 +270,10 @@ New approach: Hero-level Trinity selector that explicitly routes audiences and h
 ## Future Enhancements
 
 ### Domain-Level Configuration
-Support `xtx396.com` (primary for all), `investors.xtx396.com` (auto-selects investor pathway), `legal.xtx396.com` (auto-selects legal pathway)
+Support `devon-tyler.com` (primary for all), `investors.devon-tyler.com` (auto-selects investor pathway), `legal.devon-tyler.com` (auto-selects legal pathway)
 
 ### Email Configuration Panel
-Admin screen for catch-all email `X@xtx396.com` setup via domain provider with SPF/DKIM/DMARC guidance
+Admin screen for catch-all email `X@devon-tyler.com` setup via domain provider with SPF/DKIM/DMARC guidance
 
 ### Site Auditor Tool
 Automated diagnostics:

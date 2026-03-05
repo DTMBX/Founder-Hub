@@ -72,23 +72,23 @@ export const contactContent = {
   description: 'Interested in collaborating or learning more? Reach out through the right channel.',
   
   // Primary email (shown prominently)
-  primaryEmail: 'hello@xtx396.com',
+  primaryEmail: 'hello@devon-tyler.com',
   
   // Department emails
   emails: [
     {
       label: 'Legal Services',
-      email: 'legal@xtx396.com',
+      email: 'legal@devon-tyler.com',
       description: 'Court filings & case support',
     },
     {
       label: 'Investor Relations',
-      email: 'invest@xtx396.com',
+      email: 'invest@devon-tyler.com',
       description: 'Funding & partnerships',
     },
     {
       label: 'Business Development',
-      email: 'partner@xtx396.com',
+      email: 'partner@devon-tyler.com',
       description: 'Collaborations & contracts',
     },
   ],

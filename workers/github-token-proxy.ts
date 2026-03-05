@@ -184,7 +184,7 @@ async function getInstallationRepos(
 // ─── CORS Headers ───────────────────────────────────────────────────────────
 
 function corsHeaders(env: Env, origin?: string): HeadersInit {
-  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',') || ['https://xtx396.com']
+  const allowedOrigins = env.ALLOWED_ORIGINS?.split(',') || ['https://devon-tyler.com']
   const isAllowed = origin && allowedOrigins.some((o) => origin.startsWith(o.trim()))
 
   return {

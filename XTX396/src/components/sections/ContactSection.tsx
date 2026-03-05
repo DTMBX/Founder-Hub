@@ -26,10 +26,10 @@ interface SiteProfile {
 }
 
 const DEFAULT_EMAILS: ProfessionalEmail[] = [
-  { label: 'General Inquiries', email: 'x@xtx396.com', icon: 'envelope', desc: 'Main contact' },
-  { label: 'Legal & Court', email: 'legal@xtx396.com', icon: 'scales', desc: 'Case inquiries' },
-  { label: 'Investor Relations', email: 'invest@xtx396.com', icon: 'chart', desc: 'Projects & funding' },
-  { label: 'Partnerships', email: 'partner@xtx396.com', icon: 'handshake', desc: 'Collaborations' },
+  { label: 'General Inquiries', email: 'x@devon-tyler.com', icon: 'envelope', desc: 'Main contact' },
+  { label: 'Legal & Court', email: 'legal@devon-tyler.com', icon: 'scales', desc: 'Case inquiries' },
+  { label: 'Investor Relations', email: 'invest@devon-tyler.com', icon: 'chart', desc: 'Projects & funding' },
+  { label: 'Partnerships', email: 'partner@devon-tyler.com', icon: 'handshake', desc: 'Collaborations' },
 ]
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -103,9 +103,9 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <GlassButton variant="glassPrimary" size="lg" asChild className="bg-emerald-600/20 border-emerald-500/40 hover:bg-emerald-600/30">
-                    <a href="mailto:invest@xtx396.com">
+                    <a href="mailto:invest@devon-tyler.com">
                       <EnvelopeSimple className="h-5 w-5 mr-2" />
-                      invest@xtx396.com
+                      invest@devon-tyler.com
                     </a>
                   </GlassButton>
                 </div>

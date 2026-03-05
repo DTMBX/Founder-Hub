@@ -29,14 +29,14 @@ const DEFAULT_PROFILE: SiteProfile = {
   ownerName: 'Devon Tyler Barber',
   title: 'Founder & Innovator',
   bio: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
-  catchAllEmail: 'x@xtx396.com',
+  catchAllEmail: 'x@devon-tyler.com',
   professionalEmails: [
-    { label: 'General Inquiries', email: 'x@xtx396.com', icon: 'envelope', desc: 'Main contact' },
-    { label: 'Legal & Court', email: 'legal@xtx396.com', icon: 'scales', desc: 'Case inquiries' },
-    { label: 'Investor Relations', email: 'invest@xtx396.com', icon: 'chart', desc: 'Projects & funding' },
-    { label: 'Partnerships', email: 'partner@xtx396.com', icon: 'handshake', desc: 'Collaborations' },
+    { label: 'General Inquiries', email: 'x@devon-tyler.com', icon: 'envelope', desc: 'Main contact' },
+    { label: 'Legal & Court', email: 'legal@devon-tyler.com', icon: 'scales', desc: 'Case inquiries' },
+    { label: 'Investor Relations', email: 'invest@devon-tyler.com', icon: 'chart', desc: 'Projects & funding' },
+    { label: 'Partnerships', email: 'partner@devon-tyler.com', icon: 'handshake', desc: 'Collaborations' },
   ],
-  domain: 'xtx396.com'
+  domain: 'devon-tyler.com'
 }
 
 const ICON_OPTIONS = [
@@ -155,7 +155,7 @@ export default function ProfileManager() {
             <Input
               value={profile.domain}
               onChange={(e) => updateProfile({ domain: e.target.value })}
-              placeholder="xtx396.com"
+              placeholder="devon-tyler.com"
             />
           </div>
           <div>
@@ -163,7 +163,7 @@ export default function ProfileManager() {
             <Input
               value={profile.catchAllEmail}
               onChange={(e) => updateProfile({ catchAllEmail: e.target.value })}
-              placeholder="x@xtx396.com"
+              placeholder="x@devon-tyler.com"
             />
           </div>
         </div>
@@ -282,7 +282,7 @@ function EmailForm({
           <Input
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="legal@xtx396.com"
+            placeholder="legal@devon-tyler.com"
           />
         </div>
         <div>

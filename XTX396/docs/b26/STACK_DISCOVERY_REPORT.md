@@ -15,7 +15,7 @@
 | `package.json` scripts | `dev: vite`, `build: tsc -b --noCheck && vite build`, `preview: vite preview` — no server start script |
 | `vite.config.ts` | Standard Vite SPA config with React SWC plugin; no SSR, no middleware |
 | Deployment workflow | `.github/workflows/deploy.yml` deploys `dist/` to **GitHub Pages** — static hosting only |
-| `CNAME` | `xtx396.com` — GitHub Pages custom domain |
+| `CNAME` | `devon-tyler.com` — GitHub Pages custom domain |
 | Backend frameworks | **None found.** No Express, Fastify, Nest, Flask, FastAPI, Django, or Uvicorn dependency |
 | `fetch("/api/...")` calls | Only in: `ProductCard.tsx` (Stripe checkout — requires external endpoint), `site.config.ts` (contact form endpoint — configurable), `github-app/auth.ts` (GitHub token proxy URL) |
 | Worker | `workers/github-token-proxy.ts` — Cloudflare Worker for GitHub App tokens; separate deployment, not part of the main app |

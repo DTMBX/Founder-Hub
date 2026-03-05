@@ -111,9 +111,9 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <GlassButton variant="glassPrimary" size="lg" asChild className="bg-emerald-600/20 border-emerald-500/40 hover:bg-emerald-600/30">
-                    <a href="mailto:invest@xtx396.com">
+                    <a href="mailto:invest@devon-tyler.com">
                       <EnvelopeSimple className="h-5 w-5 mr-2" />
-                      invest@xtx396.com
+                      invest@devon-tyler.com
                     </a>
                   </GlassButton>
                 </div>

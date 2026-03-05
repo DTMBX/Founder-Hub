@@ -128,7 +128,7 @@ Every Greenline release generates a structured release record:
   "deployment": {
     "id": 123456789,
     "environment": "production",
-    "url": "https://xtx396.com",
+    "url": "https://devon-tyler.com",
     "deployedAt": "2026-02-17T14:32:00Z"
   },
   "approval": {

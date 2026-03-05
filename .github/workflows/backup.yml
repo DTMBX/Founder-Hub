@@ -52,7 +52,7 @@ jobs:
       - name: Configure Git
         run: |
           git config --global user.name "Backup Bot"
-          git config --global user.email "backup@xtx396.com"
+          git config --global user.email "backup@devon-tyler.com"
       
       - name: Generate backup metadata
         id: meta

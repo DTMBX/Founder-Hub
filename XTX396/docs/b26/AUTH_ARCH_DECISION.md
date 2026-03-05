@@ -26,7 +26,7 @@ There is no backend server in production.
 |-------|--------|
 | No backend server | `package.json` has no server start script; no Express/Fastify/Flask dependency |
 | Static deploy | `.github/workflows/deploy.yml` builds Vite and deploys `dist/` to GitHub Pages |
-| GitHub Pages hosting | `CNAME` file contains `xtx396.com` |
+| GitHub Pages hosting | `CNAME` file contains `devon-tyler.com` |
 | Auth is client-only | `src/lib/auth.ts` stores users, sessions, and audit logs in `localStorage` |
 | `VITE_*` env vars are client-exposed | Vite documentation: all `VITE_*` variables are embedded in the JS bundle at build time |
 

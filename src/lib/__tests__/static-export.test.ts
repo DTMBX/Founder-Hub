@@ -220,11 +220,11 @@ describe('exportSite', () => {
 
   it('adds canonical URL when baseUrl is provided', async () => {
     const data = makeLawFirm()
-    const result = await exportSite(data, { baseUrl: 'https://xtx396.com' })
+    const result = await exportSite(data, { baseUrl: 'https://devon-tyler.com' })
 
     const html = result.artifacts.find(a => a.path.endsWith('index.html'))!
     expect(html.content).toContain('rel="canonical"')
-    expect(html.content).toContain('https://xtx396.com/s/smith-associates')
+    expect(html.content).toContain('https://devon-tyler.com/s/smith-associates')
   })
 
   it('respects custom outputPrefix', async () => {

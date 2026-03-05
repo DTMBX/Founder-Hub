@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xtx396.com/schemas/component-registry.schema.json",
+  "$id": "https://devon-tyler.com/schemas/component-registry.schema.json",
   "title": "Component Registry",
   "description": "Schema for the UI component registry. Each entry defines a reusable component that blueprints can reference.",
   "type": "object",

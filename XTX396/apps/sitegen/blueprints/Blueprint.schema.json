@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://xtx396.com/schemas/blueprint.schema.json",
+  "$id": "https://devon-tyler.com/schemas/blueprint.schema.json",
   "title": "Site Blueprint",
   "description": "Defines the required pages, sections, components, styles, compliance blocks, and content requirements for a specific business-type site.",
   "type": "object",

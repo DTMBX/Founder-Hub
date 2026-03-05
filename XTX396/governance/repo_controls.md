@@ -96,7 +96,7 @@ Three environments are configured for deployment:
 ### 1. `preview`
 
 - **Purpose:** PR preview deployments
-- **URL Pattern:** `pr-<number>.preview.xtx396.com` or Netlify deploy preview
+- **URL Pattern:** `pr-<number>.preview.devon-tyler.com` or Netlify deploy preview
 - **Triggers:** Pull request opened/synchronized
 - **Approval Required:** ❌ No
 - **Secrets:** Limited (no production secrets)
@@ -105,7 +105,7 @@ Three environments are configured for deployment:
 ### 2. `staging`
 
 - **Purpose:** Pre-production validation
-- **URL:** `staging.xtx396.com`
+- **URL:** `staging.devon-tyler.com`
 - **Triggers:** Push to `staging` branch or manual dispatch
 - **Approval Required:** ❌ No (auto-deploys)
 - **Secrets:** Staging credentials only
@@ -114,7 +114,7 @@ Three environments are configured for deployment:
 ### 3. `production`
 
 - **Purpose:** Live site deployment
-- **URL:** `xtx396.com`
+- **URL:** `devon-tyler.com`
 - **Triggers:** Push to `main` or manual dispatch
 - **Approval Required:** ✅ **Yes — Owner role required**
 - **Secrets:** Production credentials
@@ -192,7 +192,7 @@ protection_rules:
                                      ▼
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │  LIVE                                                                        │
-│  - Deployed to xtx396.com                                                   │
+│  - Deployed to devon-tyler.com                                                   │
 │  - Git tag: deploy-prod-<sha>                                               │
 │  - Deployment record created via GitHub API                                 │
 └──────────────────────────────────────────────────────────────────────────────┘

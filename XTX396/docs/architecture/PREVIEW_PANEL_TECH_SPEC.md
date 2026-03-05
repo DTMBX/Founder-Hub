@@ -180,7 +180,7 @@ Response 404: Preview not found or expired
 Response 410: Preview expired (with redirect to /preview)
 
 Headers:
-  Content-Security-Policy: default-src 'self'; style-src 'unsafe-inline'; script-src 'none'; frame-ancestors 'self' *.xtx396.com
+  Content-Security-Policy: default-src 'self'; style-src 'unsafe-inline'; script-src 'none'; frame-ancestors 'self' *.devon-tyler.com
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Cache-Control: private, max-age=3600

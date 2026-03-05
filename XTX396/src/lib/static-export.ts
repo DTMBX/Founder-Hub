@@ -42,7 +42,7 @@ export interface SiteExportResult {
 
 /** Options for the export service. */
 export interface ExportOptions {
-  /** Base URL for canonical links (e.g. "https://xtx396.com"). */
+  /** Base URL for canonical links (e.g. "https://devon-tyler.com"). */
   baseUrl?: string
   /** Output directory prefix. Defaults to "sites". */
   outputPrefix?: string

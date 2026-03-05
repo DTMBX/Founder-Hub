@@ -194,7 +194,7 @@ pages are pre-generated.
 After generation, a shareable URL is created:
 
 ```
-https://xtx396.com/preview/{sessionToken}
+https://devon-tyler.com/preview/{sessionToken}
 ```
 
 - Token is signed (HMAC-SHA256) with server secret

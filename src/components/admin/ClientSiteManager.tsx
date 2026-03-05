@@ -233,7 +233,7 @@ export default function ClientSiteManager({ onNavigateToSite }: ClientSiteManage
         return
       }
 
-      const result = await exportSite(data, { baseUrl: 'https://xtx396.com' })
+      const result = await exportSite(data, { baseUrl: 'https://devon-tyler.com' })
       setDeployResult(result)
 
       if (result.success) {

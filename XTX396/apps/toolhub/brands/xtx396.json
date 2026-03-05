@@ -1,7 +1,7 @@
 {
   "brandId": "xtx396",
   "name": "XTX396",
-  "domain": "xtx396.com",
+  "domain": "devon-tyler.com",
   "tagline": "Tactical technology operations",
   "description": "Technology operations platform for business intelligence and infrastructure.",
   "primaryColor": "#0f172a",
@@ -24,6 +24,6 @@
     "appendOnlyLogs": true
   },
   "contact": {
-    "supportEmail": "support@xtx396.com"
+    "supportEmail": "support@devon-tyler.com"
   }
 }

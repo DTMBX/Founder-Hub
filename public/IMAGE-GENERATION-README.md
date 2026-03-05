@@ -29,7 +29,7 @@ This directory contains tools to generate OG preview images and favicons for the
   - Devon Tyler Barber name
   - "Founder & Innovator" tagline
   - Mission statement
-  - xTx396.com domain
+  - devon-tyler.com domain
 - **Design:** Dark theme with emerald accent (#9de0ad)
 
 ### Favicon (favicon-32x32.png)

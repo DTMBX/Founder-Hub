@@ -345,7 +345,7 @@ jobs:
     if: needs.setup.outputs.environment == 'staging'
     environment:
       name: staging
-      url: https://staging.xtx396.com
+      url: https://staging.devon-tyler.com
     
     steps:
       - name: Checkout
@@ -368,7 +368,7 @@ jobs:
       - name: Notify staging deploy
         run: |
           echo "✅ Deployed to staging"
-          echo "URL: https://staging.xtx396.com"
+          echo "URL: https://staging.devon-tyler.com"
           echo "Commit: ${{ github.sha }}"
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -381,7 +381,7 @@ jobs:
     if: needs.setup.outputs.environment == 'production'
     environment:
       name: production
-      url: https://xtx396.com
+      url: https://devon-tyler.com
     
     steps:
       - name: Checkout
@@ -431,7 +431,7 @@ jobs:
           echo "Verifying production deployment..."
           
           # Basic health check
-          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://xtx396.com)
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://devon-tyler.com)
           
           if [ "$HTTP_CODE" != "200" ]; then
             echo "❌ Health check failed: HTTP $HTTP_CODE"
@@ -446,7 +446,7 @@ jobs:
           script: |
             const sha = '${{ github.sha }}'.substring(0, 7);
             const fullSha = '${{ github.sha }}';
-            const url = 'https://xtx396.com';
+            const url = 'https://devon-tyler.com';
             const timestamp = new Date().toISOString();
             const actor = '${{ github.actor }}';
             

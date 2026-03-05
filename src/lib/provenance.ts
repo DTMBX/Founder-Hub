@@ -78,7 +78,7 @@ export interface ProvenanceSummary {
 
 /**
  * Fetch provenance record from a deployed site.
- * @param baseUrl Base URL of the deployed site (e.g., https://xtx396.com)
+ * @param baseUrl Base URL of the deployed site (e.g., https://devon-tyler.com)
  */
 export async function fetchProvenance(baseUrl: string): Promise<BuildProvenance | null> {
   try {

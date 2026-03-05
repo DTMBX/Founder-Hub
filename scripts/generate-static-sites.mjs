@@ -245,7 +245,7 @@ function renderSiteToStaticHtml(siteData, options = {}) {
 
 const DIST_DIR = join(process.cwd(), 'dist')
 const DATA_DIR = join(DIST_DIR, 'data')
-const BASE_URL = process.env.SITE_BASE_URL || 'https://xtx396.com'
+const BASE_URL = process.env.SITE_BASE_URL || 'https://devon-tyler.com'
 
 function main() {
   console.log('[static-sites] Starting static site generation...')
@@ -333,7 +333,7 @@ function main() {
   }
 
   // Write CNAME if a primary domain site exists
-  // Note: the base CNAME (xtx396.com) is injected by the GH Actions workflow
+  // Note: the base CNAME (devon-tyler.com) is injected by the GH Actions workflow
   // This only applies if a client site overrides it
   if (cnameContent) {
     console.log(`[static-sites] Primary domain: ${cnameContent}`)
