@@ -11,6 +11,7 @@ export const ALLOWED_SECTION_TYPES = [
   'about',
   'projects', 
   'offerings',
+  'services',
   'investor',
   'court',
   'proof',

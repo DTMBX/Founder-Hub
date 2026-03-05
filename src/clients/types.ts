@@ -201,14 +201,14 @@ export interface SiteSubscription {
   /** Cancellation reason */
   cancellationReason?: string
   /** Services included */
-  services: SubscriptionService[]
+  services: IncludedService[]
   /** Auto-renew enabled */
   autoRenew: boolean
   /** Payment method on file */
   hasPaymentMethod: boolean
 }
 
-export interface SubscriptionService {
+export interface IncludedService {
   /** Service name */
   name: string
   /** Service description */

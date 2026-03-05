@@ -33,7 +33,7 @@ export interface OfferCardProps {
     period?: string
   }
   /** Quick features list (max 3-4) */
-  quickFeatures?: string[]
+  quickFeatures?: readonly string[]
   /** Badge text (e.g., "Popular", "New") */
   badge?: string
   /** Custom className */

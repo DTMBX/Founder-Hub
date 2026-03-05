@@ -182,7 +182,7 @@ export async function showNotification(
         tag: payload.tag,
         data: payload.data,
         vibrate: [200, 100, 200],
-      })
+      } as NotificationOptions & { vibrate?: number[] })
     } else {
       // Fallback to Notification API
       new Notification(payload.title, {

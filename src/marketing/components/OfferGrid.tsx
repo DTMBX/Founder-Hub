@@ -19,27 +19,6 @@ import {
 import { MARKETING_OFFERS, type MarketingOffer } from '../offers.config'
 import { track, MARKETING_EVENTS } from '../event-tracker'
 
-// ─── Types ───────────────────────────────────────────────────
-
-export interface OfferGridProps {
-  /** Offers to display (uses MARKETING_OFFERS if not provided) */
-  offers?: MarketingOffer[]
-  /** Pre-loaded preview metadata */
-  previewMetas?: Record<string, PreviewMeta | null>
-  /** Base path for preview assets */
-  basePath?: string
-  /** Callback when generate preview is clicked */
-  onGeneratePreview?: (offerId: string) => void
-  /** Loading state for generate CTA */
-  isGenerating?: boolean
-  /** Section title */
-  title?: string
-  /** Section subtitle */
-  subtitle?: string
-  /** Custom className */
-  className?: string
-}
-
 // ─── Prefetch Helper ─────────────────────────────────────────
 
 const prefetchedOffers = new Set<string>()
@@ -100,7 +79,7 @@ function prefetchOfferAssets(offerId: string, basePath: string, meta: PreviewMet
 
 export interface OfferGridProps {
   /** Offers to display (uses MARKETING_OFFERS if not provided) */
-  offers?: MarketingOffer[]
+  offers?: readonly MarketingOffer[]
   /** Pre-loaded preview metadata */
   previewMetas?: Record<string, PreviewMeta | null>
   /** Base path for preview assets */
@@ -178,7 +157,7 @@ export function OfferGrid({
     const popularTier = offer.tiers.find((t) => t.highlighted) ?? offer.tiers[0]
     if (!popularTier) return undefined
     return {
-      amount: popularTier.price,
+      amount: popularTier.priceCents,
       currency: popularTier.currency,
       period: popularTier.period,
     }

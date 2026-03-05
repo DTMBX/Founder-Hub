@@ -20,7 +20,7 @@ export type {
   SiteSubscription,
   SubscriptionPlanTier,
   SubscriptionStatus,
-  SubscriptionService,
+  IncludedService,
   SubscriptionListQuery,
   SubscriptionListResult,
   PortalSession,

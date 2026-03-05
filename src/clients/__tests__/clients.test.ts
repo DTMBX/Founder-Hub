@@ -240,8 +240,10 @@ describe('ProjectService', () => {
       })
 
       const updated = await service.addUpdate(project.id, {
+        type: 'progress',
         title: 'First Update',
         content: 'Progress made this week',
+        author: 'test-user',
       })
 
       // Initial update (1) + new update (1) = 2
@@ -258,8 +260,10 @@ describe('ProjectService', () => {
       })
 
       await service.addUpdate(project.id, {
+        type: 'note',
         title: 'Update',
         content: 'Content',
+        author: 'test-user',
       })
 
       const p = await service.get(project.id)
@@ -285,8 +289,9 @@ describe('ProjectService', () => {
       const updated = await service.addFile(project.id, {
         name: 'mockup.png',
         url: 'https://example.com/mockup.png',
-        type: 'image',
+        mimeType: 'image/png',
         size: 1024,
+        uploadedBy: 'test-user',
       })
 
       expect(updated?.files).toHaveLength(1)
@@ -302,8 +307,9 @@ describe('ProjectService', () => {
       await service.addFile(project.id, {
         name: 'file.pdf',
         url: 'https://example.com/file.pdf',
-        type: 'document',
+        mimeType: 'application/pdf',
         size: 2048,
+        uploadedBy: 'test-user',
       })
 
       const p = await service.get(project.id)
@@ -552,8 +558,10 @@ describe('WeeklyUpdateService', () => {
       await projectService.changeStatus(project.id, 'active')
       await projectService.updateProgress(project.id, 50)
       await projectService.addUpdate(project.id, {
+        type: 'note',
         title: 'Recent Update',
         content: 'Work done',
+        author: 'test-user',
       })
 
       const fullProject = await projectService.get(project.id)

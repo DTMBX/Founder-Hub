@@ -15,7 +15,7 @@ import type {
   FAQTemplate,
   CopyVariantSet,
 } from './content.types'
-import type { VerticalPack } from '../verticals/verticals.types'
+import type { VerticalPack, BusinessType } from '../verticals/verticals.types'
 import { getVerticalPack } from '../verticals/verticals.registry'
 import { createSiteRandom, selectOne, selectMany, shuffleArray } from '../media/media-selector'
 
@@ -208,7 +208,7 @@ export function generateContentKit(
   verticalId: string,
   options: ContentGenerationOptions = {},
 ): ContentKit | null {
-  const vertical = getVerticalPack(verticalId)
+  const vertical = getVerticalPack(verticalId as BusinessType)
   if (!vertical) {
     console.warn(`[generateContentKit] Vertical not found: ${verticalId}`)
     return null
@@ -225,7 +225,7 @@ export function generateContentKit(
   const random = createSiteRandom(siteId, salt)
 
   // Get copy templates from vertical
-  const copyTemplates = vertical.copyTemplates as Record<string, CopyVariantSet> || {}
+  const copyTemplates = vertical.copyTemplates as unknown as Record<string, CopyVariantSet> || {}
   const faqTemplates = (vertical.copyTemplates as { faqQuestions?: FAQTemplate[] })?.faqQuestions || []
 
   // Select copy for each field
@@ -334,10 +334,10 @@ export function regenerateCopyField(
   excludeIndex?: number,
   context: TemplateContext = {},
 ): SelectedCopy | null {
-  const vertical = getVerticalPack(verticalId)
+  const vertical = getVerticalPack(verticalId as BusinessType)
   if (!vertical) return null
 
-  const copyTemplates = vertical.copyTemplates as Record<string, CopyVariantSet> || {}
+  const copyTemplates = vertical.copyTemplates as unknown as Record<string, CopyVariantSet> || {}
   const variantSet = copyTemplates[field]
 
   if (!variantSet || variantSet.variants.length === 0) {
@@ -424,10 +424,10 @@ export function getFieldCopy(
   field: keyof typeof FALLBACK_COPIES,
   context: TemplateContext = {},
 ): SelectedCopy | null {
-  const vertical = getVerticalPack(verticalId)
+  const vertical = getVerticalPack(verticalId as BusinessType)
   if (!vertical) return null
 
-  const copyTemplates = vertical.copyTemplates as Record<string, CopyVariantSet> || {}
+  const copyTemplates = vertical.copyTemplates as unknown as Record<string, CopyVariantSet> || {}
   const random = createSiteRandom(siteId, field)
 
   return selectCopyVariantWithFallback(

@@ -459,7 +459,7 @@ export default function SitesManager() {
         description={`Are you sure you want to archive "${archiveConfirm?.siteName}"? The site will be moved to the Archived tab and can be restored later.`}
         intent="archive"
         confirmationType="simple"
-        onConfirm={() => archiveConfirm && handleArchiveSite(archiveConfirm.siteId)}
+        onConfirm={() => { if (archiveConfirm) handleArchiveSite(archiveConfirm.siteId) }}
       />
 
       {/* Permanent Delete Confirmation (typed) */}
@@ -471,7 +471,7 @@ export default function SitesManager() {
         intent="delete"
         confirmationType="typed-slug"
         confirmText={deleteConfirm?.siteName}
-        onConfirm={() => deleteConfirm && handlePermanentDeleteSite(deleteConfirm.siteId)}
+        onConfirm={() => { if (deleteConfirm) handlePermanentDeleteSite(deleteConfirm.siteId) }}
       />
 
       {/* Delete Satellite Confirmation (typed) */}
@@ -483,7 +483,7 @@ export default function SitesManager() {
         intent="delete"
         confirmationType="typed"
         confirmText="DELETE"
-        onConfirm={() => deleteSatelliteConfirm && handleDeleteSatellite(deleteSatelliteConfirm.siteId, deleteSatelliteConfirm.satelliteId)}
+        onConfirm={() => { if (deleteSatelliteConfirm) handleDeleteSatellite(deleteSatelliteConfirm.siteId, deleteSatelliteConfirm.satelliteId) }}
       />
     </div>
   )

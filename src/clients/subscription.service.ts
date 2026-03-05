@@ -12,7 +12,7 @@ import type {
   SiteSubscription,
   SubscriptionPlanTier,
   SubscriptionStatus,
-  SubscriptionService as SubscriptionServiceType,
+  IncludedService,
   SubscriptionListQuery,
   SubscriptionListResult,
 } from './types'

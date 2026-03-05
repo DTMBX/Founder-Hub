@@ -27,13 +27,13 @@ import {
   getSubscriptionService,
   getClientService,
   PLAN_PRICING,
-} from '../index'
+} from './index'
 import type {
   SiteSubscription,
   SubscriptionStatus,
   SubscriptionPlanTier,
   Client,
-} from '../types'
+} from './types'
 
 // ─── Status Colors ───────────────────────────────────────────
 

@@ -22,6 +22,7 @@ const typeIcons: Record<SiteGenerationType, React.ReactNode> = {
   'law-firm': <Scales className="h-4 w-4" weight="duotone" />,
   'small-business': <Storefront className="h-4 w-4" weight="duotone" />,
   'agency': <Buildings className="h-4 w-4" weight="duotone" />,
+  'universal': <Buildings className="h-4 w-4" weight="duotone" />,
 }
 
 export function SiteTypeToggle({ value, onChange, className }: SiteTypeToggleProps) {

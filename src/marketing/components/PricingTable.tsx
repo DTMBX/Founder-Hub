@@ -46,7 +46,7 @@ function TierCard({ tier, onSelect, isLoading }: TierCardProps) {
     track(MARKETING_EVENTS.PRICING_TIER_SELECTED, {
       tierId: tier.id,
       tierName: tier.name,
-      price: tier.price,
+      price: tier.priceCents,
     })
     onSelect?.()
   }
@@ -77,7 +77,7 @@ function TierCard({ tier, onSelect, isLoading }: TierCardProps) {
         {/* Price */}
         <div className="text-center mb-4 sm:mb-6">
           <div className="text-3xl sm:text-4xl font-bold tracking-tight">
-            {formatPrice(tier.price, tier.currency)}
+            {formatPrice(tier.priceCents, tier.currency)}
           </div>
           {tier.period && (
             <div className="text-sm text-muted-foreground mt-1">/{tier.period}</div>
@@ -86,10 +86,10 @@ function TierCard({ tier, onSelect, isLoading }: TierCardProps) {
         
         {/* Delivery & Deposit */}
         <div className="flex justify-center gap-4 mb-4 sm:mb-6 text-xs sm:text-sm flex-wrap">
-          {tier.deliveryDays && (
+          {tier.delivery && (
             <div className="flex items-center gap-1.5 text-muted-foreground">
               <Clock className="w-4 h-4 shrink-0" />
-              <span>{tier.deliveryDays}h delivery</span>
+              <span>{tier.delivery.value}{tier.delivery.unit === 'hours' ? 'h' : tier.delivery.unit === 'days' ? 'd' : 'w'} delivery</span>
             </div>
           )}
         </div>
@@ -117,9 +117,9 @@ function TierCard({ tier, onSelect, isLoading }: TierCardProps) {
           <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
         
-        {tier.depositRequired && (
+        {tier.depositCents && (
           <p className="text-xs text-muted-foreground text-center">
-            {formatPrice(tier.depositRequired, tier.currency)} deposit to reserve your spot
+            {formatPrice(tier.depositCents, tier.currency)} deposit to reserve your spot
           </p>
         )}
       </CardFooter>

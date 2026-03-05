@@ -20,14 +20,14 @@ import {
   getClientService,
   getProjectService,
   getSubscriptionService,
-} from '../index'
+} from './index'
 import type {
   Client,
   Project,
   ProjectUpdate,
   SiteSubscription,
   PortalSession,
-} from '../types'
+} from './types'
 
 // ─── Status Colors ───────────────────────────────────────────
 

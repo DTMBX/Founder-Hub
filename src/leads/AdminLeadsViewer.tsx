@@ -53,6 +53,7 @@ const STATUS_COLORS: Record<LeadStatus, string> = {
   converted: 'bg-green-100 text-green-700',
   lost: 'bg-gray-100 text-gray-700',
   unqualified: 'bg-red-100 text-red-700',
+  estimating: 'bg-violet-100 text-violet-700',
 }
 
 // ─── Lead Row Component ──────────────────────────────────────

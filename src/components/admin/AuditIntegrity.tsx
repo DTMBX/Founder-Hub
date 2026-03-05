@@ -59,7 +59,8 @@ const CATEGORY_COLORS: Record<AuditCategory, string> = {
   configuration: 'bg-yellow-100 text-yellow-700',
   deployment: 'bg-orange-100 text-orange-700',
   incident: 'bg-pink-100 text-pink-700',
-  system: 'bg-gray-100 text-gray-700'
+  system: 'bg-gray-100 text-gray-700',
+  policy: 'bg-cyan-100 text-cyan-700'
 }
 
 const SEVERITY_COLORS: Record<AuditSeverity, string> = {

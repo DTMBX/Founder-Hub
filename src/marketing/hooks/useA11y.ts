@@ -31,7 +31,7 @@ export interface UseFocusTrapOptions {
 
 export interface UseFocusTrapResult<T extends HTMLElement> {
   /** Ref to attach to the container element */
-  containerRef: React.RefObject<T>
+  containerRef: React.RefObject<T | null>
 }
 
 /**

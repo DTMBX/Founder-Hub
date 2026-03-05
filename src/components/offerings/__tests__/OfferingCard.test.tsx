@@ -43,7 +43,7 @@ function createMockOffering(overrides: Partial<Offering> = {}): Offering {
     summary: 'This is a test offering summary',
     description: 'This is a detailed description of the test offering',
     category: 'digital' as OfferingCategory,
-    pricingType: 'fixed',
+    pricingType: 'paid',
     order: 1,
     priceTiers: [
       {
@@ -62,6 +62,8 @@ function createMockOffering(overrides: Partial<Offering> = {}): Offering {
     turnaround: '2-3 business days',
     featured: false,
     visibility: 'public',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
     ...overrides,
   }
 }

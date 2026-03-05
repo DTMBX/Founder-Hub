@@ -5,6 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import type { Lead } from '@/leads/types'
 
 // ─── CSV Utility Tests ───────────────────────────────────────
 
@@ -326,10 +327,8 @@ describe('LeadService', () => {
 
 describe('Lead Types', () => {
   it('should export all required types', async () => {
-    const types = await import('@/leads/types')
-    
     // Verify type exports exist (compile-time check)
-    const lead: types.Lead = {
+    const lead: Lead = {
       id: '1',
       email: 'test@test.com',
       status: 'new',

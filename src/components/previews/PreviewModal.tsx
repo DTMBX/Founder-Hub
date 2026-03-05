@@ -34,7 +34,7 @@ export interface PreviewModalProps {
   /** Base path for preview assets */
   basePath: string
   /** Features to highlight */
-  features?: string[]
+  features?: readonly string[]
   /** Price information (legacy single price) */
   price?: {
     amount: number
@@ -42,7 +42,7 @@ export interface PreviewModalProps {
     period?: string
   }
   /** Pricing tiers (preferred over single price) */
-  tiers?: OfferTier[]
+  tiers?: readonly OfferTier[]
   /** CTA button text */
   ctaLabel?: string
   /** CTA callback */
@@ -144,7 +144,7 @@ function TierCard({ tier, onSelect, isLoading, compact = false }: TierCardProps)
         {/* Price */}
         <div className="flex items-baseline gap-1">
           <span className={cn('font-bold', compact ? 'text-2xl' : 'text-3xl')}>
-            {formatPrice(tier.price, tier.currency)}
+            {formatPrice(tier.priceCents, tier.currency)}
           </span>
           {tier.period && (
             <span className="text-xs text-muted-foreground">/{tier.period}</span>
@@ -153,15 +153,15 @@ function TierCard({ tier, onSelect, isLoading, compact = false }: TierCardProps)
         
         {/* Delivery & Deposit */}
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-          {tier.deliveryDays && (
+          {tier.delivery && (
             <div className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              <span>{tier.deliveryDays}h</span>
+              <span>{tier.delivery.value}{tier.delivery.unit === 'hours' ? 'h' : tier.delivery.unit === 'days' ? 'd' : 'w'}</span>
             </div>
           )}
-          {tier.depositRequired && (
+          {tier.depositCents && (
             <div>
-              {formatPrice(tier.depositRequired, tier.currency)} deposit
+              {formatPrice(tier.depositCents, tier.currency)} deposit
             </div>
           )}
         </div>

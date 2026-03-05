@@ -271,7 +271,7 @@ function AnomalyList({ anomalies, onInvestigate, maxVisible = 3 }: AnomalyListPr
 // =============================================================================
 
 interface QuickActionsProps {
-  actions: QuickAction[];
+  actions: readonly QuickAction[];
   onAction: (actionId: string) => void;
 }
 
@@ -307,7 +307,7 @@ export function FounderDashboard({
   onAction,
   onAlertAcknowledge,
   className = '',
-}: FounderDashboardProps): React.ReactElement {
+}: FounderDashboardProps): React.ReactElement | null {
   const [state, setState] = useState<FounderDashboardState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -396,7 +396,7 @@ export function FounderDashboard({
   // QUICK ACTIONS
   // ===========================================================================
 
-  const quickActions: QuickAction[] = useMemo(() => mobileConfig?.quickActions || [
+  const quickActions: readonly QuickAction[] = useMemo(() => mobileConfig?.quickActions || [
     { id: 'deploy-preview', label: 'Deploy Preview', icon: '🚀', category: 'deploy', requiresConfirmation: false, enabled: true },
     { id: 'view-alerts', label: 'View Alerts', icon: '🔔', category: 'system', requiresConfirmation: false, enabled: true },
     { id: 'view-revenue', label: 'Revenue', icon: '💰', category: 'payment', requiresConfirmation: false, enabled: true },
