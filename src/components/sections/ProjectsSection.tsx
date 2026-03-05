@@ -79,8 +79,10 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
         animate: { opacity: 1, y: 0 },
       }
 
+  const hasProjects = enabledProjects.length > 0
+
   return (
-    <section id="projects" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref}>
+    <section id="projects" className={`relative px-4 sm:px-6 lg:px-8 overflow-hidden ${hasProjects ? 'py-16 sm:py-20 lg:py-28' : 'py-10 sm:py-12'}`} ref={ref}>
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />
       <div className="container mx-auto max-w-7xl">
@@ -113,22 +115,12 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
           )}
         </motion.div>
 
-        {enabledProjects.length === 0 ? (
-          <motion.div
-            initial={prefersReducedMotion ? {} : { opacity: 0, y: 20 }}
-            animate={isVisible ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="text-center py-6"
-          >
-            <FolderOpen className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-            <p className="text-sm text-muted-foreground/70">Projects loading or not yet configured.</p>
-          </motion.div>
-        ) : (
+        {enabledProjects.length > 0 && (
         <motion.div
           variants={containerVariants}
           initial="initial"
           animate={isVisible ? 'animate' : 'initial'}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-8"
         >
           {enabledProjects.map((project, index) => {
             const accent = accentClasses[project.customization?.accentColor || ''] || defaultAccent
