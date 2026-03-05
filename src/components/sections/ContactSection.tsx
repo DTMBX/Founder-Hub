@@ -4,6 +4,7 @@ import { GlassCard } from '@/components/ui/glass-card'
 import { GlassButton } from '@/components/ui/glass-button'
 import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
+import { contactContent } from '@/config/content.config'
 
 interface ContactSectionProps {
   investorMode: boolean
@@ -25,15 +26,19 @@ interface SiteProfile {
   domain: string
 }
 
-/** Primary contact - shown prominently */
-const PRIMARY_EMAIL = 'hello@xtx396.com'
+/**
+ * EDIT EMAILS IN: src/config/content.config.ts
+ * Look for the contactContent section
+ */
+const PRIMARY_EMAIL = contactContent.primaryEmail
 
-/** Department-specific contacts */
-const DEFAULT_EMAILS: ProfessionalEmail[] = [
-  { label: 'Legal Services', email: 'legal@xtx396.com', icon: 'scales', desc: 'Court filings & case support' },
-  { label: 'Investor Relations', email: 'invest@xtx396.com', icon: 'chart', desc: 'Funding & partnerships' },
-  { label: 'Business Development', email: 'partner@xtx396.com', icon: 'handshake', desc: 'Collaborations & contracts' },
-]
+/** Department-specific contacts - edit in content.config.ts */
+const DEFAULT_EMAILS: ProfessionalEmail[] = contactContent.emails.map((e, i) => ({
+  label: e.label,
+  email: e.email,
+  icon: ['scales', 'chart', 'handshake'][i] || 'envelope',
+  desc: e.description,
+}))
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
   envelope: EnvelopeSimple,

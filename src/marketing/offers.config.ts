@@ -482,6 +482,10 @@ export function formatPriceCents(amountCents: number, currency: CurrencyCode): s
   }).format(amountCents / 100)
 }
 
+/** Alias for backward compatibility */
+export const formatPrice = (amountCents: number, currency: CurrencyCode = 'USD'): string =>
+  formatPriceCents(amountCents, currency)
+
 export function formatDelivery(delivery: DeliveryWindow): string {
   const unit = delivery.unit === 'hours' ? 'hour' : 'day'
   const plural = delivery.value === 1 ? unit : `${unit}s`

@@ -16,9 +16,19 @@ const defaultTheme = {
   container: {
     center: true,
     padding: "2rem",
+    // Exclude non-width screens from container breakpoints
+    screens: {
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
   },
   extend: {
     screens: {
+      // Raw media queries must be separate from width-based screens
+      // These cannot be used with container queries
       coarse: { raw: "(pointer: coarse)" },
       fine: { raw: "(pointer: fine)" },
       pwa: { raw: "(display-mode: standalone)" },
