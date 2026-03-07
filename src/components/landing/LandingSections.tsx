@@ -8,6 +8,7 @@
 import { lazy, Suspense } from 'react'
 import type { LandingConfig, LandingSectionConfig } from './landing.config'
 import { filterSectionsByPathway } from './landing.config'
+import { ScrollReveal } from '../ui/scroll-reveal'
 
 // ─── Lazy-loaded Section Components ─────────────────────────────
 
@@ -137,10 +138,18 @@ export default function LandingSections({
   
   return (
     <>
-      {filteredSections.map(section => renderSection(section, {
-        pathway: config.pathway,
-        onNavigateToCase
-      }))}
+      {filteredSections.map((section, index) => {
+        const rendered = renderSection(section, {
+          pathway: config.pathway,
+          onNavigateToCase
+        })
+        if (!rendered) return null
+        return (
+          <ScrollReveal key={section.id} delay={index * 80}>
+            {rendered}
+          </ScrollReveal>
+        )
+      })}
     </>
   )
 }
