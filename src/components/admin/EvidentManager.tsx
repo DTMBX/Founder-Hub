@@ -16,6 +16,7 @@ import {
   Shield, Certificate, Pulse, Gear,
   CircleNotch, Eye, Lock, Code
 } from '@phosphor-icons/react'
+import { satellites as registrySatellites } from '@/config/projects'
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -56,80 +57,25 @@ const defaultConfig: EvidentConfig = {
   notes: ''
 }
 
-const satellites: SatelliteStatus[] = [
-  {
-    id: 'civics-hierarchy',
-    name: 'Civics Hierarchy',
-    slug: 'civics-hierarchy',
-    description: 'Constitutional law reference — 13 navigable views mapping the hierarchy of legal authority.',
-    liveUrl: 'https://civics.evident.icu/',
-    repoPath: 'apps/civics-hierarchy',
-    basePath: '/',
-    accentColor: 'blue',
-    techNotes: 'React 18 · Vite · Hash Routing · Tailwind CSS',
-    status: 'live'
-  },
-  {
-    id: 'epstein-library',
-    name: 'Document Library',
-    slug: 'epstein-library',
-    description: 'DOJ evidence analysis — three processing engines, source verification scoring.',
-    liveUrl: 'https://library.evident.icu/',
-    repoPath: 'apps/epstein-library-evid',
-    basePath: '/',
-    accentColor: 'amber',
-    techNotes: 'React 18 · Vite · Radix UI · Phosphor Icons',
-    status: 'live'
-  },
-  {
-    id: 'essential-goods',
-    name: 'Essential Goods Ledger',
-    slug: 'essential-goods',
-    description: 'Economic analysis — commodity pricing, supply chain metrics, cost-of-living indicators.',
-    liveUrl: 'https://ledger.evident.icu/',
-    repoPath: 'apps/essential-goods-ledg',
-    basePath: '/',
-    accentColor: 'teal',
-    techNotes: 'React 18 · Vite · Recharts · Radix UI',
-    status: 'live'
-  },
-  {
-    id: 'geneva-bible-study',
-    name: 'Geneva Bible Study',
-    slug: 'geneva-bible-study',
-    description: 'Offline-capable Scripture study — full-text search, marginal notes, reading plans.',
-    liveUrl: 'https://bible.evident.icu/',
-    repoPath: 'apps/geneva-bible-study-t',
-    basePath: '/',
-    accentColor: 'amber',
-    techNotes: 'React 18 · Vite · Capacitor · IndexedDB',
-    status: 'live'
-  },
-  {
-    id: 'informed-consent',
-    name: 'Informed Consent Companion',
-    slug: 'informed-consent',
-    description: 'Medical informed consent reference with procedure information and patient rights.',
-    liveUrl: 'https://consent.evident.icu/',
-    repoPath: 'apps/informed-consent-com',
-    basePath: '/',
-    accentColor: 'emerald',
-    techNotes: 'React 18 · Vite · Tailwind CSS',
-    status: 'live'
-  },
-  {
-    id: 'contractor-command',
-    name: 'Contractor Command Center',
-    slug: 'contractor-command',
-    description: 'Project management and estimating tools for construction contractors.',
-    liveUrl: 'https://contractor.evident.icu/',
-    repoPath: 'apps/contractor-command-c',
-    basePath: '/',
-    accentColor: 'teal',
-    techNotes: 'React 18 · Vite · PWA · Tailwind CSS',
-    status: 'live'
-  }
-]
+const satellites: SatelliteStatus[] = registrySatellites.map(p => ({
+  id: p.id,
+  name: p.name,
+  slug: p.slug,
+  description: p.summary,
+  liveUrl: p.canonicalUrl ? `${p.canonicalUrl}/` : '/',
+  repoPath: p.repoUrl ?? '',
+  basePath: '/',
+  accentColor: ({
+    'civics-hierarchy': 'blue',
+    'doj-document-library': 'amber',
+    'essential-goods-ledger': 'teal',
+    'geneva-bible-study': 'amber',
+    'informed-consent': 'emerald',
+    'contractor-command-center': 'teal',
+  } as Record<string, string>)[p.id] ?? 'blue',
+  techNotes: 'React 18 · Vite · Tailwind CSS',
+  status: p.status === 'live' ? 'live' : 'disabled',
+}))
 
 const accentMap: Record<string, string> = {
   blue: 'border-blue-500/40 bg-blue-500/5',
@@ -288,7 +234,7 @@ export default function EvidentManager() {
           <div>
             <h3 className="text-base font-semibold">Satellite Apps</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              6 Vite/React apps deployed under /apps/ on evident.icu
+              {satellites.length} Vite/React apps deployed under /apps/ on evident.icu
             </p>
           </div>
           <Badge variant="outline" className="gap-1 text-xs">
@@ -392,7 +338,7 @@ export default function EvidentManager() {
               <div>
                 <p className="text-sm font-medium">Parallel Satellite Builds</p>
                 <p className="text-xs text-muted-foreground">
-                  All 6 Vite apps built concurrently via bash background processes + <code className="text-[11px] bg-muted/50 px-1 rounded">wait</code>. Output copied to <code className="text-[11px] bg-muted/50 px-1 rounded">_site/apps/&lt;slug&gt;/</code>.
+                  All {satellites.length} Vite apps built concurrently via bash background processes + <code className="text-[11px] bg-muted/50 px-1 rounded">wait</code>. Output copied to <code className="text-[11px] bg-muted/50 px-1 rounded">_site/apps/&lt;slug&gt;/</code>.
                 </p>
               </div>
             </div>
