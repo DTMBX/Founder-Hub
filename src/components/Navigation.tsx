@@ -11,9 +11,6 @@ import { HONOR_BAR_HEIGHT_DESKTOP, HONOR_BAR_HEIGHT_MOBILE } from './HonorFlagBa
 
 interface NavigationProps {
   sections: Section[]
-  investorMode: boolean
-  onToggleInvestorMode: () => void
-  showInvestorToggle?: boolean
   onAdminClick?: () => void
   activePathway?: string
 }
@@ -84,6 +81,7 @@ export default function Navigation({
 
   return (
     <nav 
+      aria-label="Main navigation"
       className={cn(
         'fixed left-0 right-0 z-50 transition-all duration-300',
         isScrolled 
@@ -121,6 +119,7 @@ export default function Navigation({
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
+                aria-current={activeSection === link.id ? 'true' : undefined}
                 className={cn(
                   'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
                   activeSection === link.id
@@ -151,7 +150,7 @@ export default function Navigation({
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-white/90 hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="text-white/90 hover:bg-white/10" aria-label="Open navigation menu" aria-expanded={mobileOpen}>
                 <List className="h-5 w-5" />
               </Button>
             </SheetTrigger>
@@ -164,6 +163,7 @@ export default function Navigation({
                     <button
                       key={link.id}
                       onClick={() => scrollToSection(link.id)}
+                      aria-current={isActive ? 'true' : undefined}
                       className={cn(
                         'flex items-center gap-3 text-left px-4 py-3 rounded-lg transition-all duration-200',
                         isActive

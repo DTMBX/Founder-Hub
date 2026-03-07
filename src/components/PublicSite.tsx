@@ -182,6 +182,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -198,9 +204,6 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       />
       <Navigation 
         sections={enabledSections}
-        investorMode={false}
-        onToggleInvestorMode={() => {}}
-        showInvestorToggle={false}
         onAdminClick={onAdminClick}
         activePathway={pathway}
       />
@@ -222,7 +225,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         </div>
       )}
 
-      <main>
+      <main id="main-content">
         {/* Hero - Hand-authored, not part of config system */}
         <HeroSection 
           investorMode={false} 
