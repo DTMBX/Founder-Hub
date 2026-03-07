@@ -288,7 +288,7 @@ export default function EvidentManager() {
           <div>
             <h3 className="text-base font-semibold">Satellite Apps</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              4 Vite/React apps deployed under /apps/ on evident.icu
+              6 Vite/React apps deployed under /apps/ on evident.icu
             </p>
           </div>
           <Badge variant="outline" className="gap-1 text-xs">
@@ -392,7 +392,7 @@ export default function EvidentManager() {
               <div>
                 <p className="text-sm font-medium">Parallel Satellite Builds</p>
                 <p className="text-xs text-muted-foreground">
-                  All 4 Vite apps built concurrently via bash background processes + <code className="text-[11px] bg-muted/50 px-1 rounded">wait</code>. Output copied to <code className="text-[11px] bg-muted/50 px-1 rounded">_site/apps/&lt;slug&gt;/</code>.
+                  All 6 Vite apps built concurrently via bash background processes + <code className="text-[11px] bg-muted/50 px-1 rounded">wait</code>. Output copied to <code className="text-[11px] bg-muted/50 px-1 rounded">_site/apps/&lt;slug&gt;/</code>.
                 </p>
               </div>
             </div>
