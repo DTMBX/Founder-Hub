@@ -1,0 +1,23 @@
+{
+  "_manifest": "evident-repo",
+  "_version": 1,
+  "name": "Founder-Hub",
+  "description": "Operations hub — ToolHub registry, governance framework, billing, CRM, admin console.",
+  "role": "ops-hub",
+  "family": "Evident",
+  "business": "Evident Technologies LLC",
+  "stack": "React 19 + TypeScript + Vite",
+  "outputType": "web-app",
+  "exportTargets": ["GitHub Pages"],
+  "siteUrl": "https://devon-tyler.com",
+  "githubUrl": "https://github.com/DTMBX/Founder-Hub",
+  "brand": "evident",
+  "packagingStatus": "in-progress",
+  "releaseStatus": "beta",
+  "sharedStandardsVersion": "1.0",
+  "tools": [],
+  "owner": "Devon Tyler",
+  "satelliteTier": "companion",
+  "catalogVisibility": "listed",
+  "tokenFamily": "evident"
+}
