@@ -12,11 +12,12 @@
 
 import { useState } from 'react'
 import { useHistory, history, type HistoryEntry } from '@/lib/history-store'
+import { useStudioPermissions } from '@/lib/studio-permissions'
 import { kv } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import {
   ClockCounterClockwise, ArrowCounterClockwise, ArrowClockwise,
-  Trash, Target, Tag, CaretDown, CaretRight,
+  Trash, Target, Tag, CaretDown, CaretRight, Lock,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -49,6 +50,8 @@ const SOURCE_LABELS: Record<string, string> = {
 export default function HistoryPanel() {
   const state = useHistory()
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const perms = useStudioPermissions()
+  const canUndoRedo = perms.can('studio:undo-redo')
 
   const timeline = history.getTimeline()
 
@@ -104,42 +107,44 @@ export default function HistoryPanel() {
       <div className="flex items-center gap-1">
         <button
           onClick={handleUndo}
-          disabled={!state.canUndo}
+          disabled={!state.canUndo || !canUndoRedo}
           className={cn(
             'flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] rounded-lg transition-colors',
-            state.canUndo
+            state.canUndo && canUndoRedo
               ? 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
               : 'text-muted-foreground/30 cursor-not-allowed'
           )}
+          title={!canUndoRedo ? perms.why('studio:undo-redo') : undefined}
         >
-          <ArrowCounterClockwise className="h-3 w-3" />
+          {!canUndoRedo ? <Lock className="h-3 w-3" /> : <ArrowCounterClockwise className="h-3 w-3" />}
           Undo
         </button>
         <button
           onClick={handleRedo}
-          disabled={!state.canRedo}
+          disabled={!state.canRedo || !canUndoRedo}
           className={cn(
             'flex-1 flex items-center justify-center gap-1 py-1.5 text-[10px] rounded-lg transition-colors',
-            state.canRedo
+            state.canRedo && canUndoRedo
               ? 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
               : 'text-muted-foreground/30 cursor-not-allowed'
           )}
+          title={!canUndoRedo ? perms.why('studio:undo-redo') : undefined}
         >
-          <ArrowClockwise className="h-3 w-3" />
+          {!canUndoRedo ? <Lock className="h-3 w-3" /> : <ArrowClockwise className="h-3 w-3" />}
           Redo
         </button>
         <button
           onClick={handleClear}
-          disabled={timeline.length === 0}
+          disabled={timeline.length === 0 || !canUndoRedo}
           className={cn(
             'px-2 py-1.5 text-[10px] rounded-lg transition-colors',
-            timeline.length > 0
+            timeline.length > 0 && canUndoRedo
               ? 'text-muted-foreground hover:text-red-400 hover:bg-red-500/10'
               : 'text-muted-foreground/30 cursor-not-allowed'
           )}
-          title="Clear all history"
+          title={!canUndoRedo ? perms.why('studio:undo-redo') : 'Clear all history'}
         >
-          <Trash className="h-3 w-3" />
+          {!canUndoRedo ? <Lock className="h-3 w-3" /> : <Trash className="h-3 w-3" />}
         </button>
       </div>
 
@@ -179,6 +184,9 @@ export default function HistoryPanel() {
                     <span className="text-[9px] text-muted-foreground/50">
                       {formatRelative(entry.timestamp)}
                     </span>
+                    {entry.role && (
+                      <span className="text-[8px] text-muted-foreground/40 font-mono">{entry.role}</span>
+                    )}
                     {isCurrent && (
                       <span className="text-[8px] text-primary font-semibold uppercase">current</span>
                     )}
@@ -199,12 +207,18 @@ export default function HistoryPanel() {
                     <span className="text-muted-foreground/40">•</span>
                     <span>{formatTime(entry.timestamp)}</span>
                   </div>
-                  <button
-                    onClick={() => handleRestore(entry)}
-                    className="text-[10px] text-primary hover:text-primary/80 transition-colors"
-                  >
-                    Restore this state →
-                  </button>
+                  {canUndoRedo ? (
+                    <button
+                      onClick={() => handleRestore(entry)}
+                      className="text-[10px] text-primary hover:text-primary/80 transition-colors"
+                    >
+                      Restore this state →
+                    </button>
+                  ) : (
+                    <span className="flex items-center gap-1 text-[10px] text-muted-foreground/40" title={perms.why('studio:undo-redo')}>
+                      <Lock className="h-2.5 w-2.5" /> Restore locked
+                    </span>
+                  )}
                 </div>
               )}
             </div>

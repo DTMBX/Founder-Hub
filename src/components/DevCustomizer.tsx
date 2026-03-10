@@ -10,7 +10,7 @@
  *  5. Workspace – cross-repo launcher for the Evident monolith
  */
 
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, lazy, Suspense, useMemo } from 'react'
 import { isLocalhost } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import {
@@ -20,8 +20,10 @@ import {
   Code, CursorClick, ArrowsOutCardinal, Palette, Lightning,
   CaretLeft, CaretRight, Browsers, Copy, ArrowCounterClockwise,
   ChatCircle, NotePencil, Cube, Monitor, ListBullets, SlidersHorizontal,
-  Rows, ClockCounterClockwise, ShieldCheck, Command,
+  Rows, ClockCounterClockwise, ShieldCheck, Command, UserSwitch, Lock,
 } from '@phosphor-icons/react'
+import { useStudioPermissions, type StudioAction } from '@/lib/studio-permissions'
+import type { UserRole } from '@/lib/types'
 import type { AuditReport } from '@/lib/validation-audit'
 import { toast } from 'sonner'
 
@@ -152,7 +154,9 @@ export default function DevCustomizer() {
   const styleRef = useRef<HTMLStyleElement | null>(null)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [auditReport, setAuditReport] = useState<AuditReport | null>(null)
+  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false)
   const isDev = isLocalhost()
+  const perms = useStudioPermissions()
 
   // ─── Navigate helpers ───────────────────────────────────────────────────
 
@@ -359,7 +363,7 @@ export default function DevCustomizer() {
 
   // ─── Mode tabs ────────────────────────────────────────────────────────
 
-  const modes: { key: CustomizerMode; label: string; icon: React.ElementType }[] = [
+  const allModes: { key: CustomizerMode; label: string; icon: React.ElementType }[] = [
     { key: 'navigate', label: 'Nav', icon: ArrowsOutCardinal },
     { key: 'inspect', label: 'Inspect', icon: Crosshair },
     { key: 'content', label: 'Content', icon: Pencil },
@@ -375,6 +379,14 @@ export default function DevCustomizer() {
     { key: 'preview', label: 'Preview', icon: Monitor },
     { key: 'workspace', label: 'Repos', icon: Stack },
   ]
+
+  // Filter modes by permission — inaccessible modes are hidden
+  const modes = useMemo(
+    () => allModes.filter(m => perms.canAccessMode(m.key)),
+    [perms.effectiveRole], // eslint-disable-line react-hooks/exhaustive-deps
+  )
+
+  const ROLE_OPTIONS: UserRole[] = ['owner', 'admin', 'editor', 'support']
 
   // ─── Render ───────────────────────────────────────────────────────────
 
@@ -449,9 +461,56 @@ export default function DevCustomizer() {
               <div className="px-3 py-2 border-b border-border flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold">Dev Customizer</p>
-                  <p className="text-[10px] text-muted-foreground">localhost only • Ctrl+Shift+D</p>
+                  <p className="text-[10px] text-muted-foreground">
+                  localhost only • {perms.effectiveRole}{perms.isSimulated ? ' (sim)' : ''}
+                </p>
                 </div>
                 <div className="flex items-center gap-1">
+                  {/* Role simulation switcher (dev only) */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowRoleSwitcher(p => !p)}
+                      className={cn(
+                        'text-muted-foreground hover:text-foreground p-1 flex items-center gap-1',
+                        perms.isSimulated && 'text-amber-400 hover:text-amber-300',
+                      )}
+                      title={perms.isSimulated ? `Simulating: ${perms.effectiveRole} (click to change)` : 'Simulate role (dev only)'}
+                    >
+                      <UserSwitch className="h-3 w-3" />
+                      <span className="text-[9px]">{perms.effectiveRole.charAt(0).toUpperCase()}</span>
+                    </button>
+                    {showRoleSwitcher && (
+                      <div className="absolute top-full right-0 mt-1 w-36 rounded-lg border border-border bg-background/95 backdrop-blur-lg shadow-lg overflow-hidden z-20">
+                        <div className="px-2 py-1.5 border-b border-border/50">
+                          <p className="text-[9px] text-amber-400 font-medium">DEV ROLE SIM</p>
+                          <p className="text-[8px] text-muted-foreground">Client-side only</p>
+                        </div>
+                        <button
+                          onClick={() => { perms.setSimulatedRole(null); setShowRoleSwitcher(false) }}
+                          className={cn(
+                            'w-full text-left px-3 py-1.5 text-xs transition-colors',
+                            !perms.isSimulated ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent/10',
+                          )}
+                        >
+                          Real role
+                        </button>
+                        {ROLE_OPTIONS.map(role => (
+                          <button
+                            key={role}
+                            onClick={() => { perms.setSimulatedRole(role); setShowRoleSwitcher(false) }}
+                            className={cn(
+                              'w-full text-left px-3 py-1.5 text-xs transition-colors',
+                              perms.isSimulated && perms.effectiveRole === role
+                                ? 'bg-primary/10 text-primary'
+                                : 'text-muted-foreground hover:bg-accent/10',
+                            )}
+                          >
+                            {role}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => setCommandPaletteOpen(true)}
                     className="text-muted-foreground hover:text-foreground p-1 flex items-center gap-1"

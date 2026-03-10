@@ -12,11 +12,12 @@
  */
 
 import { useSectionInspector } from '@/lib/use-section-inspector'
+import { useStudioPermissions } from '@/lib/studio-permissions'
 import { BooleanField, ContentFieldControl } from './field-controls'
 import { cn } from '@/lib/utils'
 import {
   ArrowCounterClockwise, ArrowClockwise, FloppyDisk,
-  ArrowUUpLeft, Warning, CheckCircle,
+  ArrowUUpLeft, Warning, CheckCircle, Lock,
 } from '@phosphor-icons/react'
 
 // ─── Main Panel ─────────────────────────────────────────────────────────────
@@ -41,6 +42,9 @@ export default function InspectorPanel() {
     canUndo,
     canRedo,
   } = useSectionInspector()
+  const perms = useStudioPermissions()
+  const canEdit = perms.can('studio:edit-props')
+  const canUndoRedo = perms.can('studio:undo-redo')
 
   // ── No selection state ──
 
@@ -76,11 +80,11 @@ export default function InspectorPanel() {
         </div>
       </div>
 
-      {/* Config fields — always available */}
+      {/* Config fields — always shown, editable only with permission */}
       {configDraft && (
-        <fieldset className="space-y-2">
+        <fieldset className="space-y-2" disabled={!canEdit}>
           <legend className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-            Section Config
+            Section Config {!canEdit && <Lock className="inline h-2.5 w-2.5 ml-1 text-muted-foreground/40" />}
           </legend>
 
           <div className="space-y-1">
@@ -109,9 +113,9 @@ export default function InspectorPanel() {
 
       {/* Content editable fields — only if registry has them */}
       {editableFields.length > 0 && contentDraft && (
-        <fieldset className="space-y-2 pt-1 border-t border-border/20">
+        <fieldset className="space-y-2 pt-1 border-t border-border/20" disabled={!canEdit}>
           <legend className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-            Content Fields
+            Content Fields {!canEdit && <Lock className="inline h-2.5 w-2.5 ml-1 text-muted-foreground/40" />}
           </legend>
           {editableFields.map(field => (
             <div key={field.key}>
@@ -147,17 +151,18 @@ export default function InspectorPanel() {
       {/* Apply / Reset */}
       <div className="flex items-center gap-2 pt-1">
         <button
-          onClick={apply}
-          disabled={!isDirty}
+          onClick={canEdit ? apply : undefined}
+          disabled={!isDirty || !canEdit}
           className={cn(
             'flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg transition-colors',
-            isDirty
+            isDirty && canEdit
               ? 'bg-emerald-600 text-white hover:bg-emerald-700'
               : 'bg-card/30 text-muted-foreground/40 cursor-not-allowed'
           )}
+          title={!canEdit ? perms.why('studio:edit-props') : undefined}
         >
-          {isDirty ? <FloppyDisk className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
-          {isDirty ? 'Apply' : 'Saved'}
+          {!canEdit ? <Lock className="h-3.5 w-3.5" /> : isDirty ? <FloppyDisk className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
+          {!canEdit ? 'Read-Only' : isDirty ? 'Apply' : 'Saved'}
         </button>
         <button
           onClick={reset}
@@ -175,8 +180,8 @@ export default function InspectorPanel() {
 
       {/* Undo / Redo */}
       <UndoRedoBar
-        canUndo={canUndo}
-        canRedo={canRedo}
+        canUndo={canUndo && canUndoRedo}
+        canRedo={canRedo && canUndoRedo}
         onUndo={performUndo}
         onRedo={performRedo}
       />

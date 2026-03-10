@@ -15,6 +15,9 @@
  *   history.redo()   // re-applies
  */
 
+import { getEffectiveRole } from '@/lib/studio-permissions'
+import type { UserRole } from '@/lib/types'
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface HistoryEntry {
@@ -30,6 +33,8 @@ export interface HistoryEntry {
   after: unknown
   /** Which tool/panel created this entry */
   source: 'visual-builder' | 'chat' | 'editor' | 'style' | 'ai' | 'manual'
+  /** Role of the user who made the change (auto-injected) */
+  role?: UserRole
 }
 
 export type HistoryListener = (state: HistoryState) => void
@@ -99,6 +104,7 @@ export const history = {
       ...entry,
       id: crypto.randomUUID(),
       timestamp: Date.now(),
+      role: entry.role ?? getEffectiveRole(),
     }
 
     entries.push(full)

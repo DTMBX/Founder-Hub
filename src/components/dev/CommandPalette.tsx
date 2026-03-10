@@ -12,6 +12,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { filterCommands, type CommandDefinition } from '@/lib/command-registry'
 import { useSectionStructure } from '@/lib/use-section-structure'
 import { useStudioSelection, clearStudioSelection } from '@/lib/use-studio-selection'
+import { useStudioPermissions, getCommandRequiredAction, getStudioDenialReason } from '@/lib/studio-permissions'
 import { downloadSnapshot, readSnapshotFile, importSnapshot } from '@/lib/snapshot-system'
 import { runValidationAudit, type AuditReport } from '@/lib/validation-audit'
 import {
@@ -24,7 +25,7 @@ import { isAIAvailable } from '@/lib/ai-transform'
 import { cn } from '@/lib/utils'
 import {
   MagnifyingGlass, Command as CommandIcon, ArrowUp, ArrowDown, KeyReturn,
-  Warning,
+  Warning, Lock,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -47,6 +48,7 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
 
   const selection = useStudioSelection()
   const structure = useSectionStructure()
+  const perms = useStudioPermissions()
 
   const filtered = filterCommands(query)
 
@@ -56,6 +58,10 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
     if (cmd.category === 'ai' && !isAIAvailable()) return false
     return true
   })
+
+  // Separate allowed vs denied commands
+  const allowed = available.filter(cmd => perms.canExecuteCommand(cmd.id))
+  const denied = available.filter(cmd => !perms.canExecuteCommand(cmd.id))
 
   // Reset state when opening
   useEffect(() => {
@@ -68,10 +74,10 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
 
   // Clamp selectedIndex when list changes
   useEffect(() => {
-    if (selectedIndex >= available.length) {
-      setSelectedIndex(Math.max(0, available.length - 1))
+    if (selectedIndex >= allowed.length) {
+      setSelectedIndex(Math.max(0, allowed.length - 1))
     }
-  }, [available.length, selectedIndex])
+  }, [allowed.length, selectedIndex])
 
   // Scroll selected item into view
   useEffect(() => {
@@ -257,7 +263,7 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setSelectedIndex(i => Math.min(i + 1, available.length - 1))
+        setSelectedIndex(i => Math.min(i + 1, allowed.length - 1))
         break
       case 'ArrowUp':
         e.preventDefault()
@@ -265,8 +271,8 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
         break
       case 'Enter':
         e.preventDefault()
-        if (available[selectedIndex]) {
-          executeCommand(available[selectedIndex])
+        if (allowed[selectedIndex]) {
+          executeCommand(allowed[selectedIndex])
         }
         break
       case 'Escape':
@@ -274,7 +280,7 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
         onClose()
         break
     }
-  }, [available, selectedIndex, executeCommand, onClose])
+  }, [allowed, selectedIndex, executeCommand, onClose])
 
   if (!open) return null
 
@@ -310,14 +316,14 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
 
           {/* Command list */}
           <div ref={listRef} className="max-h-[320px] overflow-y-auto py-1">
-            {available.length === 0 && (
+            {allowed.length === 0 && denied.length === 0 && (
               <div className="flex items-center gap-2 px-4 py-6 text-xs text-muted-foreground justify-center">
                 <Warning className="h-3.5 w-3.5" />
                 No matching commands
               </div>
             )}
 
-            {available.map((cmd, i) => (
+            {allowed.map((cmd, i) => (
               <button
                 key={cmd.id}
                 onClick={() => executeCommand(cmd)}
@@ -342,6 +348,28 @@ export default function CommandPalette({ open, onClose, onAuditReport }: Command
                 )}
               </button>
             ))}
+
+            {/* Denied commands shown grayed with lock */}
+            {denied.length > 0 && (
+              <>
+                <div className="px-4 py-1 mt-1 border-t border-border/30">
+                  <span className="text-[9px] text-muted-foreground/40 uppercase tracking-wider">Requires higher role</span>
+                </div>
+                {denied.map(cmd => (
+                  <div
+                    key={cmd.id}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left opacity-40 cursor-not-allowed"
+                    title={getStudioDenialReason(getCommandRequiredAction(cmd.id))}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium truncate">{cmd.label}</div>
+                      <div className="text-[10px] text-muted-foreground/60 truncate">{cmd.description}</div>
+                    </div>
+                    <Lock className="h-3 w-3 text-muted-foreground/40 shrink-0" />
+                  </div>
+                ))}
+              </>
+            )}
           </div>
 
           {/* Footer hint */}

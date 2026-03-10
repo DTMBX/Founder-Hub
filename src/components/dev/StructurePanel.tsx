@@ -27,10 +27,11 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { useSectionStructure } from '@/lib/use-section-structure'
 import { useStudioSelection } from '@/lib/use-studio-selection'
+import { useStudioPermissions } from '@/lib/studio-permissions'
 import { SECTION_REGISTRY } from '@/registry/sections'
 import { cn } from '@/lib/utils'
 import {
-  DotsSixVertical, Plus, Trash, EyeSlash, Star,
+  DotsSixVertical, Plus, Trash, EyeSlash, Star, Lock,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import type { Section } from '@/lib/types'
@@ -42,11 +43,15 @@ function SortableSectionItem({
   isSelected,
   onSelect,
   onRemove,
+  canReorder,
+  canRemove,
 }: {
   section: Section
   isSelected: boolean
   onSelect: () => void
   onRemove: () => void
+  canReorder: boolean
+  canRemove: boolean
 }) {
   const {
     attributes,
@@ -55,7 +60,7 @@ function SortableSectionItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: section.id })
+  } = useSortable({ id: section.id, disabled: !canReorder })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -80,7 +85,10 @@ function SortableSectionItem({
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing p-0.5 text-muted-foreground/50 hover:text-muted-foreground"
+        className={cn(
+          'p-0.5 text-muted-foreground/50',
+          canReorder ? 'cursor-grab active:cursor-grabbing hover:text-muted-foreground' : 'cursor-not-allowed opacity-30',
+        )}
         tabIndex={-1}
       >
         <DotsSixVertical className="h-3.5 w-3.5" />
@@ -102,13 +110,17 @@ function SortableSectionItem({
       )}
 
       {/* Remove button */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onRemove() }}
-        className="opacity-0 group-hover:opacity-100 p-0.5 text-muted-foreground hover:text-red-400 transition-all"
-        title="Remove section"
-      >
-        <Trash className="h-3 w-3" />
-      </button>
+      {canRemove ? (
+        <button
+          onClick={(e) => { e.stopPropagation(); onRemove() }}
+          className="opacity-0 group-hover:opacity-100 p-0.5 text-muted-foreground hover:text-red-400 transition-all"
+          title="Remove section"
+        >
+          <Trash className="h-3 w-3" />
+        </button>
+      ) : (
+        <Lock className="h-3 w-3 text-muted-foreground/20 shrink-0" />
+      )}
     </div>
   )
 }
@@ -147,7 +159,12 @@ export default function StructurePanel() {
     addableTypes,
   } = useSectionStructure()
   const selection = useStudioSelection()
+  const perms = useStudioPermissions()
   const [showAddMenu, setShowAddMenu] = useState(false)
+
+  const canReorder = perms.can('studio:section-reorder')
+  const canAdd = perms.can('studio:section-add')
+  const canRemove = perms.can('studio:section-remove')
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -159,6 +176,7 @@ export default function StructurePanel() {
   const sortableSections = orderedSections.filter(s => s.type !== 'hero')
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!canReorder) return
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -172,6 +190,10 @@ export default function StructurePanel() {
   }
 
   const handleRemove = (sectionId: string) => {
+    if (!canRemove) {
+      toast.error(perms.why('studio:section-remove'))
+      return
+    }
     const section = orderedSections.find(s => s.id === sectionId)
     if (!section) return
     if (!confirm(`Remove "${section.title}"? This can be undone via history.`)) return
@@ -182,6 +204,10 @@ export default function StructurePanel() {
   }
 
   const handleAdd = (type: string) => {
+    if (!canAdd) {
+      toast.error(perms.why('studio:section-add'))
+      return
+    }
     const error = addSection(type)
     if (error) {
       toast.error(error.message)
@@ -223,6 +249,8 @@ export default function StructurePanel() {
               isSelected={selection.sectionId === section.id}
               onSelect={() => selectSection(section.id)}
               onRemove={() => handleRemove(section.id)}
+              canReorder={canReorder}
+              canRemove={canRemove}
             />
           ))}
         </SortableContext>
@@ -231,8 +259,13 @@ export default function StructurePanel() {
       {/* Add section control */}
       <div className="relative pt-1">
         <button
-          onClick={() => setShowAddMenu(prev => !prev)}
-          className="w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-dashed border-border/60 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors"
+          onClick={() => canAdd ? setShowAddMenu(prev => !prev) : toast.error(perms.why('studio:section-add'))}
+          className={cn(
+            'w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg border border-dashed text-xs transition-colors',
+            canAdd
+              ? 'border-border/60 text-muted-foreground hover:text-foreground hover:border-border'
+              : 'border-border/30 text-muted-foreground/40 cursor-not-allowed',
+          )}
         >
           <Plus className="h-3.5 w-3.5" />
           Add Section

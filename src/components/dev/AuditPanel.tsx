@@ -9,10 +9,11 @@
 
 import { useState, useCallback } from 'react'
 import { runValidationAudit, type AuditReport, type AuditKeyResult } from '@/lib/validation-audit'
+import { useStudioPermissions } from '@/lib/studio-permissions'
 import { cn } from '@/lib/utils'
 import {
   ShieldCheck, ShieldWarning, Play, CheckCircle, XCircle, MinusCircle,
-  Spinner, Database,
+  Spinner, Database, Lock,
 } from '@phosphor-icons/react'
 
 // ─── Props ──────────────────────────────────────────────────────────────────
@@ -27,6 +28,8 @@ interface AuditPanelProps {
 export default function AuditPanel({ initialReport }: AuditPanelProps) {
   const [report, setReport] = useState<AuditReport | null>(initialReport ?? null)
   const [running, setRunning] = useState(false)
+  const perms = useStudioPermissions()
+  const canRunAudit = perms.can('studio:run-audit')
 
   const handleRun = useCallback(async () => {
     setRunning(true)
@@ -61,17 +64,22 @@ export default function AuditPanel({ initialReport }: AuditPanelProps) {
       {/* Run button */}
       <button
         onClick={handleRun}
-        disabled={running}
+        disabled={running || !canRunAudit}
         className={cn(
           'w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium rounded-lg transition-colors',
-          running
-            ? 'bg-card/30 text-muted-foreground/40 cursor-wait'
-            : 'bg-primary/10 text-primary hover:bg-primary/20'
+          !canRunAudit
+            ? 'bg-card/30 text-muted-foreground/40 cursor-not-allowed'
+            : running
+              ? 'bg-card/30 text-muted-foreground/40 cursor-wait'
+              : 'bg-primary/10 text-primary hover:bg-primary/20'
         )}
+        title={!canRunAudit ? perms.why('studio:run-audit') : undefined}
       >
-        {running
-          ? <><Spinner className="h-3.5 w-3.5 animate-spin" /> Running…</>
-          : <><Play className="h-3.5 w-3.5" /> Run Audit</>
+        {!canRunAudit
+          ? <><Lock className="h-3.5 w-3.5" /> Audit Locked</>
+          : running
+            ? <><Spinner className="h-3.5 w-3.5 animate-spin" /> Running…</>
+            : <><Play className="h-3.5 w-3.5" /> Run Audit</>
         }
       </button>
 

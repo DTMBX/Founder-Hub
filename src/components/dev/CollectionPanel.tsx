@@ -15,11 +15,12 @@
 
 import { useCollectionEditor } from '@/lib/use-collection-editor'
 import { ContentFieldControl } from './field-controls'
+import { useStudioPermissions } from '@/lib/studio-permissions'
 import { cn } from '@/lib/utils'
 import {
   ArrowCounterClockwise, ArrowClockwise, FloppyDisk,
   ArrowUUpLeft, Warning, CheckCircle, Plus, Trash,
-  CaretUp, CaretDown, CaretRight,
+  CaretUp, CaretDown, CaretRight, Lock,
 } from '@phosphor-icons/react'
 
 // ─── Main Panel ─────────────────────────────────────────────────────────────
@@ -47,6 +48,10 @@ export default function CollectionPanel() {
     itemFields,
   } = useCollectionEditor()
 
+  const perms = useStudioPermissions()
+  const canEdit = perms.can('studio:edit-collection')
+  const canUndoRedo = perms.can('studio:undo-redo')
+
   // ── No collection section selected ──
 
   if (!isCollectionSection || !collection) {
@@ -59,8 +64,8 @@ export default function CollectionPanel() {
           Supported: Projects, Offerings, Proof Links, Contact Links
         </p>
         <UndoRedoBar
-          canUndo={canUndo}
-          canRedo={canRedo}
+          canUndo={canUndo && canUndoRedo}
+          canRedo={canRedo && canUndoRedo}
           onUndo={performUndo}
           onRedo={performRedo}
         />
@@ -91,7 +96,7 @@ export default function CollectionPanel() {
           <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
             Items
           </span>
-          {collection.allowAddRemove && (
+          {collection.allowAddRemove && canEdit && (
             <button
               onClick={addItem}
               className="flex items-center gap-1 px-2 py-0.5 text-[10px] rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
@@ -99,6 +104,12 @@ export default function CollectionPanel() {
               <Plus className="h-3 w-3" />
               Add {collection.itemLabel}
             </button>
+          )}
+          {collection.allowAddRemove && !canEdit && (
+            <span className="flex items-center gap-1 px-2 py-0.5 text-[10px] text-muted-foreground/40" title={perms.why('studio:edit-collection')}>
+              <Lock className="h-3 w-3" />
+              Read-Only
+            </span>
           )}
         </div>
 
@@ -135,7 +146,7 @@ export default function CollectionPanel() {
 
                 {/* Reorder + delete controls */}
                 <div className="flex items-center gap-0.5 pr-1 shrink-0">
-                  {collection.allowReorder && (
+                  {collection.allowReorder && canEdit && (
                     <>
                       <button
                         onClick={() => moveItem(index, index - 1)}
@@ -155,7 +166,7 @@ export default function CollectionPanel() {
                       </button>
                     </>
                   )}
-                  {collection.allowAddRemove && (
+                  {collection.allowAddRemove && canEdit && (
                     <button
                       onClick={() => removeItem(index)}
                       className="p-0.5 text-muted-foreground hover:text-red-400 transition-colors"
@@ -163,6 +174,9 @@ export default function CollectionPanel() {
                     >
                       <Trash className="h-3 w-3" />
                     </button>
+                  )}
+                  {collection.allowAddRemove && !canEdit && (
+                    <Lock className="h-3 w-3 text-muted-foreground/30" />
                   )}
                 </div>
               </div>
@@ -173,9 +187,10 @@ export default function CollectionPanel() {
 
       {/* Selected item editor */}
       {selectedItem && (
-        <fieldset className="space-y-2 pt-1 border-t border-border/20">
-          <legend className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <fieldset className="space-y-2 pt-1 border-t border-border/20" disabled={!canEdit}>
+          <legend className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
             Edit {collection.itemLabel}
+            {!canEdit && <Lock className="h-2.5 w-2.5 text-muted-foreground/40" />}
           </legend>
           {itemFields.map(field => (
             <div key={field.key}>
@@ -204,16 +219,19 @@ export default function CollectionPanel() {
       <div className="flex items-center gap-2 pt-1">
         <button
           onClick={apply}
-          disabled={!isDirty}
+          disabled={!isDirty || !canEdit}
           className={cn(
             'flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium rounded-lg transition-colors',
-            isDirty
-              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-              : 'bg-card/30 text-muted-foreground/40 cursor-not-allowed'
+            !canEdit
+              ? 'bg-card/30 text-muted-foreground/40 cursor-not-allowed'
+              : isDirty
+                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                : 'bg-card/30 text-muted-foreground/40 cursor-not-allowed'
           )}
+          title={!canEdit ? perms.why('studio:edit-collection') : undefined}
         >
-          {isDirty ? <FloppyDisk className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
-          {isDirty ? 'Apply' : 'Saved'}
+          {!canEdit ? <Lock className="h-3.5 w-3.5" /> : isDirty ? <FloppyDisk className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
+          {!canEdit ? 'Read-Only' : isDirty ? 'Apply' : 'Saved'}
         </button>
         <button
           onClick={reset}
@@ -231,8 +249,8 @@ export default function CollectionPanel() {
 
       {/* Undo / Redo */}
       <UndoRedoBar
-        canUndo={canUndo}
-        canRedo={canRedo}
+        canUndo={canUndo && canUndoRedo}
+        canRedo={canRedo && canUndoRedo}
         onUndo={performUndo}
         onRedo={performRedo}
       />

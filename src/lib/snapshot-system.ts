@@ -14,6 +14,7 @@
 import { kv } from '@/lib/local-storage-kv'
 import { KV_SCHEMAS, validateKV } from '@/lib/content-schema'
 import { history } from '@/lib/history-store'
+import { enforceCurrentRole } from '@/lib/studio-permissions'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -144,6 +145,7 @@ export function validateSnapshot(snapshot: unknown): SnapshotValidationResult {
 export async function importSnapshot(
   snapshot: unknown,
 ): Promise<SnapshotValidationResult> {
+  enforceCurrentRole('studio:import-snapshot')
   const validation = validateSnapshot(snapshot)
 
   if (!validation.valid) {

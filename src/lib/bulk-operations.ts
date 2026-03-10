@@ -14,6 +14,7 @@
 import { kv } from '@/lib/local-storage-kv'
 import { SectionsArraySchema, ProjectsArraySchema } from '@/lib/content-schema'
 import { history } from '@/lib/history-store'
+import { enforceCurrentRole } from '@/lib/studio-permissions'
 import type { Section } from '@/lib/types'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ const SECTIONS_KEY = 'founder-hub-sections'
  * Enable all sections.
  */
 export async function bulkEnableAllSections(): Promise<BulkResult> {
+  enforceCurrentRole('studio:bulk-ops')
   const sections = await kv.get<Section[]>(SECTIONS_KEY)
   if (!sections) return { success: false, message: 'No sections data found', affectedCount: 0 }
 
@@ -60,6 +62,7 @@ export async function bulkEnableAllSections(): Promise<BulkResult> {
  * Disable all non-essential sections (keep hero, about, contact).
  */
 export async function bulkDisableNonEssential(): Promise<BulkResult> {
+  enforceCurrentRole('studio:bulk-ops')
   const ESSENTIAL = new Set(['hero', 'about', 'contact'])
   const sections = await kv.get<Section[]>(SECTIONS_KEY)
   if (!sections) return { success: false, message: 'No sections data found', affectedCount: 0 }
@@ -93,6 +96,7 @@ export async function bulkDisableNonEssential(): Promise<BulkResult> {
  * Sort sections alphabetically by title, keeping hero pinned at position 0.
  */
 export async function bulkSortSectionsAlpha(): Promise<BulkResult> {
+  enforceCurrentRole('studio:bulk-ops')
   const sections = await kv.get<Section[]>(SECTIONS_KEY)
   if (!sections) return { success: false, message: 'No sections data found', affectedCount: 0 }
 
@@ -133,6 +137,7 @@ interface ProjectItem {
  * Normalize project titles: trim whitespace and title-case.
  */
 export async function bulkNormalizeProjectTitles(): Promise<BulkResult> {
+  enforceCurrentRole('studio:bulk-ops')
   const projects = await kv.get<ProjectItem[]>(PROJECTS_KEY)
   if (!projects || projects.length === 0) {
     return { success: false, message: 'No projects data found', affectedCount: 0 }
