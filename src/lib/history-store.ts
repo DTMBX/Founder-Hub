@@ -48,8 +48,15 @@ export interface HistoryState {
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = 'site-studio-history'
+const STORAGE_KEY_PREFIX = 'site-studio-history'
 const MAX_ENTRIES = 100
+
+// Active site scope (default = unsuffixed for backwards compat)
+let activeSiteId: string | null = null
+
+function storageKey(): string {
+  return activeSiteId ? `${STORAGE_KEY_PREFIX}:${activeSiteId}` : STORAGE_KEY_PREFIX
+}
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
@@ -58,18 +65,28 @@ let cursor = -1
 const listeners = new Set<HistoryListener>()
 
 // Restore from sessionStorage on module load
-try {
-  const stored = sessionStorage.getItem(STORAGE_KEY)
-  if (stored) {
-    const parsed = JSON.parse(stored) as { entries: HistoryEntry[]; cursor: number }
-    entries = parsed.entries || []
-    cursor = typeof parsed.cursor === 'number' ? parsed.cursor : entries.length - 1
+function loadFromStorage() {
+  try {
+    const stored = sessionStorage.getItem(storageKey())
+    if (stored) {
+      const parsed = JSON.parse(stored) as { entries: HistoryEntry[]; cursor: number }
+      entries = parsed.entries || []
+      cursor = typeof parsed.cursor === 'number' ? parsed.cursor : entries.length - 1
+    } else {
+      entries = []
+      cursor = -1
+    }
+  } catch {
+    entries = []
+    cursor = -1
   }
-} catch { /* ignore corrupt storage */ }
+}
+
+loadFromStorage()
 
 function persist() {
   try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ entries, cursor }))
+    sessionStorage.setItem(storageKey(), JSON.stringify({ entries, cursor }))
   } catch { /* quota exceeded — degrade gracefully */ }
 }
 
@@ -170,6 +187,17 @@ export const history = {
     entries = []
     cursor = -1
     persist()
+    notify()
+  },
+
+  /**
+   * Scope history to a specific workspace site.
+   * Re-loads from the site-scoped sessionStorage key and notifies listeners.
+   */
+  setSiteScope(siteId: string) {
+    if (siteId === activeSiteId) return
+    activeSiteId = siteId
+    loadFromStorage()
     notify()
   },
 

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
 import { Project, ProjectLink } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Pencil, Trash, X, GithubLogo, Globe, BookOpen, Link as LinkIcon } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
+import { useContentEditor } from '@/hooks/use-content-editor'
 
 export default function ProjectsManager() {
-  const [projects, setProjects] = useKV<Project[]>('founder-hub-projects', [])
+  const editor = useContentEditor<Project[]>('projects')
+  const projects = editor.value || []
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { currentUser } = useAuth()
@@ -53,14 +54,14 @@ export default function ProjectsManager() {
       return
     }
 
-    setProjects(currentProjects => {
-      const existing = currentProjects?.find(p => p.id === editingProject.id)
+    editor.update(currentProjects => {
+      const existing = (currentProjects || []).find(p => p.id === editingProject.id)
       if (existing) {
         return (currentProjects || []).map(p => p.id === editingProject.id ? editingProject : p)
       } else {
         return [...(currentProjects || []), editingProject]
       }
-    })
+    }, `Saved project: ${editingProject.title}`)
 
     if (currentUser) {
       await logAudit(
@@ -119,7 +120,7 @@ export default function ProjectsManager() {
   }
 
   const handleDelete = async (projectId: string) => {
-    setProjects(currentProjects => (currentProjects || []).filter(p => p.id !== projectId))
+    editor.update(currentProjects => (currentProjects || []).filter(p => p.id !== projectId), 'Deleted project')
     
     if (currentUser) {
       await logAudit(
@@ -177,8 +178,9 @@ export default function ProjectsManager() {
                   )}
                 </div>
                 <Switch checked={project.enabled} onCheckedChange={(checked) => {
-                  setProjects(currentProjects =>
-                    (currentProjects || []).map(p => p.id === project.id ? { ...p, enabled: checked } : p)
+                  editor.update(currentProjects =>
+                    (currentProjects || []).map(p => p.id === project.id ? { ...p, enabled: checked } : p),
+                    `Toggled project: ${project.title}`
                   )
                 }} />
               </div>

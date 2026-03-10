@@ -1,4 +1,4 @@
-import { useState, useMemo, lazy, Suspense } from 'react'
+import React, { useState, useMemo, useCallback, useEffect, lazy, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -11,8 +11,15 @@ import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
 import { usePermissions, FOUNDER_MODE_ROUTES } from '@/lib/route-guards'
 import { useFeatureFlags, activateFounderMode, activateOpsMode } from '@/lib/feature-flags'
+import { useHistory, history as historyStore } from '@/lib/history-store'
+import { useKeyboardShortcuts, type Shortcut } from '@/lib/keyboard-shortcuts'
+import { useGlobalDirty } from '@/lib/editor-state'
+import { useRecentItems } from '@/hooks/use-recent-items'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { WorkspaceSiteProvider, useWorkspaceSite } from '@/lib/workspace-site'
+import { setSafetySnapshotSiteScope } from '@/lib/snapshot-guardrails'
 import MigrationBanner from './MigrationBanner'
+import { useRouteLeaveGuard } from './RouteLeaveGuard'
 import {
   SignOut, Article, FolderOpen, Scales, FilePdf, CloudArrowUp, 
   MagnifyingGlass, Palette, ClockCounterClockwise, Gear, Stack, 
@@ -20,9 +27,12 @@ import {
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
-  Warning, Link, DeviceMobile, Scroll, MagicWand
+  Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
+import SidebarNav from './SidebarNav'
+import CommandPalette from './CommandPalette'
+import WorkspaceSiteSwitcher from './WorkspaceSiteSwitcher'
 import { useClientSites } from '@/hooks/use-client-sites'
 import { cn } from '@/lib/utils'
 
@@ -51,6 +61,7 @@ const ProfileManager = lazy(() => import('./ProfileManager'))
 const HonorFlagBarManager = lazy(() => import('./HonorFlagBarManager'))
 const OfferingsManager = lazy(() => import('./OfferingsManager'))
 const InvestorManager = lazy(() => import('./InvestorManager'))
+const GovernancePanel = lazy(() => import('./GovernancePanel'))
 const EvidentManager = lazy(() => import('./EvidentManager'))
 const SitesManager = lazy(() => import('./SitesManager'))
 const LawFirmShowcaseManager = lazy(() => import('./LawFirmShowcaseManager'))
@@ -65,6 +76,10 @@ const AuditIntegrity = lazy(() => import('./AuditIntegrity'))
 const SecuritySettings = lazy(() => import('./SecuritySettings'))
 const PolicyViewer = lazy(() => import('./PolicyViewer'))
 const StyleEditorManager = lazy(() => import('./StyleEditorManager'))
+const DashboardOverview = lazy(() => import('./DashboardOverview'))
+const EditorToolbar = lazy(() => import('./EditorToolbar'))
+const PreviewPanel = lazy(() => import('./PreviewPanel'))
+const HistoryTimeline = lazy(() => import('./HistoryTimeline'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -88,30 +103,32 @@ interface AdminDashboardProps {
 interface NavItem {
   id: string
   label: string
-  icon: any
+  icon: React.ComponentType<{ className?: string; weight?: string }>
   category: string
 }
 
 const navItems: NavItem[] = [
-  // XTX396 Site
-  { id: 'content', label: 'Content', icon: Article, category: 'XTX396 Site' },
-  { id: 'about', label: 'About / Updates', icon: UserCircle, category: 'XTX396 Site' },
-  { id: 'links', label: 'Links', icon: LinkSimple, category: 'XTX396 Site' },
-  { id: 'profile', label: 'Profile & Emails', icon: IdentificationBadge, category: 'XTX396 Site' },
-  { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'XTX396 Site' },
-  { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'XTX396 Site' },
-  { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'XTX396 Site' },
-  // Investor & Trade
-  { id: 'investor', label: 'Investor Section', icon: TrendUp, category: 'Investor & Trade' },
-  { id: 'offerings', label: 'Offerings', icon: ShoppingBag, category: 'Investor & Trade' },
-  // Evident Platform
-  { id: 'evident', label: 'Evident Dashboard', icon: Globe, category: 'Evident Platform' },
-  { id: 'sites', label: 'Sites & Repos', icon: TreeStructure, category: 'Evident Platform' },
-  // Frameworks (Private)
-  { id: 'client-sites', label: 'Client Sites', icon: Globe, category: 'Frameworks' },
-  { id: 'law-firm', label: 'Law Firm Showcase', icon: Buildings, category: 'Frameworks' },
-  { id: 'smb-template', label: 'SMB Template', icon: Storefront, category: 'Frameworks' },
-  { id: 'agency', label: 'Agency Framework', icon: Kanban, category: 'Frameworks' },
+  // Overview
+  { id: 'overview', label: 'Dashboard', icon: House, category: 'Overview' },
+  // Site Management
+  { id: 'content', label: 'Content', icon: Article, category: 'Site Management' },
+  { id: 'about', label: 'About & Updates', icon: UserCircle, category: 'Site Management' },
+  { id: 'links', label: 'Navigation Links', icon: LinkSimple, category: 'Site Management' },
+  { id: 'profile', label: 'Profile & Contacts', icon: IdentificationBadge, category: 'Site Management' },
+  { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'Site Management' },
+  { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Site Management' },
+  { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'Site Management' },
+  // Investor Relations
+  { id: 'investor', label: 'Investor Portal', icon: TrendUp, category: 'Investor Relations' },
+  { id: 'offerings', label: 'Offerings Catalog', icon: ShoppingBag, category: 'Investor Relations' },
+  // Platform
+  { id: 'evident', label: 'Ecosystem Overview', icon: Globe, category: 'Platform' },
+  { id: 'sites', label: 'Sites & Repositories', icon: TreeStructure, category: 'Platform' },
+  // Client Frameworks
+  { id: 'client-sites', label: 'Client Sites', icon: Globe, category: 'Client Frameworks' },
+  { id: 'law-firm', label: 'Law Firm Template', icon: Buildings, category: 'Client Frameworks' },
+  { id: 'smb-template', label: 'Small Business Template', icon: Storefront, category: 'Client Frameworks' },
+  { id: 'agency', label: 'Agency Template', icon: Kanban, category: 'Client Frameworks' },
   // Case Management
   { id: 'projects', label: 'Projects', icon: FolderOpen, category: 'Case Management' },
   { id: 'court', label: 'Court Cases', icon: Scales, category: 'Case Management' },
@@ -119,51 +136,96 @@ const navItems: NavItem[] = [
   { id: 'case-jackets', label: 'Case Jackets', icon: Briefcase, category: 'Case Management' },
   { id: 'filing-types', label: 'Filing Types', icon: Certificate, category: 'Case Management' },
   { id: 'templates', label: 'Templates', icon: ClipboardText, category: 'Case Management' },
-  // Assets & Uploads
-  { id: 'inbox', label: 'Inbox', icon: Tray, category: 'Assets' },
-  { id: 'upload', label: 'Upload Queue', icon: CloudArrowUp, category: 'Assets' },
-  { id: 'staging', label: 'Staging Review', icon: Stack, category: 'Assets' },
-  { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets' },
-  { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets' },
-  // System
-  { id: 'style-editor', label: 'Style Editor', icon: MagicWand, category: 'System' },
-  { id: 'theme', label: 'Theme', icon: Palette, category: 'System' },
-  { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System' },
-  { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System' },
-  { id: 'session-security', label: 'Sessions & Devices', icon: DeviceMobile, category: 'System' },
-  { id: 'runtime-policy', label: 'Runtime Policy', icon: Scroll, category: 'System' },
-  { id: 'deployments', label: 'Deployments', icon: Rocket, category: 'System' },
-  { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System' },
-  { id: 'incidents', label: 'Incidents', icon: Warning, category: 'System' },
-  { id: 'audit-integrity', label: 'Audit Integrity', icon: Link, category: 'System' },
-  { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System' },
-  { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System' },
+  // Assets & Media
+  { id: 'inbox', label: 'Inbox', icon: Tray, category: 'Assets & Media' },
+  { id: 'upload', label: 'Upload Queue', icon: CloudArrowUp, category: 'Assets & Media' },
+  { id: 'staging', label: 'Staging Review', icon: Stack, category: 'Assets & Media' },
+  { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets & Media' },
+  { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets & Media' },
+  // System & Security
+  { id: 'governance', label: 'Content Governance', icon: ShieldCheck, category: 'System & Security' },
+  { id: 'style-editor', label: 'Style Editor', icon: MagicWand, category: 'System & Security' },
+  { id: 'theme', label: 'Theme', icon: Palette, category: 'System & Security' },
+  { id: 'settings', label: 'Site Settings', icon: Gear, category: 'System & Security' },
+  { id: 'security', label: 'Security', icon: ShieldCheck, category: 'System & Security' },
+  { id: 'session-security', label: 'Sessions & Devices', icon: DeviceMobile, category: 'System & Security' },
+  { id: 'runtime-policy', label: 'Runtime Policy', icon: Scroll, category: 'System & Security' },
+  { id: 'deployments', label: 'Deployments', icon: Rocket, category: 'System & Security' },
+  { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System & Security' },
+  { id: 'incidents', label: 'Incidents', icon: Warning, category: 'System & Security' },
+  { id: 'audit-integrity', label: 'Audit Integrity', icon: Link, category: 'System & Security' },
+  { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System & Security' },
+  { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System & Security' },
 ]
 
-const categories = ['XTX396 Site', 'Investor & Trade', 'Evident Platform', 'Frameworks', 'Case Management', 'Assets', 'System']
+const categories = ['Overview', 'Site Management', 'Investor Relations', 'Platform', 'Client Frameworks', 'Case Management', 'Assets & Media', 'System & Security']
+
+/**
+ * Syncs the active workspace site to history-store and snapshot-guardrails.
+ * Must be rendered inside WorkspaceSiteProvider.
+ */
+function WorkspaceSiteSync() {
+  const { activeSite } = useWorkspaceSite()
+
+  useEffect(() => {
+    historyStore.setSiteScope(activeSite.siteId)
+    setSafetySnapshotSiteScope(activeSite.siteId)
+  }, [activeSite.siteId])
+
+  return null
+}
 
 export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const { logout, currentUser } = useAuth()
   const { activeSite, activeSatellite } = useSite()
-  const [activeTab, setActiveTab] = useState('content')
+  const [activeTab, setActiveTab] = useState(() => {
+    // Pick up tab from DevToolbar quick nav
+    const devTab = sessionStorage.getItem('dev-admin-tab')
+    if (devTab) {
+      sessionStorage.removeItem('dev-admin-tab')
+      return devTab
+    }
+    return 'overview'
+  })
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
   
   // RBAC & Feature Flags
   const permissions = usePermissions()
   const { flags } = useFeatureFlags()
+  
+  // Phase A: Edit/Preview Integrity
+  const historyState = useHistory()
+  const { isDirty: globalDirty, dirtyKeys } = useGlobalDirty()
+  const { recentItems, favorites, trackVisit, toggleFavorite, isFavorite } = useRecentItems()
 
-  // Service-level route guard for tab switching
-  const guardedSetActiveTab = (tabId: string) => {
+  // Route leave protection — warns before navigating away with unsaved changes
+  const { guardedNavigate, GuardDialog } = useRouteLeaveGuard({
+    isDirty: globalDirty,
+    dirtyModules: dirtyKeys.map(k => k.replace('founder-hub-', '')),
+  })
+
+  // Service-level route guard for tab switching (with dirty-state protection)
+  const directSetActiveTab = useCallback((tabId: string) => {
     if (!permissions.canAccessRouteInCurrentMode(tabId)) {
       toast.error('You do not have permission to access that section')
       return
     }
+    // Track visit for recents
+    const item = navItems.find(n => n.id === tabId)
+    if (item) trackVisit(tabId, item.label, item.category)
     setActiveTab(tabId)
-  }
+  }, [permissions, trackVisit])
+
+  const guardedSetActiveTab = useCallback((tabId: string) => {
+    guardedNavigate(tabId, directSetActiveTab)
+  }, [guardedNavigate, directSetActiveTab])
   
   // Filter nav items based on role and mode
   const filteredNavItems = useMemo(() => {
@@ -182,6 +244,37 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const canExport = permissions.canExecuteAction('export-data')
   
   useInitializeDocumentTypes()
+
+  // Save handler — marks current state as saved baseline
+  const handleSave = useCallback(async () => {
+    setIsSaving(true)
+    try {
+      // downloadDataFiles writes all KV data to public/data — this IS the save-to-disk action
+      downloadDataFiles()
+      toast.success('Data files exported. Copy to public/data/ and commit to deploy.')
+    } catch {
+      toast.error('Save failed')
+    } finally {
+      setIsSaving(false)
+    }
+  }, [])
+
+  // Global keyboard shortcuts
+  const shortcuts = useMemo<Shortcut[]>(() => [
+    { key: 's', ctrl: true, label: 'Save', category: 'File', action: handleSave },
+    { key: 'z', ctrl: true, label: 'Undo', category: 'Edit', action: () => {
+      const entry = historyStore.undo()
+      if (entry) toast.info(`Undone: ${entry.label}`)
+    }},
+    { key: 'z', ctrl: true, shift: true, label: 'Redo', category: 'Edit', action: () => {
+      const entry = historyStore.redo()
+      if (entry) toast.info(`Redone: ${entry.label}`)
+    }},
+    { key: 'p', ctrl: true, shift: true, label: 'Toggle Preview', category: 'View', action: () => setPreviewOpen(p => !p) },
+    { key: 'h', ctrl: true, shift: true, label: 'Toggle History', category: 'View', action: () => setHistoryOpen(h => !h) },
+  ], [handleSave])
+
+  useKeyboardShortcuts(shortcuts, { allowInInputs: true })
 
   const handleLogout = async () => {
     await logout()
@@ -254,6 +347,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'overview': return <DashboardOverview onNavigate={guardedSetActiveTab} />
       case 'content': return <ContentManager />
       case 'about': return <AboutManager />
       case 'links': return <LinksManager />
@@ -284,6 +378,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         const tabMap: Record<string, string> = { 'law-firm': 'law-firm', 'small-business': 'smb-template', agency: 'agency' }
         guardedSetActiveTab(tabMap[siteType] ?? 'client-sites')
       }} />
+      case 'governance': return <GovernancePanel />
       case 'style-editor': return <StyleEditorManager />
       case 'theme': return <ThemeManager />
       case 'settings': return <SettingsManager />
@@ -296,11 +391,13 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'audit-integrity': return <AuditIntegrity />
       case 'audit': return <AuditLog />
       case 'leads': return <AdminLeadsViewer />
-      default: return <ContentManager />
+      default: return <DashboardOverview onNavigate={guardedSetActiveTab} />
     }
   }
 
   return (
+    <WorkspaceSiteProvider>
+    <WorkspaceSiteSync />
     <div className="min-h-screen bg-background flex" style={{ paddingTop: 'var(--honor-bar-height, 64px)' }}>
       {/* Sidebar — hidden on mobile, quick actions bar used instead */}
       <aside className={cn(
@@ -335,54 +432,19 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         </div>
 
         {/* Site Picker */}
-        <div className="p-2 border-b border-border/50">
+        <div className="p-2 border-b border-border/50 space-y-1">
+          <WorkspaceSiteSwitcher />
           <SitePicker collapsed={sidebarCollapsed} />
         </div>
 
         {/* Nav items */}
-        <ScrollArea className="flex-1 py-2">
-          <div className="px-2 space-y-4">
-            {visibleCategories.map(category => {
-              const items = filteredNavItems.filter(item => item.category === category)
-              if (items.length === 0) return null
-              return (
-                <div key={category}>
-                  {!sidebarCollapsed && (
-                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold px-3 mb-1">
-                      {category}
-                    </p>
-                  )}
-                  <div className="space-y-0.5">
-                    {items.map(item => {
-                      const Icon = item.icon
-                      const isActive = activeTab === item.id
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => guardedSetActiveTab(item.id)}
-                          className={cn(
-                            'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm',
-                            sidebarCollapsed ? 'justify-center p-2.5' : 'px-3 py-2',
-                            isActive 
-                              ? 'bg-primary text-primary-foreground shadow-sm' 
-                              : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-                          )}
-                          title={sidebarCollapsed ? item.label : undefined}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" weight={isActive ? 'fill' : 'regular'} />
-                          {!sidebarCollapsed && <span className="truncate font-medium">{item.label}</span>}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {category !== visibleCategories[visibleCategories.length - 1] && !sidebarCollapsed && (
-                    <Separator className="mt-3 opacity-50" />
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </ScrollArea>
+        <SidebarNav
+          items={filteredNavItems}
+          categories={visibleCategories}
+          activeTab={activeTab}
+          collapsed={sidebarCollapsed}
+          onSelect={guardedSetActiveTab}
+        />
 
         {/* Mode Toggle */}
         {!sidebarCollapsed && (
@@ -474,45 +536,12 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               </Button>
             </div>
             {/* Mobile nav items */}
-            <ScrollArea className="flex-1 py-2">
-              <div className="px-2 space-y-4">
-                {visibleCategories.map(category => {
-                  const items = filteredNavItems.filter(item => item.category === category)
-                  if (items.length === 0) return null
-                  return (
-                    <div key={category}>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold px-3 mb-1">
-                        {category}
-                      </p>
-                      <div className="space-y-0.5">
-                        {items.map(item => {
-                          const Icon = item.icon
-                          const isActive = activeTab === item.id
-                          return (
-                            <button
-                              key={item.id}
-                              onClick={() => { guardedSetActiveTab(item.id); setMobileSidebarOpen(false) }}
-                              className={cn(
-                                'w-full flex items-center gap-3 rounded-lg transition-all duration-150 text-sm px-3 py-2',
-                                isActive 
-                                  ? 'bg-primary text-primary-foreground shadow-sm' 
-                                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
-                              )}
-                            >
-                              <Icon className="h-4 w-4 shrink-0" weight={isActive ? 'fill' : 'regular'} />
-                              <span className="truncate font-medium">{item.label}</span>
-                            </button>
-                          )
-                        })}
-                      </div>
-                      {category !== visibleCategories[visibleCategories.length - 1] && (
-                        <Separator className="mt-3 opacity-50" />
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </ScrollArea>
+            <SidebarNav
+              items={filteredNavItems}
+              categories={visibleCategories}
+              activeTab={activeTab}
+              onSelect={(tabId) => { guardedSetActiveTab(tabId); setMobileSidebarOpen(false) }}
+            />
             {/* Mobile sidebar footer */}
             <div className="p-3 border-t border-border/50 space-y-1.5">
               <Button variant="ghost" size="sm" onClick={() => { onExit(); setMobileSidebarOpen(false) }} className="w-full gap-2 text-xs justify-start">
@@ -526,61 +555,159 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         </div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 min-w-0">
-        {/* Top bar */}
-        <header className="sticky z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl" style={{ top: 'var(--honor-bar-height, 64px)' }}>
-          <div className="flex items-center justify-between h-14 px-4 lg:px-6">
-            <div className="flex items-center gap-3">
-              {/* Mobile menu toggle */}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="lg:hidden h-8 w-8"
-                onClick={() => setMobileSidebarOpen(true)}
-              >
-                <List className="h-5 w-5" />
-              </Button>
-              {activeItem && (
-                <>
-                  <activeItem.icon className="h-5 w-5 text-primary" weight="duotone" />
-                  <h2 className="text-base font-semibold">{activeItem.label}</h2>
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={onExit} className="text-xs gap-1.5">
-                <ArrowLeft className="h-3.5 w-3.5" />
-                View Site
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        {/* Page content — extra bottom padding on mobile for Quick Actions bar */}
-        <div className="p-6 lg:p-8 max-w-6xl pb-24 lg:pb-8">
-          {/* Dangerous Actions Warning Banner */}
-          {flags.dangerousActions && (
-            <div
-              role="alert"
-              className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400"
-            >
-              <Warning className="h-5 w-5 shrink-0 text-red-500" weight="fill" />
-              <div className="min-w-0">
-                <span className="font-semibold">Dangerous Actions Enabled</span>
-                <span className="mx-1.5 text-red-500/60">&#x2022;</span>
-                <span className="text-red-400/80">Bulk delete, data wipe, and other destructive operations are unlocked. Disable when not in active use.</span>
+      {/* Main content + optional side panels */}
+      <main className="flex-1 min-w-0 flex">
+        {/* Editor content area */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Top bar */}
+          <header className="sticky z-30 border-b border-border/50 bg-background/90 backdrop-blur-xl" style={{ top: 'var(--honor-bar-height, 64px)' }}>
+            <div className="flex items-center justify-between h-14 px-4 lg:px-6">
+              <div className="flex items-center gap-3">
+                {/* Mobile menu toggle */}
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="lg:hidden h-8 w-8"
+                  onClick={() => setMobileSidebarOpen(true)}
+                >
+                  <List className="h-5 w-5" />
+                </Button>
+                {activeItem && (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <activeItem.icon className="h-5 w-5 text-primary shrink-0" weight="duotone" />
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      {activeItem.category !== 'Overview' && (
+                        <>
+                          <span className="text-xs text-muted-foreground hidden sm:inline">{activeItem.category}</span>
+                          <CaretRight className="h-3 w-3 text-muted-foreground/50 shrink-0 hidden sm:inline" />
+                        </>
+                      )}
+                      <h2 className="text-base font-semibold truncate">{activeItem.label}</h2>
+                    </div>
+                    {/* Favorite toggle */}
+                    {activeItem.id !== 'overview' && (
+                      <button
+                        onClick={() => toggleFavorite(activeItem.id)}
+                        className="text-muted-foreground hover:text-amber-500 transition-colors"
+                        title={isFavorite(activeItem.id) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        <Star className="h-3.5 w-3.5" weight={isFavorite(activeItem.id) ? 'fill' : 'regular'} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true }))}
+                  className="hidden sm:flex items-center gap-2 h-8 px-3 rounded-md border border-border/50 bg-muted/30 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                >
+                  <MagnifyingGlass className="h-3.5 w-3.5" />
+                  <span>Search...</span>
+                  <kbd className="ml-2 pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-border/50 bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                    Ctrl K
+                  </kbd>
+                </button>
+                <Button variant="outline" size="sm" onClick={onExit} className="text-xs gap-1.5">
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  View Site
+                </Button>
               </div>
             </div>
+          </header>
+
+          {/* Favorites bar (when user has favorites) */}
+          {favorites.length > 0 && (
+            <div className="border-b border-border/30 bg-muted/20 px-4 lg:px-6 py-1.5 hidden lg:flex items-center gap-1 overflow-x-auto">
+              <Star className="h-3 w-3 text-amber-500 shrink-0 mr-1" weight="fill" />
+              {favorites.map(favId => {
+                const favItem = navItems.find(n => n.id === favId)
+                if (!favItem) return null
+                const FavIcon = favItem.icon
+                return (
+                  <button
+                    key={favId}
+                    onClick={() => guardedSetActiveTab(favId)}
+                    className={cn(
+                      'flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors',
+                      activeTab === favId
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                    )}
+                  >
+                    <FavIcon className="h-3 w-3" weight="regular" />
+                    {favItem.label}
+                  </button>
+                )
+              })}
+            </div>
           )}
-          {/* B26: Legacy auth migration banner */}
-          {currentUser && (
-            <MigrationBanner userEmail={currentUser.email} />
-          )}
-          <Suspense fallback={<ModuleLoader />}>
-            {renderContent()}
+
+          {/* Page content — extra bottom padding on mobile for Quick Actions bar */}
+          <div className="flex-1 p-6 lg:p-8 max-w-6xl pb-24 lg:pb-8">
+            {/* Dangerous Actions Warning Banner */}
+            {flags.dangerousActions && (
+              <div
+                role="alert"
+                className="mb-6 flex items-center gap-3 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400"
+              >
+                <Warning className="h-5 w-5 shrink-0 text-red-500" weight="fill" />
+                <div className="min-w-0">
+                  <span className="font-semibold">Dangerous Actions Enabled</span>
+                  <span className="mx-1.5 text-red-500/60">&#x2022;</span>
+                  <span className="text-red-400/80">Bulk delete, data wipe, and other destructive operations are unlocked. Disable when not in active use.</span>
+                </div>
+              </div>
+            )}
+            {/* B26: Legacy auth migration banner */}
+            {currentUser && (
+              <MigrationBanner userEmail={currentUser.email} />
+            )}
+            <Suspense fallback={<ModuleLoader />}>
+              {renderContent()}
+            </Suspense>
+          </div>
+
+          {/* Editor Toolbar — sticky bottom bar with save/undo/redo/status */}
+          <Suspense fallback={null}>
+            <EditorToolbar
+              isDirty={globalDirty}
+              isSaving={isSaving}
+              canUndo={historyState.canUndo}
+              canRedo={historyState.canRedo}
+              onSave={handleSave}
+              onUndo={() => {
+                const entry = historyStore.undo()
+                if (entry) toast.info(`Undone: ${entry.label}`)
+              }}
+              onRedo={() => {
+                const entry = historyStore.redo()
+                if (entry) toast.info(`Redone: ${entry.label}`)
+              }}
+              onTogglePreview={() => setPreviewOpen(p => !p)}
+              onToggleHistory={() => setHistoryOpen(h => !h)}
+              isPreviewOpen={previewOpen}
+              isHistoryOpen={historyOpen}
+            />
           </Suspense>
         </div>
+
+        {/* History Timeline Panel — side panel */}
+        {historyOpen && (
+          <Suspense fallback={null}>
+            <HistoryTimeline onClose={() => setHistoryOpen(false)} />
+          </Suspense>
+        )}
+
+        {/* Preview Panel — side-by-side preview */}
+        {previewOpen && (
+          <Suspense fallback={null}>
+            <PreviewPanel
+              isDirty={globalDirty}
+              onClose={() => setPreviewOpen(false)}
+            />
+          </Suspense>
+        )}
       </main>
 
       {/* Mobile Quick Actions Bar (Chain A5) */}
@@ -593,6 +720,13 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
           canPublish={canPublish}
         />
       </Suspense>
+
+      {/* Command Palette (Ctrl+K) */}
+      <CommandPalette
+        items={filteredNavItems}
+        categories={visibleCategories}
+        onSelect={guardedSetActiveTab}
+      />
 
       {/* Publish Confirmation Dialog (Chain A4) */}
       <ConfirmDialog
@@ -608,6 +742,10 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         onConfirm={() => executePublish('branch')}
         warning="Changes will be pushed to a review branch. Merge the PR to deploy to production."
       />
+
+      {/* Route Leave Guard Dialog */}
+      <GuardDialog />
     </div>
+    </WorkspaceSiteProvider>
   )
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowUp } from '@phosphor-icons/react'
 import { Button } from './button'
 import { motion, AnimatePresence } from 'framer-motion'
+import { springTransition } from '@/lib/motion-variants'
 
 export function BackToTop() {
   const [isVisible, setIsVisible] = useState(false)
@@ -33,16 +34,16 @@ export function BackToTop() {
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          transition={{ duration: 0.2 }}
+          initial={{ opacity: 0, scale: 0.8, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: 20 }}
+          transition={springTransition}
           className="fixed bottom-8 right-8 z-50"
         >
           <Button
             onClick={scrollToTop}
             size="icon"
-            className="h-12 w-12 rounded-full shadow-lg bg-primary/90 backdrop-blur-md hover:bg-primary hover:shadow-xl"
+            className="h-12 w-12 rounded-full shadow-lg bg-primary/90 backdrop-blur-md hover:bg-primary hover:shadow-xl hover:shadow-primary/20 transition-shadow duration-300"
             aria-label="Back to top"
           >
             <ArrowUp className="h-5 w-5" />

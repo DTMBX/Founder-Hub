@@ -113,7 +113,7 @@ export default function OfferingsSection({ investorMode, tradeMode }: OfferingsS
     : allPublicOfferings.filter(o => o.category === selectedCategory)
 
   return (
-    <section id="services" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref}>
+    <section id="services" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref} data-content-section="services" data-kv-key="founder-hub-offerings" data-admin-tab="offerings">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />
       <div className="container mx-auto max-w-7xl">

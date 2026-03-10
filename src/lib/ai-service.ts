@@ -62,6 +62,11 @@ When suggesting edits, use the format: \`/edit replace "old" with "new"\` so the
 let cachedStatus: AiStatus | null = null
 let statusCheckedAt = 0
 
+/** Synchronous read of the last cached AI status. Returns null if never checked. */
+export function getCachedAiStatus(): AiStatus | null {
+  return cachedStatus
+}
+
 export async function getAiStatus(force = false): Promise<AiStatus> {
   const now = Date.now()
   if (!force && cachedStatus && now - statusCheckedAt < 30_000) {
@@ -294,4 +299,84 @@ export async function generateCode(
     temperature: 0.3,
     signal,
   })
+}
+
+// ─── Content field suggestions (structured JSON output) ─────────────────────
+
+const CONTENT_SYSTEM_PROMPT = `You are a professional content writing assistant for a founder's personal website. You write clear, concise, professional text. You return ONLY valid JSON — no markdown, no code fences, no explanation outside the JSON object.`
+
+export interface ContentSuggestionRequest {
+  /** The field label (e.g. "Mission Statement", "Bio") */
+  fieldLabel: string
+  /** The field kind (text, textarea, tags) */
+  fieldKind: string
+  /** Current value of the field */
+  currentValue: string | string[]
+  /** Optional context: other fields in the same module */
+  context?: Record<string, unknown>
+  /** What kind of suggestion: 'rewrite' or 'variants' */
+  mode: 'rewrite' | 'variants'
+  /** Abort signal */
+  signal?: AbortSignal
+}
+
+export interface ContentSuggestionResponse {
+  /** The suggested value(s) */
+  suggestions: Array<{
+    value: string | string[]
+    label: string
+  }>
+  /** Brief reasoning */
+  reasoning: string
+}
+
+export async function suggestContentField(
+  req: ContentSuggestionRequest,
+): Promise<ContentSuggestionResponse> {
+  const isArray = Array.isArray(req.currentValue)
+  const currentStr = isArray
+    ? (req.currentValue as string[]).join(', ')
+    : (req.currentValue as string)
+
+  const contextStr = req.context
+    ? `\nOther fields for context:\n${Object.entries(req.context)
+        .filter(([, v]) => typeof v === 'string' && v)
+        .map(([k, v]) => `  ${k}: ${v}`)
+        .join('\n')}`
+    : ''
+
+  let userPrompt: string
+  if (req.mode === 'rewrite') {
+    if (isArray) {
+      userPrompt = `Improve the following list of items for the "${req.fieldLabel}" field on a founder's website.${contextStr}\n\nCurrent items: ${currentStr}\n\nReturn a JSON object with this exact shape:\n{"suggestions":[{"value":["item1","item2","item3"],"label":"Improved list"}],"reasoning":"why"}\n\nReturn 1 suggestion. Keep roughly the same number of items. Improve clarity and professionalism.`
+    } else {
+      userPrompt = `Improve the following text for the "${req.fieldLabel}" field on a founder's website.${contextStr}\n\nCurrent text: "${currentStr}"\n\nReturn a JSON object with this exact shape:\n{"suggestions":[{"value":"improved text","label":"Rewrite"}],"reasoning":"why"}\n\nReturn 1 suggestion. Keep roughly the same length. Improve clarity and professionalism.`
+    }
+  } else {
+    if (isArray) {
+      userPrompt = `Suggest 3 alternative versions of the following list for the "${req.fieldLabel}" field on a founder's website.${contextStr}\n\nCurrent items: ${currentStr}\n\nReturn a JSON object with this exact shape:\n{"suggestions":[{"value":["a","b"],"label":"Variant 1"},{"value":["c","d"],"label":"Variant 2"},{"value":["e","f"],"label":"Variant 3"}],"reasoning":"why"}\n\nKeep roughly the same number of items per suggestion.`
+    } else {
+      userPrompt = `Suggest 3 alternative versions of the following text for the "${req.fieldLabel}" field on a founder's website.${contextStr}\n\nCurrent text: "${currentStr}"\n\nReturn a JSON object with this exact shape:\n{"suggestions":[{"value":"text 1","label":"Variant 1"},{"value":"text 2","label":"Variant 2"},{"value":"text 3","label":"Variant 3"}],"reasoning":"why"}\n\nKeep roughly the same length.`
+    }
+  }
+
+  const raw = await chatComplete({
+    messages: [
+      { role: 'system', content: CONTENT_SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt },
+    ],
+    temperature: 0.6,
+    signal: req.signal,
+  })
+
+  // Parse JSON from AI response — strip any code fences the model may wrap it in
+  const cleaned = raw.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
+  const parsed = JSON.parse(cleaned) as ContentSuggestionResponse
+
+  // Validate structure
+  if (!Array.isArray(parsed.suggestions) || parsed.suggestions.length === 0) {
+    throw new Error('AI returned invalid suggestion structure')
+  }
+
+  return parsed
 }

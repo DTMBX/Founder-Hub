@@ -15,6 +15,8 @@ import { kv } from '@/lib/local-storage-kv'
 import { KV_SCHEMAS, validateKV } from '@/lib/content-schema'
 import { history } from '@/lib/history-store'
 import { enforceCurrentRole } from '@/lib/studio-permissions'
+import type { WorkspaceSite } from '@/lib/workspace-site'
+import { resolveContentKeys } from '@/lib/workspace-site'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -23,6 +25,8 @@ export interface Snapshot {
   version: 1
   /** ISO timestamp of export */
   exportedAt: string
+  /** Workspace site this snapshot belongs to (undefined = legacy global) */
+  siteId?: string
   /** Map of KV key → value for every schema-backed key */
   data: Record<string, unknown>
 }
@@ -46,12 +50,15 @@ const SCHEMA_KEYS = Object.keys(KV_SCHEMAS)
 
 /**
  * Read all schema-backed KV keys and return a structured snapshot.
+ * If a WorkspaceSite is provided, only exports keys for that site.
  * Only includes keys that actually have data.
  */
-export async function exportSnapshot(): Promise<Snapshot> {
+export async function exportSnapshot(site?: WorkspaceSite): Promise<Snapshot> {
+  enforceCurrentRole('studio:export-snapshot')
+  const keysToExport = site ? resolveContentKeys(site) : SCHEMA_KEYS
   const data: Record<string, unknown> = {}
 
-  for (const key of SCHEMA_KEYS) {
+  for (const key of keysToExport) {
     const value = await kv.get(key)
     if (value !== null) {
       data[key] = value
@@ -61,6 +68,7 @@ export async function exportSnapshot(): Promise<Snapshot> {
   return {
     version: 1,
     exportedAt: new Date().toISOString(),
+    ...(site ? { siteId: site.siteId } : {}),
     data,
   }
 }
@@ -68,15 +76,16 @@ export async function exportSnapshot(): Promise<Snapshot> {
 /**
  * Export and trigger browser download as .json file.
  */
-export async function downloadSnapshot(): Promise<void> {
-  const snapshot = await exportSnapshot()
+export async function downloadSnapshot(site?: WorkspaceSite): Promise<void> {
+  const snapshot = await exportSnapshot(site)
   const json = JSON.stringify(snapshot, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
 
+  const label = site ? site.siteId : 'founder-hub'
   const a = document.createElement('a')
   a.href = url
-  a.download = `founder-hub-snapshot-${new Date().toISOString().slice(0, 10)}.json`
+  a.download = `${label}-snapshot-${new Date().toISOString().slice(0, 10)}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

@@ -54,11 +54,20 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     return () => mediaQuery.removeEventListener('change', listener)
   }, [settings?.motionLevel])
 
+  // Dark theme — always on (matches site design intent)
   useEffect(() => {
-    if (settings?.contrastMode === 'extra') {
-      document.documentElement.classList.add('extra-contrast')
+    const root = document.documentElement
+    root.classList.add('dark')
+    root.setAttribute('data-appearance', 'dark')
+  }, [])
+
+  // High-contrast mode
+  useEffect(() => {
+    const root = document.documentElement
+    if (settings?.contrastMode === 'extra' || !settings?.contrastMode || settings?.contrastMode === 'standard') {
+      root.classList.add('extra-contrast')
     } else {
-      document.documentElement.classList.remove('extra-contrast')
+      root.classList.remove('extra-contrast')
     }
   }, [settings?.contrastMode])
 

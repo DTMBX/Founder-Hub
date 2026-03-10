@@ -43,10 +43,12 @@ export type StudioAction =
   // Snapshot operations
   | 'studio:export-snapshot'
   | 'studio:import-snapshot'
+  | 'studio:manage-snapshots'
   // Bulk operations
   | 'studio:bulk-ops'
-  // Audit
+  // Audit & Governance
   | 'studio:run-audit'
+  | 'studio:view-governance'
   // History
   | 'studio:view-history'
   | 'studio:undo-redo'
@@ -54,10 +56,12 @@ export type StudioAction =
   | 'studio:command-palette'
   // AI suggestions
   | 'studio:ai-suggest'
+  | 'studio:ai-accept'
   // Style editing
   | 'studio:edit-style'
   // Workspace
   | 'studio:view-workspace'
+  | 'studio:switch-site'
 
 /**
  * Maps each studio action to the existing Permission type.
@@ -76,14 +80,18 @@ const STUDIO_ACTION_MAP: Record<StudioAction, Permission> = {
   'studio:edit-collection':   'content:edit',
   'studio:export-snapshot':   'export:data',
   'studio:import-snapshot':   'settings:edit',
+  'studio:manage-snapshots':  'settings:edit',
   'studio:bulk-ops':          'content:edit',
   'studio:run-audit':         'audit:read',
+  'studio:view-governance':   'audit:read',
   'studio:view-history':      'audit:read',
   'studio:undo-redo':         'content:edit',
   'studio:command-palette':   'content:read',
   'studio:ai-suggest':        'content:edit',
+  'studio:ai-accept':         'content:edit',
   'studio:edit-style':        'settings:edit',
   'studio:view-workspace':    'settings:read',
+  'studio:switch-site':       'settings:read',
 }
 
 /**
@@ -101,14 +109,18 @@ const DENIAL_REASONS: Record<StudioAction, string> = {
   'studio:edit-collection':   'Editing collections requires editor role or higher',
   'studio:export-snapshot':   'Exporting snapshots requires admin role or higher',
   'studio:import-snapshot':   'Importing snapshots requires admin role or higher',
+  'studio:manage-snapshots':  'Managing safety snapshots requires admin role or higher',
   'studio:bulk-ops':          'Bulk operations require editor role or higher',
   'studio:run-audit':         'Running audits requires admin role or higher',
+  'studio:view-governance':   'Governance dashboard requires admin role or higher',
   'studio:view-history':      'Viewing history requires admin role or higher',
   'studio:undo-redo':         'Undo/redo requires editor role or higher',
   'studio:command-palette':   'Command palette requires content:read permission',
   'studio:ai-suggest':        'AI suggestions require editor role or higher',
+  'studio:ai-accept':         'Accepting AI proposals requires editor role or higher',
   'studio:edit-style':        'Style editing requires admin role or higher',
   'studio:view-workspace':    'Workspace view requires admin role or higher',
+  'studio:switch-site':       'Switching workspace sites requires admin role or higher',
 }
 
 // ─── Dev Role Simulation ────────────────────────────────────────────────────
@@ -258,7 +270,9 @@ const COMMAND_REQUIRED_ACTION: Record<string, StudioAction> = {
   'collection-add-item':        'studio:edit-collection',
   'snapshot-export':            'studio:export-snapshot',
   'snapshot-import':            'studio:import-snapshot',
+  'snapshot-clear':             'studio:manage-snapshots',
   'audit-run':                  'studio:run-audit',
+  'governance-view':            'studio:view-governance',
   'nav-clear-selection':        'studio:view',
   'bulk-enable-all-sections':   'studio:bulk-ops',
   'bulk-disable-non-essential': 'studio:bulk-ops',
@@ -266,6 +280,8 @@ const COMMAND_REQUIRED_ACTION: Record<string, StudioAction> = {
   'bulk-normalize-project-titles': 'studio:bulk-ops',
   'ai-improve-description':     'studio:ai-suggest',
   'ai-suggest-tags':            'studio:ai-suggest',
+  'ai-accept-proposal':         'studio:ai-accept',
+  'site-switch':                'studio:switch-site',
 }
 
 /**

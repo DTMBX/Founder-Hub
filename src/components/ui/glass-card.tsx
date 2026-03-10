@@ -2,11 +2,13 @@ import { cn } from '@/lib/utils'
 
 interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
   intensity?: 'low' | 'medium' | 'high'
+  glow?: boolean
   children: React.ReactNode
 }
 
 export function GlassCard({ 
   intensity = 'medium', 
+  glow = false,
   className, 
   children, 
   ...props 
@@ -22,6 +24,7 @@ export function GlassCard({
       className={cn(
         'rounded-xl border border-border/40 shadow-lg transition-all duration-300',
         intensityClasses[intensity],
+        glow && 'glass-glow',
         className
       )}
       {...props}

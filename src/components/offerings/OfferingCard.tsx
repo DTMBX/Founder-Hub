@@ -272,6 +272,9 @@ export function OfferingCard({
           isFeatured && 'ring-2 ring-accent/20',
           className
         )}
+        data-content-type="offering"
+        data-content-id={offering.id}
+        data-content-title={offering.title}
       >
         {/* Glow effect on hover */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">

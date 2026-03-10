@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import PublicSite from './components/PublicSite'
-import AdminDashboard from './components/admin/AdminDashboard'
-import AdminLogin from './components/admin/AdminLogin'
-import CaseJacket from './components/CaseJacket'
-import CheckoutResult from './components/CheckoutResult'
-import SiteRouter from './components/sites/SiteRouter'
-import { OfferingPage } from './marketing'
 import { useAuth } from './lib/auth'
 import { useInitializeSampleData } from './lib/initialize-sample-data'
+
+const DevToolbar = lazy(() => import('./components/DevToolbar'))
+const DevCustomizer = lazy(() => import('./components/DevCustomizer'))
+
+// Route-level code splitting — these views are not needed on initial load
+const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'))
+const AdminLogin = lazy(() => import('./components/admin/AdminLogin'))
+const CaseJacket = lazy(() => import('./components/CaseJacket'))
+const CheckoutResult = lazy(() => import('./components/CheckoutResult'))
+const SiteRouter = lazy(() => import('./components/sites/SiteRouter'))
+const OfferingPage = lazy(() => import('./marketing').then(m => ({ default: m.OfferingPage })))
+const StudioPreview = lazy(() => import('./components/dev/StudioPreview'))
 
 type View =
   | 'public'
@@ -17,6 +23,7 @@ type View =
   | 'checkout-cancel'
   | 'site'
   | 'site-preview'
+  | 'studio-preview'
   | 'offerings'
 
 function App() {
@@ -67,6 +74,8 @@ function App() {
       setView('admin')
     } else if (hash === 'offerings') {
       setView('offerings')
+    } else if (hash === 'studio-preview') {
+      setView('studio-preview')
     } else if (hash === 'checkout/success') {
       setView('checkout-success')
     } else if (hash === 'checkout/cancel') {
@@ -95,49 +104,98 @@ function App() {
     window.location.hash = 'offerings'
   }
 
+  // Route loading fallback
+  const routeFallback = (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-muted-foreground animate-pulse">Loading...</div>
+    </div>
+  )
+
   // Public site via slug: #s/{slug}
   if (view === 'site' && siteSlug) {
-    return <SiteRouter slug={siteSlug} mode="public" onBack={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <SiteRouter slug={siteSlug} mode="public" onBack={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   // Admin preview via siteId: #preview/{siteId}
   if (view === 'site-preview' && sitePreviewId) {
-    return <SiteRouter siteId={sitePreviewId} mode="preview" onBack={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <SiteRouter siteId={sitePreviewId} mode="preview" onBack={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   if (view === 'checkout-success') {
-    return <CheckoutResult status="success" onBack={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <CheckoutResult status="success" onBack={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   if (view === 'checkout-cancel') {
-    return <CheckoutResult status="cancel" onBack={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <CheckoutResult status="cancel" onBack={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   if (view === 'case-jacket' && caseId) {
-    return <CaseJacket caseId={caseId} onBack={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <CaseJacket caseId={caseId} onBack={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   if (view === 'admin') {
     if (isLoading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-          <div className="text-muted-foreground">Loading...</div>
-        </div>
-      )
+      return routeFallback
     }
 
     if (!isAuthenticated) {
-      return <AdminLogin onBack={handleBackToPublic} />
+      return (
+        <Suspense fallback={routeFallback}>
+          <AdminLogin onBack={handleBackToPublic} />
+        </Suspense>
+      )
     }
 
-    return <AdminDashboard onExit={handleBackToPublic} />
+    return (
+      <Suspense fallback={routeFallback}>
+        <AdminDashboard onExit={handleBackToPublic} />
+      </Suspense>
+    )
   }
 
   if (view === 'offerings') {
-    return <OfferingPage />
+    return (
+      <Suspense fallback={routeFallback}>
+        <OfferingPage />
+      </Suspense>
+    )
   }
 
-  return <PublicSite onAdminClick={handleNavigateToAdmin} onNavigateToCase={handleNavigateToCase} />
+  // Studio preview — clean frame for the preview iframe (no DevCustomizer)
+  if (view === 'studio-preview') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <StudioPreview />
+      </Suspense>
+    )
+  }
+
+  return (
+    <>
+      <PublicSite onAdminClick={handleNavigateToAdmin} onNavigateToCase={handleNavigateToCase} />
+      <Suspense fallback={null}><DevCustomizer /></Suspense>
+    </>
+  )
 }
 
 export default App

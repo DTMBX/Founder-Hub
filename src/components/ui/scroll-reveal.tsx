@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react'
-import { useScrollReveal, revealStyle } from '@/hooks/use-scroll-reveal'
+import { motion } from 'framer-motion'
+import { fadeUp, viewportOnce } from '@/lib/motion-variants'
 
 interface ScrollRevealProps {
   children: ReactNode
@@ -8,11 +9,16 @@ interface ScrollRevealProps {
 }
 
 export function ScrollReveal({ children, delay = 0, className }: ScrollRevealProps) {
-  const [ref, visible] = useScrollReveal<HTMLDivElement>(delay)
-
   return (
-    <div ref={ref} style={revealStyle(visible)} className={className}>
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={viewportOnce}
+      transition={{ delay: delay / 1000 }}
+      className={className}
+    >
       {children}
-    </div>
+    </motion.div>
   )
 }

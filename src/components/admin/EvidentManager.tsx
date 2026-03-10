@@ -131,7 +131,7 @@ export default function EvidentManager() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Evident Platform</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Multi-app deployment management for evident.icu — Eleventy landing site + 4 satellite apps.
+          Multi-app deployment management for evident.icu — Eleventy landing site + 6 satellite apps.
         </p>
       </div>
 
@@ -316,7 +316,7 @@ export default function EvidentManager() {
               <div>
                 <p className="text-sm font-medium">Workspace Install</p>
                 <p className="text-xs text-muted-foreground">
-                  Single <code className="text-[11px] bg-muted/50 px-1 rounded">npm ci</code> at repo root — npm workspaces resolves all 4 satellite app dependencies in one deterministic pass.
+                  Single <code className="text-[11px] bg-muted/50 px-1 rounded">npm ci</code> at repo root — npm workspaces resolves all 6 satellite app dependencies in one deterministic pass.
                 </p>
               </div>
             </div>

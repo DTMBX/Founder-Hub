@@ -40,7 +40,7 @@ export default function CourtSection({ investorMode, onNavigateToCase }: CourtSe
   }
 
   return (
-    <section id="court" className="relative py-16 sm:py-20 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref}>
+    <section id="court" className="relative py-16 sm:py-20 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden" ref={ref} data-content-section="court" data-kv-key="founder-hub-court-cases,founder-hub-pdfs" data-admin-tab="court">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/20 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />
       

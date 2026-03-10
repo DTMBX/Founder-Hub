@@ -434,6 +434,9 @@ export default function InvestorSection() {
       id="investor" 
       className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
       ref={ref}
+      data-content-section="investor"
+      data-kv-key="founder-hub-investor"
+      data-admin-tab="investor"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-background via-primary/5 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />

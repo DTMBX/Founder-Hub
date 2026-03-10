@@ -140,8 +140,8 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 mb-4">
             <ShieldCheck className="h-7 w-7 text-primary" weight="duotone" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Admin Portal</h1>
-          <p className="text-sm text-muted-foreground mt-1">Secure access to your control center</p>
+          <h1 className="text-xl font-bold tracking-tight">Founder Hub</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sign in to your control center</p>
         </div>
 
         <Card className="border-border/50 shadow-xl shadow-black/5">
@@ -365,11 +365,11 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
         </Card>
 
         <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-muted-foreground/60">
-          <span>PBKDF2 + AES-256-GCM</span>
+          <span className="flex items-center gap-1"><Lock className="h-2.5 w-2.5" />Encrypted</span>
           <span>·</span>
-          <span>Hardware Keys</span>
+          <span className="flex items-center gap-1"><Key className="h-2.5 w-2.5" />Hardware Keys</span>
           <span>·</span>
-          <span>Rate limited</span>
+          <span className="flex items-center gap-1"><ShieldCheck className="h-2.5 w-2.5" />Rate Protected</span>
         </div>
       </div>
     </div>

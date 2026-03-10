@@ -10,11 +10,10 @@ import flagVideoSrc from '@/assets/video/flag-video.mp4'
 import flagPosterSrc from '@/assets/images/us-flag-50.png'
 
 interface HeroSectionProps {
-  investorMode: boolean
   onSelectPathway?: (pathway: 'investors' | 'legal' | 'about' | 'marketplace') => void
 }
 
-export default function HeroSection({ investorMode, onSelectPathway }: HeroSectionProps) {
+export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
   const [sections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
@@ -83,6 +82,9 @@ export default function HeroSection({ investorMode, onSelectPathway }: HeroSecti
     <section 
       id="hero" 
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      data-content-section="hero"
+      data-kv-key="founder-hub-sections,founder-hub-settings"
+      data-admin-tab="content"
     >
       {/* ── Flag Video Background ── */}
       <video

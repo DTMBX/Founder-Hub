@@ -228,7 +228,6 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       <main id="main-content">
         {/* Hero - Hand-authored, not part of config system */}
         <HeroSection 
-          investorMode={false} 
           onSelectPathway={handleSelectPathway}
         />
         

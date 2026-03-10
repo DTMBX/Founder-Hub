@@ -2,6 +2,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import { resolve } from 'path'
+import workspaceApi from './vite-plugin-workspace-api'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
@@ -10,9 +11,19 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    workspaceApi(),
   ],
   server: {
     port: 5175,
+    proxy: {
+      // Route /__ai/ to local Ollama API for the AI draft assistant.
+      // Ollama must be running (`ollama serve`) on the default port.
+      '/__ai/': {
+        target: 'http://127.0.0.1:11434/api/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/__ai\//, ''),
+      },
+    },
   },
   resolve: {
     alias: {

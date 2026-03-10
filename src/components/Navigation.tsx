@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
-import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle, ShoppingBag } from '@phosphor-icons/react'
+import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle, ShoppingBag, type IconProps } from '@phosphor-icons/react'
 import { Section } from '@/lib/types'
 import { useActiveSection } from '@/hooks/use-active-section'
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ interface NavigationProps {
   activePathway?: string
 }
 
-const sectionIcons: Record<string, any> = {
+const sectionIcons: Record<string, React.ComponentType<IconProps>> = {
   hero: House,
   projects: FolderOpen,
   offerings: ShoppingBag,
@@ -85,7 +85,7 @@ export default function Navigation({
       className={cn(
         'fixed left-0 right-0 z-50 transition-all duration-300',
         isScrolled 
-          ? 'bg-black/95 backdrop-blur-xl border-b border-white/10 shadow-lg translate-y-0 opacity-100' 
+          ? 'bg-background/95 backdrop-blur-xl border-b border-border shadow-lg translate-y-0 opacity-100' 
           : '-translate-y-full opacity-0 pointer-events-none'
       )}
       style={{
@@ -108,7 +108,7 @@ export default function Navigation({
             onClick={() => scrollToSection('hero')}
             className={cn(
               'text-base font-bold tracking-tight transition-colors font-mono',
-              isScrolled ? 'text-white hover:text-white/80' : 'text-white/90 hover:text-white'
+              isScrolled ? 'text-foreground hover:text-foreground/80' : 'text-foreground/90 hover:text-foreground'
             )}
           >
             xTx396
@@ -123,24 +123,24 @@ export default function Navigation({
                 className={cn(
                   'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
                   activeSection === link.id
-                    ? 'text-white bg-white/15' 
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                    ? 'text-foreground bg-foreground/15' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
                 )}
               >
                 {link.label}
                 {activeSection === link.id && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-white/80" />
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-foreground/80" />
                 )}
               </button>
             ))}
 
             {onAdminClick && (
-              <div className="ml-3 pl-3 border-l border-white/20">
+              <div className="ml-3 pl-3 border-l border-border">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onAdminClick}
-                  className="text-xs font-medium text-white/60 hover:text-white hover:bg-white/10"
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/10"
                 >
                   Admin
                 </Button>
@@ -150,7 +150,7 @@ export default function Navigation({
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon" className="text-white/90 hover:bg-white/10" aria-label="Open navigation menu" aria-expanded={mobileOpen}>
+              <Button variant="ghost" size="icon" className="text-foreground/90 hover:bg-foreground/10" aria-label="Open navigation menu" aria-expanded={mobileOpen}>
                 <List className="h-5 w-5" />
               </Button>
             </SheetTrigger>

@@ -68,7 +68,7 @@ export interface SiteSettings {
   stripeCancelUrl?: string
 }
 
-export type SectionType = 'hero' | 'projects' | 'now' | 'court' | 'proof' | 'contact' | 'about' | 'offerings' | 'services'
+export type SectionType = 'hero' | 'about' | 'projects' | 'offerings' | 'services' | 'investor' | 'court' | 'proof' | 'contact' | 'governance' | 'now' | 'how-it-works' | 'faq' | 'final-cta'
 
 export interface Section {
   id: string

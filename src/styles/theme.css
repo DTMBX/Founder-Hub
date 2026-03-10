@@ -1,5 +1,3 @@
-@import "tailwindcss";
-
 /* Radix color scales — only import scales actually used by this app's theme */
 @import '@radix-ui/colors/slate.css' layer(base);
 @import '@radix-ui/colors/slate-dark.css' layer(base);
@@ -11,28 +9,6 @@
 @import '@radix-ui/colors/violet-dark.css' layer(base);
 @import '@radix-ui/colors/gray.css' layer(base);
 @import '@radix-ui/colors/gray-dark.css' layer(base);
-
-@import 'tailwindcss/theme' layer(theme);
-
-@import 'tailwindcss/preflight' layer(base);
-
-/*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-}
 
 @layer base {
   :root {
@@ -167,12 +143,12 @@
     /* Focus ring */
     --color-focus-ring: var(--color-accent-9);
 
-    /* Fonts */
-    --font-sans-serif: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    --font-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-      "Liberation Mono", "Courier New", monospace;
+    /* Fonts — Inter for UI, Space Grotesk for headings, JetBrains Mono for code */
+    --font-sans-serif: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --font-heading: 'Space Grotesk', system-ui, sans-serif;
+    --font-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco,
+      Consolas, "Liberation Mono", "Courier New", monospace;
     --font-family: var(--font-sans-serif);
   }
 

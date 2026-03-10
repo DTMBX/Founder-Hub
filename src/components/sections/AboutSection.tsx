@@ -52,7 +52,10 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
 
   return (
     <section 
-      id="about" 
+      id="about"
+      data-content-section="about"
+      data-kv-key="founder-hub-about"
+      data-admin-tab="about" 
       className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />

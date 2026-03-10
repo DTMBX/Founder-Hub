@@ -263,6 +263,21 @@ export function useAuth() {
       if (latestUsers.length > 0 && (!users || users.length === 0)) {
         setUsers(latestUsers)
       }
+
+      // Dev auto-login: on localhost, auto-create session if none exists
+      if (IS_DEV && !await kv.get<Session>(SESSION_KEY)) {
+        const owner = latestUsers.find(u => u.role === 'owner') || latestUsers[0]
+        if (owner) {
+          const devSession: Session = {
+            userId: owner.id,
+            role: owner.role,
+            expiresAt: Date.now() + SESSION_DURATION
+          }
+          await kv.set(SESSION_KEY, devSession)
+          setSession(devSession)
+          log('[useAuth] Dev auto-login: session created for', owner.email)
+        }
+      }
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

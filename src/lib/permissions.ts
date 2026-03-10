@@ -179,6 +179,9 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   'assets': 'editor',
   'leads': 'editor',
   
+  // Overview — all roles
+  'overview': 'support',
+  
   // Admin routes - admin+
   'sites': 'admin',
   'staging': 'admin',
@@ -189,6 +192,8 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   'agency': 'admin',
   'theme': 'admin',
   'audit': 'admin',
+  'governance': 'admin',
+  'style-editor': 'admin',
   
   // System routes - admin+
   'session-security': 'admin',

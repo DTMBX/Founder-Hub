@@ -41,6 +41,7 @@ import type { UserRole } from './types'
  * Routes available in Founder Mode (P0 daily routes only)
  */
 export const FOUNDER_MODE_ROUTES = [
+  'overview',
   'content',
   'inbox',
   'leads',

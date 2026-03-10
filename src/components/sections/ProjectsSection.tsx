@@ -82,7 +82,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
   const hasProjects = enabledProjects.length > 0
 
   return (
-    <section id="projects" className={`relative px-4 sm:px-6 lg:px-8 overflow-hidden ${hasProjects ? 'py-16 sm:py-20 lg:py-28' : 'py-10 sm:py-12'}`} ref={ref}>
+    <section id="projects" className={`relative px-4 sm:px-6 lg:px-8 overflow-hidden ${hasProjects ? 'py-16 sm:py-20 lg:py-28' : 'py-10 sm:py-12'}`} ref={ref} data-content-section="projects" data-kv-key="founder-hub-projects" data-admin-tab="projects">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />
       <div className="container mx-auto max-w-7xl">

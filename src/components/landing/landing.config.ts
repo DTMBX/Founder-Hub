@@ -9,6 +9,7 @@
 
 export const ALLOWED_SECTION_TYPES = [
   'about',
+  'governance',
   'projects', 
   'offerings',
   'services',
@@ -71,10 +72,19 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       marketplaceRelevant: false
     },
     { 
+      id: 'governance', 
+      type: 'governance', 
+      enabled: true, 
+      order: 2,
+      investorRelevant: true,
+      legalRelevant: false,
+      marketplaceRelevant: false
+    },
+    { 
       id: 'projects', 
       type: 'projects', 
       enabled: true, 
-      order: 2,
+      order: 3,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: false
@@ -83,7 +93,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'investor', 
       type: 'investor', 
       enabled: true, 
-      order: 3,
+      order: 4,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: false
@@ -92,7 +102,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'offerings', 
       type: 'offerings', 
       enabled: true, 
-      order: 4,
+      order: 5,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: true
@@ -101,7 +111,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'court', 
       type: 'court', 
       enabled: true, 
-      order: 5,
+      order: 6,
       investorRelevant: false,
       legalRelevant: true,
       marketplaceRelevant: false
@@ -110,7 +120,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'proof', 
       type: 'proof', 
       enabled: true, 
-      order: 6,
+      order: 7,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: false
@@ -119,7 +129,7 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'contact', 
       type: 'contact', 
       enabled: true, 
-      order: 7,
+      order: 8,
       investorRelevant: true,
       legalRelevant: true,
       marketplaceRelevant: true

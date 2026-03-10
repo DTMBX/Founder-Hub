@@ -19,6 +19,7 @@ const InvestorSection = lazy(() => import('../sections/InvestorSection'))
 const CourtSection = lazy(() => import('../sections/CourtSection'))
 const ProofSection = lazy(() => import('../sections/ProofSection'))
 const ContactSection = lazy(() => import('../sections/ContactSection'))
+const GovernanceNarrativeSection = lazy(() => import('../sections/GovernanceNarrativeSection'))
 
 // ─── Section Loading Fallback ───────────────────────────────────
 
@@ -52,6 +53,13 @@ function renderSection(
       return (
         <Suspense key={section.id} fallback={<SectionSkeleton />}>
           <AboutSection pathway={pathway} {...(section.props || {})} />
+        </Suspense>
+      )
+    
+    case 'governance':
+      return (
+        <Suspense key={section.id} fallback={<SectionSkeleton />}>
+          <GovernanceNarrativeSection {...(section.props || {})} />
         </Suspense>
       )
     

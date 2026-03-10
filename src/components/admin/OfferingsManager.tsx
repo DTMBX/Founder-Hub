@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
 import { Offering, OfferingPriceTier, OfferingCategory, OfferingPricing, OfferingVisibility } from '@/lib/types'
+import { useContentEditor } from '@/hooks/use-content-editor'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -50,7 +50,15 @@ function generateSlug(title: string): string {
 }
 
 export default function OfferingsManager() {
-  const [offerings, setOfferings] = useKV<Offering[]>('founder-hub-offerings', [])
+  const editor = useContentEditor<Offering[]>('offerings')
+  const offerings = editor.value || []
+  const setOfferings = (val: Offering[] | ((prev: Offering[]) => Offering[])) => {
+    if (typeof val === 'function') {
+      editor.update(prev => val(prev || []))
+    } else {
+      editor.update(val)
+    }
+  }
   const [editingOffering, setEditingOffering] = useState<Offering | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { currentUser } = useAuth()

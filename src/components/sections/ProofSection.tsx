@@ -19,7 +19,7 @@ export default function ProofSection({ investorMode }: ProofSectionProps) {
   if (proofLinks.length === 0) return null
 
   return (
-    <section id="proof" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section id="proof" className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden" data-content-section="proof" data-kv-key="founder-hub-proof-links" data-admin-tab="links">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/10 to-background -z-10" />
       <div className="section-separator absolute top-0 left-0 right-0" />
 

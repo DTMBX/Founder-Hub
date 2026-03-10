@@ -69,7 +69,7 @@ export const projects: Project[] = [
     docsUrl: null,
     category: 'subsidiary',
     owner: 'Tillerstead LLC',
-    deploymentTarget: 'netlify',
+    deploymentTarget: 'github-pages',
     showInNav: false,
     showInFooter: false,
     showOnHome: false,
