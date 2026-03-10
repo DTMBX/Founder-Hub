@@ -3,6 +3,19 @@
   "title": "Founder & Innovator",
   "bio": "Builder of systems where technology, craftsmanship, transparency, and justice converge.",
   "catchAllEmail": "x@devon-tyler.com",
-  "professionalEmails": [],
+  "professionalEmails": [
+    {
+      "label": "Legal & Court",
+      "email": "dTb33@pm.me",
+      "icon": "envelope",
+      "desc": "Case Inquiries / Contingency Review"
+    },
+    {
+      "label": "NJ Home Improvement Services",
+      "email": "info@tillerstead.com",
+      "icon": "envelope",
+      "desc": ""
+    }
+  ],
   "domain": "devon-tyler.com"
 }

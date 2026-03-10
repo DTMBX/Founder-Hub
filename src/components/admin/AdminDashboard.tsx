@@ -15,7 +15,7 @@ import { useHistory, history as historyStore } from '@/lib/history-store'
 import { useKeyboardShortcuts, type Shortcut } from '@/lib/keyboard-shortcuts'
 import { useGlobalDirty } from '@/lib/editor-state'
 import { useRecentItems } from '@/hooks/use-recent-items'
-import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { WorkspaceSiteProvider, useWorkspaceSite } from '@/lib/workspace-site'
 import { setSafetySnapshotSiteScope } from '@/lib/snapshot-guardrails'
 import MigrationBanner from './MigrationBanner'
@@ -744,20 +744,51 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         onSelect={guardedSetActiveTab}
       />
 
-      {/* Publish Confirmation Dialog (Chain A4) */}
-      <ConfirmDialog
-        open={showPublishConfirm}
-        onOpenChange={setShowPublishConfirm}
-        title="Publish Changes"
-        description={`Push data changes to "${activeSatellite?.name || activeSite?.name || 'Unknown'}". Changes will be committed to a feature branch and a pull request will be opened for review.`}
-        intent="publish"
-        confirmationType="typed"
-        confirmText="PUBLISH"
-        confirmLabel="Publish to Branch"
-        auditAction="publish_changes"
-        onConfirm={() => executePublish('branch')}
-        warning="Changes will be pushed to a review branch. Merge the PR to deploy to production."
-      />
+      {/* Publish Dialog — choose Direct to Main or Branch + PR */}
+      <Dialog open={showPublishConfirm} onOpenChange={setShowPublishConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <GithubLogo className="h-5 w-5" weight="bold" />
+              Publish Changes
+            </DialogTitle>
+            <DialogDescription>
+              Push data changes to &ldquo;{activeSatellite?.name || activeSite?.name || 'Founder-Hub'}&rdquo;.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <Button
+              className="w-full justify-start gap-3 h-auto py-3"
+              variant="default"
+              onClick={() => executePublish('direct')}
+              disabled={isPublishing}
+            >
+              <Rocket className="h-5 w-5 shrink-0" weight="bold" />
+              <div className="text-left">
+                <span className="font-semibold text-sm">Commit to Main</span>
+                <p className="text-xs font-normal opacity-80">Push directly — deploys immediately via GitHub Pages.</p>
+              </div>
+            </Button>
+            <Button
+              className="w-full justify-start gap-3 h-auto py-3"
+              variant="outline"
+              onClick={() => executePublish('branch')}
+              disabled={isPublishing}
+            >
+              <TreeStructure className="h-5 w-5 shrink-0" weight="bold" />
+              <div className="text-left">
+                <span className="font-semibold text-sm">Branch + Pull Request</span>
+                <p className="text-xs font-normal opacity-70">Create a review branch — merge later.</p>
+              </div>
+            </Button>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setShowPublishConfirm(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Route Leave Guard Dialog */}
       <GuardDialog />

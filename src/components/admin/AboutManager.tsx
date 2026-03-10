@@ -21,6 +21,7 @@ export default function AboutManager() {
   return (
     <ContentEditorShell
       registryId="about"
+      editor={editor}
       footer={<UpdatesSection editor={editor} />}
     />
   )

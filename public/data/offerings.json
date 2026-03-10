@@ -54,7 +54,13 @@
         ]
       }
     ],
-    "tags": ["business website", "custom code", "html website", "responsive design", "small business"],
+    "tags": [
+      "business website",
+      "custom code",
+      "html website",
+      "responsive design",
+      "small business"
+    ],
     "icon": "Code",
     "deliverables": [
       "Complete HTML, CSS, and JavaScript source files",
@@ -114,62 +120,19 @@
         ]
       }
     ],
-    "tags": ["landing page", "lead generation", "marketing page"],
+    "tags": [
+      "landing page",
+      "lead generation",
+      "marketing page"
+    ],
     "icon": "FileText",
     "turnaround": "3 to 7 business days",
-    "featured": true,
+    "featured": false,
     "order": 2,
     "visibility": "public",
     "contactCTA": "Order Landing Page",
     "createdAt": 1739664000000,
-    "updatedAt": 1760000000000
-  },
-  {
-    "id": "website-redesign",
-    "title": "Website Redesign Service",
-    "slug": "website-redesign",
-    "summary": "Modernize your current website with a faster, cleaner design and updated code.",
-    "description": "We rebuild outdated websites into modern, responsive websites with improved performance and cleaner structure while preserving your existing content and brand identity.",
-    "category": "service",
-    "pricingType": "paid",
-    "priceTiers": [
-      {
-        "id": "redesign-standard",
-        "name": "Standard Redesign",
-        "price": 179000,
-        "currency": "USD",
-        "description": "Modern refresh for smaller websites",
-        "features": [
-          "Up to 5 pages redesigned",
-          "Responsive layout rebuild",
-          "Performance optimization",
-          "Source code delivery"
-        ]
-      },
-      {
-        "id": "redesign-complete",
-        "name": "Complete Redesign",
-        "price": 349000,
-        "currency": "USD",
-        "description": "Full redesign for larger websites",
-        "features": [
-          "Up to 12 pages redesigned",
-          "Complete UI refresh",
-          "Improved content structure",
-          "SEO-friendly markup",
-          "Deployment assistance"
-        ]
-      }
-    ],
-    "tags": ["website redesign", "site refresh", "modern website"],
-    "icon": "Globe",
-    "turnaround": "1 to 3 weeks",
-    "featured": false,
-    "order": 3,
-    "visibility": "public",
-    "contactCTA": "Request Redesign",
-    "createdAt": 1739664000000,
-    "updatedAt": 1760000000000
+    "updatedAt": 1773151882825
   },
   {
     "id": "website-management",
@@ -225,13 +188,17 @@
         "recurringInterval": "month"
       }
     ],
-    "tags": ["website maintenance", "site support", "monthly plan"],
+    "tags": [
+      "website maintenance",
+      "site support",
+      "monthly plan"
+    ],
     "icon": "Headset",
-    "featured": true,
+    "featured": false,
     "order": 5,
     "visibility": "public",
     "contactCTA": "Start Monthly Plan",
     "createdAt": 1739664000000,
-    "updatedAt": 1760000000000
+    "updatedAt": 1773151868512
   }
 ]

@@ -17,8 +17,9 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { FloppyDisk, ArrowCounterClockwise, Warning, Check, CircleNotch } from '@phosphor-icons/react'
-import { useContentEditor } from '@/hooks/use-content-editor'
+import { useContentEditor, type ContentEditor } from '@/hooks/use-content-editor'
 import { useAiDraft } from '@/hooks/use-ai-draft'
+import { persistToFile, isLocalhost } from '@/lib/local-storage-kv'
 import FieldRenderer from './FieldRenderer'
 import AiDraftProposal from './AiDraftProposal'
 import { useState, useCallback } from 'react'
@@ -28,6 +29,12 @@ import { useState, useCallback } from 'react'
 interface ContentEditorShellProps {
   /** Registry id to load fields and data */
   registryId: string
+  /**
+   * Optional external editor instance. When provided, the shell re-uses it
+   * instead of creating its own — avoids duplicate useKV state for the same
+   * key (e.g. AboutManager passes one editor to both fields and UpdatesSection).
+   */
+  editor?: ContentEditor<Record<string, unknown>>
   /** Optional header slot rendered above the fields */
   header?: React.ReactNode
   /** Optional footer slot rendered below the fields (before toolbar) */
@@ -40,14 +47,17 @@ interface ContentEditorShellProps {
 
 export default function ContentEditorShell({
   registryId,
+  editor: externalEditor,
   header,
   footer,
   children,
 }: ContentEditorShellProps) {
-  const editor = useContentEditor(registryId)
+  const internalEditor = useContentEditor(registryId)
+  const editor = externalEditor || internalEditor
   const ai = useAiDraft(registryId, editor)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
+  const [isPersisting, setIsPersisting] = useState(false)
 
   const handleSave = useCallback(async () => {
     if (!editor.isDirty) return
@@ -55,11 +65,24 @@ export default function ContentEditorShell({
     try {
       await editor.save()
       setShowSaved(true)
-      setTimeout(() => setShowSaved(false), 2000)
+      setTimeout(() => setShowSaved(false), 3000)
     } finally {
       setIsSaving(false)
     }
   }, [editor])
+
+  /** Force-persist to disk even when not dirty (re-save current state to file) */
+  const handlePersistToFile = useCallback(async () => {
+    if (!isLocalhost()) return
+    setIsPersisting(true)
+    try {
+      await persistToFile(editor.key)
+      setShowSaved(true)
+      setTimeout(() => setShowSaved(false), 3000)
+    } finally {
+      setIsPersisting(false)
+    }
+  }, [editor.key])
 
   const handleReset = useCallback(() => {
     editor.reset()
@@ -81,12 +104,20 @@ export default function ContentEditorShell({
 
   return (
     <div className="space-y-6">
-      {/* Save indicator */}
+      {/* Save indicator with persist status */}
       {showSaved && (
         <div className="fixed top-20 right-6 z-50 animate-in slide-in-from-right-4 duration-300">
-          <Badge className="bg-green-500/20 text-green-400 border-green-500/40 px-3 py-1.5">
-            <Check className="h-3.5 w-3.5 mr-1.5" weight="bold" /> Saved
-          </Badge>
+          {editor.lastPersistOk === false ? (
+            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/40 px-3 py-1.5">
+              <Warning className="h-3.5 w-3.5 mr-1.5" weight="fill" />
+              Saved to browser — file write failed (is dev server running?)
+            </Badge>
+          ) : (
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/40 px-3 py-1.5">
+              <Check className="h-3.5 w-3.5 mr-1.5" weight="bold" />
+              {editor.lastPersistOk ? 'Saved to disk' : 'Saved'}
+            </Badge>
+          )}
         </div>
       )}
 
@@ -154,6 +185,11 @@ export default function ContentEditorShell({
             {editor.lastSavedAt && (
               <span>Last saved {editor.lastSavedAt.toLocaleTimeString()}</span>
             )}
+            {editor.lastPersistOk === false && !editor.isDirty && (
+              <Badge variant="outline" className="text-amber-400 border-amber-500/40 text-[10px]">
+                Browser only
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button
@@ -165,6 +201,18 @@ export default function ContentEditorShell({
               <ArrowCounterClockwise className="h-3.5 w-3.5 mr-1.5" />
               Reset
             </Button>
+            {isLocalhost() && !editor.isDirty && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handlePersistToFile}
+                disabled={isPersisting}
+                className="border-blue-500/30 text-blue-500 hover:bg-blue-500/10"
+              >
+                <FloppyDisk className="h-3.5 w-3.5 mr-1.5" />
+                {isPersisting ? 'Writing...' : 'Save to File'}
+              </Button>
+            )}
             <Button
               size="sm"
               onClick={handleSave}

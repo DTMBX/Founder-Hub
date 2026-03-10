@@ -1,1 +1,112 @@
-[]
+[
+  {
+    "id": "complaint",
+    "name": "Complaint",
+    "sortOrder": 0,
+    "defaultNamingToken": "CMPL",
+    "icon": "📋",
+    "color": "#ef4444",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "certification",
+    "name": "Certification/Affidavit",
+    "sortOrder": 1,
+    "defaultNamingToken": "CERT",
+    "icon": "✍️",
+    "color": "#3b82f6",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "motion",
+    "name": "Motion",
+    "sortOrder": 2,
+    "defaultNamingToken": "MTN",
+    "icon": "⚖️",
+    "color": "#f59e0b",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "opposition",
+    "name": "Opposition",
+    "sortOrder": 3,
+    "defaultNamingToken": "OPP",
+    "icon": "🔄",
+    "color": "#8b5cf6",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "reply",
+    "name": "Reply",
+    "sortOrder": 4,
+    "defaultNamingToken": "RPL",
+    "icon": "💬",
+    "color": "#06b6d4",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "order",
+    "name": "Order",
+    "sortOrder": 5,
+    "defaultNamingToken": "ORD",
+    "icon": "⚡",
+    "color": "#10b981",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "notice",
+    "name": "Notice",
+    "sortOrder": 6,
+    "defaultNamingToken": "NOT",
+    "icon": "📢",
+    "color": "#84cc16",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "exhibit",
+    "name": "Exhibit",
+    "sortOrder": 7,
+    "defaultNamingToken": "EX",
+    "icon": "📎",
+    "color": "#ec4899",
+    "defaultVisibility": "private",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "transcript",
+    "name": "Transcript",
+    "sortOrder": 8,
+    "defaultNamingToken": "TR",
+    "icon": "📝",
+    "color": "#f97316",
+    "defaultVisibility": "private",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  },
+  {
+    "id": "opra",
+    "name": "OPRA/Records",
+    "sortOrder": 9,
+    "defaultNamingToken": "OPRA",
+    "icon": "🗂️",
+    "color": "#14b8a6",
+    "defaultVisibility": "unlisted",
+    "createdAt": 1773152765628,
+    "updatedAt": 1773152765628
+  }
+]

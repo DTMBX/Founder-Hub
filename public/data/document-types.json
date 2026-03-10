@@ -1,10 +1,82 @@
 [
-  { "id": "motion", "name": "Motion", "category": "filing", "color": "#3b82f6" },
-  { "id": "order", "name": "Order", "category": "ruling", "color": "#10b981" },
-  { "id": "complaint", "name": "Complaint", "category": "filing", "color": "#f59e0b" },
-  { "id": "response", "name": "Response", "category": "filing", "color": "#8b5cf6" },
-  { "id": "brief", "name": "Brief", "category": "filing", "color": "#06b6d4" },
-  { "id": "exhibit", "name": "Exhibit", "category": "evidence", "color": "#ec4899" },
-  { "id": "declaration", "name": "Declaration", "category": "evidence", "color": "#84cc16" },
-  { "id": "notice", "name": "Notice", "category": "filing", "color": "#6366f1" }
+  {
+    "id": "complaint",
+    "name": "Complaint",
+    "defaultToken": "CMPL",
+    "defaultVisibility": "unlisted",
+    "color": "#ef4444",
+    "order": 0
+  },
+  {
+    "id": "motion",
+    "name": "Motion",
+    "defaultToken": "MTN",
+    "defaultVisibility": "unlisted",
+    "color": "#f59e0b",
+    "order": 1
+  },
+  {
+    "id": "order",
+    "name": "Order",
+    "defaultToken": "ORD",
+    "defaultVisibility": "unlisted",
+    "color": "#10b981",
+    "order": 2
+  },
+  {
+    "id": "certification",
+    "name": "Certification",
+    "defaultToken": "CERT",
+    "defaultVisibility": "unlisted",
+    "color": "#3b82f6",
+    "order": 3
+  },
+  {
+    "id": "exhibit",
+    "name": "Exhibit",
+    "defaultToken": "EX",
+    "defaultVisibility": "private",
+    "color": "#8b5cf6",
+    "order": 4
+  },
+  {
+    "id": "transcript",
+    "name": "Transcript",
+    "defaultToken": "TR",
+    "defaultVisibility": "private",
+    "color": "#ec4899",
+    "order": 5
+  },
+  {
+    "id": "opra",
+    "name": "OPRA Response",
+    "defaultToken": "OPRA",
+    "defaultVisibility": "unlisted",
+    "color": "#06b6d4",
+    "order": 6
+  },
+  {
+    "id": "notice",
+    "name": "Notice",
+    "defaultToken": "NOT",
+    "defaultVisibility": "unlisted",
+    "color": "#84cc16",
+    "order": 7
+  },
+  {
+    "id": "decision",
+    "name": "Decision",
+    "defaultToken": "DEC",
+    "defaultVisibility": "unlisted",
+    "color": "#f97316",
+    "order": 8
+  },
+  {
+    "id": "other",
+    "name": "Other",
+    "defaultToken": "OTH",
+    "defaultVisibility": "private",
+    "color": "#6b7280",
+    "order": 9
+  }
 ]

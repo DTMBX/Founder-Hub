@@ -64,6 +64,15 @@ export const isLocalhost = () => {
   return hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')
 }
 
+// ── Same-tab KV change bus ──────────────────────────────────────────────────
+// StorageEvent only fires cross-tab.  This bus synchronises useKV instances
+// that share the same key within a single tab — prevents stale-state writes.
+const kvBus = new EventTarget()
+
+function emitKVChange(storageKey: string, value: unknown) {
+  kvBus.dispatchEvent(new CustomEvent('kv', { detail: { storageKey, value } }))
+}
+
 // Cache for static data fetches
 const staticDataCache: Record<string, any> = {}
 
@@ -125,7 +134,7 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
     loadData()
   }, [key, storageKey])
 
-  // Sync with localStorage changes
+  // Sync with localStorage changes (cross-tab)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === storageKey) {
@@ -136,6 +145,16 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
     return () => window.removeEventListener('storage', handleStorageChange)
   }, [storageKey, defaultValue])
 
+  // Sync with same-tab KV changes from other hook instances
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { storageKey: sk, value: v } = (e as CustomEvent).detail
+      if (sk === storageKey) setValue(v as T)
+    }
+    kvBus.addEventListener('kv', handler)
+    return () => kvBus.removeEventListener('kv', handler)
+  }, [storageKey])
+
   const setStoredValue = useCallback((newValue: T | ((prev: T) => T)) => {
     try {
       setValue(prev => {
@@ -143,6 +162,8 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
           ? (newValue as (prev: T) => T)(prev)
           : newValue
         localStorage.setItem(storageKey, JSON.stringify(resolved))
+        // Notify other same-tab useKV instances
+        emitKVChange(storageKey, resolved)
         return resolved
       })
     } catch (error) {

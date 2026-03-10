@@ -55,6 +55,8 @@ export interface EditorState<T> {
   validationError: string | null
   /** Timestamp of last save */
   lastSavedAt: Date | null
+  /** Whether the last save also persisted to disk (null = never saved) */
+  lastPersistOk: boolean | null
   /** Export current state as JSON string */
   exportSnapshot: () => string
   /** Import state from JSON string */
@@ -79,6 +81,7 @@ export function useEditorState<T>(
   const [value, setKV] = useKV<T>(key, defaultValue)
   const [savedSnapshot, setSavedSnapshot] = useState<string>(() => stableStringify(defaultValue))
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null)
+  const [lastPersistOk, setLastPersistOk] = useState<boolean | null>(null)
   const [canUndo, setCanUndo] = useState(false)
   const [canRedo, setCanRedo] = useState(false)
   const previousValueRef = useRef<string>(stableStringify(defaultValue))
@@ -138,8 +141,13 @@ export function useEditorState<T>(
     const snap = stableStringify(value)
     setSavedSnapshot(snap)
     setLastSavedAt(new Date())
-    // Auto-persist to disk on localhost
-    persistToFile(key).catch(() => {})
+    // Persist to disk via workspace API — await the result
+    try {
+      const ok = await persistToFile(key)
+      setLastPersistOk(ok)
+    } catch {
+      setLastPersistOk(false)
+    }
     if (onSave) {
       await onSave()
     }
@@ -200,6 +208,7 @@ export function useEditorState<T>(
     canRedo,
     validationError,
     lastSavedAt,
+    lastPersistOk,
     exportSnapshot,
     importSnapshot,
     key,
