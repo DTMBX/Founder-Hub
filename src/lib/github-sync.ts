@@ -88,6 +88,7 @@ interface GitHubFileResponse {
 interface CommitResult {
   success: boolean
   error?: string
+  warning?: string        // Non-fatal issue (e.g. PR creation failed)
   commitUrl?: string
   branch?: string       // Branch name if published to branch
   pullRequestUrl?: string  // PR URL if auto-created
@@ -218,7 +219,7 @@ export async function publishToGitHub(siteConfig?: {
   repo: string
   dataPath: string
   siteId?: string
-}, mode: PublishMode = 'branch'): Promise<CommitResult> {
+}, mode: PublishMode = 'branch', commitMessage?: string): Promise<CommitResult> {
   const token = await getGitHubToken()
   
   if (!token) {
@@ -331,15 +332,23 @@ export async function publishToGitHub(siteConfig?: {
     const treeData = await treeRes.json()
     
     // 5. Create a new commit
-    const commitMessage = mode === 'branch'
-      ? `chore(admin): update ${filesToPush.length} data files [${timestamp}]\n\n---\nmode: branch\nfiles: ${filesToPush.length}\ntimestamp: ${timestamp}\n---`
+    const defaultMsg = mode === 'branch'
+      ? `chore(admin): update ${filesToPush.length} data files [${timestamp}]`
       : `Update ${filesToPush.length} data files via admin panel [${timestamp}]`
+    
+    const finalMessage = commitMessage
+      ? (mode === 'branch'
+          ? `${commitMessage}\n\n---\nmode: branch\nfiles: ${filesToPush.length}\ntimestamp: ${timestamp}\n---`
+          : commitMessage)
+      : (mode === 'branch'
+          ? `${defaultMsg}\n\n---\nmode: branch\nfiles: ${filesToPush.length}\ntimestamp: ${timestamp}\n---`
+          : defaultMsg)
 
     const newCommitRes = await fetch(`${repoBase}/git/commits`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        message: commitMessage,
+        message: finalMessage,
         tree: treeData.sha,
         parents: [latestCommitSha]
       })
@@ -374,6 +383,7 @@ export async function publishToGitHub(siteConfig?: {
 
       // 7a. Open a pull request from the branch to main
       let pullRequestUrl: string | undefined
+      let prWarning: string | undefined
       try {
         const prRes = await fetch(`${repoBase}/pulls`, {
           method: 'POST',
@@ -401,9 +411,13 @@ export async function publishToGitHub(siteConfig?: {
         if (prRes.ok) {
           const prData = await prRes.json()
           pullRequestUrl = prData.html_url
+        } else {
+          // Surface PR failure — branch commit still succeeded
+          const prErr = await prRes.json().catch(() => ({ message: 'Unknown error' }))
+          prWarning = `Branch pushed but PR creation failed: ${prErr.message || 'Unknown error'}. Create PR manually.`
         }
       } catch {
-        // PR creation is best-effort; the branch commit still succeeded
+        prWarning = 'Branch pushed but PR creation failed (network error). Create PR manually.'
       }
 
       return {
@@ -411,6 +425,7 @@ export async function publishToGitHub(siteConfig?: {
         commitUrl: `https://github.com/${config.owner}/${config.repo}/commit/${newCommitData.sha}`,
         branch: branchName,
         pullRequestUrl,
+        warning: prWarning,
         mode: 'branch',
       }
     }

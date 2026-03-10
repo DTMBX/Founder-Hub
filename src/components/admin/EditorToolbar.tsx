@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
   FloppyDisk, ArrowCounterClockwise, ArrowClockwise,
-  ClockCounterClockwise, Eye, Warning, Check, CircleNotch
+  ClockCounterClockwise, Eye, Warning, Check, CircleNotch, Keyboard
 } from '@phosphor-icons/react'
 import { formatShortcut } from '@/lib/keyboard-shortcuts'
 
@@ -24,11 +24,14 @@ interface EditorToolbarProps {
   isSaving?: boolean
   canUndo: boolean
   canRedo: boolean
+  undoLabel?: string | null
+  redoLabel?: string | null
   onSave: () => void
   onUndo: () => void
   onRedo: () => void
   onTogglePreview?: () => void
   onToggleHistory?: () => void
+  onToggleShortcuts?: () => void
   isPreviewOpen?: boolean
   isHistoryOpen?: boolean
   lastSavedAt?: Date | null
@@ -49,11 +52,14 @@ export default function EditorToolbar({
   isSaving = false,
   canUndo,
   canRedo,
+  undoLabel,
+  redoLabel,
   onSave,
   onUndo,
   onRedo,
   onTogglePreview,
   onToggleHistory,
+  onToggleShortcuts,
   isPreviewOpen = false,
   isHistoryOpen = false,
   lastSavedAt,
@@ -99,7 +105,7 @@ export default function EditorToolbar({
             className="h-7 w-7"
             disabled={!canUndo}
             onClick={onUndo}
-            title={`Undo (${formatShortcut({ key: 'z', ctrl: true })})`}
+            title={undoLabel ? `Undo: ${undoLabel} (${formatShortcut({ key: 'z', ctrl: true })})` : `Undo (${formatShortcut({ key: 'z', ctrl: true })})`}
           >
             <ArrowCounterClockwise className="h-3.5 w-3.5" />
           </Button>
@@ -109,7 +115,7 @@ export default function EditorToolbar({
             className="h-7 w-7"
             disabled={!canRedo}
             onClick={onRedo}
-            title={`Redo (${formatShortcut({ key: 'z', ctrl: true, shift: true })})`}
+            title={redoLabel ? `Redo: ${redoLabel} (${formatShortcut({ key: 'z', ctrl: true, shift: true })})` : `Redo (${formatShortcut({ key: 'z', ctrl: true, shift: true })})`}
           >
             <ArrowClockwise className="h-3.5 w-3.5" />
           </Button>
@@ -122,7 +128,7 @@ export default function EditorToolbar({
                 size="icon"
                 className="h-7 w-7"
                 onClick={onToggleHistory}
-                title="History Timeline"
+                title="History Timeline (Ctrl+Shift+H)"
               >
                 <ClockCounterClockwise className="h-3.5 w-3.5" />
               </Button>
@@ -132,6 +138,18 @@ export default function EditorToolbar({
 
         {/* Right: actions */}
         <div className="flex items-center gap-2">
+          {onToggleShortcuts && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={onToggleShortcuts}
+              title="Keyboard Shortcuts (?)"
+            >
+              <Keyboard className="h-3.5 w-3.5" />
+            </Button>
+          )}
+
           {onTogglePreview && (
             <Button
               variant={isPreviewOpen ? 'secondary' : 'outline'}

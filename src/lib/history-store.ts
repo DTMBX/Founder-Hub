@@ -44,6 +44,10 @@ export interface HistoryState {
   cursor: number // index of the "current" entry (-1 = nothing applied)
   canUndo: boolean
   canRedo: boolean
+  /** Label of the entry that would be undone next (for tooltip preview) */
+  undoLabel: string | null
+  /** Label of the entry that would be redone next (for tooltip preview) */
+  redoLabel: string | null
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
@@ -103,6 +107,8 @@ function getState(): HistoryState {
     cursor,
     canUndo: cursor >= 0,
     canRedo: cursor < entries.length - 1,
+    undoLabel: cursor >= 0 ? entries[cursor]?.label ?? null : null,
+    redoLabel: cursor < entries.length - 1 ? entries[cursor + 1]?.label ?? null : null,
   }
 }
 

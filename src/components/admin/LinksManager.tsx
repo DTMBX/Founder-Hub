@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTrackedKV } from '@/hooks/use-tracked-kv'
+import { useKVExportImport } from '@/hooks/use-kv-export-import'
 import { Link } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   Plus, Trash, PencilSimple, FloppyDisk, ArrowUp, ArrowDown, X,
   EnvelopeSimple, GithubLogo, LinkedinLogo, TwitterLogo, Globe,
-  CalendarBlank, Newspaper, ArrowSquareOut, Link as LinkIcon
+  CalendarBlank, Newspaper, ArrowSquareOut, Link as LinkIcon,
+  Export, UploadSimple
 } from '@phosphor-icons/react'
 
 const ICON_OPTIONS = [
@@ -45,6 +47,8 @@ const EMPTY_LINK: LinkFormData = { label: '', url: '', icon: 'link', category: '
 export default function LinksManager() {
   const [contactLinks, setContactLinks] = useTrackedKV<Link[]>('founder-hub-contact-links', [], 'Contact Links')
   const [proofLinks, setProofLinks] = useTrackedKV<Link[]>('founder-hub-proof-links', [], 'Proof Links')
+  const { exportJSON: exportContact, triggerImport: importContact, ImportInput: ImportContactInput } = useKVExportImport('founder-hub-contact-links', contactLinks, setContactLinks, 'Contact Links')
+  const { exportJSON: exportProof, triggerImport: importProof, ImportInput: ImportProofInput } = useKVExportImport('founder-hub-proof-links', proofLinks, setProofLinks, 'Proof Links')
   const [activeTab, setActiveTab] = useState('contact')
   const [showAdd, setShowAdd] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -146,8 +150,22 @@ export default function LinksManager() {
 
   const tabInfo = tabDescriptions[activeTab] || tabDescriptions.contact
 
+  const handleExport = () => { activeTab === 'proof' ? exportProof() : exportContact() }
+  const handleImport = () => { activeTab === 'proof' ? importProof() : importContact() }
+
   return (
     <div className="space-y-6">
+      <ImportContactInput />
+      <ImportProofInput />
+      {/* Export/Import toolbar */}
+      <div className="flex items-center justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={handleExport} className="gap-1.5 text-xs">
+          <Export className="h-3.5 w-3.5" /> Export
+        </Button>
+        <Button variant="outline" size="sm" onClick={handleImport} className="gap-1.5 text-xs">
+          <UploadSimple className="h-3.5 w-3.5" /> Import
+        </Button>
+      </div>
       {/* Save indicator */}
       {saved && (
         <div className="fixed top-20 right-6 z-50 animate-in slide-in-from-right-4 duration-300">

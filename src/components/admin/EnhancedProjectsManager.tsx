@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTrackedKV } from '@/hooks/use-tracked-kv'
+import { useKVExportImport } from '@/hooks/use-kv-export-import'
 import { Project, ProjectLink } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,12 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Pencil, Trash, X, GithubLogo, Globe, BookOpen, Link as LinkIcon, CopySimple, Archive, Monitor, DeviceMobile, ArrowsDownUp, Warning } from '@phosphor-icons/react'
+import { Plus, Pencil, Trash, X, GithubLogo, Globe, BookOpen, Link as LinkIcon, CopySimple, Archive, Monitor, DeviceMobile, ArrowsDownUp, Warning, Export, UploadSimple } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
 
 export default function EnhancedProjectsManager() {
   const [projects, setProjects] = useTrackedKV<Project[]>('founder-hub-projects', [], 'Projects')
+  const { exportJSON, triggerImport, ImportInput } = useKVExportImport('founder-hub-projects', projects, setProjects, 'Projects')
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop')
@@ -227,15 +229,26 @@ export default function EnhancedProjectsManager() {
 
   return (
     <div className="space-y-6">
+      <ImportInput />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold mb-2">Projects</h2>
           <p className="text-muted-foreground">Manage your portfolio projects with live preview and customization.</p>
         </div>
-        <Button onClick={handleAdd} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Project
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportJSON} className="gap-1.5 text-xs" title="Export projects to JSON">
+            <Export className="h-3.5 w-3.5" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={triggerImport} className="gap-1.5 text-xs" title="Import projects from JSON">
+            <UploadSimple className="h-3.5 w-3.5" />
+            Import
+          </Button>
+          <Button onClick={handleAdd} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Project
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="active" className="space-y-4">

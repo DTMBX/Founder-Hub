@@ -33,6 +33,7 @@ import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
 import CommandPalette from './CommandPalette'
 import WorkspaceSiteSwitcher from './WorkspaceSiteSwitcher'
+import KeyboardShortcutsDialog from './KeyboardShortcutsDialog'
 import { useClientSites } from '@/hooks/use-client-sites'
 import { cn } from '@/lib/utils'
 
@@ -191,9 +192,11 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const [showPublishConfirm, setShowPublishConfirm] = useState(false)
+  const [publishMessage, setPublishMessage] = useState('')
   const [previewOpen, setPreviewOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const { activeSite: activeClientSite, activeSiteId: activeClientSiteId, sites: clientSites, setActiveSiteId: setActiveClientSiteId } = useClientSites()
   
   // RBAC & Feature Flags
@@ -280,6 +283,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
     }},
     { key: 'p', ctrl: true, shift: true, label: 'Toggle Preview', category: 'View', action: () => setPreviewOpen(p => !p) },
     { key: 'h', ctrl: true, shift: true, label: 'Toggle History', category: 'View', action: () => setHistoryOpen(h => !h) },
+    { key: '?', label: 'Keyboard Shortcuts', category: 'Help', action: () => setShortcutsOpen(s => !s) },
   ], [handleSave])
 
   useKeyboardShortcuts(shortcuts, { allowInInputs: true })
@@ -311,7 +315,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
     setShowPublishConfirm(true)
   }
 
-  const executePublish = async (mode: PublishMode = 'branch') => {
+  const executePublish = async (mode: PublishMode = 'branch', customMessage?: string) => {
     if (!activeSite) return
     
     setShowPublishConfirm(false)
@@ -329,10 +333,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       repo,
       dataPath,
       siteId
-    }, mode)
+    }, mode, customMessage || undefined)
     setIsPublishing(false)
     
     if (result.success) {
+      // Show warning if PR creation failed (branch still pushed)
+      if (result.warning) {
+        toast.warning(result.warning, { duration: 8000 })
+      }
+
       if (result.mode === 'branch' && result.pullRequestUrl) {
         toast.success(
           `Changes pushed to branch "${result.branch}". PR created for review.`,
@@ -691,6 +700,8 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               isSaving={isSaving}
               canUndo={historyState.canUndo}
               canRedo={historyState.canRedo}
+              undoLabel={historyState.undoLabel}
+              redoLabel={historyState.redoLabel}
               onSave={handleSave}
               onUndo={() => {
                 const entry = historyStore.undo()
@@ -702,6 +713,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               }}
               onTogglePreview={() => setPreviewOpen(p => !p)}
               onToggleHistory={() => setHistoryOpen(h => !h)}
+              onToggleShortcuts={() => setShortcutsOpen(s => !s)}
               isPreviewOpen={previewOpen}
               isHistoryOpen={historyOpen}
             />
@@ -744,8 +756,15 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
         onSelect={guardedSetActiveTab}
       />
 
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog
+        open={shortcutsOpen}
+        onOpenChange={setShortcutsOpen}
+        shortcuts={shortcuts}
+      />
+
       {/* Publish Dialog — choose Direct to Main or Branch + PR */}
-      <Dialog open={showPublishConfirm} onOpenChange={setShowPublishConfirm}>
+      <Dialog open={showPublishConfirm} onOpenChange={(open) => { setShowPublishConfirm(open); if (!open) setPublishMessage('') }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -757,10 +776,24 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
+            {/* Optional commit message */}
+            <div className="space-y-1.5">
+              <label htmlFor="commit-msg" className="text-xs font-medium text-muted-foreground">
+                Commit message <span className="text-muted-foreground/60">(optional)</span>
+              </label>
+              <input
+                id="commit-msg"
+                type="text"
+                value={publishMessage}
+                onChange={e => setPublishMessage(e.target.value)}
+                placeholder="Describe your changes..."
+                className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              />
+            </div>
             <Button
               className="w-full justify-start gap-3 h-auto py-3"
               variant="default"
-              onClick={() => executePublish('direct')}
+              onClick={() => executePublish('direct', publishMessage)}
               disabled={isPublishing}
             >
               <Rocket className="h-5 w-5 shrink-0" weight="bold" />
@@ -772,7 +805,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             <Button
               className="w-full justify-start gap-3 h-auto py-3"
               variant="outline"
-              onClick={() => executePublish('branch')}
+              onClick={() => executePublish('branch', publishMessage)}
               disabled={isPublishing}
             >
               <TreeStructure className="h-5 w-5 shrink-0" weight="bold" />
@@ -783,7 +816,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             </Button>
           </div>
           <DialogFooter>
-            <Button variant="ghost" size="sm" onClick={() => setShowPublishConfirm(false)}>
+            <Button variant="ghost" size="sm" onClick={() => { setShowPublishConfirm(false); setPublishMessage('') }}>
               Cancel
             </Button>
           </DialogFooter>

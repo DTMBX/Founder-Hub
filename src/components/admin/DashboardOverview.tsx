@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -6,10 +6,13 @@ import { useAuth } from '@/lib/auth'
 import { useSite } from '@/lib/site-context'
 import { useFeatureFlags } from '@/lib/feature-flags'
 import { usePermissions } from '@/lib/route-guards'
+import { useKV } from '@/lib/local-storage-kv'
+import { hasGitHubToken } from '@/lib/github-sync'
 import {
   Globe, Rocket, ShieldCheck, FolderOpen, Tray,
   ArrowRight, TrendUp, Clock, UserCircle, Article,
-  Scales, CloudArrowUp, Warning
+  Scales, CloudArrowUp, Warning, CheckCircle, Circle,
+  CaretDown, CaretUp, Lightbulb, Keyboard
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
@@ -81,6 +84,60 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
   const { activeSite, activeSatellite } = useSite()
   const { flags } = useFeatureFlags()
   const permissions = usePermissions()
+  const [checklistCollapsed, setChecklistCollapsed] = useState(false)
+
+  // Onboarding checklist: read key data to detect setup progress
+  const [settings] = useKV<Record<string, unknown> | null>('founder-hub-settings', null)
+  const [about] = useKV<Record<string, unknown> | null>('founder-hub-about', null)
+  const [profile] = useKV<Record<string, unknown> | null>('founder-hub-profile', null)
+  const [sections] = useKV<unknown[] | null>('founder-hub-sections', null)
+  const [gitConfigured, setGitConfigured] = useState(false)
+
+  // Check GitHub token on mount
+  useMemo(() => {
+    hasGitHubToken().then(setGitConfigured)
+  }, [])
+
+  const checklistItems = useMemo(() => [
+    {
+      id: 'site-name',
+      label: 'Set your site name',
+      description: 'Go to Settings to name your site and configure branding',
+      done: !!(settings && (settings as Record<string, unknown>).siteName),
+      action: () => onNavigate('settings'),
+    },
+    {
+      id: 'about',
+      label: 'Write your About page',
+      description: 'Tell visitors who you are and what you do',
+      done: !!(about && Object.keys(about).length > 0),
+      action: () => onNavigate('about'),
+    },
+    {
+      id: 'profile',
+      label: 'Add profile & contact info',
+      description: 'Set up your name, email, and professional links',
+      done: !!(profile && Object.keys(profile).length > 0),
+      action: () => onNavigate('profile'),
+    },
+    {
+      id: 'content',
+      label: 'Create your first content section',
+      description: 'Add a page section with text, images, or media',
+      done: !!(sections && sections.length > 0),
+      action: () => onNavigate('content'),
+    },
+    {
+      id: 'github',
+      label: 'Connect GitHub for publishing',
+      description: 'Add your GitHub token to enable one-click deploys',
+      done: gitConfigured,
+      action: () => onNavigate('settings'),
+    },
+  ], [settings, about, profile, sections, gitConfigured, onNavigate])
+
+  const completedCount = checklistItems.filter(i => i.done).length
+  const allDone = completedCount === checklistItems.length
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours()
@@ -105,6 +162,82 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
             {permissions.isFounderMode ? 'Founder' : 'Operations'}
           </Badge>
         </p>
+      </div>
+
+      {/* Onboarding Checklist — collapses when all done */}
+      {!allDone && (
+        <Card className="border-primary/20 bg-primary/[0.02]">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-primary" weight="duotone" />
+                Getting Started
+                <Badge variant="outline" className="text-[10px] ml-1">
+                  {completedCount}/{checklistItems.length}
+                </Badge>
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => setChecklistCollapsed(c => !c)}
+              >
+                {checklistCollapsed ? <CaretDown className="h-3.5 w-3.5" /> : <CaretUp className="h-3.5 w-3.5" />}
+              </Button>
+            </div>
+            {/* Progress bar */}
+            <div className="h-1.5 w-full rounded-full bg-muted mt-2">
+              <div
+                className="h-1.5 rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${(completedCount / checklistItems.length) * 100}%` }}
+              />
+            </div>
+          </CardHeader>
+          {!checklistCollapsed && (
+            <CardContent className="space-y-1 pt-0">
+              {checklistItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={item.action}
+                  className={cn(
+                    'flex items-center gap-3 w-full p-2.5 rounded-lg text-left transition-colors',
+                    item.done
+                      ? 'opacity-60'
+                      : 'hover:bg-primary/5'
+                  )}
+                >
+                  {item.done ? (
+                    <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0" weight="fill" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-muted-foreground/40 shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className={cn('text-sm font-medium', item.done && 'line-through text-muted-foreground')}>
+                      {item.label}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {item.description}
+                    </p>
+                  </div>
+                  {!item.done && (
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0 ml-auto" />
+                  )}
+                </button>
+              ))}
+            </CardContent>
+          )}
+        </Card>
+      )}
+
+      {/* Keyboard tips — shown briefly, dismissible */}
+      <div className="flex items-center gap-3 px-4 py-2.5 rounded-lg border border-border/50 bg-muted/20 text-xs text-muted-foreground">
+        <Keyboard className="h-4 w-4 shrink-0" />
+        <span>
+          <strong className="text-foreground">Tip:</strong>{' '}
+          Press <kbd className="inline px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono mx-0.5">Ctrl+S</kbd> to save,{' '}
+          <kbd className="inline px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono mx-0.5">Ctrl+Z</kbd> to undo,{' '}
+          <kbd className="inline px-1 py-0.5 rounded border border-border bg-muted text-[10px] font-mono mx-0.5">?</kbd> for all shortcuts
+        </span>
       </div>
 
       {/* Stat cards */}

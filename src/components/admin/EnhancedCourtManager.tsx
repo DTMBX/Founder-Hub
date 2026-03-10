@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTrackedKV } from '@/hooks/use-tracked-kv'
+import { useKVExportImport } from '@/hooks/use-kv-export-import'
 import { Case, CaseStatus, CaseVisibility, TimelineEvent } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Pencil, Trash, X, FunnelSimple, ArrowsDownUp, Calendar, ClipboardText } from '@phosphor-icons/react'
+import { Plus, Pencil, Trash, X, FunnelSimple, ArrowsDownUp, Calendar, ClipboardText, Export, UploadSimple } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
 import { 
@@ -24,6 +25,7 @@ import {
 
 export default function EnhancedCourtManager() {
   const [cases, setCases] = useTrackedKV<Case[]>('founder-hub-court-cases', [], 'Court Cases')
+  const { exportJSON, triggerImport, ImportInput } = useKVExportImport('founder-hub-court-cases', cases, setCases, 'Court Cases')
   const [editingCase, setEditingCase] = useState<Case | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -209,15 +211,24 @@ export default function EnhancedCourtManager() {
 
   return (
     <div className="space-y-6">
+      <ImportInput />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold mb-2">Court Cases</h2>
           <p className="text-muted-foreground">Manage case cards with metadata, timelines, and document assignments.</p>
         </div>
-        <Button onClick={handleAdd} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Case
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportJSON} className="gap-1.5 text-xs">
+            <Export className="h-3.5 w-3.5" /> Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={triggerImport} className="gap-1.5 text-xs">
+            <UploadSimple className="h-3.5 w-3.5" /> Import
+          </Button>
+          <Button onClick={handleAdd} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Case
+          </Button>
+        </div>
       </div>
 
       <Card>
