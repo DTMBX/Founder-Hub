@@ -43,8 +43,14 @@ const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
 const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions
 const SESSION_REFRESH_THRESHOLD = 30 * 60 * 1000 // Refresh session if less than 30 min remaining
 
-// Production mode detection - suppress verbose logging
+// Local environment detection — true for vite dev OR any localhost/127.0.0.1 serve
 const IS_DEV = import.meta.env.DEV
+const IS_LOCAL = IS_DEV || typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.') ||
+  window.location.hostname.startsWith('10.')
+)
 const log = IS_DEV ? console.log.bind(console) : () => {}
 
 interface LoginAttempt {
@@ -264,8 +270,8 @@ export function useAuth() {
         setUsers(latestUsers)
       }
 
-      // Dev auto-login: on localhost, auto-create session if none exists
-      if (IS_DEV && !await kv.get<Session>(SESSION_KEY)) {
+      // Auto-login: on localhost/LAN, auto-create owner session if none exists
+      if (IS_LOCAL && !await kv.get<Session>(SESSION_KEY)) {
         const owner = latestUsers.find(u => u.role === 'owner') || latestUsers[0]
         if (owner) {
           const devSession: Session = {
@@ -275,7 +281,7 @@ export function useAuth() {
           }
           await kv.set(SESSION_KEY, devSession)
           setSession(devSession)
-          log('[useAuth] Dev auto-login: session created for', owner.email)
+          log('[useAuth] Local auto-login: session created for', owner.email)
         }
       }
     })
