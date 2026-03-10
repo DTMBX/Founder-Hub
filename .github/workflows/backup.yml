@@ -31,7 +31,7 @@ permissions:
 env:
   BACKUP_RETENTION_DAYS: 30
   BACKUP_RETENTION_MONTHS: 12
-  BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET || 'xtx396-backups' }}
+  BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET || 'Founder-Hub-backups' }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -71,7 +71,7 @@ jobs:
             BACKUP_TYPE="daily"
           fi
           
-          BACKUP_NAME="xtx396-backup-${TIMESTAMP}"
+          BACKUP_NAME="Founder-Hub-backup-${TIMESTAMP}"
           
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
           echo "date=$BACKUP_DATE" >> $GITHUB_OUTPUT

@@ -171,7 +171,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     "@context": "https://schema.org",
     "@type": "Person",
     "name": settings?.siteName || "Devon Tyler Barber",
-    "alternateName": "xTx396",
+    "alternateName": "Devon Tyler",
     "description": settings?.description || "Founder & Innovator",
     "url": `https://${settings?.primaryDomain || 'devon-tyler.com'}`,
     "image": settings?.socialPreviewImage || "/og-preview.png",
@@ -208,9 +208,9 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         activePathway={pathway}
       />
 
-      {/* Pathway mode indicator */}
+      {/* Pathway mode indicator — positioned below honor bar (56/64px) + nav (64px) + 8px gap */}
       {pathway !== 'all' && (
-        <div className="fixed top-[104px] sm:top-[108px] md:top-[112px] right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+        <div className="fixed top-[128px] md:top-[136px] right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
           <Badge variant="secondary" className={`backdrop-blur-xl bg-card/90 border px-3 py-1.5 text-xs font-medium shadow-lg ${pathwayLabels[pathway]?.color}`}>
             {pathwayLabels[pathway]?.label}
           </Badge>

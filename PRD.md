@@ -1,6 +1,6 @@
-# xTx396 Hub PRD — Trinity Layout Edition
+# Founder Hub Hub PRD — Trinity Layout Edition
 
-A premium one-page personal landing site for Devon Tyler Barber (xTx396) with **Trinity Layout** — an intelligent audience-triage navigation system that instantly routes three distinct audiences (Investors, Lawyers, Friends/Supporters) into tailored content pathways while preserving a single, elegant landing page experience.
+A premium one-page personal landing site for Devon Tyler Barber (Founder Hub) with **Trinity Layout** — an intelligent audience-triage navigation system that instantly routes three distinct audiences (Investors, Lawyers, Friends/Supporters) into tailored content pathways while preserving a single, elegant landing page experience.
 
 **Latest Update**: Fully implemented **Asset Management System** with intelligent asset scanner, audience-based usage policies, and visual module controls. Features include: automated asset discovery and categorization (Flags, Logos, Maps, Icons, Backgrounds), metadata tagging with theme suitability and usage intent, smart placement suggestions with confidence scoring, usage policy manager controlling which assets appear in Investor/Legal/Friends pathways, hero accent integration with opacity and blend mode controls, Heritage Flags gallery module (optional, Friends-mode by default), EVIDENT® brand mark management with monochrome variants, USA Map Spotlight with optional animations (outline draw, pulse, gradient sweep) respecting reduced-motion preferences, reusable asset components (FlagBadge, LogoMark, WatermarkBackground, DividerMotif, MapSpotlight), performance guardrails warning on oversized assets, SVG sanitization for security, asset usage reports showing where-used references, and visual restraint defaults ensuring flags/heritage imagery remain subtle accents rather than dominant backgrounds. Hero Video Background system remains active with USA flag video, full-bleed overlay system, glassmorphism CTAs, and comprehensive motion/accessibility controls. Trinity Layout audience triage fully operational with pathway-driven asset rendering rules.
 
@@ -179,7 +179,7 @@ This comprehensive dual-interface application now features Trinity Layout audien
 ### Public Landing Page
 - **Functionality**: Single-page scrolling site with sections for Hero, Projects, Court Cases, Proof/Press, and Contact/CTA
 - **Purpose**: Present a credible, polished personal brand to investors, recruiters, and collaborators
-- **Trigger**: Visitor navigates to xTx396.online/.info/.com
+- **Trigger**: Visitor navigates to Founder Hub.online/.info/.com
 - **Progression**: Land on hero → scroll or click nav anchor → read section content → engage with CTAs or case materials → contact/schedule
 - **Success criteria**: Page loads in <2s, all sections visible, responsive on mobile, investor mode toggle works
 

@@ -1,8 +1,8 @@
 # Security Policy
 
-## xTx396 Founder Hub - Security Documentation
+## Founder Hub - Security Documentation
 
-This document outlines the security features, best practices, and security considerations for the xTx396 Founder Hub application.
+This document outlines the security features, best practices, and security considerations for the Founder Hub application.
 
 ## Security Features
 
@@ -13,7 +13,7 @@ This document outlines the security features, best practices, and security consi
 - **Minimum Length**: 12 characters required
 - **Complexity Requirements**: Recommended mix of uppercase, lowercase, numbers, and special characters
 - **Default Credentials**: 
-  - Email: `admin@xtx396.online`
+  - Email: `admin@devon-tyler.com`
   - Password: `SecureAdmin2024!`
   - **⚠️ CRITICAL**: Change the default password immediately after first login
 
@@ -145,7 +145,7 @@ Audit logs include:
 If you discover a security vulnerability in this application:
 
 1. **Do not** open a public GitHub issue
-2. Email security concerns to: devon@xtx396.online
+2. Email security concerns to: devon@devon-tyler.com
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce

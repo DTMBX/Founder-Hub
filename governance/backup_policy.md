@@ -3,7 +3,7 @@
 > Version 1.0 | Last Updated: 2026-02-17 | Chain B5
 
 This document defines the backup strategy, retention policy, and recovery
-objectives for XTX396 and related repositories.
+objectives for Founder-Hub and related repositories.
 
 ---
 
@@ -20,7 +20,7 @@ Ensure data integrity, business continuity, and compliance through:
 ### Scope
 
 This policy covers:
-- **Source code repositories** (XTX396, Evident)
+- **Source code repositories** (Founder-Hub, Evident)
 - **GitHub Actions workflow history**
 - **Release artifacts and provenance records**
 - **Configuration and secrets metadata**
@@ -124,7 +124,7 @@ backup-YYYYMMDD-HHMM.tar.gz.enc
 ### Primary: S3-Compatible Storage
 
 - **Service:** AWS S3 / Backblaze B2 / MinIO
-- **Bucket:** `xtx396-backups-primary`
+- **Bucket:** `Founder-Hub-backups-primary`
 - **Region:** US East (primary)
 - **Versioning:** Enabled
 - **Lifecycle:** Auto-transition after retention period
@@ -137,7 +137,7 @@ backup-YYYYMMDD-HHMM.tar.gz.enc
 
 ### Local (Development Only)
 
-- **Path:** `~/.xtx396-backups/` (gitignored)
+- **Path:** `~/.Founder-Hub-backups/` (gitignored)
 - **Purpose:** Testing restore procedures
 - **Retention:** 7 days
 

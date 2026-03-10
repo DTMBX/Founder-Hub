@@ -1,5 +1,5 @@
 /**
- * useInstallPrompt Hook — xTx396 Founder Hub
+ * useInstallPrompt Hook — Founder Hub Founder Hub
  *
  * Manages PWA install prompt lifecycle:
  * - Detects install capability

@@ -5,9 +5,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Only test root src/ and ops/ — exclude XTX396/ (it has its own aliased paths)
+    // Only test root src/ and ops/ — exclude legacy directories
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'ops/**/*.test.ts'],
-    exclude: [...configDefaults.exclude, 'XTX396/**'],
+    exclude: [...configDefaults.exclude],
     setupFiles: ['./src/test/setup.ts'],
     // Vitest 4 equivalent of the old singleFork:true.
     // With isolate:true (default), 39 separate jsdom environments are created and

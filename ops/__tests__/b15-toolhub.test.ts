@@ -180,10 +180,10 @@ describe('ManifestRegistry', () => {
     registry.register({
       ...validManifest,
       id: 'xtx-tool',
-      brand: 'xtx396',
+      brand: 'founder-hub',
     });
     expect(registry.list({ brand: 'evident' })).toHaveLength(1);
-    expect(registry.list({ brand: 'xtx396' })).toHaveLength(1);
+    expect(registry.list({ brand: 'founder-hub' })).toHaveLength(1);
   });
 
   it('filters by tag', () => {
@@ -225,7 +225,7 @@ const toolB: ToolManifest = {
   id: 'tool-b',
   name: 'Tool Beta',
   description: 'Second test tool',
-  brand: 'xtx396',
+  brand: 'founder-hub',
   tags: ['finance'],
   status: 'active' as const,
 };
@@ -270,7 +270,7 @@ describe('ToolHub', () => {
   // ── discover ────────────────────────────────────────────────
 
   it('discovers by brand', () => {
-    const results = hub.discover({ brand: 'xtx396' });
+    const results = hub.discover({ brand: 'founder-hub' });
     expect(results).toHaveLength(1);
     expect(results[0].id).toBe('tool-b');
   });
@@ -343,7 +343,7 @@ import {
   type BrandProfile,
 } from '../../apps/toolhub/BrandProfile';
 import evidentBrand from '../../apps/toolhub/brands/evident.json';
-import xtx396Brand from '../../apps/toolhub/brands/xtx396.json';
+import founderHubBrand from '../../apps/toolhub/brands/founder-hub.json';
 
 const validBrand: BrandProfile = {
   brandId: 'test-brand',
@@ -422,16 +422,16 @@ describe('Brand JSON files', () => {
     expect(validateBrandProfile(evidentBrand as BrandProfile).valid).toBe(true);
   });
 
-  it('xtx396.json passes validation', () => {
-    expect(validateBrandProfile(xtx396Brand as BrandProfile).valid).toBe(true);
+  it('founder-hub.json passes validation', () => {
+    expect(validateBrandProfile(founderHubBrand as BrandProfile).valid).toBe(true);
   });
 
   it('evident.json has correct brandId', () => {
     expect(evidentBrand.brandId).toBe('evident');
   });
 
-  it('xtx396.json has correct brandId', () => {
-    expect(xtx396Brand.brandId).toBe('xtx396');
+  it('founder-hub.json has correct brandId', () => {
+    expect(founderHubBrand.brandId).toBe('founder-hub');
   });
 });
 

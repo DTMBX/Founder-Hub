@@ -9,7 +9,7 @@
 ## Purpose
 
 This policy establishes authentication, session management, and device trust
-requirements for XTX396 systems. These controls protect privileged operations
+requirements for Founder-Hub systems. These controls protect privileged operations
 and provide auditability for all identity-related events.
 
 ---
@@ -221,4 +221,4 @@ This policy supports compliance with:
 
 | Version | Date       | Author         | Changes                          |
 |---------|------------|----------------|----------------------------------|
-| 1.0.0   | 2026-02-17 | XTX396 System  | Initial policy                   |
+| 1.0.0   | 2026-02-17 | Founder-Hub System  | Initial policy                   |

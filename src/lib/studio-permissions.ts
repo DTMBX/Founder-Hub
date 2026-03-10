@@ -188,7 +188,7 @@ export function enforceStudioAction(role: UserRole, action: StudioAction): void 
 
 // ─── Non-React Role Resolution ──────────────────────────────────────────────
 
-const STORAGE_PREFIX = 'xtx396:'
+const STORAGE_PREFIX = 'founder-hub:'
 const SESSION_KEY = 'founder-hub-session'
 
 /**

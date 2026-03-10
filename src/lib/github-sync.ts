@@ -17,7 +17,7 @@ import * as GitHubApp from './github-app'
 
 // Default repo (for backward compatibility)
 const DEFAULT_REPO_OWNER = 'DTMBX'
-const DEFAULT_REPO_NAME = 'XTX396'
+const DEFAULT_REPO_NAME = 'Founder-Hub'
 const BRANCH = 'main'
 
 /**
@@ -73,7 +73,7 @@ const DATA_FILES: Record<string, string> = {
   'sites:index': 'sites-index.json',
 }
 
-const STORAGE_PREFIX = 'xtx396:'
+const STORAGE_PREFIX = 'founder-hub:'
 
 // Site-specific storage prefix for multi-site data
 function getSiteStoragePrefix(siteId?: string): string {
@@ -511,7 +511,7 @@ export async function isGitHubConnected(): Promise<boolean> {
  * Get saved repo mapping (for GitHub App)
  */
 function getSavedRepoMapping(): { owner: string; repo: string; dataPath: string } | null {
-  const raw = localStorage.getItem('xtx396:github-app-repo-mapping')
+  const raw = localStorage.getItem('founder-hub:github-app-repo-mapping')
   if (!raw) return null
   try {
     const mapping = JSON.parse(raw)

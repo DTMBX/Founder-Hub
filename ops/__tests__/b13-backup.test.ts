@@ -698,7 +698,7 @@ describe('B13-P4 — ArtifactEscrowService', () => {
 
   it('escrows an artifact and returns a record', async () => {
     const content = Buffer.from('build output');
-    const record = await escrowSvc.escrow(content, 'dist/bundle.js', 'xtx396', 'abc123', 'ci-pipeline');
+    const record = await escrowSvc.escrow(content, 'dist/bundle.js', 'founder-hub', 'abc123', 'ci-pipeline');
 
     expect(record.escrowId).toContain('escrow_');
     expect(record.artifactPath).toBe('dist/bundle.js');

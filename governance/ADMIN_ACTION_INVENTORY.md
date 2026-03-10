@@ -14,7 +14,7 @@ This document provides a complete inventory of all admin panel routes, component
 
 ## Navigation Structure
 
-### Category 1: XTX396 Site (7 routes)
+### Category 1: Founder-Hub Site (7 routes)
 
 | Route ID | Label | Component | Classification | Risk Level |
 |----------|-------|-----------|----------------|------------|
@@ -211,7 +211,7 @@ Actions that are:
 
 | Category | Count | P0 | P1 | P2 | P3 |
 |----------|-------|----|----|----|----|
-| XTX396 Site | 7 | 1 | 3 | 3 | 0 |
+| Founder-Hub Site | 7 | 1 | 3 | 3 | 0 |
 | Investor & Trade | 2 | 0 | 2 | 0 | 0 |
 | Evident Platform | 2 | 1 | 1 | 0 | 0 |
 | Frameworks | 4 | 0 | 1 | 3 | 0 |

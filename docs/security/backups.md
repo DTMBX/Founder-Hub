@@ -31,15 +31,15 @@ contents with per-file SHA-256 hashing and optional AES-256 encryption.
 ### Create a backup
 
 ```powershell
-.\scripts\security\backup.ps1 -RepoPath "C:\repos\XTX396"
-.\scripts\security\backup.ps1 -RepoPath "C:\repos\XTX396" -OutputDir "D:\backups" -NoEncrypt
+.\scripts\security\backup.ps1 -RepoPath "C:\repos\Founder-Hub"
+.\scripts\security\backup.ps1 -RepoPath "C:\repos\Founder-Hub" -OutputDir "D:\backups" -NoEncrypt
 ```
 
 ### Verify a backup
 
 ```powershell
 .\scripts\security\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000"
-.\scripts\security\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000" -RepoPath "C:\repos\XTX396"
+.\scripts\security\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000" -RepoPath "C:\repos\Founder-Hub"
 ```
 
 ## Exclusions

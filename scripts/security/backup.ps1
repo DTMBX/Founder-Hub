@@ -25,7 +25,7 @@
   Skip encryption (for testing only).
 
 .EXAMPLE
-  .\backup.ps1 -RepoPath "C:\repos\XTX396" -OutputDir "D:\backups"
+  .\backup.ps1 -RepoPath "C:\repos\Founder-Hub" -OutputDir "D:\backups"
 #>
 
 [CmdletBinding()]

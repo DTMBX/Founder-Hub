@@ -94,7 +94,7 @@ async function getInstallationToken(
       headers: {
         Authorization: `Bearer ${jwt}`,
         Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'XTX396-GitHub-App',
+        'User-Agent': 'FounderHub-GitHub-App',
       },
     }
   )
@@ -126,7 +126,7 @@ async function getInstallationDetails(
       headers: {
         Authorization: `Bearer ${jwt}`,
         Accept: 'application/vnd.github.v3+json',
-        'User-Agent': 'XTX396-GitHub-App',
+        'User-Agent': 'FounderHub-GitHub-App',
       },
     }
   )
@@ -163,7 +163,7 @@ async function getInstallationRepos(
     headers: {
       Authorization: `Bearer ${tokenData.token}`,
       Accept: 'application/vnd.github.v3+json',
-      'User-Agent': 'XTX396-GitHub-App',
+      'User-Agent': 'FounderHub-GitHub-App',
     },
   })
 

@@ -37,7 +37,7 @@ export interface ExportWatermark {
   /** Unique export batch identifier */
   exportId: string;
   /** Human-readable system identifier */
-  system: 'evident-xtx396';
+  system: 'evident-founder-hub';
   /** Export format version */
   version: 1;
 }
@@ -151,7 +151,7 @@ export class ExportIntegrity {
       tenantId,
       exportedAt: ts,
       exportId: eid,
-      system: 'evident-xtx396',
+      system: 'evident-founder-hub',
       version: 1,
     };
 

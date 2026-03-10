@@ -1,5 +1,5 @@
 /**
- * PWA Module — xTx396 Founder Hub
+ * PWA Module — Founder Hub Founder Hub
  *
  * Progressive Web App functionality:
  * - Service worker registration

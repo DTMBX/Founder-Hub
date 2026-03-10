@@ -145,8 +145,8 @@ export interface ExecutionConstraints {
 
 // ─── Storage Keys ────────────────────────────────────────────
 
-const RATE_LIMIT_KEY = 'xtx396_policy_rate_limits'
-const DECISION_LOG_KEY = 'xtx396_policy_decisions'
+const RATE_LIMIT_KEY = 'founder-hub_policy_rate_limits'
+const DECISION_LOG_KEY = 'founder-hub_policy_decisions'
 
 // ─── Rate Limit Tracking ─────────────────────────────────────
 

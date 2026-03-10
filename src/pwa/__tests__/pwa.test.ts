@@ -1,5 +1,5 @@
 /**
- * PWA Tests — xTx396 Founder Hub
+ * PWA Tests — Founder Hub Founder Hub
  *
  * Tests for PWA functionality:
  * - Offline cache operations

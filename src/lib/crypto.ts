@@ -14,7 +14,7 @@
 import { kv } from '@/lib/local-storage-kv'
 
 // Static app-level entropy — combined with random salt for key derivation
-const APP_ENTROPY = 'xTx396-founder-hub-e2e-v1-2026'
+const APP_ENTROPY = 'Founder Hub-founder-hub-e2e-v1-2026'
 const SALT_KV_KEY = 'founder-hub-e2e-salt'
 const PBKDF2_ITERATIONS = 100_000
 

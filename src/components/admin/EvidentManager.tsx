@@ -44,7 +44,7 @@ interface EvidentConfig {
   notes: string
 }
 
-const EVIDENT_CONFIG_KEY = 'xtx396-evident-config'
+const EVIDENT_CONFIG_KEY = 'founder-hub-evident-config'
 
 const defaultConfig: EvidentConfig = {
   domain: 'evident.icu',

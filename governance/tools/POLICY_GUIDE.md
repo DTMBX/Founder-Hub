@@ -47,7 +47,7 @@ Policies are generated per brand + category combination:
 | evident | app       | pol-evident-app        |
 | evident | algorithm | pol-evident-algorithm  |
 | evident | chat-tool | pol-evident-chat-tool  |
-| xtx396  | dev-tool  | pol-xtx396-dev-tool    |
+| Founder-Hub  | dev-tool  | pol-Founder-Hub-dev-tool    |
 
 ## Requirements Matrix
 

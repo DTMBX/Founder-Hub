@@ -1,5 +1,5 @@
 /**
- * Service Worker — xTx396 Founder Hub PWA
+ * Service Worker — Founder Hub Founder Hub PWA
  *
  * Provides:
  * - Static asset caching (app shell)
@@ -14,8 +14,8 @@
  */
 
 const CACHE_VERSION = 'v1'
-const STATIC_CACHE = `xtx396-static-${CACHE_VERSION}`
-const DATA_CACHE = `xtx396-data-${CACHE_VERSION}`
+const STATIC_CACHE = `founder-hub-static-${CACHE_VERSION}`
+const DATA_CACHE = `founder-hub-data-${CACHE_VERSION}`
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
@@ -59,7 +59,7 @@ self.addEventListener('activate', (event) => {
         cacheNames
           .filter((name) => {
             return (
-              name.startsWith('xtx396-') &&
+              name.startsWith('founder-hub-') &&
               name !== STATIC_CACHE &&
               name !== DATA_CACHE
             )
@@ -120,7 +120,7 @@ self.addEventListener('push', (event) => {
   console.log('[SW] Push event received')
 
   let data = {
-    title: 'xTx396 Notification',
+    title: 'Founder Hub Notification',
     body: 'You have a new update',
     icon: '/icon-192.png',
     badge: '/icon-192.png',
@@ -265,7 +265,7 @@ async function clearAllCaches() {
   const cacheNames = await caches.keys()
   await Promise.all(
     cacheNames
-      .filter((name) => name.startsWith('xtx396-'))
+      .filter((name) => name.startsWith('founder-hub-'))
       .map((name) => caches.delete(name))
   )
 }

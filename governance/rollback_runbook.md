@@ -157,7 +157,7 @@ When rolling back, you're deploying a previous build artifact. Provenance ensure
 curl -s https://devon-tyler.com/provenance.json | jq .
 
 # Compare with target commit
-gh api repos/DTMBX/XTX396/commits/<SHA> --jq '.sha'
+gh api repos/DTMBX/Founder-Hub/commits/<SHA> --jq '.sha'
 ```
 
 ### Rollback Selection Priority

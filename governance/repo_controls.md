@@ -3,7 +3,7 @@
 **Chain B1 — GitHub Governance Baseline**
 
 This document specifies the branch protection rules, CODEOWNERS configuration,
-and environment-based deployment gates required for the XTX396 repository.
+and environment-based deployment gates required for the Founder-Hub repository.
 
 ---
 
@@ -41,7 +41,7 @@ The following status checks must pass before merge:
 
 ```bash
 # Set branch protection for main
-gh api repos/DTMBX/XTX396/branches/main/protection \
+gh api repos/DTMBX/Founder-Hub/branches/main/protection \
   --method PUT \
   --field required_status_checks='{"strict":true,"contexts":["verify","test","build","scan-secrets"]}' \
   --field enforce_admins=true \

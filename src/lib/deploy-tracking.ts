@@ -11,7 +11,7 @@ import type { Deployment, DeploymentEnvironment, DeploymentStatus, DeploymentLog
 
 // ─── Storage ──────────────────────────────────────────────────
 
-const DEPLOY_STORAGE_KEY = 'xtx396:deployments'
+const DEPLOY_STORAGE_KEY = 'founder-hub:deployments'
 const MAX_DEPLOYMENTS = 100 // Bounded storage
 
 /**

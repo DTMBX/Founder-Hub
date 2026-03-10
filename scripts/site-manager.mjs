@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * XTX396 Site Manager
+ * Founder-Hub Site Manager
  * 
  * Central management tool for tracking and managing all generated sites.
  * Maintains a registry of sites with their configurations and status.
@@ -119,7 +119,7 @@ async function listSites() {
   const discovered = await discoverSites()
   
   console.log('\n╔══════════════════════════════════════════════════════════════╗')
-  console.log('║              XTX396 SITE MANAGER - SITE LIST                 ║')
+  console.log('║              Founder-Hub SITE MANAGER - SITE LIST                 ║')
   console.log('╚══════════════════════════════════════════════════════════════╝\n')
   
   if (discovered.length === 0) {
@@ -275,7 +275,7 @@ async function main() {
       
     default:
       console.log(`
-XTX396 Site Manager
+Founder-Hub Site Manager
 ===================
 
 Commands:

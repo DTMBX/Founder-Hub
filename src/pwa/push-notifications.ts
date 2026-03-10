@@ -1,5 +1,5 @@
 /**
- * Push Notification Service — xTx396 Founder Hub
+ * Push Notification Service — Founder Hub Founder Hub
  *
  * Handles push notifications for:
  * - New lead alerts
@@ -24,7 +24,7 @@ import { getRegistration } from './register-sw'
 const DEFAULT_VAPID_PUBLIC_KEY = ''
 
 // Storage key for subscription
-const SUBSCRIPTION_KEY = 'xtx396:push-subscription'
+const SUBSCRIPTION_KEY = 'founder-hub:push-subscription'
 
 // ─── Permission Management ─────────────────────────────────
 

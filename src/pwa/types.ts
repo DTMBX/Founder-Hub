@@ -1,5 +1,5 @@
 /**
- * PWA Types — xTx396 Founder Hub
+ * PWA Types — Founder Hub Founder Hub
  *
  * Type definitions for PWA functionality including:
  * - Service worker registration

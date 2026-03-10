@@ -108,7 +108,7 @@ export interface SessionRevocationResult {
 
 // ─── Constants ───────────────────────────────────────────────
 
-const SESSIONS_KEY = 'xtx396_enhanced_sessions'
+const SESSIONS_KEY = 'founder-hub_enhanced_sessions'
 const STEP_UP_VALIDITY_MS = 5 * 60 * 1000 // 5 minutes
 
 // Session timeouts by type (in ms)

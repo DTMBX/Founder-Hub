@@ -5,7 +5,7 @@
  * Coverage:
  * 1. Assistant barrel exports (all re-exported types/functions resolve)
  * 2. Supabase client singleton (isSupabaseConfigured, getSupabaseClient)
- * 3. KV store CRUD (async, with localStorage mock, prefix xtx396:)
+ * 3. KV store CRUD (async, with localStorage mock, prefix founder-hub:)
  * 4. Auth-provider mode detection (always 'supabase' — legacy removed)
  * 5. Feature-flags ↔ auth connection (getCurrentUserRole reads session from localStorage)
  * 6. Permissions ↔ role hierarchy (OWNER_ONLY_FLAGS enforcement, route guards)
@@ -30,7 +30,7 @@ const localStorageMock: Storage = {
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock, writable: true })
 
 // Known prefix — matches STORAGE_PREFIX in local-storage-kv.ts (not exported)
-const KV_PREFIX = 'xtx396:'
+const KV_PREFIX = 'founder-hub:'
 
 // ─── Helpers ────────────────────────────────────────────────────
 
@@ -493,7 +493,7 @@ describe('Cross-module wiring', () => {
   })
 
   it('KV prefix matches session key pattern used by feature-flags', async () => {
-    // feature-flags reads from 'xtx396:founder-hub-session' (KV_PREFIX + 'founder-hub-session')
+    // feature-flags reads from 'founder-hub:founder-hub-session' (KV_PREFIX + 'founder-hub-session')
     injectSession('owner')
     const sessionRaw = localStorageMock.getItem(`${KV_PREFIX}founder-hub-session`)
     expect(sessionRaw).not.toBeNull()

@@ -1,5 +1,5 @@
 /**
- * Service Worker Registration — xTx396 Founder Hub
+ * Service Worker Registration — Founder Hub Founder Hub
  *
  * Handles service worker lifecycle:
  * - Registration

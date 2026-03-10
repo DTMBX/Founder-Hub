@@ -113,7 +113,7 @@ All files created or modified by B13/B14/B15, organized by directory.
 |------|-------|------|
 | `*` | B15-P2 | New |
 | `profiles/evident.json` | B15-P3 | New |
-| `profiles/xtx396.json` | B15-P3 | New |
+| `profiles/founder-hub.json` | B15-P3 | New |
 
 ## /docs/ (B14, B15)
 | File | Phase | Type |

@@ -1,5 +1,5 @@
 /**
- * Mobile Components — xTx396 Founder Hub
+ * Mobile Components — Founder Hub Founder Hub
  *
  * Thumb-first mobile UI components:
  * - Bottom navigation

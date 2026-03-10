@@ -14,7 +14,7 @@ import type { UserRole } from './types'
 
 function getCurrentUserRole(): UserRole | null {
   try {
-    const session = localStorage.getItem('xtx396:founder-hub-session')
+    const session = localStorage.getItem('founder-hub:founder-hub-session')
     if (!session) return null
     const parsed = JSON.parse(session)
     if (!parsed.userId || parsed.expiresAt <= Date.now()) return null
@@ -22,7 +22,7 @@ function getCurrentUserRole(): UserRole | null {
     if (parsed.role && ['owner', 'admin', 'editor', 'support'].includes(parsed.role)) {
       return parsed.role as UserRole
     }
-    const usersJson = localStorage.getItem('xtx396:founder-hub-users')
+    const usersJson = localStorage.getItem('founder-hub:founder-hub-users')
     if (!usersJson) return null
     const users = JSON.parse(usersJson) as Array<{ id: string; role?: UserRole }>
     const user = users.find(u => u.id === parsed.userId)

@@ -30,7 +30,7 @@ The ExportIntegrity module ensures that all data exports from the platform are:
 | `tenantId` | Tenant who requested the export |
 | `exportedAt` | ISO-8601 timestamp of export generation |
 | `exportId` | Unique batch identifier |
-| `system` | Always `evident-xtx396` |
+| `system` | Always `evident-founder-hub` |
 | `version` | Export format version (currently `1`) |
 
 ## Reproducibility

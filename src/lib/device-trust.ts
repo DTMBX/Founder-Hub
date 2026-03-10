@@ -151,9 +151,9 @@ export interface DeviceAlert {
 
 // ─── Constants ───────────────────────────────────────────────
 
-const DEVICES_KEY = 'xtx396_devices'
-const PENDING_APPROVALS_KEY = 'xtx396_pending_device_approvals'
-const ALERTS_KEY = 'xtx396_device_alerts'
+const DEVICES_KEY = 'founder-hub_devices'
+const PENDING_APPROVALS_KEY = 'founder-hub_pending_device_approvals'
+const ALERTS_KEY = 'founder-hub_device_alerts'
 const MAX_TRUSTED_DEVICES = 10
 const APPROVAL_EXPIRY_MS = 15 * 60 * 1000 // 15 minutes
 const MAX_APPROVAL_ATTEMPTS = 3

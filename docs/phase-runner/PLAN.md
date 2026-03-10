@@ -161,8 +161,8 @@
 - **Risk:** Medium
 
 ### B15-P3 — Brand Profiles
-- **Objective:** Evident vs XTX396 tool filtering
-- **Deliverables:** `apps/toolhub/profiles/evident.json`, `apps/toolhub/profiles/xtx396.json`
+- **Objective:** Evident vs Founder-Hub tool filtering
+- **Deliverables:** `apps/toolhub/profiles/evident.json`, `apps/toolhub/profiles/founder-hub.json`
 - **Tests:** Profile validation
 - **Risk:** Low
 
@@ -179,7 +179,7 @@
 - **Risk:** Medium
 
 ### B15-P6 — Shell Integration Plan
-- **Objective:** Document XTX396 ↔ ToolHub integration
+- **Objective:** Document Founder-Hub ↔ ToolHub integration
 - **Deliverables:** `docs/tools/SHELL_INTEGRATION.md`, package export stubs
 - **Risk:** Low
 

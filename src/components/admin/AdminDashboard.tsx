@@ -385,7 +385,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'security': return <SecurityManager />
       case 'session-security': return <SecuritySettings userId={currentUser?.id ?? 'unknown'} userRole={(currentUser?.role as any) ?? 'viewer'} />
       case 'runtime-policy': return <PolicyViewer userId={currentUser?.id ?? 'unknown'} userRole={(currentUser?.role as any) ?? 'viewer'} />
-      case 'deployments': return <DeploymentsPanel siteId={activeSite?.id || 'xtx396'} />
+      case 'deployments': return <DeploymentsPanel siteId={activeSite?.id || 'founder-hub'} />
       case 'provenance': return <ProvenancePanel />
       case 'incidents': return <IncidentDashboard />
       case 'audit-integrity': return <AuditIntegrity />

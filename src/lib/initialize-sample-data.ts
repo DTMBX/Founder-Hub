@@ -170,7 +170,7 @@ export function useInitializeSampleData() {
           {
             date: '2025-02',
             title: 'Foundation Launch',
-            content: 'Establishing xTx396 as a comprehensive founder hub showcasing projects, court accountability, and investment opportunities.'
+            content: 'Establishing Founder Hub as a comprehensive platform showcasing projects, court accountability, and investment opportunities.'
           }
         ]
       }

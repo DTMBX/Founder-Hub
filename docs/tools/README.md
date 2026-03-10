@@ -5,7 +5,7 @@
 ## Overview
 
 ToolHub is the shared tools platform for Evident Technologies and
-XTX396. It provides:
+Founder-Hub. It provides:
 
 - **Tool registration** via typed, validated manifests
 - **Discovery** by text search or structured filters

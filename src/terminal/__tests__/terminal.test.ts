@@ -623,21 +623,21 @@ describe('CommandExecutor', () => {
       const executor = getCommandExecutor();
       executor.createSession('session-1', 'user-1');
       
-      const result = await executeCommand('session-1', 'site use xtx396');
+      const result = await executeCommand('session-1', 'site use founder-hub');
       
       expect(result.success).toBe(true);
-      expect(result.redactedOutput).toContain('xtx396');
+      expect(result.redactedOutput).toContain('founder-hub');
       
       // Verify context is set
       const session = executor.getSession('session-1');
-      expect(session?.currentSite?.slug).toBe('xtx396');
+      expect(session?.currentSite?.slug).toBe('founder-hub');
     });
     
     it('should execute commands after setting site context', async () => {
       const executor = getCommandExecutor();
       executor.createSession('session-1', 'user-1');
       
-      await executeCommand('session-1', 'site use xtx396');
+      await executeCommand('session-1', 'site use founder-hub');
       const result = await executeCommand('session-1', 'site status');
       
       expect(result.success).toBe(true);
@@ -729,7 +729,7 @@ describe('CommandExecutor', () => {
       const executor = getCommandExecutor();
       executor.createSession('session-1', 'user-1');
       
-      await executeCommand('session-1', 'site use xtx396');
+      await executeCommand('session-1', 'site use founder-hub');
       
       const events = getSessionAuditEvents('session-1');
       
@@ -770,7 +770,7 @@ describe('Integration Tests', () => {
     expect(listResult.redactedOutput).toContain('Available sites');
     
     // 2. Select a site
-    const useResult = await executeCommand('session-1', 'site use xtx396');
+    const useResult = await executeCommand('session-1', 'site use founder-hub');
     expect(useResult.success).toBe(true);
     
     // 3. Check status

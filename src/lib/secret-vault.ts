@@ -358,7 +358,7 @@ export async function reEncryptVault(): Promise<{
 
 // ─── Migration Functions ─────────────────────────────────────
 
-const LEGACY_GITHUB_TOKEN_KEY = 'xtx396:github-pat'
+const LEGACY_GITHUB_TOKEN_KEY = 'founder-hub:github-pat'
 
 /**
  * Migrate cleartext secrets to vault

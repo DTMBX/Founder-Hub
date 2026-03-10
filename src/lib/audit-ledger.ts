@@ -172,8 +172,8 @@ export interface AuditIntegrityReport {
 // ─── Constants ───────────────────────────────────────────────
 
 const LEDGER_VERSION = 1;
-const STORAGE_KEY = 'xtx396_audit_ledger';
-const CHECKPOINT_KEY = 'xtx396_audit_checkpoints';
+const STORAGE_KEY = 'founder-hub_audit_ledger';
+const CHECKPOINT_KEY = 'founder-hub_audit_checkpoints';
 const CHECKPOINT_INTERVAL = 100; // Create checkpoint every 100 entries
 const GENESIS_HASH = '0'.repeat(64);
 

@@ -34,7 +34,7 @@ Branch: `feature/b13b14b15-phase-runner`
 - `BrandProfile` type with policies, colors, capabilities
 - `validateBrandProfile()` — hex color regex, required fields
 - `BrandRegistry` class
-- Brand JSON configs: `evident.json`, `xtx396.json`
+- Brand JSON configs: `evident.json`, `Founder-Hub.json`
 - 12 tests
 
 ## P4 — Convert Existing Tools (5df1aea)
@@ -95,7 +95,7 @@ apps/
 │   ├── BrandProfile.ts            ← Brand loader (P3)
 │   └── brands/
 │       ├── evident.json            ← Brand config (P3)
-│       └── xtx396.json            ← Brand config (P3)
+│       └── Founder-Hub.json            ← Brand config (P3)
 ├── tooling/
 │   ├── ToolManifest.ts            ← Schema + registry (P1)
 │   ├── HighlightTools.ts          ← Risk + acceptance (P5)

@@ -104,7 +104,7 @@ describe('audit-ledger', () => {
       })
 
       expect(mockLocalStorage.setItem).toHaveBeenCalled()
-      const stored = mockStorage.get('xtx396_audit_ledger')
+      const stored = mockStorage.get('founder-hub_audit_ledger')
       expect(stored).toBeTruthy()
       const entries = JSON.parse(stored!)
       expect(entries).toHaveLength(1)

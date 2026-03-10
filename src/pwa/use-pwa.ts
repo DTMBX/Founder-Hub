@@ -1,5 +1,5 @@
 /**
- * usePWA Hook — xTx396 Founder Hub
+ * usePWA Hook — Founder Hub Founder Hub
  *
  * Combined hook for all PWA functionality:
  * - Service worker status

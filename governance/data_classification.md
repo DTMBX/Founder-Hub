@@ -3,7 +3,7 @@
 > Version 1.0 | Last Updated: 2026-02-17
 
 This document defines data classification levels and handling requirements
-for all data processed, stored, or transmitted by XTX396 systems.
+for all data processed, stored, or transmitted by Founder-Hub systems.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "lastUpdated": "2026-02-17T00:00:00Z",
-  "description": "XTX396 Runtime Policy Engine - Terminal & Assistant Governance",
+  "description": "Founder-Hub Runtime Policy Engine - Terminal & Assistant Governance",
 
   "commands": {
     "allowed": [

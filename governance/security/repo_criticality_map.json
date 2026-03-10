@@ -4,9 +4,9 @@
   "generated_at": "2026-02-17T00:00:00Z",
   "repositories": [
     {
-      "id": "xtx396",
+      "id": "Founder-Hub",
       "owner": "DTMBX",
-      "name": "XTX396",
+      "name": "Founder-Hub",
       "criticality": "critical",
       "backup_tier": 1,
       "rpo_hours": 4,

@@ -343,7 +343,7 @@ export class PRWorkflowService {
 
     // Simulate PR creation
     const prNumber = Math.floor(Math.random() * 10000) + 1
-    const prUrl = `https://github.com/DTMBX/XTX396/pull/${prNumber}`
+    const prUrl = `https://github.com/DTMBX/Founder-Hub/pull/${prNumber}`
 
     // Log
     const logger = getAuditLogger()

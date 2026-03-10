@@ -5,7 +5,7 @@ const path = require('path');
 
 const publicDir = path.join(__dirname, '..', 'public');
 
-console.log('\n🎨 xTx396 Image Asset Generator');
+console.log('\n🎨 Founder Hub Image Asset Generator');
 console.log('================================\n');
 
 console.log('📁 Checking for existing PNG files...\n');

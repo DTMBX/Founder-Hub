@@ -2,7 +2,7 @@
 
 > B17-P2 | External Trust Layer | Classification: Security
 >
-> **Scope:** Evident/XTX396 platform — multi-tenant legal technology system
+> **Scope:** Evident/Founder-Hub platform — multi-tenant legal technology system
 > handling evidence integrity, export generation, and operational automation.
 >
 > **Methodology:** STRIDE threat categorization with mitigations mapped to

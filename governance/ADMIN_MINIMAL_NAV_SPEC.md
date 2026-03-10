@@ -94,7 +94,7 @@ Ops Mode provides full administrative capabilities. Designed for:
 │  [Logo]           OPS MODE              [User ▾] │
 ├────────────┬─────────────────────────────────────┤
 │            │                                     │
-│ ▼ XTX396   │  [Main Content Area]               │
+│ ▼ Founder-Hub   │  [Main Content Area]               │
 │   Content  │                                     │
 │   About    │                                     │
 │   Links    │                                     │
@@ -146,7 +146,7 @@ Ops Mode provides full administrative capabilities. Designed for:
 
 ### Category Breakdown with Role Gates
 
-#### Category: XTX396 Site
+#### Category: Founder-Hub Site
 | Route | Min Role | Notes |
 |-------|----------|-------|
 | Content | editor | Primary content |

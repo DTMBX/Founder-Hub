@@ -6,7 +6,7 @@
 > **Backup Location:** See [Backup Policy](./backup_policy.md)
 
 This runbook provides step-by-step procedures for recovering from disasters
-affecting the XTX396 repository and related infrastructure.
+affecting the Founder-Hub repository and related infrastructure.
 
 ---
 
@@ -55,7 +55,7 @@ scripts/restore-rehearsal.ps1 -Restore -Target ./restored
 
 ```bash
 # Clone from backup instead of origin
-git clone ./restored/XTX396.git XTX396-recovered
+git clone ./restored/Founder-Hub.git Founder-Hub-recovered
 
 # Compare with corrupted
 git diff origin/main..backup/main
@@ -81,11 +81,11 @@ git push --force origin main
 
 ```bash
 # If repo deleted, create new repo first
-gh repo create DTMBX/XTX396 --private
+gh repo create DTMBX/Founder-Hub --private
 
 # Push from backup
-cd restored/XTX396
-git remote add origin https://github.com/DTMBX/XTX396.git
+cd restored/Founder-Hub
+git remote add origin https://github.com/DTMBX/Founder-Hub.git
 git push --all origin
 git push --tags origin
 ```
@@ -175,22 +175,22 @@ netlify deploy --prod --dir=dist
 
 ```bash
 # Configure AWS CLI with backup credentials
-aws configure --profile xtx396-backup
+aws configure --profile Founder-Hub-backup
 
 # List available backups
-aws s3 ls s3://xtx396-backups-primary/daily/ --profile xtx396-backup
+aws s3 ls s3://Founder-Hub-backups-primary/daily/ --profile Founder-Hub-backup
 ```
 
 ### Step 2: Download Backup
 
 ```bash
 # Download latest
-aws s3 cp s3://xtx396-backups-primary/daily/backup-latest.tar.gz.enc . \
-  --profile xtx396-backup
+aws s3 cp s3://Founder-Hub-backups-primary/daily/backup-latest.tar.gz.enc . \
+  --profile Founder-Hub-backup
 
 # Or specific date
-aws s3 cp s3://xtx396-backups-primary/daily/backup-20260217-0200.tar.gz.enc . \
-  --profile xtx396-backup
+aws s3 cp s3://Founder-Hub-backups-primary/daily/backup-20260217-0200.tar.gz.enc . \
+  --profile Founder-Hub-backup
 ```
 
 ### Step 3: Decrypt Backup
@@ -223,10 +223,10 @@ cat backup-manifest.json | jq '.provenance'
 
 ```bash
 # Clone from backup bundle
-git clone backup/XTX396.bundle restored-XTX396
+git clone backup/Founder-Hub.bundle restored-Founder-Hub
 
 # Verify branches and tags
-cd restored-XTX396
+cd restored-Founder-Hub
 git branch -a
 git tag
 

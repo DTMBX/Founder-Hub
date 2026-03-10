@@ -243,7 +243,7 @@ describe('Security Requirements', () => {
 
     // Config should exist
     expect(GITHUB_APP_CONFIG).toBeDefined()
-    expect(GITHUB_APP_CONFIG.appSlug).toBe('xtx396-publisher')
+    expect(GITHUB_APP_CONFIG.appSlug).toBe('founder-hub-publisher')
   })
 
   it('OAuth state is stored in sessionStorage only', async () => {

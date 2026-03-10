@@ -5,7 +5,7 @@
 ## Scope
 
 This policy applies to all services, tools, APIs, and data stores
-within the Evident / XTX396 platform.
+within the Evident / Founder-Hub platform.
 
 ## Requirements
 

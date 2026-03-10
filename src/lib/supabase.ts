@@ -48,7 +48,7 @@ export function getSupabaseClient(): SupabaseClient | null {
         detectSessionInUrl: true,
         // Use localStorage for session persistence (Supabase SDK handles this securely)
         storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-        storageKey: 'xtx396-supabase-auth',
+        storageKey: 'founder-hub-supabase-auth',
         flowType: 'pkce', // PKCE flow for SPAs — more secure than implicit
       },
     })

@@ -1,12 +1,12 @@
 {
-  "brandId": "xtx396",
+  "brandId": "founder-hub",
   "name": "Devon Tyler",
   "domain": "devon-tyler.com",
   "tagline": "Clarity through technology",
   "description": "Custom web development, civic technology platforms, and digital infrastructure built with clean code and full ownership.",
   "primaryColor": "#0f172a",
   "accentColor": "#f59e0b",
-  "logoPath": "assets/branding/xtx396-logo.svg",
+  "logoPath": "assets/branding/founder-hub-logo.svg",
   "toolCategories": [
     "app",
     "dev-tool",

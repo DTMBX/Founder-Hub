@@ -880,7 +880,7 @@ describe('P7 — ExportIntegrity.createExport', () => {
     expect(manifest.watermark.tenantId).toBe(TENANT_A);
     expect(manifest.watermark.exportedAt).toBe('2025-01-01T00:00:00Z');
     expect(manifest.watermark.exportId).toBe('exp-001');
-    expect(manifest.watermark.system).toBe('evident-xtx396');
+    expect(manifest.watermark.system).toBe('evident-founder-hub');
     expect(manifest.watermark.version).toBe(1);
   });
 
@@ -959,7 +959,7 @@ describe('P7 — ExportIntegrity.verifyExport', () => {
 
   it('detects missing watermark', () => {
     const manifest = {
-      watermark: { tenantId: '', exportedAt: '', exportId: '', system: 'evident-xtx396' as const, version: 1 as const },
+      watermark: { tenantId: '', exportedAt: '', exportId: '', system: 'evident-founder-hub' as const, version: 1 as const },
       recordCount: 0,
       recordIds: [],
       integrityHash: '',

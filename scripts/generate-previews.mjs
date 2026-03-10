@@ -251,16 +251,16 @@ async function createDemoSiteInBrowser(page, scene, offerId, baseUrl) {
     const { siteId, siteData } = data
     
     // Get or create sites array
-    const existingSites = JSON.parse(localStorage.getItem('xtx396-sites') || '[]')
+    const existingSites = JSON.parse(localStorage.getItem('Founder-Hub-sites') || '[]')
     
     // Remove existing demo with same ID if exists
     const filtered = existingSites.filter(s => s.siteId !== siteId)
     filtered.push(siteData)
     
-    localStorage.setItem('xtx396-sites', JSON.stringify(filtered))
+    localStorage.setItem('Founder-Hub-sites', JSON.stringify(filtered))
     
     // Also store individually for quick lookup
-    localStorage.setItem(`xtx396-site-${siteId}`, JSON.stringify(siteData))
+    localStorage.setItem(`Founder-Hub-site-${siteId}`, JSON.stringify(siteData))
     
     return true
   }, { siteId, siteData })

@@ -47,7 +47,7 @@ Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock })
 
 // Helper: inject an owner-level session so OWNER_ONLY_FLAGS can be modified
 function injectOwnerSession() {
-  localStorageMock.setItem('xtx396:founder-hub-session', JSON.stringify({
+  localStorageMock.setItem('founder-hub:founder-hub-session', JSON.stringify({
     userId: 'test-owner',
     role: 'owner',
     expiresAt: Date.now() + 3_600_000, // 1 hour

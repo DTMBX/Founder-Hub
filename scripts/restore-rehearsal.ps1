@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    XTX396 Backup Restore Rehearsal Script
+    Founder-Hub Backup Restore Rehearsal Script
     
 .DESCRIPTION
     Script for testing backup restoration procedures.
@@ -46,7 +46,7 @@
     Restores the backup to .\restored directory
 
 .NOTES
-    Author: XTX396 System
+    Author: Founder-Hub System
     Version: 1.0.0
     Chain: B5 - Backups + Disaster Recovery
 #>
@@ -69,8 +69,8 @@ param(
 # ─── Configuration ────────────────────────────────────────────
 
 $script:Config = @{
-    DefaultBucket = "xtx396-backups"
-    TempDir = Join-Path $env:TEMP "xtx396-restore"
+    DefaultBucket = "Founder-Hub-backups"
+    TempDir = Join-Path $env:TEMP "Founder-Hub-restore"
     LatestPath = "latest/backup-latest.tar.gz.enc"
     ManifestPath = "latest/backup-manifest.json"
 }
@@ -404,7 +404,7 @@ function Invoke-Restore {
 # ─── Main ─────────────────────────────────────────────────────
 
 Write-Host "`n╔══════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-Write-Host "║        XTX396 Backup Restore Rehearsal Script            ║" -ForegroundColor Cyan
+Write-Host "║        Founder-Hub Backup Restore Rehearsal Script            ║" -ForegroundColor Cyan
 Write-Host "║        Chain B5 - Disaster Recovery                      ║" -ForegroundColor Cyan
 Write-Host "╚══════════════════════════════════════════════════════════╝`n" -ForegroundColor Cyan
 

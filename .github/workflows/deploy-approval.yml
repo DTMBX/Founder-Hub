@@ -168,8 +168,8 @@ jobs:
             
             const manifest = {
               schemaVersion: '1.0.0',
-              siteId: 'xtx396',
-              siteName: 'XTX396',
+              siteId: 'Founder-Hub',
+              siteName: 'Founder-Hub',
               versionId: '${{ github.sha }}'.substring(0, 7),
               build: {
                 buildId: crypto.randomUUID(),

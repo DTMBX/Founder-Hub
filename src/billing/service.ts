@@ -236,7 +236,7 @@ export class InvoiceService {
 <body>
   <div class="header">
     <div>
-      <div class="company">XTX396</div>
+      <div class="company">Founder-Hub</div>
       <span class="status ${invoice.status}">${invoice.status}</span>
     </div>
     <div style="text-align: right;">

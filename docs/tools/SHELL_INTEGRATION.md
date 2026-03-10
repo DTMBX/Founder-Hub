@@ -1,11 +1,11 @@
-# Shell Integration Plan — ToolHub ↔ XTX396
+# Shell Integration Plan — ToolHub ↔ Founder-Hub
 
 > B15-P6 | Status: Plan Approved | Last Updated: 2025-01-20
 
 ## Purpose
 
 This document describes how the ToolHub platform integrates into the
-XTX396 application shell and how external consumers (Evident tools,
+Founder-Hub application shell and how external consumers (Evident tools,
 third-party launchers) connect to ToolHub services.
 
 ---
@@ -14,7 +14,7 @@ third-party launchers) connect to ToolHub services.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  XTX396 App Shell (React / Vite)                │
+│  Founder-Hub App Shell (React / Vite)                │
 │                                                 │
 │  ┌──────────────┐  ┌──────────────────────────┐ │
 │  │  Navigation   │  │  ToolHub Panel           │ │
@@ -150,7 +150,7 @@ apps/
 │   ├── BrandProfile.ts          ← Brand loader (P3)
 │   └── brands/
 │       ├── evident.json         ← Brand config (P3)
-│       └── xtx396.json          ← Brand config (P3)
+│       └── founder-hub.json          ← Brand config (P3)
 ├── tooling/
 │   ├── ToolManifest.ts          ← Schema + registry (P1)
 │   ├── HighlightTools.ts        ← Risk + acceptance (P5)

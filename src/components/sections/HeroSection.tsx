@@ -19,7 +19,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
     description: 'Building transformative solutions at the intersection of technology and justice.',
-    primaryDomain: 'xTx396.online',
+    primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,

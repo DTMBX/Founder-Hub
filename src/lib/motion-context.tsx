@@ -21,7 +21,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
     description: 'Building transformative solutions at the intersection of technology and justice.',
-    primaryDomain: 'xTx396.online',
+    primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,

@@ -102,7 +102,7 @@ describe('incident-log', () => {
       })
 
       expect(mockLocalStorage.setItem).toHaveBeenCalled()
-      const stored = mockStorage.get('xtx396_incident_log')
+      const stored = mockStorage.get('founder-hub_incident_log')
       expect(stored).toBeTruthy()
       const incidents = JSON.parse(stored!)
       expect(incidents).toHaveLength(1)

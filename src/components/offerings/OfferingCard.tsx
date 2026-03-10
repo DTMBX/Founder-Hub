@@ -150,7 +150,7 @@ export function OfferingCard({
   className,
   style,
   onViewDetails,
-  contactEmail = 'contact@xtx396.online',
+  contactEmail = 'devon@devon-tyler.com',
 }: OfferingCardProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [imageLoaded, setImageLoaded] = useState(false)

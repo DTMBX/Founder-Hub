@@ -14,7 +14,7 @@
 - Created `governance/security/critical_assets_inventory.md`
 - Created `governance/security/repo_criticality_map.json` with RPO/RTO targets
 - Created `docs/security/B13_OVERVIEW.md`
-- Catalogued XTX396 and Evident repositories with criticality ratings
+- Catalogued Founder-Hub and Evident repositories with criticality ratings
 
 ### B13-P2 — Encrypted Backup System (Local-first)
 **Commit:** `b7078f2`

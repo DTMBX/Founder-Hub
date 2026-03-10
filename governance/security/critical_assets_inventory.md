@@ -9,13 +9,13 @@
 
 | Repository | Criticality | RPO | RTO | Backup Tier |
 |------------|-------------|-----|-----|-------------|
-| DTMBX/XTX396 | Critical | 4h | 1h | Tier 1 — Encrypted local + offsite |
+| DTMBX/Founder-Hub | Critical | 4h | 1h | Tier 1 — Encrypted local + offsite |
 | DTMBX/EVIDENT | Critical | 4h | 1h | Tier 1 — Encrypted local + offsite |
 | DTMBX/VeilsAndRevelations | Standard | 24h | 4h | Tier 2 — Encrypted local |
 
 ## Critical Paths (Must-Protect)
 
-### XTX396
+### Founder-Hub
 | Path | Category | Reason |
 |------|----------|--------|
 | `/governance/**` | Policy | Audit trail, changelogs, compliance policies |

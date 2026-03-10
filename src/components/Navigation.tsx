@@ -111,7 +111,7 @@ export default function Navigation({
               isScrolled ? 'text-foreground hover:text-foreground/80' : 'text-foreground/90 hover:text-foreground'
             )}
           >
-            xTx396
+            Devon Tyler
           </button>
 
           <div className="hidden md:flex items-center gap-0.5">

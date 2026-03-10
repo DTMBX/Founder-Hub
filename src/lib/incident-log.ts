@@ -167,7 +167,7 @@ export interface IncidentStats {
 
 // ─── Constants ───────────────────────────────────────────────
 
-const STORAGE_KEY = 'xtx396_incident_log';
+const STORAGE_KEY = 'founder-hub_incident_log';
 
 const SEVERITY_PRIORITY: Record<IncidentSeverity, number> = {
   critical: 4,

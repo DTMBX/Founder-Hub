@@ -99,10 +99,10 @@ class TerminalAuditLogger {
  * Mock site data for demonstration
  */
 const MOCK_SITES: Map<string, SiteContext> = new Map([
-  ['xtx396', {
-    slug: 'xtx396',
-    name: 'XTX396 Landing',
-    rootPath: '/sites/xtx396',
+  ['founder-hub', {
+    slug: 'founder-hub',
+    name: 'Founder-Hub Landing',
+    rootPath: '/sites/founder-hub',
     environment: 'prod',
   }],
   ['evident', {

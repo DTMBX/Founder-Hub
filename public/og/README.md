@@ -1,4 +1,4 @@
-# OG Preview Image Pipeline - xTx396 Founder Hub
+# OG Preview Image Pipeline - Founder Hub Founder Hub
 
 ## Overview
 
@@ -40,7 +40,7 @@ This directory contains the complete Open Graph preview image pipeline with SVG-
 
 All variants include:
 - ✅ Name text exactly: "Devon Tyler Barber"
-- ✅ xTx396 logo/monogram
+- ✅ Founder Hub logo/monogram
 - ✅ Tagline: "Founder & Innovator"
 - ✅ Dark background with high-contrast readable typography
 - ✅ 1200×630 safe area with generous padding

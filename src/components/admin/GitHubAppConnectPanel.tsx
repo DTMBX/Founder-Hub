@@ -61,7 +61,7 @@ import { hasGitHubPAT, clearGitHubPAT } from '@/lib/secret-vault'
 
 // ─── Local Storage for Site-Repo Mapping ────────────────────────────────────
 
-const SITE_REPO_MAPPING_KEY = 'xtx396:github-app-repo-mapping'
+const SITE_REPO_MAPPING_KEY = 'founder-hub:github-app-repo-mapping'
 
 interface RepoMapping {
   repoFullName: string

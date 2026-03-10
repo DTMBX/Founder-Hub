@@ -230,7 +230,7 @@ async function initializeDefaultAdmin(): Promise<void> {
       // Migrate existing admin email if needed
       let changed = false
       const migrated = users.map(u => {
-        if (u.email === 'admin@xtx396.online') {
+        if (u.email === 'admin@founder-hub.online') {
           changed = true
           return { ...u, email: 'dTb33@pm.me' }
         }
@@ -593,7 +593,7 @@ export function useAuth() {
       await logAudit(currentUser.id, currentUser.email, 'logout', 'User logged out', 'auth', currentUser.id)
     }
     // Clear session from localStorage directly to ensure it's removed
-    localStorage.removeItem('xtx396:' + SESSION_KEY)
+    localStorage.removeItem('founder-hub:' + SESSION_KEY)
     setSession(null)
     setCurrentUser(null)
     log('[auth] Logout complete')
@@ -644,7 +644,7 @@ export function useAuth() {
     }
 
     const secret = generateSecret()
-    const qrCodeURL = generateQRCodeURL(secret, 'xTx396 Hub', currentUser.email)
+    const qrCodeURL = generateQRCodeURL(secret, 'Founder Hub Hub', currentUser.email)
     
     const backupCodes = Array.from({ length: 10 }, () => {
       const code = Math.random().toString(36).substring(2, 10).toUpperCase()

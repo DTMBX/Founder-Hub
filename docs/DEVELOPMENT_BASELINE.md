@@ -1,6 +1,6 @@
 # Development Baseline
 
-This document describes the minimum prerequisites and verification process for the XTX396 codebase.
+This document describes the minimum prerequisites and verification process for the Founder-Hub codebase.
 
 ## Prerequisites
 

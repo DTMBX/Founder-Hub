@@ -1,5 +1,5 @@
 /**
- * Offline Cache Service — xTx396 Founder Hub
+ * Offline Cache Service — Founder Hub Founder Hub
  *
  * Provides offline data access for:
  * - Leads
@@ -18,7 +18,7 @@ import type { CachedItem, OfflineQueueItem, OfflineStatus } from './types'
 
 // ─── Constants ─────────────────────────────────────────────
 
-const DB_NAME = 'xtx396-offline'
+const DB_NAME = 'founder-hub-offline'
 const DB_VERSION = 1
 const STORES = {
   DATA: 'cached-data',

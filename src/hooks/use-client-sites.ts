@@ -14,7 +14,7 @@ import { getSiteRegistry } from '@/lib/site-registry'
 import { migrateToMultiInstance, isMigrated } from '@/lib/site-migration'
 import { createStorageAdapter } from '@/lib/storage-adapter'
 
-const ACTIVE_CLIENT_SITE_KEY = 'xtx396:active-client-site'
+const ACTIVE_CLIENT_SITE_KEY = 'founder-hub:active-client-site'
 
 export function useClientSites() {
   const [sites, setSites] = useState<SiteSummary[]>([])

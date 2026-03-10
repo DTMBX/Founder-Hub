@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * XTX396 Site Generator
+ * Founder-Hub Site Generator
  * 
- * Generates customized site clones from the XTX396 template.
+ * Generates customized site clones from the Founder-Hub template.
  * Each site gets its own configuration and can be deployed independently.
  * 
  * Usage:
@@ -245,7 +245,7 @@ async function generateSite(options) {
   const sitePath = outputDir || path.join(OUTPUT_BASE, siteId)
 
   console.log('\n╔══════════════════════════════════════════════════════════════╗')
-  console.log('║            XTX396 SITE GENERATOR                             ║')
+  console.log('║            Founder-Hub SITE GENERATOR                             ║')
   console.log('╚══════════════════════════════════════════════════════════════╝\n')
 
   console.log(`📋 Site Configuration:`)
@@ -355,7 +355,7 @@ VITE_FB_PIXEL_ID=
   const packageJsonPath = path.join(sitePath, 'package.json')
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf8'))
   packageJson.name = siteId
-  packageJson.description = `${name} - Generated from XTX396 template`
+  packageJson.description = `${name} - Generated from Founder-Hub template`
   packageJson.homepage = `https://${domain}`
   await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
   console.log('   ✓ package.json updated\n')
@@ -380,7 +380,7 @@ VITE_FB_PIXEL_ID=
   try {
     execSync('git init', { cwd: sitePath, stdio: 'pipe' })
     execSync('git add -A', { cwd: sitePath, stdio: 'pipe' })
-    execSync(`git commit -m "Initial site generation from XTX396 template"`, { cwd: sitePath, stdio: 'pipe' })
+    execSync(`git commit -m "Initial site generation from Founder-Hub template"`, { cwd: sitePath, stdio: 'pipe' })
     console.log('   ✓ Git repository initialized\n')
   } catch (err) {
     console.log('   ⚠ Git initialization skipped\n')
@@ -448,7 +448,7 @@ function parseArgs() {
 
 function showHelp() {
   console.log(`
-XTX396 Site Generator
+Founder-Hub Site Generator
 =====================
 
 Generate customized website clones for rapid deployment.

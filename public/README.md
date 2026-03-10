@@ -1,6 +1,6 @@
 # Public Assets
 
-This directory contains public-facing assets for the xTx396 Founder Hub.
+This directory contains public-facing assets for the Founder Hub Founder Hub.
 
 ## Generate Meta Images
 

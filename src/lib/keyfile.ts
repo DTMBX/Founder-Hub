@@ -18,10 +18,10 @@
 
 import { kv } from '@/lib/local-storage-kv'
 
-const KEYFILE_VERSION = 'xtx396-keyfile-v1'
-const KEYFILE_LOCAL_KEY = 'xtx396-admin-keyfile'
-const BACKUP_CODES_KEY = 'xtx396-admin-backup-codes'
-const RECOVERY_PHRASE_HASH_KEY = 'xtx396-recovery-phrase-hash'
+const KEYFILE_VERSION = 'founder-hub-keyfile-v1'
+const KEYFILE_LOCAL_KEY = 'founder-hub-admin-keyfile'
+const BACKUP_CODES_KEY = 'founder-hub-admin-backup-codes'
+const RECOVERY_PHRASE_HASH_KEY = 'founder-hub-recovery-phrase-hash'
 const PBKDF2_ITERATIONS = 100_000
 const BACKUP_CODES_COUNT = 8
 
@@ -179,7 +179,7 @@ export function exportKeyfileToFile(keyfile: AdminKeyfile): void {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `xtx396-admin-key-${keyfile.label.toLowerCase().replace(/\s+/g, '-')}.json`
+  a.download = `founder-hub-admin-key-${keyfile.label.toLowerCase().replace(/\s+/g, '-')}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -507,7 +507,7 @@ export function exportRecoveryBackup(
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = `xtx396-admin-recovery-${Date.now()}.json`
+  a.download = `founder-hub-admin-recovery-${Date.now()}.json`
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)

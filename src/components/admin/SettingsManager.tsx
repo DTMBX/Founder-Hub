@@ -27,7 +27,7 @@ export default function SettingsManager() {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
     description: 'Building transformative solutions at the intersection of technology and justice.',
-    primaryDomain: 'xTx396.online',
+    primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,
@@ -238,7 +238,7 @@ export default function SettingsManager() {
               id="primaryDomain"
               value={settings?.primaryDomain || ''}
               onChange={(e) => setSettings(prev => ({ ...prev!, primaryDomain: e.target.value }))}
-              placeholder="xTx396.online"
+              placeholder="devon-tyler.com"
             />
           </div>
           <div className="space-y-2">

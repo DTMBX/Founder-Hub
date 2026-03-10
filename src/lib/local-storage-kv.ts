@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 
-const STORAGE_PREFIX = 'xtx396:'
+const STORAGE_PREFIX = 'founder-hub:'
 
 // Map KV keys to static JSON file paths
 const STATIC_DATA_MAP: Record<string, string> = {

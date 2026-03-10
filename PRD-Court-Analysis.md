@@ -1,6 +1,6 @@
-# Product Requirements: xTx396 Court Analysis & Document Intelligence
+# Product Requirements: Founder Hub Court Analysis & Document Intelligence
 
-Building a professional legal document analysis system for the xTx396 Founder Hub that transforms court case management from basic document storage into an intelligent triage and review platform—always with strict human validation before anything becomes visible.
+Building a professional legal document analysis system for the Founder Hub Founder Hub that transforms court case management from basic document storage into an intelligent triage and review platform—always with strict human validation before anything becomes visible.
 
 **Current Implementation Status**: Core architecture complete with filing type taxonomy, document organization by type with collapsible groups, OCR pipeline with confidence scoring, automated field extraction, review notes generation, case brief analysis, and comprehensive admin management interfaces. System successfully organizes documents by filing type with date ranges, provides attorney review notes and contingency checklists, and maintains strict visibility controls with audit trails.
 

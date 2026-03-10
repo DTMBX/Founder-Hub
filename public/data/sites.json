@@ -1,12 +1,12 @@
 {
   "sites": [
     {
-      "id": "xtx396",
-      "name": "XTX396",
+      "id": "founder-hub",
+      "name": "Founder-Hub",
       "description": "Primary founder hub",
-      "repo": "DTMBX/XTX396",
+      "repo": "DTMBX/Founder-Hub",
       "dataPath": "/public/data",
-      "localPath": "C:/web-dev/github-repos/xtx396/XTX396",
+      "localPath": "C:/web-dev/github-repos/founder-hub/Founder-Hub",
       "type": "primary",
       "enabled": true
     },
@@ -51,5 +51,5 @@
       ]
     }
   ],
-  "activeSiteId": "xtx396"
+  "activeSiteId": "founder-hub"
 }

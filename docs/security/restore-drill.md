@@ -33,7 +33,7 @@ the [Backup Policy](../../governance/security/backup_policy.md).
 # Full drill with file-level verification
 .\scripts\security\restore-drill.ps1 `
   -BundlePath "D:\backups\20250101-120000" `
-  -RepoPath "C:\repos\XTX396" `
+  -RepoPath "C:\repos\Founder-Hub" `
   -ConductedBy "monthly-review"
 ```
 
@@ -76,7 +76,7 @@ Each drill generates a JSON report saved alongside the bundle:
 |-----------|------|-------|
 | Weekly | Quick verify | Manifest + metadata integrity |
 | Monthly | Full drill | File-level verification + build simulation |
-| Quarterly | Cross-repo | Both XTX396 and Evident repos |
+| Quarterly | Cross-repo | Both Founder-Hub and Evident repos |
 
 ## Audit Integration
 

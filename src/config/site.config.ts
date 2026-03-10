@@ -12,10 +12,10 @@
 
 export const siteConfig = {
   // Basic Info
-  name: import.meta.env.VITE_SITE_NAME || 'XTX396',
+  name: import.meta.env.VITE_SITE_NAME || 'Founder-Hub',
   tagline: import.meta.env.VITE_SITE_TAGLINE || 'Professional Services',
   domain: import.meta.env.VITE_SITE_DOMAIN || 'localhost',
-  siteId: import.meta.env.VITE_SITE_ID || 'xtx396',
+  siteId: import.meta.env.VITE_SITE_ID || 'founder-hub',
   
   // Business Details
   business: {

@@ -44,7 +44,7 @@ export interface GuardViolation {
   matchedPattern: ProtectedPattern;
 }
 
-// ── Default protected patterns (XTX396) ─────────────────────────
+// ── Default protected patterns (Founder-Hub) ─────────────────────────
 
 /**
  * Patterns that MUST NOT be deleted without explicit override.

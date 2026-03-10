@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This document defines the continuous monitoring requirements for the XTX396
+This document defines the continuous monitoring requirements for the Founder-Hub
 platform, ensuring security, reliability, and integrity of production systems.
 
 ---
@@ -235,7 +235,7 @@ The monitoring dashboard must display:
 ```
 🚨 CRITICAL SECURITY ALERT
 
-Repository: XTX396
+Repository: Founder-Hub
 Time: {{timestamp}}
 Type: {{alert_type}}
 Details: {{details}}
@@ -249,7 +249,7 @@ Response SLA: 4 hours
 ```
 🔴 PRODUCTION DEPLOYMENT FAILED
 
-Repository: XTX396
+Repository: Founder-Hub
 Environment: Production
 Commit: {{commit_sha}}
 Time: {{timestamp}}
@@ -264,7 +264,7 @@ Rollback recommended.
 ```
 ⚠️ AUDIT INTEGRITY ALERT
 
-Repository: XTX396
+Repository: Founder-Hub
 Check: {{check_type}}
 Status: FAILED
 Details: {{details}}

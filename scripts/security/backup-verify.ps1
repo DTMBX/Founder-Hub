@@ -18,7 +18,7 @@
 
 .EXAMPLE
   .\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000"
-  .\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000" -RepoPath "C:\repos\XTX396"
+  .\backup-verify.ps1 -BundlePath "D:\backups\20250101-120000" -RepoPath "C:\repos\Founder-Hub"
 #>
 
 [CmdletBinding()]

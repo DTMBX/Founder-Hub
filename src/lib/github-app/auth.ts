@@ -33,11 +33,11 @@ import type {
  */
 export const GITHUB_APP_CONFIG = {
   /** GitHub App name (for install URL) */
-  appSlug: 'xtx396-publisher',
+  appSlug: 'founder-hub-publisher',
   /** GitHub App ID (public) */
   appId: parseInt(import.meta.env.VITE_GITHUB_APP_ID || '0', 10),
   /** Install URL */
-  installUrl: 'https://github.com/apps/xtx396-publisher/installations/new',
+  installUrl: 'https://github.com/apps/founder-hub-publisher/installations/new',
   /** Callback path (relative to origin) */
   callbackPath: '/admin/github/callback',
   /** Token proxy endpoint (Cloudflare Worker or similar) */
@@ -52,7 +52,7 @@ export const GITHUB_APP_CONFIG = {
 }
 
 // Storage key for installation data (safe to store in localStorage)
-const INSTALLATION_STORAGE_KEY = 'xtx396:github-app-installation'
+const INSTALLATION_STORAGE_KEY = 'founder-hub:github-app-installation'
 
 // ─── Installation State ─────────────────────────────────────────────────────
 
