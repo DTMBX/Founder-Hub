@@ -2,7 +2,7 @@
   {
     "id": "hero",
     "type": "hero",
-    "title": "Hero",
+    "title": "American Citizen, One Nation under God",
     "content": "",
     "order": 0,
     "enabled": true,
@@ -27,27 +27,27 @@
     "investorRelevant": true
   },
   {
-    "id": "court",
-    "type": "court",
-    "title": "Court & Accountability",
+    "id": "services",
+    "type": "services",
+    "title": "Services",
     "content": "",
     "order": 3,
     "enabled": true,
     "investorRelevant": false
   },
   {
-    "id": "proof",
-    "type": "proof",
-    "title": "Press & Proof",
+    "id": "court",
+    "type": "court",
+    "title": "Court & Accountability",
     "content": "",
     "order": 4,
     "enabled": true,
     "investorRelevant": true
   },
   {
-    "id": "offerings",
-    "type": "offerings",
-    "title": "Offerings & Services",
+    "id": "proof",
+    "type": "proof",
+    "title": "Press & Proof",
     "content": "",
     "order": 5,
     "enabled": true,
@@ -60,6 +60,6 @@
     "content": "",
     "order": 6,
     "enabled": true,
-    "investorRelevant": true
+    "investorRelevant": false
   }
 ]

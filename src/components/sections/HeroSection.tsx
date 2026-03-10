@@ -17,8 +17,8 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
   const [sections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
-    tagline: 'Founder & Innovator',
-    description: 'Building transformative solutions at the intersection of technology and justice.',
+    tagline: 'One Nation under God',
+    description: 'American Citizen — Founder & Innovator',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
@@ -160,7 +160,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-sm sm:text-base tracking-[0.25em] uppercase font-medium text-white/70 mb-6"
           >
-            Founder & Innovator
+            One Nation under God
           </motion.p>
 
           {/* Headline */}
@@ -171,7 +171,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
               textShadow: '0 2px 30px rgba(0,0,0,0.4)',
             }}
           >
-            {heroMedia?.headlineText || 'Devon T. Barber'}
+            {heroMedia?.headlineText || 'American Citizen'}
           </h1>
           
           {/* Subhead */}
@@ -183,7 +183,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
               ...(textAlignment === 'left' ? {} : { marginLeft: 'auto', marginRight: 'auto' })
             }}
           >
-            {heroMedia?.subheadText || 'Building transformative solutions at the intersection of technology and justice.'}
+            {heroMedia?.subheadText || 'Devon Tyler Barber — Founder & Innovator'}
           </p>
 
           {/* CTA Buttons (if configured) */}
