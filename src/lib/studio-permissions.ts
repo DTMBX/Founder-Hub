@@ -212,7 +212,7 @@ export function enforceCurrentRole(action: StudioAction): void {
 
 type CustomizerMode = 'navigate' | 'inspect' | 'content' | 'style' | 'workspace' |
   'editor' | 'chat' | 'components' | 'preview' | 'structure' | 'inspector' |
-  'collection' | 'history' | 'audit'
+  'collection' | 'history' | 'audit' | 'diff'
 
 /**
  * Maps each DevCustomizer mode to the minimum studio action required.
@@ -231,6 +231,7 @@ const MODE_REQUIRED_ACTION: Record<CustomizerMode, StudioAction> = {
   inspector:  'studio:inspect-props',
   collection: 'studio:view-collection',
   history:    'studio:view-history',
+  diff:       'studio:view-history',
   audit:      'studio:run-audit',
 }
 

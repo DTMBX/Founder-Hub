@@ -13,11 +13,12 @@
 import { useState } from 'react'
 import { useHistory, history, type HistoryEntry } from '@/lib/history-store'
 import { useStudioPermissions } from '@/lib/studio-permissions'
+import { InlineHistoryDiff } from './DiffViewer'
 import { kv } from '@/lib/local-storage-kv'
 import { cn } from '@/lib/utils'
 import {
   ClockCounterClockwise, ArrowCounterClockwise, ArrowClockwise,
-  Trash, Target, Tag, CaretDown, CaretRight, Lock,
+  Trash, Target, Tag, CaretDown, CaretRight, Lock, GitDiff,
 } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
@@ -50,6 +51,7 @@ const SOURCE_LABELS: Record<string, string> = {
 export default function HistoryPanel() {
   const state = useHistory()
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [diffId, setDiffId] = useState<string | null>(null)
   const perms = useStudioPermissions()
   const canUndoRedo = perms.can('studio:undo-redo')
 
@@ -218,6 +220,29 @@ export default function HistoryPanel() {
                     <span className="flex items-center gap-1 text-[10px] text-muted-foreground/40" title={perms.why('studio:undo-redo')}>
                       <Lock className="h-2.5 w-2.5" /> Restore locked
                     </span>
+                  )}
+
+                  {/* Diff toggle */}
+                  {entry.before != null && entry.after != null && (
+                    <button
+                      onClick={() => setDiffId(diffId === entry.id ? null : entry.id)}
+                      className={cn(
+                        'flex items-center gap-1 text-[10px] transition-colors',
+                        diffId === entry.id
+                          ? 'text-primary'
+                          : 'text-muted-foreground hover:text-foreground',
+                      )}
+                    >
+                      <GitDiff className="h-3 w-3" />
+                      {diffId === entry.id ? 'Hide diff' : 'View diff'}
+                    </button>
+                  )}
+
+                  {/* Inline diff viewer */}
+                  {diffId === entry.id && entry.before != null && entry.after != null && (
+                    <div className="mt-1 pt-1.5 border-t border-border/20">
+                      <InlineHistoryDiff before={entry.before} after={entry.after} />
+                    </div>
                   )}
                 </div>
               )}

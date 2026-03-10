@@ -20,7 +20,7 @@ import {
   Code, CursorClick, ArrowsOutCardinal, Palette, Lightning,
   CaretLeft, CaretRight, Browsers, Copy, ArrowCounterClockwise,
   ChatCircle, NotePencil, Cube, Monitor, ListBullets, SlidersHorizontal,
-  Rows, ClockCounterClockwise, ShieldCheck, Command, UserSwitch, Lock,
+  Rows, ClockCounterClockwise, ShieldCheck, Command, UserSwitch, Lock, GitDiff,
 } from '@phosphor-icons/react'
 import { useStudioPermissions, type StudioAction } from '@/lib/studio-permissions'
 import type { UserRole } from '@/lib/types'
@@ -36,11 +36,12 @@ const InspectorPanel = lazy(() => import('./dev/InspectorPanel'))
 const CollectionPanel = lazy(() => import('./dev/CollectionPanel'))
 const HistoryPanel = lazy(() => import('./dev/HistoryPanel'))
 const AuditPanel = lazy(() => import('./dev/AuditPanel'))
+const DiffPanel = lazy(() => import('./dev/DiffPanel'))
 const CommandPalette = lazy(() => import('./dev/CommandPalette'))
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-type CustomizerMode = 'navigate' | 'inspect' | 'content' | 'style' | 'workspace' | 'editor' | 'chat' | 'components' | 'preview' | 'structure' | 'inspector' | 'collection' | 'history' | 'audit'
+type CustomizerMode = 'navigate' | 'inspect' | 'content' | 'style' | 'workspace' | 'editor' | 'chat' | 'components' | 'preview' | 'structure' | 'inspector' | 'collection' | 'history' | 'audit' | 'diff'
 
 interface InspectedElement {
   tagName: string
@@ -375,6 +376,7 @@ export default function DevCustomizer() {
     { key: 'inspector', label: 'Props', icon: SlidersHorizontal },
     { key: 'collection', label: 'Items', icon: Rows },
     { key: 'history', label: 'History', icon: ClockCounterClockwise },
+    { key: 'diff', label: 'Diff', icon: GitDiff },
     { key: 'audit', label: 'Audit', icon: ShieldCheck },
     { key: 'preview', label: 'Preview', icon: Monitor },
     { key: 'workspace', label: 'Repos', icon: Stack },
@@ -617,6 +619,11 @@ export default function DevCustomizer() {
                 {mode === 'audit' && (
                   <Suspense fallback={<div className="p-4 text-xs text-muted-foreground animate-pulse">Loading audit…</div>}>
                     <AuditPanel initialReport={auditReport} />
+                  </Suspense>
+                )}
+                {mode === 'diff' && (
+                  <Suspense fallback={<div className="p-4 text-xs text-muted-foreground animate-pulse">Loading diff…</div>}>
+                    <DiffPanel />
                   </Suspense>
                 )}
                 {mode === 'preview' && (
