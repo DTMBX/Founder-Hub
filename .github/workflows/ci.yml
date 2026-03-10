@@ -62,6 +62,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Validate content
+        run: npm run validate:content
+      
       - name: TypeScript check
         run: npx tsc --noEmit
       

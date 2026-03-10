@@ -164,6 +164,7 @@
     "tags": ["website redesign", "site refresh", "modern website"],
     "icon": "Globe",
     "turnaround": "1 to 3 weeks",
+    "featured": false,
     "order": 3,
     "visibility": "public",
     "contactCTA": "Request Redesign",
