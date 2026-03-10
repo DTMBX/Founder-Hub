@@ -10,6 +10,7 @@
 
 import { useCallback, useMemo } from 'react'
 import { useAuth } from './auth'
+import { isLocalhost } from './local-storage-kv'
 import {
   canAccessRoute,
   canExecuteAction,
@@ -110,6 +111,10 @@ export function usePermissions(): PermissionsContext {
     if (!canAccessRoute(role, routeId)) {
       return false
     }
+    // Local owner sees everything regardless of mode
+    if (role === 'owner' && isLocalhost()) {
+      return true
+    }
     // In Founder Mode, restrict to P0 routes
     if (founderMode) {
       return FOUNDER_MODE_ROUTES.includes(routeId)
@@ -121,6 +126,10 @@ export function usePermissions(): PermissionsContext {
   const filterNav = useCallback(<T extends { id: string }>(items: T[]): T[] => {
     // First filter by role
     let filtered = filterNavByRole(items, role)
+    // Local owner bypasses mode restrictions
+    if (role === 'owner' && isLocalhost()) {
+      return filtered
+    }
     // Then filter by mode
     if (founderMode) {
       filtered = filtered.filter(item => FOUNDER_MODE_ROUTES.includes(item.id))

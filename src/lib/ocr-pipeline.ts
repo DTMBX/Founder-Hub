@@ -428,9 +428,20 @@ export class OCRPipeline {
   private static normalizeDateString(dateStr: string): string {
     const parts = dateStr.split(/[\/\-]/)
     if (parts.length === 3) {
-      const [month, day, year] = parts
-      const fullYear = year.length === 2 ? `20${year}` : year
-      return `${month.padStart(2, '0')}/${day.padStart(2, '0')}/${fullYear}`
+      let [a, b, c] = parts
+      // Detect YYYY-MM-DD (ISO already)
+      if (a.length === 4) {
+        return `${a}-${b.padStart(2, '0')}-${c.padStart(2, '0')}`
+      }
+      // MM/DD/YY or MM/DD/YYYY
+      const month = a.padStart(2, '0')
+      const day = b.padStart(2, '0')
+      let year = c
+      if (year.length === 2) {
+        const num = parseInt(year, 10)
+        year = num > 50 ? `19${year}` : `20${year}`
+      }
+      return `${year}-${month}-${day}`
     }
     return dateStr
   }

@@ -37,7 +37,7 @@ import {
   Folder, FilePdf, CloudArrowUp, MagnifyingGlass, TextAa, ArrowsClockwise,
   Eye, Trash, Pencil, Check, X, CaretDown, CaretRight, FileArrowUp,
   ScanSmiley, Tag, ArrowRight, CheckCircle, Warning, Info,
-  Lightning, ArrowsDownUp, Funnel, ListBullets, GridFour,
+  Lightning, ArrowsDownUp, Funnel, ListBullets, GridFour, Wrench,
 } from '@phosphor-icons/react'
 
 // ────────────────────────────────────────────
@@ -627,7 +627,7 @@ export default function CaseJacketManager() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 w-full max-w-lg">
+        <TabsList className="grid grid-cols-5 w-full max-w-2xl">
           <TabsTrigger value="documents" className="text-xs gap-1.5">
             <ListBullets className="h-3.5 w-3.5" /> Documents
           </TabsTrigger>
@@ -642,6 +642,9 @@ export default function CaseJacketManager() {
           </TabsTrigger>
           <TabsTrigger value="rename" className="text-xs gap-1.5">
             <TextAa className="h-3.5 w-3.5" /> Rename
+          </TabsTrigger>
+          <TabsTrigger value="repair" className="text-xs gap-1.5">
+            <Wrench className="h-3.5 w-3.5" /> Repair
           </TabsTrigger>
         </TabsList>
 
@@ -754,10 +757,11 @@ export default function CaseJacketManager() {
                       <div
                         key={doc.id}
                         className={cn(
-                          'flex items-center gap-2 px-3 py-2 rounded-md text-xs transition-colors',
+                          'rounded-md text-xs transition-colors',
                           isSelected ? 'bg-primary/10' : 'hover:bg-muted/50',
                         )}
                       >
+                        <div className="flex items-center gap-2 px-3 py-2">
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={checked => {
@@ -864,6 +868,83 @@ export default function CaseJacketManager() {
                             </>
                           )}
                         </div>
+                        </div>
+
+                        {/* Expanded edit row — description, visibility, stage, case reassignment */}
+                        {isEditing && (
+                          <div className="px-3 pb-3 pt-1 space-y-2 border-t border-border/30 mx-3">
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <Label className="text-[10px] text-muted-foreground">Visibility</Label>
+                                <Select
+                                  value={editForm.visibility ?? 'private'}
+                                  onValueChange={v => setEditForm({ ...editForm, visibility: v as 'public' | 'unlisted' | 'private' })}
+                                >
+                                  <SelectTrigger className="h-7 text-[11px] mt-0.5">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="public">Public</SelectItem>
+                                    <SelectItem value="unlisted">Unlisted</SelectItem>
+                                    <SelectItem value="private">Private</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-muted-foreground">Stage</Label>
+                                <Select
+                                  value={editForm.stage ?? 'staging'}
+                                  onValueChange={v => setEditForm({ ...editForm, stage: v as 'staging' | 'published' | 'archived' })}
+                                >
+                                  <SelectTrigger className="h-7 text-[11px] mt-0.5">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="staging">Staging</SelectItem>
+                                    <SelectItem value="published">Published</SelectItem>
+                                    <SelectItem value="archived">Archived</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-[10px] text-muted-foreground">Move to Case</Label>
+                                <Select
+                                  value={doc.caseId ?? ''}
+                                  onValueChange={v => setEditForm({ ...editForm, caseId: v })}
+                                >
+                                  <SelectTrigger className="h-7 text-[11px] mt-0.5">
+                                    <SelectValue placeholder="Current case" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {cases.map(c => (
+                                      <SelectItem key={c.id} value={c.id}>
+                                        {c.docket ? `${c.docket} — ` : ''}{c.title}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-[10px] text-muted-foreground">Description</Label>
+                              <Textarea
+                                value={editForm.description ?? ''}
+                                onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                                className="h-16 text-xs mt-0.5 resize-none"
+                                placeholder="Document description…"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-[10px] text-muted-foreground">Tags (comma-separated)</Label>
+                              <Input
+                                value={(editForm.tags ?? []).join(', ')}
+                                onChange={e => setEditForm({ ...editForm, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                                className="h-7 text-xs mt-0.5"
+                                placeholder="tag1, tag2, tag3"
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
@@ -1327,6 +1408,297 @@ export default function CaseJacketManager() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ═══════  REPAIR TAB  ═══════ */}
+        <TabsContent value="repair" className="mt-4 space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold">Case Jacket Repair Tools</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Fix dates, accept OCR suggestions, detect issues, and bulk-repair document metadata.
+            </p>
+          </div>
+
+          {/* Accept OCR Suggestions */}
+          {(() => {
+            const docsWithOCR = caseDocs.filter(d => d.ocrStatus === 'completed' && d.extractedFields)
+            const docsNeedingDate = docsWithOCR.filter(d => !d.filingDate && d.extractedFields?.filingDate)
+            const docsNeedingType = docsWithOCR.filter(d => !d.filingTypeId && d.extractedFields?.documentType)
+            const docsWithBadDates = caseDocs.filter(d => d.filingDate && !/^\d{4}-\d{2}-\d{2}$/.test(d.filingDate))
+            const orphanedDocs = pdfs.filter(d => d.caseId && !cases.some(c => c.id === d.caseId))
+            const undatedDocs = caseDocs.filter(d => !d.filingDate)
+            const unpublishedDocs = caseDocs.filter(d => d.stage !== 'published')
+
+            return (
+              <div className="space-y-3">
+                {/* Issues Summary */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium">Health Check</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                      <div className={cn('p-2 rounded-lg border', docsNeedingDate.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{docsNeedingDate.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Missing dates (OCR available)</p>
+                      </div>
+                      <div className={cn('p-2 rounded-lg border', docsNeedingType.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{docsNeedingType.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Missing types (OCR available)</p>
+                      </div>
+                      <div className={cn('p-2 rounded-lg border', docsWithBadDates.length > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{docsWithBadDates.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Non-ISO date formats</p>
+                      </div>
+                      <div className={cn('p-2 rounded-lg border', undatedDocs.length > 0 ? 'border-amber-500/30 bg-amber-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{undatedDocs.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Undated documents</p>
+                      </div>
+                      <div className={cn('p-2 rounded-lg border', unpublishedDocs.length > 0 ? 'border-blue-500/30 bg-blue-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{unpublishedDocs.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Unpublished</p>
+                      </div>
+                      <div className={cn('p-2 rounded-lg border', orphanedDocs.length > 0 ? 'border-red-500/30 bg-red-500/5' : 'border-border/30 bg-muted/20')}>
+                        <p className="font-medium">{orphanedDocs.length}</p>
+                        <p className="text-[10px] text-muted-foreground">Orphaned (missing case)</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Quick Fix Actions */}
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-xs font-medium">Quick Fixes</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 space-y-2">
+                    {/* Accept OCR dates */}
+                    <div className="flex items-center justify-between p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors">
+                      <div>
+                        <p className="text-xs font-medium">Accept OCR Filing Dates</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Apply OCR-extracted dates to {docsNeedingDate.length} document(s) missing a filing date
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 shrink-0"
+                        disabled={docsNeedingDate.length === 0}
+                        onClick={() => {
+                          let fixed = 0
+                          setPdfs(pdfs.map(p => {
+                            if (p.caseId !== selectedCaseId) return p
+                            if (p.filingDate || !p.extractedFields?.filingDate) return p
+                            fixed++
+                            return { ...p, filingDate: p.extractedFields.filingDate.value, filingDateConfirmed: false, updatedAt: Date.now() }
+                          }))
+                          toast.success(`Applied OCR dates to ${fixed} document(s)`)
+                        }}
+                      >
+                        <Lightning className="h-3 w-3 mr-1" />
+                        Apply ({docsNeedingDate.length})
+                      </Button>
+                    </div>
+
+                    {/* Accept OCR types */}
+                    <div className="flex items-center justify-between p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors">
+                      <div>
+                        <p className="text-xs font-medium">Accept OCR Document Types</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Match OCR-extracted types to filing types for {docsNeedingType.length} document(s)
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 shrink-0"
+                        disabled={docsNeedingType.length === 0}
+                        onClick={() => {
+                          let fixed = 0
+                          setPdfs(pdfs.map(p => {
+                            if (p.caseId !== selectedCaseId) return p
+                            if (p.filingTypeId || !p.extractedFields?.documentType) return p
+                            const ocrType = p.extractedFields.documentType.value.toLowerCase()
+                            const match = filingTypes.find(ft => ft.name.toLowerCase() === ocrType || ft.id.toLowerCase() === ocrType)
+                            if (!match) return p
+                            fixed++
+                            return { ...p, filingTypeId: match.id, updatedAt: Date.now() }
+                          }))
+                          toast.success(`Applied OCR types to ${fixed} document(s)`)
+                        }}
+                      >
+                        <Lightning className="h-3 w-3 mr-1" />
+                        Apply ({docsNeedingType.length})
+                      </Button>
+                    </div>
+
+                    {/* Fix non-ISO dates */}
+                    <div className="flex items-center justify-between p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors">
+                      <div>
+                        <p className="text-xs font-medium">Normalize Date Formats</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Convert {docsWithBadDates.length} non-ISO dates to YYYY-MM-DD for correct sorting
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 shrink-0"
+                        disabled={docsWithBadDates.length === 0}
+                        onClick={() => {
+                          let fixed = 0
+                          setPdfs(pdfs.map(p => {
+                            if (p.caseId !== selectedCaseId || !p.filingDate) return p
+                            if (/^\d{4}-\d{2}-\d{2}$/.test(p.filingDate)) return p
+                            // Try MM/DD/YYYY
+                            const parts = p.filingDate.split(/[\/\-]/)
+                            if (parts.length === 3 && parts[0].length <= 2) {
+                              const yr = parts[2].length === 2 ? (parseInt(parts[2]) > 50 ? `19${parts[2]}` : `20${parts[2]}`) : parts[2]
+                              const iso = `${yr}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`
+                              if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+                                fixed++
+                                return { ...p, filingDate: iso, updatedAt: Date.now() }
+                              }
+                            }
+                            // Try natural language
+                            const d = new Date(p.filingDate)
+                            if (!isNaN(d.getTime())) {
+                              fixed++
+                              return { ...p, filingDate: d.toISOString().split('T')[0], updatedAt: Date.now() }
+                            }
+                            return p
+                          }))
+                          toast.success(`Normalized ${fixed} date(s) to ISO format`)
+                        }}
+                      >
+                        <Wrench className="h-3 w-3 mr-1" />
+                        Fix ({docsWithBadDates.length})
+                      </Button>
+                    </div>
+
+                    {/* Bulk publish */}
+                    <div className="flex items-center justify-between p-2 rounded-lg border border-border/30 hover:bg-muted/30 transition-colors">
+                      <div>
+                        <p className="text-xs font-medium">Publish All Documents</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Set {unpublishedDocs.length} unpublished document(s) to "published" stage
+                        </p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7 shrink-0"
+                        disabled={unpublishedDocs.length === 0}
+                        onClick={() => {
+                          setPdfs(pdfs.map(p => {
+                            if (p.caseId !== selectedCaseId) return p
+                            if (p.stage === 'published') return p
+                            return { ...p, stage: 'published', updatedAt: Date.now() }
+                          }))
+                          toast.success(`Published ${unpublishedDocs.length} document(s)`)
+                        }}
+                      >
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Publish ({unpublishedDocs.length})
+                      </Button>
+                    </div>
+
+                    {/* Reassign orphans */}
+                    {orphanedDocs.length > 0 && (
+                      <div className="flex items-center justify-between p-2 rounded-lg border border-red-500/30 bg-red-500/5">
+                        <div>
+                          <p className="text-xs font-medium text-red-400">Claim Orphaned Documents</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {orphanedDocs.length} document(s) reference deleted cases — reassign to this case
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs h-7 shrink-0 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                          onClick={() => {
+                            setPdfs(pdfs.map(p => {
+                              if (!p.caseId || cases.some(c => c.id === p.caseId)) return p
+                              return { ...p, caseId: selectedCaseId!, updatedAt: Date.now() }
+                            }))
+                            toast.success(`Reassigned ${orphanedDocs.length} orphaned document(s) to this case`)
+                          }}
+                        >
+                          <Warning className="h-3 w-3 mr-1" />
+                          Claim ({orphanedDocs.length})
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Per-document OCR review */}
+                {docsWithOCR.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-xs font-medium">OCR Suggestions Review</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-3 space-y-2">
+                      <ScrollArea className="max-h-[300px]">
+                        {docsWithOCR.map(doc => (
+                          <div key={doc.id} className="p-2 rounded-lg border border-border/30 mb-2 last:mb-0">
+                            <p className="text-xs font-medium truncate mb-1.5">{doc.title}</p>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+                              {doc.extractedFields?.filingDate && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-muted-foreground shrink-0">Date:</span>
+                                  <span className={cn('font-medium', doc.filingDate ? 'text-muted-foreground' : 'text-amber-400')}>
+                                    {doc.extractedFields.filingDate.value}
+                                  </span>
+                                  {!doc.filingDate && (
+                                    <button
+                                      className="text-[10px] text-primary hover:underline shrink-0"
+                                      onClick={() => {
+                                        setPdfs(pdfs.map(p => p.id === doc.id
+                                          ? { ...p, filingDate: doc.extractedFields!.filingDate!.value, updatedAt: Date.now() }
+                                          : p
+                                        ))
+                                        toast.success('Filing date applied')
+                                      }}
+                                    >
+                                      Apply
+                                    </button>
+                                  )}
+                                  {doc.filingDate && <Check className="h-2.5 w-2.5 text-emerald-400 shrink-0" />}
+                                </div>
+                              )}
+                              {doc.extractedFields?.documentType && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-muted-foreground shrink-0">Type:</span>
+                                  <span className={cn('font-medium', doc.filingTypeId ? 'text-muted-foreground' : 'text-amber-400')}>
+                                    {doc.extractedFields.documentType.value}
+                                  </span>
+                                  {doc.filingTypeId && <Check className="h-2.5 w-2.5 text-emerald-400 shrink-0" />}
+                                </div>
+                              )}
+                              {doc.extractedFields?.docket && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-muted-foreground shrink-0">Docket:</span>
+                                  <span className="font-mono font-medium">{doc.extractedFields.docket.value}</span>
+                                </div>
+                              )}
+                              {doc.extractedFields?.courtName && (
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-muted-foreground shrink-0">Court:</span>
+                                  <span className="font-medium">{doc.extractedFields.courtName.value}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </ScrollArea>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )
+          })()}
         </TabsContent>
       </Tabs>
 

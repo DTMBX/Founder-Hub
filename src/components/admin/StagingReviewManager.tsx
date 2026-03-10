@@ -474,8 +474,20 @@ export default function StagingReviewManager() {
                               size="sm"
                               className="w-full"
                               onClick={() => {
-                                const dateObj = new Date(currentDoc.metadata.suggestedFilingDate!)
-                                const formatted = dateObj.toISOString().split('T')[0]
+                                const raw = currentDoc.metadata.suggestedFilingDate!
+                                // Normalize to ISO YYYY-MM-DD
+                                const parts = raw.split(/[\/\-]/)
+                                let formatted: string
+                                if (parts.length === 3 && parts[0].length === 4) {
+                                  formatted = raw // already ISO
+                                } else if (parts.length === 3) {
+                                  const yr = parts[2].length === 2 ? (parseInt(parts[2]) > 50 ? `19${parts[2]}` : `20${parts[2]}`) : parts[2]
+                                  formatted = `${yr}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`
+                                } else {
+                                  // Try natural language date
+                                  const dateObj = new Date(raw)
+                                  formatted = isNaN(dateObj.getTime()) ? raw : dateObj.toISOString().split('T')[0]
+                                }
                                 handleAcceptSuggestion('filingDate', formatted)
                               }}
                             >

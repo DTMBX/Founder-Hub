@@ -137,8 +137,8 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
 
       switch (sortField) {
         case 'date':
-          compareA = a.filingDate || a.createdAt
-          compareB = b.filingDate || b.createdAt
+          compareA = a.filingDate || new Date(a.createdAt).toISOString().slice(0, 10)
+          compareB = b.filingDate || new Date(b.createdAt).toISOString().slice(0, 10)
           break
         case 'title':
           compareA = a.title.toLowerCase()

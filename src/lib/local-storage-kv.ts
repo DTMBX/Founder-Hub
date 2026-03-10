@@ -265,7 +265,7 @@ export async function persistToFile(kvKey: string): Promise<boolean> {
     // Pretty-print for readable diffs in git
     const pretty = JSON.stringify(JSON.parse(raw), null, 2)
     const { workspaceApi } = await import('@/lib/workspace-api')
-    await workspaceApi.write(`Founder-Hub${filePath}`, pretty)
+    await workspaceApi.write(`Founder-Hub/public${filePath}`, pretty)
     return true
   } catch (e) {
     console.warn(`[persistToFile] Failed for ${kvKey}:`, e)
@@ -290,7 +290,7 @@ export async function persistAllToFiles(): Promise<{ succeeded: number; failed: 
 
     try {
       const pretty = JSON.stringify(JSON.parse(raw), null, 2)
-      await workspaceApi.write(`Founder-Hub${filePath}`, pretty)
+      await workspaceApi.write(`Founder-Hub/public${filePath}`, pretty)
       succeeded++
     } catch (e) {
       failed.push(filePath)
