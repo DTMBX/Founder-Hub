@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { downloadDataFiles } from '@/lib/local-storage-kv'
+import { downloadDataFiles, persistAllToFiles, isLocalhost } from '@/lib/local-storage-kv'
 import { publishToGitHub, hasGitHubToken, type PublishMode } from '@/lib/github-sync'
 import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
@@ -27,7 +27,7 @@ import {
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
-  Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf
+  Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf, FloppyDisk
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
@@ -245,13 +245,21 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   
   useInitializeDocumentTypes()
 
-  // Save handler — marks current state as saved baseline
+  // Save handler — writes all KV data to disk via workspace API (localhost) or falls back to download
   const handleSave = useCallback(async () => {
     setIsSaving(true)
     try {
-      // downloadDataFiles writes all KV data to public/data — this IS the save-to-disk action
-      downloadDataFiles()
-      toast.success('Data files exported. Copy to public/data/ and commit to deploy.')
+      if (isLocalhost()) {
+        const result = await persistAllToFiles()
+        if (result.failed.length === 0) {
+          toast.success(`Saved ${result.succeeded} file${result.succeeded !== 1 ? 's' : ''} to disk`)
+        } else {
+          toast.warning(`Saved ${result.succeeded} files, ${result.failed.length} failed`)
+        }
+      } else {
+        downloadDataFiles()
+        toast.success('Data files downloaded — copy to public/data/ and commit to deploy.')
+      }
     } catch {
       toast.error('Save failed')
     } finally {
@@ -475,22 +483,30 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             </Button>
           )}
           {canExport && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => {
-                if (!canExport) {
-                  toast.error('You do not have permission to export data')
-                  return
-                }
-                downloadDataFiles()
-                toast.success('Data files downloaded! Copy to public/data/ and commit to deploy.')
-              }}
-              className={cn('w-full gap-2 text-xs border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
-            >
-              <Export className="h-4 w-4 shrink-0" />
-              {!sidebarCollapsed && 'Export Data'}
-            </Button>
+            <>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSave}
+                disabled={isSaving}
+                className={cn('w-full gap-2 text-xs border-blue-500/30 text-blue-500 hover:bg-blue-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+              >
+                <FloppyDisk className="h-4 w-4 shrink-0" weight={isSaving ? 'light' : 'bold'} />
+                {!sidebarCollapsed && (isSaving ? 'Saving...' : 'Save to Files')}
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  downloadDataFiles()
+                  toast.success('Data files downloaded!')
+                }}
+                className={cn('w-full gap-2 text-xs border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10', sidebarCollapsed ? 'px-0 justify-center' : 'justify-start')}
+              >
+                <Export className="h-4 w-4 shrink-0" />
+                {!sidebarCollapsed && 'Export Data'}
+              </Button>
+            </>
           )}
           <Button 
             variant="ghost" 

@@ -18,7 +18,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useKV, persistToFile } from '@/lib/local-storage-kv'
 import { history } from '@/lib/history-store'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -138,10 +138,12 @@ export function useEditorState<T>(
     const snap = stableStringify(value)
     setSavedSnapshot(snap)
     setLastSavedAt(new Date())
+    // Auto-persist to disk on localhost
+    persistToFile(key).catch(() => {})
     if (onSave) {
       await onSave()
     }
-  }, [value])
+  }, [value, key])
 
   const reset = useCallback(() => {
     const savedValue = JSON.parse(savedSnapshot) as T

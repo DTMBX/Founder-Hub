@@ -248,6 +248,59 @@ export function downloadDataFiles(): void {
   }
 }
 
+/**
+ * Persist a single KV key to its corresponding public/data JSON file via workspace API.
+ * Only works on localhost with the dev server running.
+ * Returns true on success, false if file write failed or key has no mapped file.
+ */
+export async function persistToFile(kvKey: string): Promise<boolean> {
+  if (!isLocalhost()) return false
+  const filePath = STATIC_DATA_MAP[kvKey]
+  if (!filePath) return false
+
+  const raw = localStorage.getItem(STORAGE_PREFIX + kvKey)
+  if (!raw) return false
+
+  try {
+    // Pretty-print for readable diffs in git
+    const pretty = JSON.stringify(JSON.parse(raw), null, 2)
+    const { workspaceApi } = await import('@/lib/workspace-api')
+    await workspaceApi.write(`Founder-Hub${filePath}`, pretty)
+    return true
+  } catch (e) {
+    console.warn(`[persistToFile] Failed for ${kvKey}:`, e)
+    return false
+  }
+}
+
+/**
+ * Persist ALL KV data to their corresponding public/data JSON files.
+ * Returns { succeeded: number, failed: string[] }.
+ */
+export async function persistAllToFiles(): Promise<{ succeeded: number; failed: string[] }> {
+  if (!isLocalhost()) return { succeeded: 0, failed: ['Not on localhost'] }
+
+  const { workspaceApi } = await import('@/lib/workspace-api')
+  let succeeded = 0
+  const failed: string[] = []
+
+  for (const [kvKey, filePath] of Object.entries(STATIC_DATA_MAP)) {
+    const raw = localStorage.getItem(STORAGE_PREFIX + kvKey)
+    if (!raw) continue
+
+    try {
+      const pretty = JSON.stringify(JSON.parse(raw), null, 2)
+      await workspaceApi.write(`Founder-Hub${filePath}`, pretty)
+      succeeded++
+    } catch (e) {
+      failed.push(filePath)
+      console.warn(`[persistAllToFiles] Failed for ${filePath}:`, e)
+    }
+  }
+
+  return { succeeded, failed }
+}
+
 // Make kv available globally for backward compatibility
 // Window.spark already declared in vite-end.d.ts with index signature
 if (typeof window !== 'undefined') {
