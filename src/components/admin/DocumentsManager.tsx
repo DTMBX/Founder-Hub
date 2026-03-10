@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { PDFAsset, Case, DocumentType } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { GlassCard } from '@/components/ui/glass-card'
@@ -29,7 +30,7 @@ import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function DocumentsManager() {
-  const [pdfs, setPdfs] = useKV<PDFAsset[]>('founder-hub-pdfs', [])
+  const [pdfs, setPdfs] = useTrackedKV<PDFAsset[]>('founder-hub-pdfs', [], 'Documents')
   const [cases] = useKV<Case[]>('founder-hub-court-cases', [])
   const [documentTypes] = useKV<DocumentType[]>('founder-hub-document-types', [])
   

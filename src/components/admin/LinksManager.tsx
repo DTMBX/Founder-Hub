@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { Link } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -43,8 +43,8 @@ interface LinkFormData {
 const EMPTY_LINK: LinkFormData = { label: '', url: '', icon: 'link', category: '' }
 
 export default function LinksManager() {
-  const [contactLinks, setContactLinks] = useKV<Link[]>('founder-hub-contact-links', [])
-  const [proofLinks, setProofLinks] = useKV<Link[]>('founder-hub-proof-links', [])
+  const [contactLinks, setContactLinks] = useTrackedKV<Link[]>('founder-hub-contact-links', [], 'Contact Links')
+  const [proofLinks, setProofLinks] = useTrackedKV<Link[]>('founder-hub-proof-links', [], 'Proof Links')
   const [activeTab, setActiveTab] = useState('contact')
   const [showAdd, setShowAdd] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)

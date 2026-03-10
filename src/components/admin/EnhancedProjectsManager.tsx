@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { Project, ProjectLink } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -17,7 +17,7 @@ import { toast } from 'sonner'
 import { useAuth, logAudit } from '@/lib/auth'
 
 export default function EnhancedProjectsManager() {
-  const [projects, setProjects] = useKV<Project[]>('founder-hub-projects', [])
+  const [projects, setProjects] = useTrackedKV<Project[]>('founder-hub-projects', [], 'Projects')
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop')

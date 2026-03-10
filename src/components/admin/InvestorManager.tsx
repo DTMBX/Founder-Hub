@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { 
   InvestorData, 
   InvestorMetric, 
@@ -46,7 +46,7 @@ const defaultData: InvestorData = {
 }
 
 export default function InvestorManager() {
-  const [data, setData] = useKV<InvestorData>(INVESTOR_KEY, defaultData)
+  const [data, setData] = useTrackedKV<InvestorData>(INVESTOR_KEY, defaultData, 'Investor Data')
   const [activeTab, setActiveTab] = useState('metrics')
   
   // Dialog states

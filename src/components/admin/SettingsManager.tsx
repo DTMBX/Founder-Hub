@@ -1,4 +1,4 @@
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { SiteSettings } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -23,7 +23,7 @@ import { exportKeyfileToFile, storeKeyfileLocally } from '@/lib/keyfile'
 import GitHubAppConnectPanel from './GitHubAppConnectPanel'
 
 export default function SettingsManager() {
-  const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
+  const [settings, setSettings] = useTrackedKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
     tagline: 'Founder & Innovator',
     description: 'Building transformative solutions at the intersection of technology and justice.',

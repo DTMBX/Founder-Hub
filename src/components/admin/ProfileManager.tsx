@@ -42,6 +42,7 @@ export default function ProfileManager() {
   return (
     <ContentEditorShell
       registryId="profile"
+      editor={editor}
       footer={<ProfessionalEmailsSection editor={editor} />}
     />
   )

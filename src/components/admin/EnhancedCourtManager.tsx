@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { Case, CaseStatus, CaseVisibility, TimelineEvent } from '@/lib/types'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ import {
 } from '@/lib/templates'
 
 export default function EnhancedCourtManager() {
-  const [cases, setCases] = useKV<Case[]>('founder-hub-court-cases', [])
+  const [cases, setCases] = useTrackedKV<Case[]>('founder-hub-court-cases', [], 'Court Cases')
   const [editingCase, setEditingCase] = useState<Case | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')

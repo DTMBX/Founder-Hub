@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useKV } from '@/lib/local-storage-kv'
+import { useTrackedKV } from '@/hooks/use-tracked-kv'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -59,22 +59,22 @@ const FLAG_CONFIGS: FlagConfig[] = [
 ]
 
 export default function HonorFlagBarManager() {
-  const [flagSettings, setFlagSettings] = useKV<Record<string, boolean>>('honor-flag-bar-settings', {
+  const [flagSettings, setFlagSettings] = useTrackedKV<Record<string, boolean>>('honor-flag-bar-settings', {
     'us-flag-official': true,
     'betsy-ross': true,
     'gadsden': true,
     'appeal-to-heaven': true,
     'gonzales': true,
     'pow-mia': true
-  })
+  }, 'Flag Settings')
 
-  const [barEnabled, setBarEnabled] = useKV<boolean>('honor-flag-bar-enabled', true)
-  const [animationEnabled, setAnimationEnabled] = useKV<boolean>('honor-flag-bar-animation', true)
-  const [parallaxEnabled, setParallaxEnabled] = useKV<boolean>('honor-flag-bar-parallax', true)
-  const [rotationCadence, setRotationCadence] = useKV<number>('honor-flag-bar-rotation', 20)
-  const [maxFlagsDesktop, setMaxFlagsDesktop] = useKV<number>('honor-flag-bar-max-desktop', 7)
-  const [maxFlagsMobile, setMaxFlagsMobile] = useKV<number>('honor-flag-bar-max-mobile', 3)
-  const [alignment, setAlignment] = useKV<'left' | 'center' | 'right'>('honor-flag-bar-alignment', 'center')
+  const [barEnabled, setBarEnabled] = useTrackedKV<boolean>('honor-flag-bar-enabled', true, 'Bar Enabled')
+  const [animationEnabled, setAnimationEnabled] = useTrackedKV<boolean>('honor-flag-bar-animation', true, 'Animation')
+  const [parallaxEnabled, setParallaxEnabled] = useTrackedKV<boolean>('honor-flag-bar-parallax', true, 'Parallax')
+  const [rotationCadence, setRotationCadence] = useTrackedKV<number>('honor-flag-bar-rotation', 20, 'Rotation')
+  const [maxFlagsDesktop, setMaxFlagsDesktop] = useTrackedKV<number>('honor-flag-bar-max-desktop', 7, 'Max Flags Desktop')
+  const [maxFlagsMobile, setMaxFlagsMobile] = useTrackedKV<number>('honor-flag-bar-max-mobile', 3, 'Max Flags Mobile')
+  const [alignment, setAlignment] = useTrackedKV<'left' | 'center' | 'right'>('honor-flag-bar-alignment', 'center', 'Alignment')
 
   const [saving, setSaving] = useState(false)
 
