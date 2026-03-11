@@ -1,185 +1,131 @@
 # Security Policy
 
-## Founder Hub - Security Documentation
+## Founder Hub — Security Architecture
 
-This document outlines the security features, best practices, and security considerations for the Founder Hub application.
+Single-operator sovereign admin platform. All data lives client-side in localStorage, encrypted at rest with AES-256-GCM. No server-side database, no third-party auth providers.
 
-## Security Features
+## Encryption
 
-### Authentication & Authorization
+| Layer | Algorithm | Parameters |
+| ----- | --------- | ---------- |
+| Password hashing | PBKDF2-SHA-256 | 100 000 iterations, 16-byte random salt |
+| Field encryption | AES-256-GCM | 12-byte random IV, per-field |
+| Vault secrets | AES-256-GCM | Per-secret + per-metadata encryption, SHA-256 checksums |
+| Session signing | HMAC-SHA-256 | Derived from app entropy via PBKDF2 |
+| 2FA backup codes | SHA-256 | Stored as one-way hashes with `2fa-backup:` prefix |
+| Login attempt data | AES-256-GCM | Encrypted at rest, transparent read/write |
 
-#### Password Security
-- **Hashing Algorithm**: SHA-256 cryptographic hash function
-- **Minimum Length**: 12 characters required
-- **Complexity Requirements**: Recommended mix of uppercase, lowercase, numbers, and special characters
-- **Default Credentials**: 
-  - Email: `admin@devon-tyler.com`
-  - Password: `SecureAdmin2024!`
-  - **⚠️ CRITICAL**: Change the default password immediately after first login
+Key derivation uses a static app entropy string combined with a random 32-byte salt stored at `founder-hub-e2e-salt`. The HMAC signing key uses a separate derivation path (`entropy + ':hmac'`).
 
-#### Rate Limiting
-- **Failed Login Attempts**: Maximum 5 attempts per email address
-- **Lockout Duration**: 15 minutes after exceeding attempt limit
-- **Lockout Reset**: Automatic after timeout period expires
-- **Tracking**: Per-email address attempt counters with timestamps
+Legacy SHA-256 password hashes are auto-migrated to PBKDF2 on next successful login.
 
-#### Session Management
-- **Session Duration**: 8 hours from login
-- **Automatic Expiration**: Sessions expire and require re-authentication
-- **Session Storage**: Secure browser key-value storage
-- **Session Validation**: Checked on every protected route access
+## Authentication
 
-### Role-Based Access Control (RBAC)
+### Login Paths
 
-Three user roles are supported:
-- **Owner**: Full access to all features and settings
-- **Editor**: Content and theme management access
-- **Viewer**: Read-only access (future implementation)
+1. **Email + password** — PBKDF2 verification
+2. **Email + password + TOTP** — Time-based one-time password (RFC 6238)
+3. **Email + password + USB keyfile** — Hardware-bound second factor
+4. **GitHub PAT** — Personal access token, stored encrypted in vault
+5. **Auto-login** — Development only (`IS_DEV && VITE_AUTO_LOGIN !== 'false'`)
 
-### Audit Logging
+### Rate Limiting
 
-All security-relevant events are logged:
-- Successful logins
-- Failed login attempts
-- Password changes
-- Password change failures
-- Logout events
-- All content modifications
+- **Max attempts**: 3 per email address
+- **Lockout duration**: 30 minutes
+- **Storage**: Encrypted at rest (AES-256-GCM)
+- **Scope**: Per-email counters with timestamps
 
-Audit logs include:
-- User ID and email
-- Action type
-- Timestamp
-- Entity affected
-- Additional metadata
+### Session Management
 
-### Data Protection
+- **Duration**: 4 hours from login
+- **Integrity**: HMAC-SHA-256 signature verified on every load
+- **Tamper detection**: Modified sessions (role escalation, expiry extension) are rejected and cleared
+- **Refresh**: Re-signed on each authenticated action
 
-- **Password Storage**: Never stored in plain text; only hashed values
-- **Session Data**: Stored in secure KV storage
-- **Visibility Controls**: Three-tier system for documents (Public/Unlisted/Private)
-- **Secure Share Links**: Generated tokens for unlisted content
+### Two-Factor Authentication
 
-## Security Best Practices
+- **TOTP**: Full implementation with encrypted secret storage
+- **Backup codes**: 8 codes generated with `crypto.getRandomValues`, stored as SHA-256 hashes
+- **Recovery phrase**: Mnemonic-based account recovery
+- **USB keyfile**: Hardware-bound key generation and verification
 
-### For Administrators
+## Vault System
 
-1. **Change Default Password**
-   - Change immediately after first login
-   - Use a strong, unique password
-   - Do not reuse passwords from other sites
+The secret vault (`src/lib/secret-vault.ts`) provides:
 
-2. **Regular Password Updates**
-   - Change password every 90 days
-   - Update if breach suspected
+- Per-secret AES-256-GCM encryption (value + label + metadata each encrypted separately)
+- SHA-256 integrity checksums on encrypted blobs
+- Encrypted index at `vault:__index`
+- Secret rotation with audit trail
+- Typed secret categories: `github-pat`, `api-key`, `credential`, `certificate`, `other`
 
-3. **Session Management**
-   - Log out when finished
-   - Never share credentials
-   - Clear sessions on shared computers
+GitHub PATs are automatically migrated from plaintext localStorage to the encrypted vault on app load.
 
-4. **Audit Log Monitoring**
-   - Review audit logs regularly
-   - Investigate suspicious activity
-   - Watch for failed login attempts
+## Audit Ledger
 
-5. **Content Visibility**
-   - Carefully set document visibility levels
-   - Review visibility before publishing
-   - Use Private for sensitive materials
+Hash-chained tamper-evident audit log (`src/lib/audit-ledger.ts`):
 
-### For Developers
+- SHA-256 chain linking each entry to its predecessor
+- Auto-checkpoints every 100 entries
+- Logged events: login success/failure, 2FA challenges, password changes, secret access, content modifications
+- Each entry includes: userId, email, action, detail, category, entityId, timestamp, hash
 
-1. **Environment Security**
-   - Never commit passwords or secrets to version control
-   - Use environment variables for configuration
-   - Keep dependencies updated
+## Role-Based Access Control
 
-2. **Code Security**
-   - Validate all user inputs
-   - Sanitize data before display
-   - Follow secure coding practices
+| Role | Capabilities |
+| ---- | ------------ |
+| **Owner** | Full access — users, secrets, vault, audit, content, settings |
+| **Editor** | Content and theme management |
+| **Viewer** | Read-only access |
 
-3. **Session Security**
-   - Implement proper session timeout
-   - Validate session on every request
-   - Clear expired sessions
+## Infrastructure
+
+- **Hosting**: GitHub Pages (static SPA)
+- **TLS**: Enforced by GitHub Pages + Cloudflare
+- **Token proxy**: Cloudflare Worker with RS256 JWT signing for GitHub App installation tokens
+- **CORS**: Origin-restricted on the worker (`devon-tyler.com` only)
+- **CSP**: Configured via deployment headers
 
 ## Known Limitations
 
-### Current Implementation
-
-1. **Password Hashing**: Uses SHA-256 which is better than plaintext but not ideal for passwords
-   - **Recommendation for Production**: Implement bcrypt, scrypt, or Argon2
-   - **Why**: These algorithms are specifically designed for password hashing with salt and work factor
-
-2. **Session Storage**: Sessions stored in KV without additional encryption
-   - **Recommendation for Production**: Implement session encryption or use secure session tokens
-
-3. **Two-Factor Authentication**: UI placeholder exists but not fully implemented
-   - **Future Enhancement**: Implement TOTP-based 2FA
-
-4. **Password Reset**: No password reset flow via email
-   - **Current Workaround**: Admin must manually update user passwords via KV
-   - **Future Enhancement**: Implement secure password reset flow
-
-5. **HTTPS**: No enforced HTTPS in application code
-   - **Recommendation**: Deploy behind HTTPS reverse proxy (Cloudflare, nginx, etc.)
-
-### Security Considerations
-
-1. **Browser-Based Storage**: All data stored client-side in browser storage
-   - Suitable for personal sites and demos
-   - Consider server-side database for sensitive production data
-
-2. **Client-Side Hashing**: Password hashing happens in browser
-   - Prevents plaintext passwords in network traffic
-   - Still recommend HTTPS for all traffic
-
-3. **No Rate Limiting Infrastructure**: Rate limiting implemented in application code
-   - Can be bypassed by clearing browser storage
-   - Consider infrastructure-level rate limiting (Cloudflare, WAF) for production
+1. **Client-side storage**: All data in localStorage — physical device access = data access (mitigated by AES-256-GCM encryption)
+2. **No server-side enforcement**: Rate limiting and session validation are client-side only — a determined attacker with DevTools access can clear lockouts (mitigated by encrypting attempt data)
+3. **Single operator**: No multi-user session revocation or centralized auth server
+4. **No email-based password reset**: Recovery requires backup codes, recovery phrase, or USB keyfile
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability in this application:
+**Do not** open a public GitHub issue for security vulnerabilities.
 
-1. **Do not** open a public GitHub issue
-2. Email security concerns to: devon@devon-tyler.com
-3. Include:
-   - Description of the vulnerability
-   - Steps to reproduce
-   - Potential impact
-   - Suggested fix (if available)
+Email: <devon@devon-tyler.com>
 
-## Security Checklist for Deployment
+Include:
 
-- [ ] Change default admin password
-- [ ] Enable HTTPS on hosting platform
-- [ ] Configure CSP headers
-- [ ] Enable audit logging
-- [ ] Review document visibility settings
-- [ ] Set up regular backups
-- [ ] Configure domain security (HSTS, etc.)
-- [ ] Test authentication and authorization
-- [ ] Review audit logs after deployment
-- [ ] Set up monitoring for failed login attempts
+- Description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Suggested fix (if available)
 
-## Compliance & Privacy
+## Deployment Checklist
 
-- **Data Storage**: All data stored locally in browser storage
-- **Analytics**: Privacy-friendly, minimal analytics (can be disabled)
-- **Third-Party Services**: No third-party tracking by default
-- **Document Visibility**: Admin-controlled three-tier visibility system
-- **Audit Trail**: Complete logging of security events
+- [x] PBKDF2 password hashing with auto-migration
+- [x] AES-256-GCM encryption for secrets, vault, login attempts
+- [x] HMAC-SHA256 session signing
+- [x] TOTP 2FA with hashed backup codes
+- [x] USB keyfile support
+- [x] Hash-chained audit ledger
+- [x] Rate limiting (3 attempts / 30-minute lockout)
+- [x] Auto-login restricted to development builds
+- [x] GitHub PAT vault migration
+- [ ] Configure CSP headers on hosting platform
+- [ ] Enable HSTS preload
+- [ ] Set up external audit log export
+- [ ] Regular backup schedule
 
 ## Updates & Maintenance
 
-This security documentation should be reviewed and updated:
-- After any authentication/authorization changes
-- When new security features are added
-- After security audits or penetration tests
-- At minimum, quarterly
+Review this document after any authentication, encryption, or vault changes.
 
-**Last Updated**: 2024
-**Version**: 1.0.0
+**Last Updated**: 2025-06
+**Version**: 2.0.0

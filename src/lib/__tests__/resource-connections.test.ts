@@ -39,6 +39,7 @@ function injectSession(role: string = 'owner') {
     userId: `test-${role}`,
     role,
     expiresAt: Date.now() + 3_600_000,
+    _sig: 'test-hmac-signature', // HMAC signature presence required for elevated roles
   })
 }
 

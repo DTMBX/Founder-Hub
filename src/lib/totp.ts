@@ -119,20 +119,36 @@ export function generateSecret(length = 20): string {
   return base32Encode(buffer)
 }
 
-export function generateQRCodeURL(
+/**
+ * Build the otpauth:// URI for the given TOTP secret.
+ * This URI is what authenticator apps understand when scanned.
+ */
+export function buildOTPAuthURI(
   secret: string,
   issuer: string,
-  accountName: string
+  accountName: string,
 ): string {
   const params = new URLSearchParams({
     secret,
     issuer,
     algorithm: 'SHA1',
     digits: '6',
-    period: '30'
+    period: '30',
   })
-  
-  const otpauthURL = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?${params.toString()}`
-  
-  return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(otpauthURL)}`
+  return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?${params.toString()}`
+}
+
+/**
+ * Generate a QR code as a data-URL entirely client-side.
+ * REPLACES the old generateQRCodeURL which leaked the TOTP secret
+ * to an external API (api.qrserver.com).
+ */
+export async function generateQRCodeDataURL(
+  secret: string,
+  issuer: string,
+  accountName: string,
+): Promise<string> {
+  const { toDataURL } = await import('qrcode')
+  const uri = buildOTPAuthURI(secret, issuer, accountName)
+  return toDataURL(uri, { width: 300, margin: 2, errorCorrectionLevel: 'M' })
 }

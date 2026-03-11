@@ -123,9 +123,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          # ── Admin credentials (set in: GitHub repo → Settings → Secrets → Actions)
-          VITE_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          VITE_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          # Admin credentials removed — first-run setup creates admin interactively.
           VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
       

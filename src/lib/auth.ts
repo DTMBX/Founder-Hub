@@ -1,7 +1,7 @@
 import { useKV, kv } from '@/lib/local-storage-kv'
 import { User, Session, AuditEvent, AuditAction } from './types'
 import { useState, useEffect } from 'react'
-import { generateSecret, verifyTOTP, generateQRCodeURL } from './totp'
+import { generateSecret, verifyTOTP, generateQRCodeDataURL } from './totp'
 import {
   hashPasswordPBKDF2,
   hashPasswordLegacy,
@@ -10,7 +10,9 @@ import {
   encryptData,
   decryptData,
   isEncrypted,
-  initEncryption
+  initEncryption,
+  signSession,
+  verifySessionSig
 } from './crypto'
 import { 
   AdminKeyfile, 
@@ -34,9 +36,20 @@ const PENDING_2FA_KEY = 'founder-hub-pending-2fa'
 // credentials are automatically wiped and re-bootstrapped on next page load.
 const CRED_FINGERPRINT_KEY = 'founder-hub-cred-fp'
 
-/** Cheap change-detection token — NOT a security primitive. */
+/** 
+ * Credential change-detection token — uses HMAC-style hash.
+ * NOT reversible (unlike the old btoa approach).
+ */
 function getCredFingerprint(email: string, password: string): string {
-  try { return btoa(unescape(encodeURIComponent(email + ':' + password))) } catch { return '' }
+  // Fast sync hash — only for detecting if env creds changed between deploys.
+  // Not a security boundary; passwords are verified via PBKDF2 at login.
+  const data = email + ':' + password
+  let h = 0x811c9dc5 // FNV-1a offset basis
+  for (let i = 0; i < data.length; i++) {
+    h ^= data.charCodeAt(i)
+    h = Math.imul(h, 0x01000193) // FNV prime
+  }
+  return 'fp:' + (h >>> 0).toString(36) + ':' + data.length.toString(36)
 }
 const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout
 const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
@@ -51,6 +64,8 @@ const IS_LOCAL = IS_DEV || typeof window !== 'undefined' && (
   window.location.hostname.startsWith('192.168.') ||
   window.location.hostname.startsWith('10.')
 )
+// Auto-login only in vite dev mode, and only if not explicitly disabled
+const AUTO_LOGIN = IS_DEV && import.meta.env.VITE_AUTO_LOGIN !== 'false'
 const log = IS_DEV ? console.log.bind(console) : () => {}
 
 interface LoginAttempt {
@@ -94,6 +109,38 @@ async function hashPassword(password: string, salt?: string): Promise<{ hash: st
   return hashPasswordPBKDF2(password, salt)
 }
 
+/** SHA-256 hash a 2FA backup code for storage (codes never stored in plaintext). */
+async function hash2FACode(code: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const buf = await crypto.subtle.digest('SHA-256', encoder.encode('2fa-backup:' + code.toUpperCase().trim()))
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+/** Generate a cryptographically random backup code (XXXX-XXXX format). */
+function generateBackupCode(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(5))
+  const chars = Array.from(bytes).map(b => (b % 36).toString(36).toUpperCase()).join('')
+  return chars.slice(0, 4) + '-' + chars.slice(4, 8)
+}
+
+// ─── Encrypted Login Attempts ────────────────────────────────
+
+/** Read and decrypt login attempt data (auto-migrates plaintext). */
+async function getLoginAttempts(): Promise<Record<string, LoginAttempt>> {
+  const raw = await kv.get<string | Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY)
+  if (!raw) return {}
+  if (typeof raw === 'string' && raw.startsWith('enc:')) {
+    try { return await decryptData<Record<string, LoginAttempt>>(raw) } catch { return {} }
+  }
+  if (typeof raw === 'object') return raw
+  return {}
+}
+
+/** Encrypt and store login attempt data. */
+async function setLoginAttempts(data: Record<string, LoginAttempt>): Promise<void> {
+  await kv.set(LOGIN_ATTEMPTS_KEY, await encryptData(data))
+}
+
 /**
  * Verify a password against a stored hash.
  * Detects legacy (unsalted SHA-256) vs modern (PBKDF2 + salt) automatically.
@@ -125,13 +172,19 @@ function generateSecureInitialPassword(): string {
 }
 
 /**
- * Get initial admin credentials from environment variables or generate defaults.
- * Environment variables:
- *   VITE_ADMIN_EMAIL - Admin email address (required for custom deployments)
- *   VITE_ADMIN_PASSWORD - Initial admin password (if not set, generates random)
- *   VITE_SITE_ID - Unique site identifier for multi-site deployments
+ * Get initial admin credentials.
+ *
+ * - DEV mode: reads VITE_ADMIN_EMAIL / VITE_ADMIN_PASSWORD for convenience.
+ * - Production: NEVER reads VITE_ADMIN_PASSWORD (would bake credentials into
+ *   the JS bundle — C1 critical finding). Returns null to signal first-run
+ *   setup is required.
  */
-function getInitialAdminConfig(): { email: string; password: string; requiresChange: boolean } {
+function getInitialAdminConfig(): { email: string; password: string; requiresChange: boolean } | null {
+  if (!IS_DEV) {
+    // Production: no build-time passwords — require interactive first-run setup
+    return null
+  }
+
   const envEmail = import.meta.env.VITE_ADMIN_EMAIL
   const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
   
@@ -161,8 +214,15 @@ async function initializeDefaultAdmin(): Promise<void> {
     log('[auth] existing users:', users?.length || 0)
   
     if (!users || users.length === 0) {
-      // Get admin config from environment or generate
+      // Get admin config (null in production — first-run setup needed)
       const adminConfig = getInitialAdminConfig()
+      if (!adminConfig) {
+        // Production with no users: signal first-run setup required.
+        // useAuth will expose needsFirstRunSetup = true.
+        log('[auth] No users and no env config — first-run setup required')
+        return
+      }
+
       const { hash, salt } = await hashPassword(adminConfig.password)
     
       const defaultAdmin: User = {
@@ -190,46 +250,43 @@ async function initializeDefaultAdmin(): Promise<void> {
       }
       log('Default admin account created (PBKDF2 + AES-256-GCM)')
     } else {
-      // ── Auto-reset if env-configured credentials changed since last deploy ──
-      // Detects both email changes AND password rotations (via GitHub Secrets).
-      // The fingerprint is btoa(email:password) baked into the bundle at build
-      // time. When it differs from the stored fingerprint, stale localStorage
-      // credentials are wiped and re-bootstrapped — no manual clear needed.
-      const envEmail = import.meta.env.VITE_ADMIN_EMAIL
-      const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
-      if (envEmail && envPassword) {
-        const currentFingerprint = getCredFingerprint(envEmail, envPassword)
-        const storedFingerprint = localStorage.getItem(CRED_FINGERPRINT_KEY)
-        const adminUser = users.find(u => u.role === 'owner' || u.role === 'admin')
-        const credsMismatch = adminUser && (
-          adminUser.email !== envEmail ||           // email changed
-          storedFingerprint !== currentFingerprint  // password rotated
-        )
-        if (credsMismatch) {
-          log('[auth] Credential mismatch detected — resetting to env credentials')
-          await kv.set(USERS_KEY, [])
-          await kv.set(SESSION_KEY, null)
-          const adminConfig = getInitialAdminConfig()
-          const { hash, salt } = await hashPassword(adminConfig.password)
-          const freshAdmin: User = {
-            id: `user_${Date.now()}`,
-            email: adminConfig.email,
-            passwordHash: hash,
-            passwordSalt: salt,
-            role: 'owner',
-            createdAt: Date.now(),
-            lastLogin: 0,
-            requiresPasswordChange: false
+      // ── Auto-reset if env-configured credentials changed (DEV only) ──
+      // In production the env vars aren't available so this block is a no-op.
+      if (IS_DEV) {
+        const envEmail = import.meta.env.VITE_ADMIN_EMAIL
+        const envPassword = import.meta.env.VITE_ADMIN_PASSWORD
+        if (envEmail && envPassword) {
+          const currentFingerprint = getCredFingerprint(envEmail, envPassword)
+          const storedFingerprint = localStorage.getItem(CRED_FINGERPRINT_KEY)
+          const adminUser = users.find(u => u.role === 'owner' || u.role === 'admin')
+          const credsMismatch = adminUser && (
+            adminUser.email !== envEmail ||
+            storedFingerprint !== currentFingerprint
+          )
+          if (credsMismatch) {
+            log('[auth] Credential mismatch detected — resetting to env credentials')
+            await kv.set(USERS_KEY, [])
+            await kv.set(SESSION_KEY, null)
+            const adminConfig = getInitialAdminConfig()!
+            const { hash, salt } = await hashPassword(adminConfig.password)
+            const freshAdmin: User = {
+              id: `user_${Date.now()}`,
+              email: adminConfig.email,
+              passwordHash: hash,
+              passwordSalt: salt,
+              role: 'owner',
+              createdAt: Date.now(),
+              lastLogin: 0,
+              requiresPasswordChange: false
+            }
+            await kv.set(USERS_KEY, [freshAdmin])
+            localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
+            log('[auth] Admin credentials reset to env-configured values')
+            return
           }
-          await kv.set(USERS_KEY, [freshAdmin])
-          localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
-          log('[auth] Admin credentials reset to env-configured values')
-          return
-        }
-        // Fingerprint not yet saved (old install) — save it now to enable
-        // future password-rotation detection without a reset.
-        if (!storedFingerprint && adminUser && adminUser.email === envEmail) {
-          localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
+          if (!storedFingerprint && adminUser && adminUser.email === envEmail) {
+            localStorage.setItem(CRED_FINGERPRINT_KEY, currentFingerprint)
+          }
         }
       }
 
@@ -270,19 +327,32 @@ export function useAuth() {
         setUsers(latestUsers)
       }
 
-      // Auto-login: on localhost/LAN, auto-create owner session if none exists
-      if (IS_LOCAL && !await kv.get<Session>(SESSION_KEY)) {
+      // Auto-login: ONLY in vite dev server (not preview/LAN/production)
+      if (AUTO_LOGIN && !await kv.get<Session>(SESSION_KEY)) {
         const owner = latestUsers.find(u => u.role === 'owner') || latestUsers[0]
         if (owner) {
+          const sig = await signSession(owner.id + ':' + owner.role + ':' + (Date.now() + SESSION_DURATION))
           const devSession: Session = {
             userId: owner.id,
             role: owner.role,
-            expiresAt: Date.now() + SESSION_DURATION
+            expiresAt: Date.now() + SESSION_DURATION,
+            _sig: sig
           }
           await kv.set(SESSION_KEY, devSession)
           setSession(devSession)
-          log('[useAuth] Local auto-login: session created for', owner.email)
+          log('[useAuth] Dev auto-login: session created for', owner.email)
         }
+      }
+
+      // Migrate plaintext GitHub PAT from legacy localStorage to encrypted vault
+      const legacyPat = localStorage.getItem('founder-hub:github-token')
+      if (legacyPat && legacyPat.length > 10 && !legacyPat.startsWith('enc:')) {
+        try {
+          const { storeSecret } = await import('./secret-vault')
+          await storeSecret('github-pat', 'GitHub PAT (migrated)', legacyPat)
+          localStorage.removeItem('founder-hub:github-token')
+          log('[useAuth] Migrated plaintext PAT to encrypted vault')
+        } catch { /* vault unavailable, will retry next load */ }
       }
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -292,17 +362,43 @@ export function useAuth() {
     if (session && session.expiresAt > Date.now()) {
       log('[useAuth] Valid session found, looking for user:', session.userId)
       
+      // Verify session integrity (HMAC) — prevents role escalation via DevTools
+      if (session._sig) {
+        const payload = session.userId + ':' + session.role + ':' + session.expiresAt
+        verifySessionSig(payload, session._sig).then(valid => {
+          if (!valid) {
+            log('[useAuth] Session integrity check FAILED — possible tampering, clearing')
+            setSession(null)
+            setCurrentUser(null)
+            setIsLoading(false)
+          }
+        }).catch(() => { /* verification unavailable, allow session */ })
+      }
+      
       // Auto-refresh session if approaching expiration
       const timeRemaining = session.expiresAt - Date.now()
       if (timeRemaining < SESSION_REFRESH_THRESHOLD && timeRemaining > 0) {
         const user = users?.find(u => u.id === session.userId)
-        const refreshedSession: Session = {
-          ...session,
-          role: user?.role ?? session.role ?? ('owner' as const),
-          expiresAt: Date.now() + SESSION_DURATION
-        }
-        setSession(refreshedSession)
-        log('[useAuth] Session refreshed')
+        const newExpiry = Date.now() + SESSION_DURATION
+        signSession((user?.id ?? session.userId) + ':' + (user?.role ?? session.role) + ':' + newExpiry).then(sig => {
+          const refreshedSession: Session = {
+            ...session,
+            role: user?.role ?? session.role ?? ('owner' as const),
+            expiresAt: newExpiry,
+            _sig: sig
+          }
+          setSession(refreshedSession)
+          log('[useAuth] Session refreshed with new signature')
+        }).catch(() => {
+          // Fallback: refresh without re-signing
+          const refreshedSession: Session = {
+            ...session,
+            role: user?.role ?? session.role ?? ('owner' as const),
+            expiresAt: Date.now() + SESSION_DURATION
+          }
+          setSession(refreshedSession)
+          log('[useAuth] Session refreshed (unsigned fallback)')
+        })
       }
       
       const user = users?.find(u => u.id === session.userId)
@@ -360,7 +456,7 @@ export function useAuth() {
     
     log('[auth.login] Starting login for:', email)
     try {
-      const attemptsData = await kv.get<Record<string, LoginAttempt>>(LOGIN_ATTEMPTS_KEY) || {}
+      const attemptsData = await getLoginAttempts()
       const attempt = attemptsData[email]
       const now = Date.now()
 
@@ -374,7 +470,7 @@ export function useAuth() {
 
       if (attempt?.lockedUntil && attempt.lockedUntil <= now) {
         delete attemptsData[email]
-        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await setLoginAttempts(attemptsData)
       }
 
       const allUsers = await kv.get<User[]>(USERS_KEY) || []
@@ -392,7 +488,7 @@ export function useAuth() {
         }
 
         attemptsData[email] = currentAttempt
-        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await setLoginAttempts(attemptsData)
         
         await logAudit('system', 'system', 'login_failed', `Failed login attempt for ${email}`, 'auth', email)
         return { success: false, error: 'Invalid email or password' }
@@ -417,7 +513,7 @@ export function useAuth() {
         }
 
         attemptsData[email] = currentAttempt
-        await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+        await setLoginAttempts(attemptsData)
         
         await logAudit(user.id, user.email, 'login_failed', 'Invalid password attempt', 'auth', user.id)
         return { success: false, error: 'Invalid email or password' }
@@ -500,7 +596,7 @@ export function useAuth() {
             currentAttempt.lockedUntil = now + LOCKOUT_DURATION
           }
           attemptsData[email] = currentAttempt
-          await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+          await setLoginAttempts(attemptsData)
           
           return { 
             success: false, 
@@ -529,7 +625,8 @@ export function useAuth() {
           ? await decryptField(user.twoFactorSecret)
           : user.twoFactorSecret
 
-        const isBackupCode = user.twoFactorBackupCodes?.includes(totpCode)
+        const totpCodeHash = await hash2FACode(totpCode)
+        const isBackupCode = user.twoFactorBackupCodes?.includes(totpCodeHash)
         const isValidTOTP = await verifyTOTP(decryptedSecret, totpCode)
 
         if (!isValidTOTP && !isBackupCode) {
@@ -542,14 +639,14 @@ export function useAuth() {
           }
 
           attemptsData[email] = currentAttempt
-          await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+          await setLoginAttempts(attemptsData)
           
           await logAudit(user.id, user.email, 'login_2fa_failed', 'Invalid 2FA code', 'auth', user.id)
           return { success: false, error: 'Invalid authentication code', requires2FA: true }
         }
 
         if (isBackupCode) {
-          const updatedBackupCodes = user.twoFactorBackupCodes?.filter(code => code !== totpCode) || []
+          const updatedBackupCodes = user.twoFactorBackupCodes?.filter(h => h !== totpCodeHash) || []
           const updatedUsers = allUsers.map(u => 
             u.id === user.id ? { ...u, twoFactorBackupCodes: updatedBackupCodes } : u
           )
@@ -560,7 +657,7 @@ export function useAuth() {
       }
 
       delete attemptsData[email]
-      await kv.set(LOGIN_ATTEMPTS_KEY, attemptsData)
+      await setLoginAttempts(attemptsData)
       await kv.delete(PENDING_2FA_KEY)
 
       user.lastLogin = now
@@ -571,7 +668,8 @@ export function useAuth() {
       const newSession: Session = {
         userId: user.id,
         role: user.role,
-        expiresAt: now + SESSION_DURATION
+        expiresAt: now + SESSION_DURATION,
+        _sig: await signSession(user.id + ':' + user.role + ':' + (now + SESSION_DURATION))
       }
 
       log('[auth.login] Creating session')
@@ -650,12 +748,9 @@ export function useAuth() {
     }
 
     const secret = generateSecret()
-    const qrCodeURL = generateQRCodeURL(secret, 'Founder Hub Hub', currentUser.email)
+    const qrCodeURL = await generateQRCodeDataURL(secret, 'Founder Hub', currentUser.email)
     
-    const backupCodes = Array.from({ length: 10 }, () => {
-      const code = Math.random().toString(36).substring(2, 10).toUpperCase()
-      return code.slice(0, 4) + '-' + code.slice(4)
-    })
+    const backupCodes = Array.from({ length: 10 }, () => generateBackupCode())
 
     return {
       success: true,
@@ -679,6 +774,8 @@ export function useAuth() {
 
     // Encrypt 2FA secret before storage (E2E — AES-256-GCM)
     const encryptedSecret = await encryptField(secret)
+    // Hash backup codes before storage — plaintext shown once to user, only hashes persisted
+    const hashedCodes = await Promise.all(backupCodes.map(c => hash2FACode(c)))
 
     const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
@@ -687,7 +784,7 @@ export function useAuth() {
             ...u, 
             twoFactorEnabled: true, 
             twoFactorSecret: encryptedSecret,
-            twoFactorBackupCodes: backupCodes
+            twoFactorBackupCodes: hashedCodes
           } 
         : u
     )
@@ -749,15 +846,13 @@ export function useAuth() {
       return { success: false, error: 'Invalid password' }
     }
 
-    const backupCodes = Array.from({ length: 10 }, () => {
-      const code = Math.random().toString(36).substring(2, 10).toUpperCase()
-      return code.slice(0, 4) + '-' + code.slice(4)
-    })
+    const backupCodes = Array.from({ length: 10 }, () => generateBackupCode())
+    const hashedCodes = await Promise.all(backupCodes.map(c => hash2FACode(c)))
 
     const allUsers = await kv.get<User[]>(USERS_KEY) || []
     const updatedUsers = allUsers.map(u => 
       u.id === currentUser.id 
-        ? { ...u, twoFactorBackupCodes: backupCodes } 
+        ? { ...u, twoFactorBackupCodes: hashedCodes } 
         : u
     )
     
@@ -874,10 +969,45 @@ export function useAuth() {
     return { success: true }
   }
 
+  // ── First-Run Setup (production only — no VITE_ADMIN in bundle) ──
+
+  /** True when no admin account exists and interactive setup is needed. */
+  const needsFirstRunSetup = !isLoading && (!users || users.length === 0)
+
+  /** Create the initial admin account during first-run setup. */
+  const createFirstAdmin = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    if (!email || !password) return { success: false, error: 'Email and password are required' }
+    if (password.length < 12) return { success: false, error: 'Password must be at least 12 characters' }
+
+    const existingUsers = await kv.get<User[]>(USERS_KEY)
+    if (existingUsers && existingUsers.length > 0) {
+      return { success: false, error: 'Admin already exists — use login instead' }
+    }
+
+    await initEncryption()
+    const { hash, salt } = await hashPassword(password)
+    const admin: User = {
+      id: `user_${Date.now()}`,
+      email,
+      passwordHash: hash,
+      passwordSalt: salt,
+      role: 'owner',
+      createdAt: Date.now(),
+      lastLogin: 0,
+      requiresPasswordChange: false,
+    }
+    await kv.set(USERS_KEY, [admin])
+    setUsers([admin])
+    await logAudit(admin.id, email, 'first_run_setup', 'First-run admin setup', 'auth', admin.id)
+    return { success: true }
+  }
+
   return {
     currentUser,
     isAuthenticated: !!currentUser && !!session && session.expiresAt > Date.now(),
     isLoading,
+    needsFirstRunSetup,
+    createFirstAdmin,
     login,
     logout,
     changePassword,
@@ -978,20 +1108,28 @@ export async function loginWithGitHubToken(token: string): Promise<GitHubTokenLo
     }
 
     // Create session
+    const sessionExpiry = Date.now() + SESSION_DURATION
     const newSession: Session = {
       userId: user.id,
       role: user.role,
-      expiresAt: Date.now() + SESSION_DURATION,
+      expiresAt: sessionExpiry,
+      _sig: await signSession(user.id + ':' + user.role + ':' + sessionExpiry)
     }
     await kv.set(SESSION_KEY, newSession)
 
     // Step 4: Save PAT in secret vault for publishing
     try {
       const { storeSecret } = await import('./secret-vault')
-      await storeSecret('github-pat', token)
+      await storeSecret('github-pat', `GitHub PAT (${username})`, token)
     } catch {
-      // Secret vault not available — fall back to legacy storage
-      localStorage.setItem('founder-hub:github-token', token)
+      // Secret vault not available — encrypt minimally rather than storing plaintext
+      try {
+        const encrypted = await encryptField(token)
+        localStorage.setItem('founder-hub:github-token', encrypted)
+      } catch {
+        // Last resort: don't store at all rather than store plaintext
+        console.warn('[auth] Could not store GitHub token securely')
+      }
     }
 
     // Audit

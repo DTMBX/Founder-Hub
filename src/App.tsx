@@ -9,6 +9,7 @@ const DevCustomizer = lazy(() => import('./components/DevCustomizer'))
 // Route-level code splitting — these views are not needed on initial load
 const AdminDashboard = lazy(() => import('./components/admin/AdminDashboard'))
 const AdminLogin = lazy(() => import('./components/admin/AdminLogin'))
+const FirstRunSetup = lazy(() => import('./components/admin/FirstRunSetup'))
 const CaseJacket = lazy(() => import('./components/CaseJacket'))
 const CheckoutResult = lazy(() => import('./components/CheckoutResult'))
 const SiteRouter = lazy(() => import('./components/sites/SiteRouter'))
@@ -31,7 +32,7 @@ function App() {
   const [caseId, setCaseId] = useState<string>('')
   const [siteSlug, setSiteSlug] = useState<string>('')
   const [sitePreviewId, setSitePreviewId] = useState<string>('')
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, needsFirstRunSetup } = useAuth()
   
   useInitializeSampleData()
 
@@ -156,6 +157,14 @@ function App() {
   if (view === 'admin') {
     if (isLoading) {
       return routeFallback
+    }
+
+    if (needsFirstRunSetup) {
+      return (
+        <Suspense fallback={routeFallback}>
+          <FirstRunSetup onBack={handleBackToPublic} />
+        </Suspense>
+      )
     }
 
     if (!isAuthenticated) {

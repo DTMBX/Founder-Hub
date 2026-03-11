@@ -18,9 +18,19 @@ function getCurrentUserRole(): UserRole | null {
     if (!session) return null
     const parsed = JSON.parse(session)
     if (!parsed.userId || parsed.expiresAt <= Date.now()) return null
+
+    // If session has no HMAC signature, don't trust elevated roles.
+    // Unsigned sessions are legacy or tampered — demote to 'editor'.
+    // Auth.ts verifies _sig on page load; surviving sessions are trusted.
+    const hasSignature = typeof parsed._sig === 'string' && parsed._sig.length > 0
+
     // Prefer role from session (set on login), fall back to user lookup
     if (parsed.role && ['owner', 'admin', 'editor', 'support'].includes(parsed.role)) {
-      return parsed.role as UserRole
+      const role = parsed.role as UserRole
+      if (!hasSignature && (role === 'owner' || role === 'admin')) {
+        return 'editor' // untrusted session — refuse elevated privileges
+      }
+      return role
     }
     const usersJson = localStorage.getItem('founder-hub:founder-hub-users')
     if (!usersJson) return null

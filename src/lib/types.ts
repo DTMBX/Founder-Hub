@@ -30,6 +30,7 @@ export interface Session {
   userId: string
   role: UserRole
   expiresAt: number
+  _sig?: string  // HMAC-SHA256 integrity signature (prevents DevTools tampering)
 }
 
 export interface HeroMediaSettings {
@@ -499,6 +500,7 @@ export type AuditAction =
   | 'legacy_migration_skipped'
   | 'auth_mode_switched'
   | 'provider_error'
+  | 'first_run_setup'
 
 export interface AuditEvent {
   id: string

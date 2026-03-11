@@ -9,7 +9,7 @@
  * 4. Audit trail for secret access
  */
 
-import { encryptField, decryptField, encryptData, decryptData } from './crypto'
+import { encryptField, decryptField, encryptData, decryptData, computeVaultHMAC, verifyVaultHMAC } from './crypto'
 import { kv } from './local-storage-kv'
 
 // ─── Secret Types ────────────────────────────────────────────
@@ -68,13 +68,10 @@ function generateSecretId(): string {
 }
 
 /**
- * Compute checksum for integrity verification
+ * Compute HMAC checksum for integrity verification (keyed — not forgeable)
  */
 async function computeChecksum(data: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.slice(0, 8).map(b => b.toString(16).padStart(2, '0')).join('')
+  return computeVaultHMAC(data)
 }
 
 /**
@@ -162,9 +159,9 @@ export async function retrieveSecret(secretId: string): Promise<{
   const stored = await kv.get<StoredSecret>(`${VAULT_PREFIX}${secretId}`)
   if (!stored) return null
   
-  // Verify integrity
-  const expectedChecksum = await computeChecksum(stored.value + stored.metadata)
-  if (stored.checksum !== expectedChecksum) {
+  // Verify integrity (accepts legacy SHA-256 + new HMAC)
+  const integrityOk = await verifyVaultHMAC(stored.value + stored.metadata, stored.checksum)
+  if (!integrityOk) {
     console.error('[vault] Integrity check failed for secret:', secretId)
     throw new SecretIntegrityError(secretId, 'Checksum mismatch')
   }

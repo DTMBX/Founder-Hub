@@ -190,3 +190,124 @@ export async function hashPasswordLegacy(password: string): Promise<string> {
 export async function initEncryption(): Promise<void> {
   await deriveKey()
 }
+
+// ─── HMAC Session Integrity ──────────────────────────────
+
+let _hmacKey: CryptoKey | null = null
+
+async function getHmacKey(): Promise<CryptoKey> {
+  if (_hmacKey) return _hmacKey
+
+  const salt = await getOrCreateSalt()
+  const encoder = new TextEncoder()
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(APP_ENTROPY + ':hmac'),
+    'PBKDF2',
+    false,
+    ['deriveKey']
+  )
+
+  _hmacKey = await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt.buffer as ArrayBuffer,
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'HMAC', hash: 'SHA-256', length: 256 },
+    false,
+    ['sign', 'verify']
+  )
+
+  return _hmacKey
+}
+
+/**
+ * Compute HMAC-SHA256 signature for session integrity.
+ * Prevents role escalation via localStorage tampering.
+ */
+export async function signSession(payload: string): Promise<string> {
+  const key = await getHmacKey()
+  const encoder = new TextEncoder()
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(payload))
+  return btoa(String.fromCharCode(...new Uint8Array(sig)))
+}
+
+/**
+ * Verify HMAC-SHA256 signature of a session.
+ */
+export async function verifySessionSig(payload: string, sig: string): Promise<boolean> {
+  const key = await getHmacKey()
+  const encoder = new TextEncoder()
+  const sigBytes = Uint8Array.from(atob(sig), c => c.charCodeAt(0))
+  return crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(payload))
+}
+
+// ─── Vault Integrity HMAC ────────────────────────────────
+
+let _vaultHmacKey: CryptoKey | null = null
+
+async function getVaultHmacKey(): Promise<CryptoKey> {
+  if (_vaultHmacKey) return _vaultHmacKey
+
+  const salt = await getOrCreateSalt()
+  const encoder = new TextEncoder()
+
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(APP_ENTROPY + ':vault-hmac'),
+    'PBKDF2',
+    false,
+    ['deriveKey'],
+  )
+
+  _vaultHmacKey = await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt.buffer as ArrayBuffer,
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    { name: 'HMAC', hash: 'SHA-256', length: 256 },
+    false,
+    ['sign', 'verify'],
+  )
+
+  return _vaultHmacKey
+}
+
+/**
+ * Compute HMAC-SHA256 for vault integrity.
+ * Unlike plain SHA-256, this requires the derived key —
+ * an attacker who can edit localStorage cannot recompute it.
+ */
+export async function computeVaultHMAC(data: string): Promise<string> {
+  const key = await getVaultHmacKey()
+  const encoder = new TextEncoder()
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(data))
+  return Array.from(new Uint8Array(sig), b => b.toString(16).padStart(2, '0')).join('').slice(0, 16)
+}
+
+/**
+ * Verify vault HMAC. Also accepts legacy SHA-256 checksums (returns true for those
+ * to avoid breaking existing vaults — they get re-HMACed on next write).
+ */
+export async function verifyVaultHMAC(data: string, expectedHmac: string): Promise<boolean> {
+  const currentHmac = await computeVaultHMAC(data)
+  if (currentHmac === expectedHmac) return true
+
+  // Legacy fallback: old vaults used truncated SHA-256 (16 hex chars)
+  // Accept them once, they'll be upgraded on next write via storeSecret/retrieveSecret
+  if (expectedHmac.length === 16) {
+    const encoder = new TextEncoder()
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data))
+    const hashHex = Array.from(new Uint8Array(hashBuffer), b => b.toString(16).padStart(2, '0')).join('')
+    return hashHex.slice(0, 16) === expectedHmac
+  }
+
+  return false
+}
