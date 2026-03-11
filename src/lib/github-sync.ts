@@ -14,11 +14,12 @@
 
 import { storeGitHubPAT, getGitHubPAT, hasGitHubPAT as vaultHasGitHubPAT, clearGitHubPAT } from './secret-vault'
 import * as GitHubApp from './github-app'
+import { getWorkspace, buildDataFilesMap, getStoragePrefix, type WorkspaceDef } from './workspace-registry'
 
 // Default repo (for backward compatibility)
 const DEFAULT_REPO_OWNER = 'DTMBX'
 const DEFAULT_REPO_NAME = 'Founder-Hub'
-const BRANCH = 'main'
+const DEFAULT_BRANCH = 'main'
 
 /**
  * Safe commit mode:
@@ -27,9 +28,9 @@ const BRANCH = 'main'
  */
 export type PublishMode = 'branch' | 'direct'
 
-// Data files to sync to repo (relative to dataPath)
-const DATA_FILES: Record<string, string> = {
-  // Core content
+// Legacy hardcoded DATA_FILES for backward compatibility.
+// New workspaces use buildDataFilesMap() from workspace-registry.
+const LEGACY_DATA_FILES: Record<string, string> = {
   'founder-hub-settings': 'settings.json',
   'founder-hub-sections': 'sections.json',
   'founder-hub-projects': 'projects.json',
@@ -42,12 +43,9 @@ const DATA_FILES: Record<string, string> = {
   'founder-hub-document-types': 'document-types.json',
   'founder-hub-offerings': 'offerings.json',
   'founder-hub-investor': 'investor.json',
-  // Case management
   'founder-hub-filing-types': 'filing-types.json',
   'founder-hub-naming-rules': 'naming-rules.json',
-  // Multi-site config
   'founder-hub-sites-config': 'sites.json',
-  // Honor Flag Bar
   'honor-flag-bar-settings': 'honor-flag-bar.json',
   'honor-flag-bar-enabled': 'honor-flag-bar-enabled.json',
   'honor-flag-bar-animation': 'honor-flag-bar-animation.json',
@@ -56,28 +54,34 @@ const DATA_FILES: Record<string, string> = {
   'honor-flag-bar-max-desktop': 'honor-flag-bar-max-desktop.json',
   'honor-flag-bar-max-mobile': 'honor-flag-bar-max-mobile.json',
   'honor-flag-bar-alignment': 'honor-flag-bar-alignment.json',
-  // Visual modules
   'hero-accent-settings': 'hero-accent-settings.json',
   'flag-gallery-settings': 'flag-gallery-settings.json',
   'map-spotlight-settings': 'map-spotlight-settings.json',
-  // Asset management
   'asset-metadata': 'asset-metadata.json',
   'asset-usage-policy': 'asset-usage-policy.json',
-  // Audit trail
   'founder-hub-audit-log': 'audit-log.json',
-  // Frameworks (private)
   'law-firm-showcase': 'law-firm-showcase.json',
   'smb-template': 'smb-template.json',
   'agency-framework': 'agency-framework.json',
-  // Multi-tenant site registry
   'sites:index': 'sites-index.json',
 }
 
-const STORAGE_PREFIX = 'founder-hub:'
+const DEFAULT_STORAGE_PREFIX = 'founder-hub:'
 
-// Site-specific storage prefix for multi-site data
-function getSiteStoragePrefix(siteId?: string): string {
-  return siteId ? `site:${siteId}:` : STORAGE_PREFIX
+/**
+ * Resolve the DATA_FILES map and storage prefix for a workspace.
+ * Falls back to legacy hardcoded map for founder-hub.
+ */
+function resolveWorkspaceConfig(siteId?: string): { dataFiles: Record<string, string>; storagePrefix: string } {
+  if (!siteId || siteId === 'founder-hub') {
+    return { dataFiles: LEGACY_DATA_FILES, storagePrefix: DEFAULT_STORAGE_PREFIX }
+  }
+  const ws = getWorkspace(siteId)
+  if (ws) {
+    return { dataFiles: buildDataFilesMap(ws), storagePrefix: getStoragePrefix(ws) }
+  }
+  // Unknown workspace — use generic prefix
+  return { dataFiles: {}, storagePrefix: `${siteId}:` }
 }
 
 interface GitHubFileResponse {
@@ -127,6 +131,7 @@ interface RepoConfig {
   owner: string
   repo: string
   dataPath: string  // e.g., "public/data" or "apps/civics-hierarchy/public/data"
+  branch: string    // target branch (e.g., 'main')
 }
 
 /**
@@ -135,7 +140,7 @@ interface RepoConfig {
 async function getFileSha(token: string, path: string, config: RepoConfig): Promise<string | null> {
   try {
     const response = await fetch(
-      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${BRANCH}`,
+      `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}?ref=${config.branch}`,
       {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -171,7 +176,7 @@ async function updateFile(
     const body: any = {
       message,
       content: btoa(unescape(encodeURIComponent(content))), // Base64 encode with UTF-8 support
-      branch: BRANCH,
+      branch: config.branch,
     }
     
     if (sha) {
@@ -226,20 +231,28 @@ export async function publishToGitHub(siteConfig?: {
     return { success: false, error: 'GitHub token not configured. Go to Settings to add your PAT.' }
   }
 
-  // Use default config if not provided
+  // Resolve workspace config: look up by siteId for dynamic DATA_FILES
+  const wsConfig = resolveWorkspaceConfig(siteConfig?.siteId)
+  
+  // Determine branch from workspace or default
+  const ws = siteConfig?.siteId ? getWorkspace(siteConfig.siteId) : undefined
+  const branch = ws?.remote?.branch || DEFAULT_BRANCH
+
+  // Use provided config or defaults
   const config: RepoConfig = siteConfig ? {
     owner: siteConfig.owner,
     repo: siteConfig.repo,
     dataPath: siteConfig.dataPath,
+    branch,
   } : {
     owner: DEFAULT_REPO_OWNER,
     repo: DEFAULT_REPO_NAME,
     dataPath: 'public/data',
+    branch: DEFAULT_BRANCH,
   }
   
-  const storagePrefix = siteConfig?.siteId 
-    ? getSiteStoragePrefix(siteConfig.siteId) 
-    : STORAGE_PREFIX
+  const storagePrefix = wsConfig.storagePrefix
+  const dataFiles = wsConfig.dataFiles
   
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19)
   const repoBase = `https://api.github.com/repos/${config.owner}/${config.repo}`
@@ -252,7 +265,7 @@ export async function publishToGitHub(siteConfig?: {
   // Collect all files that have data to push
   const filesToPush: { path: string; content: string }[] = []
   
-  for (const [kvKey, fileName] of Object.entries(DATA_FILES)) {
+  for (const [kvKey, fileName] of Object.entries(dataFiles)) {
     const data = localStorage.getItem(storagePrefix + kvKey)
     if (data) {
       let prettyJson: string
@@ -271,8 +284,8 @@ export async function publishToGitHub(siteConfig?: {
   }
 
   try {
-    // 1. Get the latest commit SHA on main
-    const refRes = await fetch(`${repoBase}/git/ref/heads/${BRANCH}`, { headers })
+    // 1. Get the latest commit SHA on target branch
+    const refRes = await fetch(`${repoBase}/git/ref/heads/${config.branch}`, { headers })
     if (!refRes.ok) {
       return { success: false, error: `Failed to read branch ref: ${refRes.status}` }
     }
@@ -391,7 +404,7 @@ export async function publishToGitHub(siteConfig?: {
           body: JSON.stringify({
             title: `Admin Panel: Update ${filesToPush.length} data files [${timestamp}]`,
             head: branchName,
-            base: BRANCH,
+            base: config.branch,
             body: [
               `## Data Update from Admin Panel`,
               ``,
@@ -431,8 +444,8 @@ export async function publishToGitHub(siteConfig?: {
     }
 
     // ─── Direct Commit (Legacy / Admin Override) ─────────────
-    // 6b. Update the main branch reference directly
-    const updateRefRes = await fetch(`${repoBase}/git/refs/heads/${BRANCH}`, {
+    // 6b. Update the target branch reference directly
+    const updateRefRes = await fetch(`${repoBase}/git/refs/heads/${config.branch}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({
@@ -586,15 +599,13 @@ async function publishViaApp(siteConfig?: {
     }
   }
 
-  const storagePrefix = siteConfig?.siteId
-    ? getSiteStoragePrefix(siteConfig.siteId)
-    : STORAGE_PREFIX
+  const wsConfig = resolveWorkspaceConfig(siteConfig?.siteId)
 
   // Collect files to push
   const files: GitHubApp.FileChange[] = []
 
-  for (const [kvKey, fileName] of Object.entries(DATA_FILES)) {
-    const data = localStorage.getItem(storagePrefix + kvKey)
+  for (const [kvKey, fileName] of Object.entries(wsConfig.dataFiles)) {
+    const data = localStorage.getItem(wsConfig.storagePrefix + kvKey)
     if (data) {
       let prettyJson: string
       try {
@@ -620,7 +631,7 @@ async function publishViaApp(siteConfig?: {
       owner: config.owner,
       repo: config.repo,
       dataPath: config.dataPath,
-      branch: BRANCH,
+      branch: getWorkspace(siteConfig?.siteId ?? '')?.remote?.branch || DEFAULT_BRANCH,
     },
     files
   )
@@ -644,3 +655,109 @@ export {
   getConnectionMethod as getGitHubConnectionMethod,
 }
 
+// ─── GitHub Repo Browser API ────────────────────────────────────────────────
+
+export interface GitHubRepoInfo {
+  full_name: string     // 'owner/repo'
+  name: string
+  description: string | null
+  html_url: string
+  default_branch: string
+  private: boolean
+  language: string | null
+  updated_at: string
+  topics: string[]
+}
+
+/**
+ * List repositories for the authenticated user.
+ * Supports pagination and filtering.
+ */
+export async function listUserRepos(opts?: {
+  sort?: 'updated' | 'pushed' | 'full_name'
+  per_page?: number
+  page?: number
+  type?: 'all' | 'owner' | 'public' | 'private'
+}): Promise<{ repos: GitHubRepoInfo[]; error?: string }> {
+  const token = await getGitHubToken()
+  if (!token) return { repos: [], error: 'No GitHub token configured' }
+
+  const sort = opts?.sort ?? 'updated'
+  const per_page = opts?.per_page ?? 30
+  const page = opts?.page ?? 1
+  const type = opts?.type ?? 'all'
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/user/repos?sort=${sort}&per_page=${per_page}&page=${page}&type=${type}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    )
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: `HTTP ${res.status}` }))
+      return { repos: [], error: err.message }
+    }
+    const data = await res.json()
+    return { repos: data }
+  } catch (e) {
+    return { repos: [], error: String(e) }
+  }
+}
+
+/**
+ * List repos for a specific owner (for connecting to other accounts).
+ */
+export async function listOwnerRepos(
+  owner: string,
+  opts?: { per_page?: number; page?: number }
+): Promise<{ repos: GitHubRepoInfo[]; error?: string }> {
+  const token = await getGitHubToken()
+  if (!token) return { repos: [], error: 'No GitHub token configured' }
+
+  const per_page = opts?.per_page ?? 30
+  const page = opts?.page ?? 1
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/users/${encodeURIComponent(owner)}/repos?sort=updated&per_page=${per_page}&page=${page}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    )
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: `HTTP ${res.status}` }))
+      return { repos: [], error: err.message }
+    }
+    const data = await res.json()
+    return { repos: data }
+  } catch (e) {
+    return { repos: [], error: String(e) }
+  }
+}
+
+/**
+ * Check if a specific repo's data directory has JSON files.
+ * Useful for auto-detecting content structure when connecting a new repo.
+ */
+export async function probeRepoDataDir(
+  owner: string,
+  repo: string,
+  dataPath: string,
+  branch?: string,
+): Promise<{ files: string[]; error?: string }> {
+  const token = await getGitHubToken()
+  if (!token) return { files: [], error: 'No token' }
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(dataPath)}?ref=${branch || 'main'}`,
+      { headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' } }
+    )
+    if (!res.ok) return { files: [], error: `HTTP ${res.status}` }
+    const data: Array<{ name: string; type: string }> = await res.json()
+    return {
+      files: data
+        .filter((f) => f.type === 'file' && f.name.endsWith('.json'))
+        .map((f) => f.name),
+    }
+  } catch (e) {
+    return { files: [], error: String(e) }
+  }
+}

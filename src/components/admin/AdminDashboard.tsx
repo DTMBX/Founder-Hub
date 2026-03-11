@@ -27,7 +27,8 @@ import {
   Image, Flag, Sparkle, ArrowLeft, CaretRight, House, Briefcase,
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
-  Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf, FloppyDisk
+  Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf, FloppyDisk,
+  HardDrive, Terminal
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
@@ -81,6 +82,8 @@ const DashboardOverview = lazy(() => import('./DashboardOverview'))
 const EditorToolbar = lazy(() => import('./EditorToolbar'))
 const PreviewPanel = lazy(() => import('./PreviewPanel'))
 const HistoryTimeline = lazy(() => import('./HistoryTimeline'))
+const WorkspaceManager = lazy(() => import('./WorkspaceManager'))
+const DevToolsPanel = lazy(() => import('./DevToolsPanel'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -125,6 +128,7 @@ const navItems: NavItem[] = [
   // Platform
   { id: 'evident', label: 'Ecosystem Overview', icon: Globe, category: 'Platform' },
   { id: 'sites', label: 'Sites & Repositories', icon: TreeStructure, category: 'Platform' },
+  { id: 'workspaces', label: 'Workspaces', icon: HardDrive, category: 'Platform' },
   // Client Frameworks
   { id: 'client-sites', label: 'Client Sites', icon: Globe, category: 'Client Frameworks' },
   { id: 'law-firm', label: 'Law Firm Template', icon: Buildings, category: 'Client Frameworks' },
@@ -157,6 +161,7 @@ const navItems: NavItem[] = [
   { id: 'audit-integrity', label: 'Audit Integrity', icon: Link, category: 'System & Security' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System & Security' },
   { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System & Security' },
+  { id: 'devtools', label: 'Developer Tools', icon: Terminal, category: 'System & Security' },
 ]
 
 const categories = ['Overview', 'Site Management', 'Investor Relations', 'Platform', 'Client Frameworks', 'Case Management', 'Assets & Media', 'System & Security']
@@ -387,6 +392,8 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'visual-modules': return <VisualModulesManager />
       case 'evident': return <EvidentManager />
       case 'sites': return <SitesManager />
+      case 'workspaces': return <WorkspaceManager />
+      case 'devtools': return <DevToolsPanel />
       case 'law-firm': return <LawFirmShowcaseManager siteId={activeClientSite?.type === 'law-firm' ? activeClientSiteId ?? undefined : undefined} />
       case 'smb-template': return <SMBTemplateManager siteId={activeClientSite?.type === 'small-business' ? activeClientSiteId ?? undefined : undefined} />
       case 'agency': return <AgencyFrameworkManager siteId={activeClientSite?.type === 'agency' ? activeClientSiteId ?? undefined : undefined} />

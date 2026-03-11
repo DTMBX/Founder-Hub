@@ -322,6 +322,122 @@ export async function persistAllToFiles(): Promise<{ succeeded: number; failed: 
   return { succeeded, failed }
 }
 
+// ─── Workspace-Aware APIs ───────────────────────────────────────────────────
+
+/**
+ * Resolve the STATIC_DATA_MAP for a given workspace.
+ * Falls back to the built-in founder-hub map for the default workspace.
+ */
+export function resolveStaticDataMap(workspaceId?: string): Record<string, string> {
+  if (!workspaceId || workspaceId === 'founder-hub') return STATIC_DATA_MAP
+  try {
+    const { getWorkspace, buildStaticDataMap } = require('./workspace-registry')
+    const ws = getWorkspace(workspaceId)
+    if (ws) return buildStaticDataMap(ws)
+  } catch { /* workspace-registry not available */ }
+  return STATIC_DATA_MAP
+}
+
+/**
+ * Resolve the storage prefix for a given workspace.
+ */
+export function resolveStoragePrefix(workspaceId?: string): string {
+  if (!workspaceId || workspaceId === 'founder-hub') return STORAGE_PREFIX
+  try {
+    const { getWorkspace, getStoragePrefix } = require('./workspace-registry')
+    const ws = getWorkspace(workspaceId)
+    if (ws) return getStoragePrefix(ws)
+  } catch { /* workspace-registry not available */ }
+  return STORAGE_PREFIX
+}
+
+/**
+ * Export data for a specific workspace.
+ */
+export function exportWorkspaceData(workspaceId: string): Record<string, string> {
+  const dataMap = resolveStaticDataMap(workspaceId)
+  const prefix = resolveStoragePrefix(workspaceId)
+  const exports: Record<string, string> = {}
+
+  for (const [kvKey, filePath] of Object.entries(dataMap)) {
+    const data = localStorage.getItem(prefix + kvKey)
+    if (data) {
+      const filename = filePath.split('/').pop() || `${kvKey}.json`
+      exports[filename] = data
+    }
+  }
+  return exports
+}
+
+/**
+ * Persist a KV key to its file for a given workspace via the workspace API.
+ */
+export async function persistWorkspaceFile(workspaceId: string, kvKey: string): Promise<boolean> {
+  if (!isLocalhost()) return false
+  const dataMap = resolveStaticDataMap(workspaceId)
+  const prefix = resolveStoragePrefix(workspaceId)
+  const filePath = dataMap[kvKey]
+  if (!filePath) return false
+
+  const raw = localStorage.getItem(prefix + kvKey)
+  if (!raw) return false
+
+  try {
+    const pretty = JSON.stringify(JSON.parse(raw), null, 2)
+    const { workspaceApi } = await import('@/lib/workspace-api')
+    // Resolve the repo name from the workspace
+    let repoName = 'Founder-Hub'
+    try {
+      const { getWorkspace } = await import('./workspace-registry')
+      const ws = getWorkspace(workspaceId)
+      if (ws?.localPath) repoName = ws.localPath
+      else if (ws?.remote) repoName = ws.remote.repo
+    } catch { /* fallback */ }
+    await workspaceApi.write(`${repoName}/public${filePath}`, pretty)
+    return true
+  } catch (e) {
+    console.warn(`[persistWorkspaceFile] Failed for ${kvKey}:`, e)
+    return false
+  }
+}
+
+/**
+ * Persist ALL data for a workspace to files via the workspace API.
+ */
+export async function persistAllWorkspaceFiles(workspaceId: string): Promise<{ succeeded: number; failed: string[] }> {
+  if (!isLocalhost()) return { succeeded: 0, failed: ['Not on localhost'] }
+
+  const dataMap = resolveStaticDataMap(workspaceId)
+  const prefix = resolveStoragePrefix(workspaceId)
+  const { workspaceApi } = await import('@/lib/workspace-api')
+
+  let repoName = 'Founder-Hub'
+  try {
+    const { getWorkspace } = await import('./workspace-registry')
+    const ws = getWorkspace(workspaceId)
+    if (ws?.localPath) repoName = ws.localPath
+    else if (ws?.remote) repoName = ws.remote.repo
+  } catch { /* fallback */ }
+
+  let succeeded = 0
+  const failed: string[] = []
+
+  for (const [kvKey, filePath] of Object.entries(dataMap)) {
+    const raw = localStorage.getItem(prefix + kvKey)
+    if (!raw) continue
+
+    try {
+      const pretty = JSON.stringify(JSON.parse(raw), null, 2)
+      await workspaceApi.write(`${repoName}/public${filePath}`, pretty)
+      succeeded++
+    } catch (e) {
+      failed.push(filePath)
+      console.warn(`[persistAllWorkspaceFiles] Failed for ${filePath}:`, e)
+    }
+  }
+  return { succeeded, failed }
+}
+
 // Make kv available globally for backward compatibility
 // Window.spark already declared in vite-end.d.ts with index signature
 if (typeof window !== 'undefined') {

@@ -14,7 +14,8 @@
  * No dynamic discovery. No plugin framework. Explicit typed registry.
  */
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { loadWorkspaces, type WorkspaceDef } from './workspace-registry'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -37,16 +38,13 @@ export interface WorkspaceSite {
   contentKeys: string[]
 }
 
-// ─── Static Registry ────────────────────────────────────────────────────────
+// ─── Static Registry (built-in fallback) ────────────────────────────────────
 
 /**
- * The canonical workspace site registry.
- * Add new sites here as they become ready for local workspace management.
- *
- * IMPORTANT: The Founder-Hub entry uses the SAME key prefix as the existing
- * system, so zero data migration is needed.
+ * Built-in workspace sites. This is the baseline that always exists.
+ * Additional sites are loaded from the dynamic workspace-registry.
  */
-export const WORKSPACE_SITES: WorkspaceSite[] = [
+const STATIC_WORKSPACE_SITES: WorkspaceSite[] = [
   {
     siteId: 'founder-hub',
     label: 'Founder Hub',
@@ -61,27 +59,53 @@ export const WORKSPACE_SITES: WorkspaceSite[] = [
       'offerings', 'investor',
     ],
   },
-  // Future sites will be added here:
-  // {
-  //   siteId: 'tillerstead',
-  //   label: 'Tillerstead',
-  //   storageNamespace: 'tillerstead',
-  //   previewUrl: 'http://localhost:4321',
-  //   domain: 'tillerstead.com',
-  //   description: 'Tillerstead Ventures portfolio',
-  //   hasSchemas: false,
-  //   contentKeys: [],
-  // },
 ]
+
+/**
+ * Convert a WorkspaceDef from the registry into a WorkspaceSite.
+ */
+function toWorkspaceSite(ws: WorkspaceDef): WorkspaceSite {
+  return {
+    siteId: ws.id,
+    label: ws.name,
+    storageNamespace: ws.namespace,
+    previewUrl: ws.previewUrl || '/',
+    domain: ws.domain,
+    description: ws.description,
+    hasSchemas: ws.contentKeys.length > 0,
+    contentKeys: ws.contentKeys.map(k => k.suffix),
+  }
+}
+
+/**
+ * Load all workspace sites from the dynamic registry.
+ * Merges built-in sites (from STATIC_WORKSPACE_SITES) with
+ * user-added workspaces from workspace-registry.
+ */
+export function loadAllWorkspaceSites(): WorkspaceSite[] {
+  const staticIds = new Set(STATIC_WORKSPACE_SITES.map(s => s.siteId))
+  let dynamic: WorkspaceSite[] = []
+  try {
+    const registryWorkspaces = loadWorkspaces()
+    // Only add workspaces that aren't already in the static list
+    dynamic = registryWorkspaces
+      .filter(ws => !staticIds.has(ws.id) && ws.enabled)
+      .map(toWorkspaceSite)
+  } catch { /* workspace-registry not available */ }
+  return [...STATIC_WORKSPACE_SITES, ...dynamic]
+}
+
+/** Exported for backward compatibility — includes only static entries */
+export const WORKSPACE_SITES: WorkspaceSite[] = STATIC_WORKSPACE_SITES
 
 /** Default site when none is selected */
 export const DEFAULT_SITE_ID = 'founder-hub'
 
 // ─── Lookup Helpers ─────────────────────────────────────────────────────────
 
-/** Get a workspace site by ID. Returns undefined if not found. */
+/** Get a workspace site by ID. Checks static + dynamic entries. */
 export function getWorkspaceSite(siteId: string): WorkspaceSite | undefined {
-  return WORKSPACE_SITES.find(s => s.siteId === siteId)
+  return loadAllWorkspaceSites().find(s => s.siteId === siteId)
 }
 
 /**
@@ -124,10 +148,13 @@ const WorkspaceSiteContext = createContext<WorkspaceSiteContextValue | null>(nul
 const ACTIVE_SITE_STORAGE_KEY = 'workspace-active-site'
 
 export function WorkspaceSiteProvider({ children }: { children: ReactNode }) {
+  // Load all sites dynamically (static + user-added from registry)
+  const allSites = useMemo(() => loadAllWorkspaceSites(), [])
+
   const [activeSiteId, setActiveSiteId] = useState<string>(() => {
     try {
       const stored = localStorage.getItem(ACTIVE_SITE_STORAGE_KEY)
-      if (stored && WORKSPACE_SITES.some(s => s.siteId === stored)) {
+      if (stored && allSites.some(s => s.siteId === stored)) {
         return stored
       }
     } catch { /* ignore */ }
@@ -137,12 +164,12 @@ export function WorkspaceSiteProvider({ children }: { children: ReactNode }) {
   const [switchPending, setSwitchPending] = useState<string | null>(null)
   const [dirtyGuard, setDirtyGuard] = useState<(() => boolean) | null>(null)
 
-  const activeSite = getWorkspaceSite(activeSiteId) ?? WORKSPACE_SITES[0]
+  const activeSite = allSites.find(s => s.siteId === activeSiteId) ?? allSites[0]
 
   const switchSite = useCallback((siteId: string): boolean => {
     if (siteId === activeSiteId) return true
 
-    const target = getWorkspaceSite(siteId)
+    const target = allSites.find(s => s.siteId === siteId)
     if (!target) return false
 
     // Check dirty guard
@@ -177,7 +204,7 @@ export function WorkspaceSiteProvider({ children }: { children: ReactNode }) {
   return (
     <WorkspaceSiteContext.Provider value={{
       activeSite,
-      sites: WORKSPACE_SITES,
+      sites: allSites,
       switchSite,
       switchPending,
       confirmSwitch,
