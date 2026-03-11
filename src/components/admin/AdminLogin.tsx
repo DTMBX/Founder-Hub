@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
-import { useAuth, LoginOptions } from '@/lib/auth'
-import { ArrowLeft, ShieldCheck, Lock, EnvelopeSimple, Key, Usb, CheckCircle, Warning, Password, Notepad } from '@phosphor-icons/react'
+import { useAuth, LoginOptions, loginWithGitHubToken } from '@/lib/auth'
+import { ArrowLeft, ShieldCheck, Lock, EnvelopeSimple, Key, Usb, CheckCircle, Warning, Password, Notepad, GithubLogo, Eye, EyeSlash } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 import { 
   getLocalKeyfile, 
@@ -12,8 +12,10 @@ import {
   hasLocalKeyfile,
   AdminKeyfile 
 } from '@/lib/keyfile'
+import { isLocalhost } from '@/lib/local-storage-kv'
 
 type AuthMethod = 'usb' | 'backup' | 'recovery'
+type LoginTab = 'credentials' | 'github'
 
 interface AdminLoginProps {
   onBack: () => void
@@ -34,6 +36,11 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
   const [backupCode, setBackupCode] = useState('')
   const [backupPassphrase, setBackupPassphrase] = useState('')
   const [recoveryPhrase, setRecoveryPhrase] = useState('')
+  
+  // Login tabs: credentials vs GitHub token
+  const [loginTab, setLoginTab] = useState<LoginTab>(() => isLocalhost() ? 'credentials' : 'github')
+  const [ghToken, setGhToken] = useState('')
+  const [showToken, setShowToken] = useState(false)
   
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { login } = useAuth()
@@ -133,6 +140,23 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
     setIsLoading(false)
   }
 
+  const handleGitHubTokenLogin = async () => {
+    if (!ghToken.trim()) {
+      toast.error('Please enter a GitHub Personal Access Token')
+      return
+    }
+    setIsLoading(true)
+    const result = await loginWithGitHubToken(ghToken.trim())
+    if (result.success) {
+      toast.success(`Signed in as ${result.username}`)
+      // Force page reload to pick up new session
+      window.location.reload()
+    } else {
+      toast.error(result.error || 'Authentication failed')
+    }
+    setIsLoading(false)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-card p-4">
       <div className="w-full max-w-sm">
@@ -145,6 +169,108 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
         </div>
 
         <Card className="border-border/50 shadow-xl shadow-black/5">
+          {/* Login method tabs */}
+          <div className="flex border-b border-border">
+            <button
+              type="button"
+              onClick={() => setLoginTab('credentials')}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors ${
+                loginTab === 'credentials'
+                  ? 'text-foreground border-b-2 border-primary -mb-px'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Lock className="h-3.5 w-3.5" weight="bold" />
+              Email & Password
+            </button>
+            <button
+              type="button"
+              onClick={() => setLoginTab('github')}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-xs font-medium transition-colors ${
+                loginTab === 'github'
+                  ? 'text-foreground border-b-2 border-primary -mb-px'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <GithubLogo className="h-3.5 w-3.5" weight="bold" />
+              GitHub Token
+            </button>
+          </div>
+
+          {/* GitHub Token form */}
+          {loginTab === 'github' ? (
+            <div>
+              <CardContent className="space-y-4 pt-6">
+                <p className="text-xs text-muted-foreground">
+                  Sign in from anywhere using a GitHub Personal Access Token with repo access to <strong>DTMBX/Founder-Hub</strong>.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="gh-token" className="text-xs font-medium">Personal Access Token</Label>
+                  <div className="relative">
+                    <GithubLogo className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="gh-token"
+                      type={showToken ? 'text' : 'password'}
+                      value={ghToken}
+                      onChange={(e) => setGhToken(e.target.value)}
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                      required
+                      disabled={isLoading}
+                      autoComplete="off"
+                      className="pl-9 pr-9 font-mono text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowToken(!showToken)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showToken ? <EyeSlash className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-1.5">
+                  <p className="text-[10px] font-medium text-muted-foreground">Required scopes:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    <span className="bg-primary/10 text-primary text-[9px] font-mono px-1.5 py-0.5 rounded">repo</span>
+                    <span className="text-[10px] text-muted-foreground/60">or</span>
+                    <span className="bg-primary/10 text-primary text-[9px] font-mono px-1.5 py-0.5 rounded">public_repo</span>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground/70">
+                    Create one at <span className="font-mono">github.com/settings/tokens</span>
+                  </p>
+                </div>
+              </CardContent>
+              <CardFooter className="flex-col gap-3 pb-6">
+                <Button
+                  type="button"
+                  className="w-full gap-2"
+                  disabled={isLoading || !ghToken.trim()}
+                  size="lg"
+                  onClick={handleGitHubTokenLogin}
+                >
+                  {isLoading ? (
+                    <>Verifying...</>
+                  ) : (
+                    <>
+                      <GithubLogo className="h-4 w-4" weight="bold" />
+                      Sign in with GitHub
+                    </>
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={onBack}
+                  className="text-xs text-muted-foreground gap-1.5"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Back to site
+                </Button>
+              </CardFooter>
+            </div>
+          ) : (
+          /* Email/password form (existing) */
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4 pt-6">
               <div className="space-y-2">
@@ -362,6 +488,7 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
               </Button>
             </CardFooter>
           </form>
+          )}
         </Card>
 
         <div className="mt-6 flex items-center justify-center gap-4 text-[10px] text-muted-foreground/60">

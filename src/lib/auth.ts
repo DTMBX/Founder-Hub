@@ -890,6 +890,119 @@ export function useAuth() {
   }
 }
 
+// ─── Remote Login via GitHub Token ──────────────────────────────────────────
+
+const REPO_OWNER = 'DTMBX'
+const REPO_NAME = 'Founder-Hub'
+
+interface GitHubTokenLoginResult {
+  success: boolean
+  error?: string
+  username?: string
+}
+
+/**
+ * Authenticate remotely using a GitHub Personal Access Token.
+ *
+ * Flow:
+ *  1. Call GET /user to verify the token and get the authenticated GitHub user
+ *  2. Call GET /repos/{owner}/{repo} to check the user has push permission
+ *  3. If valid, bootstrap an owner user (or find existing) and create a session
+ *  4. Save the token in the secret vault for publishing
+ *
+ * This lets the owner log in from any browser, anywhere.
+ */
+export async function loginWithGitHubToken(token: string): Promise<GitHubTokenLoginResult> {
+  if (!token || token.length < 10) {
+    return { success: false, error: 'Invalid token format' }
+  }
+
+  try {
+    // Step 1: Verify token and get authenticated user
+    const userRes = await fetch('https://api.github.com/user', {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!userRes.ok) {
+      if (userRes.status === 401) return { success: false, error: 'Invalid or expired token' }
+      return { success: false, error: `GitHub API error: ${userRes.status}` }
+    }
+
+    const ghUser = await userRes.json()
+    const username: string = ghUser.login
+
+    // Step 2: Check repo access (must have push permission)
+    const repoRes = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    })
+
+    if (!repoRes.ok) {
+      return { success: false, error: 'Token cannot access this repository' }
+    }
+
+    const repo = await repoRes.json()
+    if (!repo.permissions?.push && !repo.permissions?.admin) {
+      return { success: false, error: `User "${username}" does not have write access to ${REPO_OWNER}/${REPO_NAME}` }
+    }
+
+    // Step 3: Bootstrap or find user, create session
+    await initEncryption()
+    const allUsers = await kv.get<User[]>(USERS_KEY) || []
+
+    // Find existing user or create one from GitHub identity
+    let user = allUsers.find(u => u.role === 'owner') || allUsers[0]
+    if (!user) {
+      // No users exist yet — create one from GitHub identity
+      const { hash, salt } = await hashPasswordPBKDF2(token, undefined)
+      user = {
+        id: `user_gh_${Date.now()}`,
+        email: ghUser.email || `${username}@github`,
+        passwordHash: hash,
+        passwordSalt: salt,
+        role: 'owner',
+        createdAt: Date.now(),
+        lastLogin: Date.now(),
+      }
+      await kv.set(USERS_KEY, [user])
+    } else {
+      // Update last login
+      user.lastLogin = Date.now()
+      const updated = allUsers.map(u => u.id === user!.id ? user! : u)
+      await kv.set(USERS_KEY, updated)
+    }
+
+    // Create session
+    const newSession: Session = {
+      userId: user.id,
+      role: user.role,
+      expiresAt: Date.now() + SESSION_DURATION,
+    }
+    await kv.set(SESSION_KEY, newSession)
+
+    // Step 4: Save PAT in secret vault for publishing
+    try {
+      const { storeSecret } = await import('./secret-vault')
+      await storeSecret('github-pat', token)
+    } catch {
+      // Secret vault not available — fall back to legacy storage
+      localStorage.setItem('founder-hub:github-token', token)
+    }
+
+    // Audit
+    await logAudit(user.id, user.email, 'login', `Remote login via GitHub token (${username})`, 'auth', user.id)
+
+    return { success: true, username }
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Network error — check your connection' }
+  }
+}
+
 export async function logAudit(
   userId: string,
   userEmail: string,
