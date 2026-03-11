@@ -25,6 +25,10 @@
         "site:deploy": "node scripts/site-manager.mjs deploy",
         "site:presets": "node scripts/generate-site.mjs --list-presets",
         "scan:secrets": "node scripts/scan-secrets.mjs --all",
+        "hugo:sync": "pwsh scripts/hugo-data-sync.ps1",
+        "hugo:build": "pwsh scripts/hugo-build.ps1",
+        "hugo:serve": "pwsh scripts/hugo-build.ps1 -Serve",
+        "hugo:clean": "pwsh scripts/hugo-build.ps1 -Clean",
         "prepare": "husky"
     },
     "dependencies": {

@@ -1,0 +1,12 @@
+{{- /*
+  nav.html — Site navigation partial
+  Generic nav; site-type layouts can override with their own nav section.
+  Uses .Site.Data or .Params for branding.
+*/ -}}
+{{- $name := .Title | default .Site.Title -}}
+{{- $primary := .Params.primaryColor | default "#1e3a5f" -}}
+<nav style="background:white;border-bottom:1px solid #e5e7eb;padding:16px 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;">
+    <a href="{{ .Site.BaseURL }}" style="font-weight:700;font-size:18px;color:{{ $primary }};">{{ $name }}</a>
+  </div>
+</nav>

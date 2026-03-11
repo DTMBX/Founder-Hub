@@ -1,0 +1,33 @@
+{{- /*
+  seo-head.html — SEO meta tags partial
+  Ported from static-renderer.ts renderMetaTags()
+*/ -}}
+<title>{{ .Title | default .Site.Title }}</title>
+{{- with .Params.description | default .Site.Params.description }}
+<meta name="description" content="{{ . }}">
+{{- end }}
+
+{{- /* Open Graph */ -}}
+<meta property="og:title" content="{{ .Title | default .Site.Title }}">
+{{- with .Params.description | default .Site.Params.description }}
+<meta property="og:description" content="{{ . }}">
+{{- end }}
+{{- with .Params.ogImage }}
+<meta property="og:image" content="{{ . }}">
+{{- end }}
+<meta property="og:type" content="website">
+{{- with .Permalink }}
+<meta property="og:url" content="{{ . }}">
+{{- end }}
+
+{{- /* Twitter Card */ -}}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ .Title | default .Site.Title }}">
+{{- with .Params.description | default .Site.Params.description }}
+<meta name="twitter:description" content="{{ . }}">
+{{- end }}
+
+{{- /* Canonical */ -}}
+{{- with .Permalink }}
+<link rel="canonical" href="{{ . }}">
+{{- end }}

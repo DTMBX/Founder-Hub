@@ -1,0 +1,17 @@
+{{ define "main" }}
+<section style="max-width:1280px;margin:0 auto;padding:64px 24px;">
+  <h1 style="font-size:36px;font-weight:700;margin-bottom:32px;">{{ .Title }}</h1>
+  {{ .Content }}
+  {{ range .Pages }}
+  <article style="margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid #e5e7eb;">
+    <h2 style="font-size:24px;font-weight:600;margin-bottom:8px;">
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+    </h2>
+    {{- with .Params.description }}
+    <p style="color:#4b5563;">{{ . }}</p>
+    {{- end }}
+    <time style="font-size:14px;color:#9ca3af;" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+  </article>
+  {{ end }}
+</section>
+{{ end }}

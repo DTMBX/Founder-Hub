@@ -1,0 +1,40 @@
+{{- /*
+  baseof.html — Base layout for all Founder Hub generated sites.
+  Ported from src/lib/static-renderer.ts renderSiteToStaticHtml()
+*/ -}}
+<!DOCTYPE html>
+<html lang="{{ .Language.Lang | default "en" }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {{- partial "seo-head.html" . -}}
+  {{- with .Site.Params.favicon }}
+  <link rel="icon" href="{{ . }}">
+  {{- end }}
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #111827; }
+    img { max-width: 100%; height: auto; }
+    a { color: inherit; text-decoration: none; }
+    {{- /* Inject theme CSS custom properties from data if available */ -}}
+    {{- with .Site.Data.theme }}
+    :root {
+      {{- range $key, $value := . }}
+      --{{ $key }}: {{ $value }};
+      {{- end }}
+    }
+    {{- end }}
+  </style>
+  {{- $css := resources.Get "css/main.css" -}}
+  {{- with $css }}
+  <link rel="stylesheet" href="{{ .RelPermalink }}">
+  {{- end }}
+</head>
+<body>
+  {{ block "main" . }}{{ end }}
+  {{- /* Embed site data JSON for potential hydration */ -}}
+  {{- with .Site.Data.sites }}
+  <script type="application/json" id="site-data">{{ jsonify . }}</script>
+  {{- end }}
+</body>
+</html>

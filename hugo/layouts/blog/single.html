@@ -1,0 +1,41 @@
+{{- /* blog/single.html — Individual blog post */ -}}
+{{ define "main" }}
+{{- partial "nav.html" . -}}
+
+<article style="max-width:768px;margin:0 auto;padding:64px 24px;">
+  <header style="margin-bottom:40px;">
+    <h1 style="font-size:40px;font-weight:700;line-height:1.2;margin-bottom:16px;">{{ .Title }}</h1>
+    <div style="display:flex;gap:16px;align-items:center;color:#6b7280;font-size:14px;">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "January 2, 2006" }}</time>
+      {{- with .Params.author }}
+      <span>&middot; {{ . }}</span>
+      {{- end }}
+      {{- with .ReadingTime }}
+      <span>&middot; {{ . }} min read</span>
+      {{- end }}
+    </div>
+    {{- with .Params.tags }}
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+      {{- range . }}
+      <span style="font-size:12px;padding:4px 12px;background:#f3f4f6;border-radius:9999px;color:#4b5563;">{{ . }}</span>
+      {{- end }}
+    </div>
+    {{- end }}
+  </header>
+
+  <div class="prose" style="font-size:18px;line-height:1.8;">
+    {{ .Content }}
+  </div>
+
+  <nav style="display:flex;justify-content:space-between;margin-top:64px;padding-top:32px;border-top:1px solid #e5e7eb;">
+    {{- with .PrevInSection }}
+    <a href="{{ .RelPermalink }}" style="color:#2563eb;">&larr; {{ .Title }}</a>
+    {{- end }}
+    {{- with .NextInSection }}
+    <a href="{{ .RelPermalink }}" style="color:#2563eb;">{{ .Title }} &rarr;</a>
+    {{- end }}
+  </nav>
+</article>
+
+{{- partial "footer.html" . -}}
+{{ end }}

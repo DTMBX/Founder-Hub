@@ -1,0 +1,9 @@
+{{- /*
+  footer.html — Site footer partial
+  Generic footer; site-type layouts override with their own styled footer.
+*/ -}}
+{{- $name := .Title | default .Site.Title -}}
+{{- $primary := .Params.primaryColor | default "#1e3a5f" -}}
+<footer style="background:{{ $primary }};color:white;padding:32px 0;text-align:center;">
+  <p style="font-size:14px;opacity:0.8;">&copy; {{ now.Year }} {{ $name }}</p>
+</footer>

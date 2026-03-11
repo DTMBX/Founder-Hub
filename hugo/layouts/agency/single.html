@@ -1,0 +1,74 @@
+{{- /*
+  agency/single.html — Agency site layout (dark theme)
+  Ported from static-renderer.ts renderAgencyBody()
+
+  Expects page-level params or .Site.Data.sites with:
+    .Params.agencyName,
+    .Site.Data.sites.projects (array of {projectName, clientName, domain, status, deliverables})
+*/ -}}
+{{ define "main" }}
+{{- $name := .Params.agencyName | default .Title -}}
+
+{{- /* Count launched/maintenance projects */ -}}
+{{- $launched := slice -}}
+{{- with .Site.Data.sites.projects -}}
+  {{- range . -}}
+    {{- if or (eq .status "launched") (eq .status "maintenance") -}}
+      {{- $launched = $launched | append . -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* ── Navigation ── */ -}}
+<nav style="background:#030712;border-bottom:1px solid #1f2937;padding:16px 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <span style="font-weight:700;font-size:18px;color:white;">{{ $name }}</span>
+  </div>
+</nav>
+
+{{- /* ── Hero ── */ -}}
+<section style="background:#030712;color:white;padding:96px 0;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <h1 style="font-size:56px;font-weight:700;margin-bottom:24px;">{{ $name }}</h1>
+    <p style="font-size:20px;color:#9ca3af;">
+      {{ len $launched }} project{{ if ne (len $launched) 1 }}s{{ end }} delivered.
+    </p>
+  </div>
+</section>
+
+{{- /* ── Projects ── */ -}}
+{{- if gt (len $launched) 0 }}
+<section style="background:#030712;padding:64px 0;border-top:1px solid #1f2937;">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;">
+    <h2 style="font-size:30px;font-weight:700;color:white;margin-bottom:40px;">Selected Work</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:24px;">
+      {{- range $launched }}
+      <div style="background:#111827;border:1px solid #1f2937;border-radius:12px;padding:24px;">
+        <h3 style="font-weight:600;color:white;font-size:18px;margin-bottom:4px;">{{ with .projectName }}{{ . }}{{ else }}{{ .clientName }}{{ end }}</h3>
+        {{- with .domain }}
+        <p style="font-size:12px;color:#60a5fa;">{{ . }}</p>
+        {{- end }}
+        {{- with .deliverables }}
+        {{- if gt (len .) 0 }}
+        <p style="font-size:12px;color:#6b7280;margin-top:12px;">{{ delimit (first 3 .) " · " }}</p>
+        {{- end }}
+        {{- end }}
+      </div>
+      {{- end }}
+    </div>
+  </div>
+</section>
+{{- end }}
+
+{{- /* ── Page Content (markdown) ── */ -}}
+{{- with .Content }}
+<section style="background:#030712;max-width:1280px;margin:0 auto;padding:48px 24px;color:white;">
+  {{ . }}
+</section>
+{{- end }}
+
+{{- /* ── Footer ── */ -}}
+<footer style="background:#030712;border-top:1px solid #1f2937;padding:24px 0;text-align:center;">
+  <p style="font-size:12px;color:#4b5563;">&copy; {{ now.Year }} {{ $name }}</p>
+</footer>
+{{ end }}

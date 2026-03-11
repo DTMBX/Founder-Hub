@@ -44,3 +44,11 @@ vitest-output.txt
 
 test-output.txt
 test-output.txt
+
+# Hugo
+hugo/public/
+hugo/resources/
+hugo/data/sites/
+hugo/.hugo_build.lock
+hugo/hugo_stats.json
+bin/hugo*

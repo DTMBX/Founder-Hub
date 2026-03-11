@@ -1,0 +1,39 @@
+# Hugo Configuration — Founder-Hub Sites
+# Docs: https://gohugo.io/getting-started/configuration/
+
+baseURL       = "https://devon-tyler.com/sites/"
+languageCode  = "en-us"
+title         = "Founder Hub Sites"
+theme         = []                           # no external theme yet
+
+# Content directory inside hugo/
+contentDir    = "content"
+dataDir       = "data"
+layoutDir     = "layouts"
+staticDir     = "static"
+assetDir      = "assets"
+publishDir    = "public"
+
+[build]
+  writeStats = true
+
+[outputs]
+  home    = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+  page    = ["HTML"]
+
+[sitemap]
+  changefreq = "weekly"
+  filename   = "sitemap.xml"
+  priority   = 0.5
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = false            # no raw HTML in markdown
+  [markup.highlight]
+    style = "monokai"
+
+[params]
+  description = "Generated static sites from Founder Hub"
+  generator   = "founder-hub-hugo"

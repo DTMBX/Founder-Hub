@@ -1,0 +1,3 @@
+# Production overrides
+baseURL = "https://devon-tyler.com/sites/"
+minify  = true
