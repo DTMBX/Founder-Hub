@@ -11,6 +11,7 @@ import {
 } from '@/lib/secret-vault'
 import type { SecretType, SecretMetadata } from '@/lib/secret-vault'
 import { ShieldCheck, Trash, ArrowsClockwise, Plus, Eye, EyeSlash } from '@phosphor-icons/react'
+import { useReauthGate } from './ReauthDialog'
 
 const SECRET_TYPES: SecretType[] = ['github-pat', 'stripe-secret', 'stripe-publishable', 'api-key', 'oauth-token', 'webhook-secret', 'encryption-key', 'custom']
 const TYPE_LABELS: Record<SecretType, string> = {
@@ -51,6 +52,7 @@ export default function VaultPanel() {
   const [revealedValue, setRevealedValue] = useState<string | null>(null)
 
   const isOwner = currentUser?.role === 'owner'
+  const [gate, ReauthGate] = useReauthGate()
 
   const load = useCallback(async () => {
     try {
@@ -221,7 +223,7 @@ export default function VaultPanel() {
                 <Button size="sm" variant="ghost" onClick={() => { setRotatingId(rotatingId === s.id ? null : s.id); setRotateValue('') }} title="Rotate">
                   <ArrowsClockwise className="h-4 w-4" />
                 </Button>
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDelete(s.id)} title="Delete">
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => gate(() => handleDelete(s.id))} title="Delete">
                   <Trash className="h-4 w-4" />
                 </Button>
               </div>
@@ -241,7 +243,7 @@ export default function VaultPanel() {
                   className="flex-1 px-3 py-1.5 rounded-md border bg-background text-sm"
                   autoComplete="off"
                 />
-                <Button size="sm" onClick={() => handleRotate(s.id)} disabled={!rotateValue}>Rotate</Button>
+                <Button size="sm" onClick={() => gate(() => handleRotate(s.id))} disabled={!rotateValue}>Rotate</Button>
                 <Button size="sm" variant="ghost" onClick={() => setRotatingId(null)}>Cancel</Button>
               </div>
             )}
@@ -251,6 +253,8 @@ export default function VaultPanel() {
           <p className="px-4 py-6 text-sm text-muted-foreground text-center">Vault is empty.</p>
         )}
       </div>
+
+      <ReauthGate />
     </div>
   )
 }

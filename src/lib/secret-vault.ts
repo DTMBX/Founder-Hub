@@ -11,6 +11,7 @@
 
 import { encryptField, decryptField, encryptData, decryptData, computeVaultHMAC, verifyVaultHMAC } from './crypto'
 import { kv } from './local-storage-kv'
+import type { UserRole } from './types'
 
 // ─── Secret Types ────────────────────────────────────────────
 
@@ -39,6 +40,7 @@ export interface SecretMetadata {
   rotatedFrom?: string  // Previous secret ID (for rotation tracking)
   accessCount: number
   lastAccessedAt?: string
+  allowedRoles?: UserRole[]  // Per-secret ACL — empty/undefined = owner-only
 }
 
 /**
@@ -109,6 +111,7 @@ export async function storeSecret(
   options?: {
     expiresAt?: string
     rotatedFrom?: string
+    allowedRoles?: UserRole[]
   }
 ): Promise<string> {
   const secretId = generateSecretId()
@@ -123,6 +126,7 @@ export async function storeSecret(
     rotatedFrom: options?.rotatedFrom,
     accessCount: 0,
     lastAccessedAt: undefined,
+    allowedRoles: options?.allowedRoles,
   }
   
   // Encrypt value and metadata
@@ -151,8 +155,10 @@ export async function storeSecret(
 
 /**
  * Retrieve a secret from the vault
+ * @param secretId - ID of the secret
+ * @param callerRole - Role of the requesting user (for ACL enforcement). Defaults to 'owner'.
  */
-export async function retrieveSecret(secretId: string): Promise<{
+export async function retrieveSecret(secretId: string, callerRole: UserRole = 'owner'): Promise<{
   value: string
   metadata: SecretMetadata
 } | null> {
@@ -169,6 +175,12 @@ export async function retrieveSecret(secretId: string): Promise<{
   // Decrypt
   const value = await decryptField(stored.value)
   const metadata: SecretMetadata = JSON.parse(await decryptField(stored.metadata))
+
+  // Per-secret ACL enforcement
+  const allowed = metadata.allowedRoles
+  if (allowed && allowed.length > 0 && !allowed.includes(callerRole)) {
+    throw new SecretAccessDeniedError(secretId, callerRole, allowed)
+  }
   
   // Enforce expiration — reject expired secrets
   if (metadata.expiresAt && new Date(metadata.expiresAt).getTime() < Date.now()) {
@@ -418,6 +430,20 @@ export class SecretExpiredError extends Error {
     this.name = 'SecretExpiredError'
     this.secretId = secretId
     this.expiredAt = expiredAt
+  }
+}
+
+export class SecretAccessDeniedError extends Error {
+  public readonly secretId: string
+  public readonly callerRole: string
+  public readonly allowedRoles: string[]
+
+  constructor(secretId: string, callerRole: string, allowedRoles: string[]) {
+    super(`Access denied to secret ${secretId}: role '${callerRole}' not in [${allowedRoles.join(', ')}]`)
+    this.name = 'SecretAccessDeniedError'
+    this.secretId = secretId
+    this.callerRole = callerRole
+    this.allowedRoles = allowedRoles
   }
 }
 

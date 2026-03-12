@@ -1,6 +1,6 @@
 import { useKV, kv } from '@/lib/local-storage-kv'
 import { User, Session, AuditEvent, AuditAction } from './types'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { generateSecret, verifyTOTP, generateQRCodeDataURL } from './totp'
 import {
   hashPasswordPBKDF2,
@@ -57,6 +57,7 @@ const LOCKOUT_DURATION = 30 * 60 * 1000   // 30 min lockout
 const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
 const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions
 const SESSION_REFRESH_THRESHOLD = 30 * 60 * 1000 // Refresh session if less than 30 min remaining
+const INACTIVITY_TIMEOUT = 15 * 60 * 1000 // 15 min sliding inactivity timeout
 
 const IS_DEV = import.meta.env.DEV
 // Auto-login only in vite dev mode, and only if not explicitly disabled
@@ -436,6 +437,26 @@ export function useAuth() {
     return () => clearInterval(interval)
   }, [session, setSession])
 
+  // Sliding inactivity timeout — log out after 15 min of no user interaction
+  const lastActivityRef = useRef(Date.now())
+  useEffect(() => {
+    if (!session) return
+    const touch = () => { lastActivityRef.current = Date.now() }
+    const events = ['pointerdown', 'keydown', 'scroll', 'touchstart'] as const
+    events.forEach(e => document.addEventListener(e, touch, { passive: true }))
+    const timer = setInterval(() => {
+      if (Date.now() - lastActivityRef.current > INACTIVITY_TIMEOUT) {
+        log('[useAuth] Inactivity timeout reached, clearing session')
+        setSession(null)
+        setCurrentUser(null)
+      }
+    }, 30_000)
+    return () => {
+      events.forEach(e => document.removeEventListener(e, touch))
+      clearInterval(timer)
+    }
+  }, [session, setSession])
+
   const login = async (
     emailOrOptions: string | LoginOptions,
     passwordArg?: string,
@@ -623,11 +644,30 @@ export function useAuth() {
             userId: user.id,
             expiresAt: now + 5 * 60 * 1000
           }
-          // Encrypt pending 2FA data at rest
+          // Encrypt pending 2FA data at rest (AES-GCM provides integrity via auth tag)
           await kv.set(PENDING_2FA_KEY, await encryptData(pending))
           await logAudit(user.id, user.email, 'login_2fa_required', 'Password verified, awaiting 2FA', 'auth', user.id)
           return { success: false, requires2FA: true }
         }
+
+        // Validate pending 2FA session matches this user and hasn't expired
+        try {
+          const pendingRaw = await kv.get<string>(PENDING_2FA_KEY)
+          if (pendingRaw) {
+            const pendingData = typeof pendingRaw === 'string'
+              ? await decryptData<Pending2FA>(pendingRaw)
+              : pendingRaw as unknown as Pending2FA
+            if (pendingData.userId !== user.id) {
+              await logAudit(user.id, user.email, 'login_2fa_failed', 'Pending 2FA userId mismatch', 'auth', user.id)
+              return { success: false, error: 'Invalid 2FA session. Please log in again.' }
+            }
+            if (pendingData.expiresAt < now) {
+              await kv.delete(PENDING_2FA_KEY)
+              await logAudit(user.id, user.email, 'login_2fa_failed', 'Pending 2FA expired', 'auth', user.id)
+              return { success: false, error: '2FA session expired. Please log in again.' }
+            }
+          }
+        } catch { /* decryption failed — proceed with TOTP check, password was already verified */ }
 
         // Decrypt 2FA secret for verification
         const decryptedSecret = isEncrypted(user.twoFactorSecret)

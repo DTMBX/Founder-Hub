@@ -17,6 +17,8 @@ const STORAGE_PREFIX = 'founder-hub:'
 const SENSITIVE_KEYS = new Set([
   'founder-hub-session',
   'founder-hub-users',
+  'founder-hub-pending-2fa',
+  'founder-hub-login-attempts',
 ])
 
 // Lazy-loaded encryption functions (crypto.ts imports are deferred to break circular dep)
@@ -300,6 +302,56 @@ export const kv = {
     }
     keysToRemove.forEach(key => localStorage.removeItem(key))
   }
+}
+
+// ─── localStorage Quota Monitoring ──────────────────────────
+
+const QUOTA_WARNING_THRESHOLD = 0.85 // warn at 85% usage
+const ESTIMATED_QUOTA = 5 * 1024 * 1024 // 5MB typical limit
+
+/** Returns bytes used by all localStorage entries. */
+export function getStorageUsageBytes(): number {
+  let bytes = 0
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i)
+    if (key) {
+      // Each char in JS string = 2 bytes in UTF-16; keys + values counted
+      bytes += (key.length + (localStorage.getItem(key)?.length ?? 0)) * 2
+    }
+  }
+  return bytes
+}
+
+export interface StorageQuotaInfo {
+  usedBytes: number
+  estimatedQuota: number
+  percentUsed: number
+  warning: boolean
+  critical: boolean
+}
+
+/** Snapshot of current localStorage quota usage. */
+export function getStorageQuota(): StorageQuotaInfo {
+  const usedBytes = getStorageUsageBytes()
+  const percentUsed = usedBytes / ESTIMATED_QUOTA
+  return {
+    usedBytes,
+    estimatedQuota: ESTIMATED_QUOTA,
+    percentUsed,
+    warning: percentUsed >= QUOTA_WARNING_THRESHOLD,
+    critical: percentUsed >= 0.95,
+  }
+}
+
+/** React hook — re-checks quota every 30 s while mounted. */
+export function useStorageQuota(): StorageQuotaInfo {
+  const [info, setInfo] = useState<StorageQuotaInfo>(getStorageQuota)
+  useEffect(() => {
+    const tick = () => setInfo(getStorageQuota())
+    const id = setInterval(tick, 30_000)
+    return () => clearInterval(id)
+  }, [])
+  return info
 }
 
 /**

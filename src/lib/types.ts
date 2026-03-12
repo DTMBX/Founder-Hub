@@ -11,7 +11,7 @@ export interface User {
   id: string
   email: string
   passwordHash: string
-  passwordSalt?: string          // PBKDF2 salt — absent = legacy SHA-256
+  passwordSalt: string           // PBKDF2 salt (legacy users auto-migrated at login)
   role: UserRole
   twoFactorEnabled?: boolean
   twoFactorSecret?: string       // AES-256-GCM encrypted ('enc:' prefix)

@@ -6,6 +6,7 @@ import { kv } from '@/lib/local-storage-kv'
 import { hashPasswordPBKDF2 } from '@/lib/crypto'
 import type { User, UserRole } from '@/lib/types'
 import { Trash, PencilSimple, Plus, ShieldCheck } from '@phosphor-icons/react'
+import { useReauthGate } from './ReauthDialog'
 
 const USERS_KEY = 'founder-hub-users'
 const ROLES: UserRole[] = ['owner', 'admin', 'editor', 'support']
@@ -34,6 +35,7 @@ export default function UserManagement() {
   const [editRole, setEditRole] = useState<UserRole>('editor')
 
   const isOwner = currentUser?.role === 'owner'
+  const [gate, ReauthGate] = useReauthGate()
 
   async function loadUsers() {
     try {
@@ -193,7 +195,7 @@ export default function UserManagement() {
                 >
                   {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                 </select>
-                <Button size="sm" variant="outline" onClick={() => handleRoleChange(u.id)}>Save</Button>
+                <Button size="sm" variant="outline" onClick={() => gate(() => handleRoleChange(u.id))}>Save</Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
               </div>
             ) : (
@@ -203,7 +205,7 @@ export default function UserManagement() {
                   <PencilSimple className="h-4 w-4" />
                 </Button>
                 {u.id !== currentUser?.id && (
-                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => handleDelete(u.id)} title="Delete user">
+                  <Button size="sm" variant="ghost" className="text-destructive" onClick={() => gate(() => handleDelete(u.id))} title="Delete user">
                     <Trash className="h-4 w-4" />
                   </Button>
                 )}
@@ -215,6 +217,8 @@ export default function UserManagement() {
           <p className="px-4 py-6 text-sm text-muted-foreground text-center">No users found.</p>
         )}
       </div>
+
+      <ReauthGate />
     </div>
   )
 }
