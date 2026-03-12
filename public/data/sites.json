@@ -2,18 +2,18 @@
   "sites": [
     {
       "id": "founder-hub",
-      "name": "Founder-Hub",
-      "description": "Primary founder hub",
+      "name": "Devon-Tyler.com — The Founder Platform Launch",
+      "description": "Evolving Founder Hub into a unified platform showcasing disciplined projects, lawful initiatives, and aligned investment opportunities.",
       "repo": "DTMBX/Founder-Hub",
       "dataPath": "/public/data",
-      "localPath": "C:/web-dev/github-repos/founder-hub/Founder-Hub",
+      "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\founder-hub",
       "type": "primary",
       "enabled": true
     },
     {
       "id": "evident",
-      "name": "Evident.icu",
-      "description": "Evident Technologies, LLC Main Holdings",
+      "name": "Evident.icu — Launching Soon",
+      "description": "Evident.icu is currently undergoing final DNS configuration and will serve as the official domain for the Evident eDiscovery Suite. The platform is maintained and operated by Evident Technologies LLC. Activation is expected shortly following global DNS propagation.",
       "repo": "https://github.com/DTMBX/Evident",
       "dataPath": "/static/data",
       "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\evident",
@@ -52,8 +52,8 @@
     },
     {
       "id": "site-1773340261143",
-      "name": "Tillerstead.com",
-      "description": "Tillerstead and TillerPro",
+      "name": "Tillerstead.com — Platform Upgrade in Progress",
+      "description": "Tillerstead is currently undergoing structured improvements and feature expansion. We are refining the estimating tools, contractor workflows, and project systems to deliver a stronger, more reliable platform. Updates will be released in phases as development progresses.",
       "repo": "https://github.com/DTMBX/Tillerstead",
       "dataPath": "",
       "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\tillerstead",
