@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "siteId": "e3ab3341-2196-420a-8ac2-58e2b12fdc9d",
+    "type": "law-firm",
+    "name": "Law Firm Showcase",
+    "slug": "law-firm-showcase",
+    "status": "demo",
+    "createdAt": "2026-03-12T18:21:38.036Z",
+    "updatedAt": "2026-03-12T18:21:38.037Z"
+  },
+  {
+    "siteId": "58503a09-d1e9-432e-aa28-32fa622ba46f",
+    "type": "small-business",
+    "name": "SMB Template",
+    "slug": "smb-template",
+    "status": "demo",
+    "createdAt": "2026-03-12T18:21:38.103Z",
+    "updatedAt": "2026-03-12T18:21:38.103Z"
+  },
+  {
+    "siteId": "811b2e22-df2b-4d6e-a7fd-841092ee7e1d",
+    "type": "agency",
+    "name": "Agency Framework",
+    "slug": "agency-framework",
+    "status": "demo",
+    "createdAt": "2026-03-12T18:21:38.144Z",
+    "updatedAt": "2026-03-12T18:21:38.145Z"
+  }
+]

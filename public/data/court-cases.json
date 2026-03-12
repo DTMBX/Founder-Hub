@@ -5,28 +5,15 @@
     "docket": "ATL-DC-007956-25",
     "court": "Superior Court, Special Civil Part",
     "jurisdiction": "Atlantic County, New Jersey",
-    "parties": "New Jersey Turnpike Authority v. Devon T. Barber",
+    "parties": "John Sample (Plaintiff) v. Township of Example (Defendant)",
     "stage": "Discovery",
     "status": "active",
     "dateRange": "2025 - Present",
     "filingDate": "2025-08-19",
     "lastUpdate": "2026-03-10",
-    "summary": "Civil toll-collection action in the Superior Court of New Jersey, Special Civil Part, involving asserted defenses, counterclaims, and ongoing discovery, including interrogatories and requests for admissions.",
-    "description": "Civil toll-debt collection action currently pending in the Special Civil Part. The matter includes asserted defenses and counterclaims, along with formal discovery proceedings, including interrogatories and requests for admissions.",
-    "tags": [
-      "New Jersey Turnpike Authority",
-      "NJTA",
-      "Special Civil Part",
-      "Atlantic County",
-      "civil litigation",
-      "toll collection",
-      "counterclaims",
-      "discovery",
-      "interrogatories",
-      "requests for admissions",
-      "procedural defense",
-      "New Jersey Superior Court"
-    ],
+    "summary": "Toll-debt collection case with counterclaims, interrogatories, and requests for admissions.",
+    "description": "",
+    "tags": [],
     "order": 0,
     "visibility": "public",
     "featured": true,
@@ -82,11 +69,11 @@
     ],
     "overview": "Federal and state civil rights claims arising from alleged constitutional violations during police encounter. Plaintiff seeks compensatory and punitive damages for unlawful detention, excessive force, and related claims. Discovery is ongoing with key evidence including body-worn camera footage and internal affairs investigations.",
     "reviewNotes": {
-      "damagesInjuries": "Primarily economic exposure relating to disputed toll charges and associated administrative fees. No personal injury claims. Financial impact centers on statutory fee structure and proportionality relative to base toll amounts.",
-      "keyEvidenceSources": "Toll transaction records, account statements, statutory authority under N.J.S.A. 27:23-34.3, billing history, and formal discovery responses including interrogatories and requests for admissions regarding administrative fee calculation and cost basis.",
-      "deadlinesLimitations": "Special Civil Part procedural timelines apply. Action currently pending. Discovery ongoing. No statute of limitations concerns at this stage.",
-      "reliefSought": "Defendant seeks reduction or elimination of disputed administrative fees where unsupported by statutory authority or individualized cost basis. Preservation of defenses and counterclaims as permitted under court rules.",
-      "notes": "Case presents statutory interpretation and fee-structure issues rather than factual dispute over toll passage. Discovery aimed at clarifying whether administrative assessments reflect standardized policy versus documented administrative cost. Matter may be suitable for motion practice depending on discovery responses and proportionality analysis."
+      "damagesInjuries": "Civil rights violation claims related to unlawful detention and use of force. Documented injuries include physical trauma and ongoing emotional distress.",
+      "keyEvidenceSources": "Body-worn camera footage (BWC), arrest reports, medical records, witness statements, internal affairs investigation documents.",
+      "deadlinesLimitations": "NJ Civil Rights Act 2-year statute of limitations. Notice of Tort Claim filed within statutory period. Discovery ongoing.",
+      "reliefSought": "Compensatory and punitive damages, attorney fees, declaratory relief, and injunctive relief regarding police policies and training.",
+      "notes": "Strong evidence package with BWC footage supporting plaintiff claims. Multiple corroborating witnesses. Defendant responses pending."
     },
     "contingencyChecklist": [
       {
@@ -132,7 +119,7 @@
         "notes": "Additional expert depositions pending"
       }
     ],
-    "lastUpdated": 1773153820555,
+    "lastUpdated": 1773153080743,
     "createdAt": 1757596953523
   }
 ]
