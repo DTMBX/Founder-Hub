@@ -2,22 +2,24 @@
   "pitchVideoUrl": "",
   "pitchVideoThumbnail": "",
   "metrics": [
-    { "label": "Live Applications", "value": "9", "description": "Deployed across the Evident ecosystem" },
-    { "label": "Custom Domains", "value": "9", "description": "Unique web properties with SSL" },
-    { "label": "Verticals", "value": "7", "description": "Legal, civic, economic, health, scripture, construction, home improvement" },
-    { "label": "Open Source Repos", "value": "9", "description": "All projects on GitHub under DTMBX" }
+    { "id": "metric-apps", "label": "Live Applications", "value": "9", "order": 0, "trend": "up", "trendValue": "Growing" },
+    { "id": "metric-domains", "label": "Custom Domains", "value": "9", "order": 1, "trend": "up", "trendValue": "All SSL" },
+    { "id": "metric-verticals", "label": "Verticals", "value": "7", "order": 2, "trend": "neutral" },
+    { "id": "metric-repos", "label": "Open Source Repos", "value": "9", "order": 3, "trend": "up", "trendValue": "Public" }
   ],
   "milestones": [
-    { "date": "2025-02", "title": "Founder Hub Launch", "description": "Operations hub and portfolio platform live at devon-tyler.com" },
-    { "date": "2025-04", "title": "Satellite Network Deployed", "description": "Six satellite apps live under evident.icu subdomains — legal, civic, economic, health, scripture, and construction tools" },
-    { "date": "2025-06", "title": "Full Ecosystem Operational", "description": "Nine web applications live across three domains and six subdomains, all with CI/CD pipelines" }
+    { "id": "ms-launch", "date": "2025-02", "title": "Founder Hub Launch", "description": "Operations hub and portfolio platform live at devon-tyler.com", "status": "completed", "order": 0 },
+    { "id": "ms-satellites", "date": "2025-04", "title": "Satellite Network Deployed", "description": "Six satellite apps live under evident.icu subdomains — legal, civic, economic, health, scripture, and construction tools", "status": "completed", "order": 1 },
+    { "id": "ms-ecosystem", "date": "2025-06", "title": "Full Ecosystem Operational", "description": "Nine web applications live across three domains and six subdomains, all with CI/CD pipelines", "status": "completed", "order": 2 },
+    { "id": "ms-revenue", "date": "2026-Q2", "title": "Revenue Growth Phase", "description": "Scaling Tillerstead services and web development offerings to generate recurring revenue", "status": "in-progress", "order": 3 },
+    { "id": "ms-invest", "date": "2026-Q4", "title": "Investment Round", "description": "Opening formal investment opportunities for platform scaling and market expansion", "status": "upcoming", "order": 4 }
   ],
   "documents": [],
   "faqs": [
-    { "question": "What is the Evident ecosystem?", "answer": "A network of nine web applications built by Devon Tyler Barber, spanning legal tech, civic education, economic analysis, health advocacy, Bible study, construction tools, and home improvement services — all operating under the Evident Technologies umbrella." },
-    { "question": "How are the applications deployed?", "answer": "All applications are deployed via GitHub Pages with automated CI/CD pipelines, custom domains with SSL, and full source code available in public repositories." },
-    { "question": "What revenue model does Tillerstead use?", "answer": "Tillerstead is a licensed NJ Home Improvement Contractor (HIC #13VH10808800) generating revenue through TCNA-compliant professional tile installation services in South Jersey." },
-    { "question": "How can I partner with or invest in Evident?", "answer": "Contact invest@devon-tyler.com for investment inquiries or partner@devon-tyler.com for partnership discussions." }
+    { "id": "faq-ecosystem", "question": "What is the Evident ecosystem?", "answer": "A network of nine web applications built by Devon Tyler Barber, spanning legal tech, civic education, economic analysis, health advocacy, Bible study, construction tools, and home improvement services — all operating under the Evident Technologies umbrella.", "order": 0 },
+    { "id": "faq-deploy", "question": "How are the applications deployed?", "answer": "All applications are deployed via GitHub Pages with automated CI/CD pipelines, custom domains with SSL, and full source code available in public repositories.", "order": 1 },
+    { "id": "faq-revenue", "question": "What revenue model does Tillerstead use?", "answer": "Tillerstead is a licensed NJ Home Improvement Contractor (HIC #13VH10808800) generating revenue through TCNA-compliant professional tile installation services in South Jersey.", "order": 2 },
+    { "id": "faq-invest", "question": "How can I partner with or invest in Evident?", "answer": "Contact invest@devon-tyler.com for investment inquiries or partner@devon-tyler.com for partnership discussions.", "order": 3 }
   ],
   "investmentTiers": [],
   "raisingAmount": 0,

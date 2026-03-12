@@ -4,6 +4,7 @@
     "label": "General Inquiries",
     "url": "mailto:hello@devon-tyler.com",
     "icon": "envelope",
+    "category": "contact",
     "description": "General questions about projects and services",
     "order": 0
   },
@@ -11,7 +12,8 @@
     "id": "investment",
     "label": "Investment & Partnerships",
     "url": "mailto:invest@devon-tyler.com",
-    "icon": "chart-line",
+    "icon": "chart",
+    "category": "contact",
     "description": "Investment opportunities and partnership proposals",
     "order": 1
   },
@@ -20,6 +22,7 @@
     "label": "Legal & Court Inquiries",
     "url": "mailto:dTb33@pm.me",
     "icon": "scales",
+    "category": "contact",
     "description": "Case inquiries and contingency review",
     "order": 2
   },
@@ -27,7 +30,8 @@
     "id": "tillerstead",
     "label": "Home Improvement Services",
     "url": "mailto:info@tillerstead.com",
-    "icon": "wrench",
+    "icon": "handshake",
+    "category": "contact",
     "description": "NJ tile installation and home improvement estimates",
     "order": 3
   },
@@ -35,16 +39,18 @@
     "id": "github",
     "label": "GitHub",
     "url": "https://github.com/DTMBX",
-    "icon": "github",
+    "icon": "general",
+    "category": "social",
     "description": "Open-source projects and contributions",
-    "order": 4
+    "order": 0
   },
   {
     "id": "evident-main",
     "label": "Evident Platform",
     "url": "https://www.evident.icu",
-    "icon": "globe",
+    "icon": "shield",
+    "category": "social",
     "description": "Evident Technologies main platform",
-    "order": 5
+    "order": 1
   }
 ]

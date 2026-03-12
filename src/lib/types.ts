@@ -86,6 +86,7 @@ export interface Link {
   label: string
   url: string
   icon?: string
+  description?: string
   category: string
   order: number
 }
@@ -501,6 +502,14 @@ export type AuditAction =
   | 'auth_mode_switched'
   | 'provider_error'
   | 'first_run_setup'
+  // User management actions
+  | 'user_created'
+  | 'user_deleted'
+  // Vault actions
+  | 'secret_stored'
+  | 'secret_deleted'
+  | 'secret_rotated'
+  | 'secret_accessed'
 
 export interface AuditEvent {
   id: string
