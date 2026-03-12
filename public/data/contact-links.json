@@ -42,7 +42,7 @@
     "icon": "general",
     "category": "social",
     "description": "Open-source projects and contributions",
-    "order": 0
+    "order": 4
   },
   {
     "id": "evident-main",
@@ -51,6 +51,6 @@
     "icon": "shield",
     "category": "social",
     "description": "Evident Technologies main platform",
-    "order": 1
+    "order": 5
   }
 ]

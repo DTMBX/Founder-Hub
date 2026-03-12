@@ -186,7 +186,12 @@ export const ProfileSchema = z.object({
   title: z.string().optional(),
   bio: z.string().optional(),
   catchAllEmail: z.string().optional(),
-  professionalEmails: z.array(z.string()).optional(),
+  professionalEmails: z.array(z.object({
+    label: z.string(),
+    email: z.string(),
+    icon: z.string().optional(),
+    desc: z.string().optional(),
+  })).optional(),
   domain: z.string().optional(),
 }).passthrough()
 

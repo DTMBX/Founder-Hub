@@ -58,14 +58,7 @@ const MAX_ATTEMPTS = 3                     // 3 attempts before lockout
 const SESSION_DURATION = 4 * 60 * 60 * 1000 // 4 hour sessions
 const SESSION_REFRESH_THRESHOLD = 30 * 60 * 1000 // Refresh session if less than 30 min remaining
 
-// Local environment detection — true for vite dev OR any localhost/127.0.0.1 serve
 const IS_DEV = import.meta.env.DEV
-const IS_LOCAL = IS_DEV || typeof window !== 'undefined' && (
-  window.location.hostname === 'localhost' ||
-  window.location.hostname === '127.0.0.1' ||
-  window.location.hostname.startsWith('192.168.') ||
-  window.location.hostname.startsWith('10.')
-)
 // Auto-login only in vite dev mode, and only if not explicitly disabled
 const AUTO_LOGIN = IS_DEV && import.meta.env.VITE_AUTO_LOGIN !== 'false'
 const log = IS_DEV ? console.log.bind(console) : () => {}
@@ -1160,8 +1153,8 @@ export async function loginWithGitHubToken(token: string): Promise<GitHubTokenLo
     identifyCurrentDevice(user.id).catch(() => {})
 
     return { success: true, username }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Network error — check your connection' }
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'Network error — check your connection' }
   }
 }
 

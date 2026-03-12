@@ -51,6 +51,7 @@ function injectOwnerSession() {
     userId: 'test-owner',
     role: 'owner',
     expiresAt: Date.now() + 3_600_000, // 1 hour
+    _sig: 'test-signature', // Required: unsigned sessions are demoted to editor
   }))
 }
 

@@ -15,7 +15,7 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
     values: string[]
     updates: Array<{ date: string; title: string; content: string }>
   }>('founder-hub-about', {
-    mission: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
+    mission: 'Building systems where technology, craftsmanship, transparency, and justice converge.',
     currentFocus: 'Building civic technology, home improvement platforms, and legal infrastructure that increase transparency and empower communities.',
     values: ['Integrity', 'Stewardship', 'Fortitude', 'Veracity'],
     updates: [

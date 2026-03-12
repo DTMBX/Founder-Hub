@@ -18,7 +18,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
     tagline: 'One Nation under God',
-    description: 'American Citizen — Founder & Innovator',
+    description: 'Founder & Technologist building civic tech, home improvement platforms, and accountability tools.',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,

@@ -15,7 +15,7 @@ import { ASSET_PATHS } from '@/lib/asset-helpers'
 export default function HeroMediaManager() {
   const [settings, setSettings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
-    tagline: 'Founder & Innovator',
+    tagline: 'One Nation under God',
     description: 'Building transformative solutions at the intersection of technology and justice.',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
@@ -42,7 +42,7 @@ export default function HeroMediaManager() {
     setSettings((current) => {
       const updated: SiteSettings = {
         siteName: current?.siteName || 'Devon Tyler Barber',
-        tagline: current?.tagline || 'Founder & Innovator',
+        tagline: current?.tagline || 'One Nation under God',
         description: current?.description || '',
         primaryDomain: current?.primaryDomain || 'devon-tyler.com',
         domainRedirects: current?.domainRedirects || [],

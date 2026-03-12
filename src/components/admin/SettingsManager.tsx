@@ -25,7 +25,7 @@ import GitHubAppConnectPanel from './GitHubAppConnectPanel'
 export default function SettingsManager() {
   const [settings, setSettings] = useTrackedKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
-    tagline: 'Founder & Innovator',
+    tagline: 'One Nation under God',
     description: 'Building transformative solutions at the intersection of technology and justice.',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],

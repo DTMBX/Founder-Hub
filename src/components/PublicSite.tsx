@@ -23,15 +23,15 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const [sections, setSections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
-    tagline: 'Founder & Innovator',
-    description: 'Forging transformative solutions at the intersection of technology, home improvement, transparency, and justice.',
+    tagline: 'One Nation under God',
+    description: 'Founder & Technologist building civic tech, home improvement platforms, and accountability tools.',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
     indexingEnabled: true,
     investorModeAvailable: true
   })
-  const [profile] = useKV<{ catchAllEmail?: string; domain?: string }>('founder-hub-profile', {})
+  const [profile] = useKV<{ catchAllEmail?: string; domain?: string; professionalEmails?: Array<{ label: string; email: string }> }>('founder-hub-profile', {})
   const [contactLinks] = useKV<Link[]>('founder-hub-contact-links', [])
   const [proofLinks] = useKV<Link[]>('founder-hub-proof-links', [])
   const [pathway, setPathway] = useState<TrinityPathway>('all')
@@ -172,11 +172,11 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     "@type": "Person",
     "name": settings?.siteName || "Devon Tyler Barber",
     "alternateName": "Devon Tyler",
-    "description": settings?.description || "Founder & Innovator",
+    "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
     "url": `https://${settings?.primaryDomain || 'devon-tyler.com'}`,
     "image": settings?.socialPreviewImage || "/og-preview.png",
     "sameAs": socialLinks.map(link => link.url).filter(Boolean),
-    "jobTitle": settings?.tagline || "Founder & Innovator",
+    "jobTitle": settings?.tagline || "One Nation under God",
     "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
   }
 
@@ -270,7 +270,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 Projects
               </button>
               <a 
-                href={`mailto:${profile?.emails?.find((e: {label: string}) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
+                href={`mailto:${profile?.professionalEmails?.find((e) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
                 className="hover:text-emerald-400 transition-colors"
               >
                 Invest
