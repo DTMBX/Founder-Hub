@@ -68,7 +68,7 @@
   "secretManagement": {
     "scanner": "enabled",
     "pushProtection": true,
-    "alertRecipients": ["security@devon-tyler.com"],
+    "alertRecipients": ["sec@devon-tyler.com"],
     "forbiddenPatterns": [
       "AWS_ACCESS_KEY",
       "AWS_SECRET_KEY",
@@ -143,7 +143,7 @@
     "escalationPath": [
       {"level": 1, "contact": "on-call-engineer", "timeout": "5m"},
       {"level": 2, "contact": "@DTMBX/admins", "timeout": "15m"},
-      {"level": 3, "contact": "security@devon-tyler.com", "timeout": "30m"}
+      {"level": 3, "contact": "sec@devon-tyler.com", "timeout": "30m"}
     ],
     "communicationChannels": ["#incidents", "#production"],
     "postMortemRequired": true

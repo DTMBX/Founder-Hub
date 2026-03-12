@@ -1,38 +1,38 @@
 [
   {
     "id": "general",
-    "label": "General Inquiries",
-    "url": "mailto:hello@devon-tyler.com",
+    "label": "General",
+    "url": "mailto:hi@devon-tyler.com",
     "icon": "envelope",
     "category": "contact",
-    "description": "General questions about projects and services",
+    "description": "Projects, services & general questions",
     "order": 0
   },
   {
-    "id": "investment",
-    "label": "Investment & Partnerships",
-    "url": "mailto:invest@devon-tyler.com",
+    "id": "invest",
+    "label": "Invest",
+    "url": "mailto:iv@devon-tyler.com",
     "icon": "chart",
     "category": "contact",
-    "description": "Investment opportunities and partnership proposals",
+    "description": "Investment & partnership opportunities",
     "order": 1
   },
   {
     "id": "legal",
-    "label": "Legal & Court Inquiries",
-    "url": "mailto:dTb33@pm.me",
+    "label": "Legal",
+    "url": "mailto:law@devon-tyler.com",
     "icon": "scales",
     "category": "contact",
-    "description": "Case inquiries and contingency review",
+    "description": "Case inquiries & contingency review",
     "order": 2
   },
   {
     "id": "tillerstead",
-    "label": "Home Improvement Services",
+    "label": "Tillerstead",
     "url": "mailto:info@tillerstead.com",
     "icon": "handshake",
     "category": "contact",
-    "description": "NJ tile installation and home improvement estimates",
+    "description": "NJ tile installation & home improvement",
     "order": 3
   },
   {

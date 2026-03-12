@@ -270,7 +270,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 Projects
               </button>
               <a 
-                href={`mailto:${profile?.emails?.find((e: {label: string}) => e.label?.toLowerCase().includes('invest'))?.email || 'invest@devon-tyler.com'}`}
+                href={`mailto:${profile?.emails?.find((e: {label: string}) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
                 className="hover:text-emerald-400 transition-colors"
               >
                 Invest
@@ -295,8 +295,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               </button>
             </div>
             <div className="text-center md:text-right">
-              <a href={`mailto:${profile?.catchAllEmail || 'x@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
-                {profile?.catchAllEmail || 'x@devon-tyler.com'}
+              <a href={`mailto:${profile?.catchAllEmail || 'd@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
+                {profile?.catchAllEmail || 'd@devon-tyler.com'}
               </a>
               <p className="text-[11px] text-muted-foreground/50 mt-1">
                 &copy; {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.

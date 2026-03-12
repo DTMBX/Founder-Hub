@@ -21,7 +21,7 @@ export const siteConfig = {
   business: {
     legalName: import.meta.env.VITE_BUSINESS_LEGAL_NAME || 'Evident Technologies LLC',
     phone: import.meta.env.VITE_BUSINESS_PHONE || '',
-    email: import.meta.env.VITE_BUSINESS_EMAIL || 'hello@devon-tyler.com',
+    email: import.meta.env.VITE_BUSINESS_EMAIL || 'hi@devon-tyler.com',
     address: {
       street: import.meta.env.VITE_ADDRESS_STREET || '',
       city: import.meta.env.VITE_ADDRESS_CITY || '',

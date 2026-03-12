@@ -19,7 +19,7 @@
     { "id": "faq-ecosystem", "question": "What is the Evident ecosystem?", "answer": "A network of nine web applications built by Devon Tyler Barber, spanning legal tech, civic education, economic analysis, health advocacy, Bible study, construction tools, and home improvement services — all operating under the Evident Technologies umbrella.", "order": 0 },
     { "id": "faq-deploy", "question": "How are the applications deployed?", "answer": "All applications are deployed via GitHub Pages with automated CI/CD pipelines, custom domains with SSL, and full source code available in public repositories.", "order": 1 },
     { "id": "faq-revenue", "question": "What revenue model does Tillerstead use?", "answer": "Tillerstead is a licensed NJ Home Improvement Contractor (HIC #13VH10808800) generating revenue through TCNA-compliant professional tile installation services in South Jersey.", "order": 2 },
-    { "id": "faq-invest", "question": "How can I partner with or invest in Evident?", "answer": "Contact invest@devon-tyler.com for investment inquiries or partner@devon-tyler.com for partnership discussions.", "order": 3 }
+    { "id": "faq-invest", "question": "How can I partner with or invest in Evident?", "answer": "Contact iv@devon-tyler.com for investment inquiries or biz@devon-tyler.com for partnership discussions.", "order": 3 }
   ],
   "investmentTiers": [],
   "raisingAmount": 0,
@@ -28,6 +28,6 @@
   "expectedROI": "",
   "calendlyUrl": "",
   "meetingCTA": "Schedule a Call",
-  "investorEmail": "invest@devon-tyler.com",
+  "investorEmail": "iv@devon-tyler.com",
   "investorPhone": ""
 }

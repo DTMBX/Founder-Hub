@@ -72,34 +72,34 @@ export const contactContent = {
   description: 'Have a project in mind or want to explore working together? Reach out directly.',
   
   // Primary email (shown prominently)
-  primaryEmail: 'hello@devon-tyler.com',
+  primaryEmail: 'hi@devon-tyler.com',
   
   // Department emails
   emails: [
     {
-      label: 'Project Inquiries',
-      email: 'hello@devon-tyler.com',
-      description: 'New projects & general questions',
+      label: 'General',
+      email: 'hi@devon-tyler.com',
+      description: 'Projects, services & general questions',
     },
     {
-      label: 'Partnerships',
-      email: 'partner@devon-tyler.com',
-      description: 'Business collaborations & ventures',
+      label: 'Invest',
+      email: 'iv@devon-tyler.com',
+      description: 'Investment & partnership opportunities',
     },
     {
-      label: 'Investment',
-      email: 'invest@devon-tyler.com',
-      description: 'Funding opportunities & investor relations',
+      label: 'Business',
+      email: 'biz@devon-tyler.com',
+      description: 'Collaborations & ventures',
     },
     {
-      label: 'Legal & Court',
-      email: 'dTb33@pm.me',
+      label: 'Legal',
+      email: 'law@devon-tyler.com',
       description: 'Case inquiries & contingency review',
     },
     {
-      label: 'Home Improvement',
+      label: 'Tillerstead',
       email: 'info@tillerstead.com',
-      description: 'Tile installation & home improvement estimates',
+      description: 'NJ tile installation & home improvement',
     },
   ],
 }
