@@ -25,6 +25,8 @@ import {
   exportRecoveryBackup,
   RecoverySetup
 } from './keyfile'
+import { createSecurityIncident, createAccessAnomalyIncident } from './incident-log'
+import { identifyCurrentDevice } from './device-trust'
 
 const SESSION_KEY = 'founder-hub-session'
 const USERS_KEY = 'founder-hub-users'
@@ -485,6 +487,13 @@ export function useAuth() {
 
         if (currentAttempt.count >= MAX_ATTEMPTS) {
           currentAttempt.lockedUntil = now + LOCKOUT_DURATION
+          // Fire-and-forget — incident logging must never block auth
+          createAccessAnomalyIncident(
+            'Account Lockout',
+            `Account locked after ${MAX_ATTEMPTS} failed attempts for ${email}`,
+            'high',
+            { id: 'system', name: 'auth' }
+          ).catch(() => {})
         }
 
         attemptsData[email] = currentAttempt
@@ -510,6 +519,13 @@ export function useAuth() {
 
         if (currentAttempt.count >= MAX_ATTEMPTS) {
           currentAttempt.lockedUntil = now + LOCKOUT_DURATION
+          createSecurityIncident(
+            'Brute Force Lockout',
+            `Account ${user.email} locked after ${MAX_ATTEMPTS} failed password attempts`,
+            'high',
+            ['authentication'],
+            { id: user.id, name: user.email }
+          ).catch(() => {})
         }
 
         attemptsData[email] = currentAttempt
@@ -683,6 +699,9 @@ export function useAuth() {
       log('[auth.login] Logging audit...')
       await logAudit(user.id, user.email, 'login', 'User logged in successfully', 'auth', user.id)
       log('[auth.login] Login complete')
+
+      // Register/identify device — fire-and-forget, must never block login
+      identifyCurrentDevice(user.id).catch(() => {})
 
       return { success: true }
     } catch (error) {
@@ -1134,6 +1153,9 @@ export async function loginWithGitHubToken(token: string): Promise<GitHubTokenLo
 
     // Audit
     await logAudit(user.id, user.email, 'login', `Remote login via GitHub token (${username})`, 'auth', user.id)
+
+    // Register/identify device — fire-and-forget
+    identifyCurrentDevice(user.id).catch(() => {})
 
     return { success: true, username }
   } catch (error: any) {

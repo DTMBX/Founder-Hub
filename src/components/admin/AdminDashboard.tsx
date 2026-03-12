@@ -84,6 +84,7 @@ const PreviewPanel = lazy(() => import('./PreviewPanel'))
 const HistoryTimeline = lazy(() => import('./HistoryTimeline'))
 const WorkspaceManager = lazy(() => import('./WorkspaceManager'))
 const DevToolsPanel = lazy(() => import('./DevToolsPanel'))
+const RecoveryPanel = lazy(() => import('./RecoveryPanel'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -159,6 +160,7 @@ const navItems: NavItem[] = [
   { id: 'provenance', label: 'Build Provenance', icon: Certificate, category: 'System & Security' },
   { id: 'incidents', label: 'Incidents', icon: Warning, category: 'System & Security' },
   { id: 'audit-integrity', label: 'Audit Integrity', icon: Link, category: 'System & Security' },
+  { id: 'recovery', label: 'Recovery & Backups', icon: HardDrive, category: 'System & Security' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System & Security' },
   { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System & Security' },
   { id: 'devtools', label: 'Developer Tools', icon: Terminal, category: 'System & Security' },
@@ -413,6 +415,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'provenance': return <ProvenancePanel />
       case 'incidents': return <IncidentDashboard />
       case 'audit-integrity': return <AuditIntegrity />
+      case 'recovery': return <RecoveryPanel />
       case 'audit': return <AuditLog />
       case 'leads': return <AdminLeadsViewer />
       default: return <DashboardOverview onNavigate={guardedSetActiveTab} />

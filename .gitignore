@@ -52,3 +52,4 @@ hugo/data/sites/
 hugo/.hugo_build.lock
 hugo/hugo_stats.json
 bin/hugo*
+test-results.txt
