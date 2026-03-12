@@ -223,7 +223,7 @@ describe('Permissions RBAC', () => {
     })
 
     describe('owner-only routes', () => {
-      const ownerRoutes = ['settings', 'security', 'asset-policy']
+      const ownerRoutes = ['settings', 'security', 'asset-policy', 'users', 'vault', 'recovery', 'devtools', 'workspaces']
       
       it('owner can access owner-only routes', () => {
         for (const route of ownerRoutes) {

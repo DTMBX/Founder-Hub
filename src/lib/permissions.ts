@@ -207,6 +207,11 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   'settings': 'owner',
   'security': 'owner',
   'asset-policy': 'owner',
+  'users': 'owner',
+  'vault': 'owner',
+  'recovery': 'owner',
+  'devtools': 'owner',
+  'workspaces': 'owner',
 }
 
 /**
