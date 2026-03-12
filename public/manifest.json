@@ -1,7 +1,7 @@
 {
-  "name": "Founder Hub Founder Hub",
-  "short_name": "Founder Hub",
-  "description": "Devon Tyler Barber — Founder Hub. Manage leads, clients, projects, and subscriptions on the go.",
+  "name": "Devon Tyler Barber",
+  "short_name": "Devon Tyler",
+  "description": "Founder & Technologist — Civic technology, custom web development, and digital infrastructure.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -26,17 +26,17 @@
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "New Lead",
-      "short_name": "Lead",
-      "description": "Add a new lead quickly",
-      "url": "/?action=new-lead",
+      "name": "View Projects",
+      "short_name": "Projects",
+      "description": "Explore all projects in the Evident ecosystem",
+      "url": "/#projects",
       "icons": [{ "src": "/favicon-32x32.svg", "sizes": "any" }]
     },
     {
-      "name": "View Clients",
-      "short_name": "Clients",
-      "description": "View all clients",
-      "url": "/?view=clients",
+      "name": "Contact",
+      "short_name": "Contact",
+      "description": "Get in touch",
+      "url": "/#contact",
       "icons": [{ "src": "/favicon-32x32.svg", "sizes": "any" }]
     }
   ],

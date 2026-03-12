@@ -170,6 +170,11 @@ export async function retrieveSecret(secretId: string): Promise<{
   const value = await decryptField(stored.value)
   const metadata: SecretMetadata = JSON.parse(await decryptField(stored.metadata))
   
+  // Enforce expiration — reject expired secrets
+  if (metadata.expiresAt && new Date(metadata.expiresAt).getTime() < Date.now()) {
+    throw new SecretExpiredError(secretId, metadata.expiresAt)
+  }
+
   // Update access count
   metadata.accessCount++
   metadata.lastAccessedAt = new Date().toISOString()
@@ -401,6 +406,18 @@ export class SecretIntegrityError extends Error {
     this.name = 'SecretIntegrityError'
     this.secretId = secretId
     this.reason = reason
+  }
+}
+
+export class SecretExpiredError extends Error {
+  public readonly secretId: string
+  public readonly expiredAt: string
+
+  constructor(secretId: string, expiredAt: string) {
+    super(`Secret ${secretId} expired at ${expiredAt}`)
+    this.name = 'SecretExpiredError'
+    this.secretId = secretId
+    this.expiredAt = expiredAt
   }
 }
 

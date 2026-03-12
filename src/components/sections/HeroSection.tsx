@@ -160,7 +160,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-sm sm:text-base tracking-[0.25em] uppercase font-medium text-white/70 mb-6"
           >
-            One Nation under God
+            {settings?.tagline || 'One Nation under God'}
           </motion.p>
 
           {/* Headline */}
@@ -171,7 +171,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
               textShadow: '0 2px 30px rgba(0,0,0,0.4)',
             }}
           >
-            {heroMedia?.headlineText || 'American Citizen'}
+            {heroMedia?.headlineText || settings?.siteName || 'Devon Tyler Barber'}
           </h1>
           
           {/* Subhead */}
@@ -183,7 +183,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
               ...(textAlignment === 'left' ? {} : { marginLeft: 'auto', marginRight: 'auto' })
             }}
           >
-            {heroMedia?.subheadText || 'Devon Tyler Barber — Founder & Innovator'}
+            {heroMedia?.subheadText || settings?.description || 'Founder & Technologist building tools that bring clarity to complexity'}
           </p>
 
           {/* CTA Buttons (if configured) */}

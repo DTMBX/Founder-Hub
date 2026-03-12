@@ -1,6 +1,9 @@
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
 
+// Validate env vars at startup — fails fast on misconfiguration
+import './config/env'
+
 // Initialize localStorage-based KV storage
 import './lib/local-storage-kv'
 

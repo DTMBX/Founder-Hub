@@ -111,8 +111,11 @@ export function usePermissions(): PermissionsContext {
     if (!canAccessRoute(role, routeId)) {
       return false
     }
-    // Local owner sees everything regardless of mode
+    // Local owner sees everything regardless of mode (logged for audit trail)
     if (role === 'owner' && isLocalhost()) {
+      if (founderMode && !FOUNDER_MODE_ROUTES.includes(routeId)) {
+        console.info(`[permissions] Owner mode-bypass: ${routeId} (founderMode active)`)
+      }
       return true
     }
     // In Founder Mode, restrict to P0 routes
@@ -126,8 +129,11 @@ export function usePermissions(): PermissionsContext {
   const filterNav = useCallback(<T extends { id: string }>(items: T[]): T[] => {
     // First filter by role
     let filtered = filterNavByRole(items, role)
-    // Local owner bypasses mode restrictions
+    // Local owner bypasses mode restrictions (logged for audit trail)
     if (role === 'owner' && isLocalhost()) {
+      if (founderMode) {
+        console.info('[permissions] Owner nav-bypass: showing all items despite founderMode')
+      }
       return filtered
     }
     // Then filter by mode

@@ -20,9 +20,9 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
     values: ['Integrity', 'Stewardship', 'Fortitude', 'Veracity'],
     updates: [
       {
-        date: '2024-01',
-        title: 'New Project Launch',
-        content: 'Launching Essential Goods Ledger to track public accountability.'
+        date: '2025-06',
+        title: 'Evident Ecosystem Launch',
+        content: 'Eight satellite apps deployed — civic tech, legal tools, and accountability platforms now live across evident.icu subdomains.'
       }
     ]
   })

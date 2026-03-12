@@ -715,8 +715,10 @@ export function useAuth() {
     if (currentUser) {
       await logAudit(currentUser.id, currentUser.email, 'logout', 'User logged out', 'auth', currentUser.id)
     }
-    // Clear session from localStorage directly to ensure it's removed
+    // Clear session and re-auth stamp
     localStorage.removeItem('founder-hub:' + SESSION_KEY)
+    const { clearReauth } = await import('./reauth-gate')
+    await clearReauth()
     setSession(null)
     setCurrentUser(null)
     log('[auth] Logout complete')

@@ -11,11 +11,15 @@
  *   - Sessions: AES-256-GCM encrypted at rest
  */
 
-import { kv } from '@/lib/local-storage-kv'
+// Static app-level entropy — combined with random salt for key derivation.
+// Loaded from runtime.config.json at build via Vite define, with hardcoded fallback.
+// Production deployments SHOULD set a unique value in runtime.config.json.
+const APP_ENTROPY: string =
+  (typeof __APP_ENTROPY__ !== 'undefined' ? __APP_ENTROPY__ : '') ||
+  'Founder Hub-founder-hub-e2e-v1-2026'
 
-// Static app-level entropy — combined with random salt for key derivation
-const APP_ENTROPY = 'Founder Hub-founder-hub-e2e-v1-2026'
-const SALT_KV_KEY = 'founder-hub-e2e-salt'
+// Salt stored directly in localStorage (not via kv) to avoid circular dependency
+const SALT_RAW_KEY = 'founder-hub:founder-hub-e2e-salt'
 const PBKDF2_ITERATIONS = 100_000
 
 let _cachedKey: CryptoKey | null = null
@@ -23,12 +27,12 @@ let _cachedKey: CryptoKey | null = null
 // ─── Key Management ─────────────────────────────────────────
 
 async function getOrCreateSalt(): Promise<Uint8Array> {
-  const stored = await kv.get<string>(SALT_KV_KEY)
+  const stored = localStorage.getItem(SALT_RAW_KEY)
   if (stored) {
     return Uint8Array.from(atob(stored), c => c.charCodeAt(0))
   }
   const salt = crypto.getRandomValues(new Uint8Array(32))
-  await kv.set(SALT_KV_KEY, btoa(String.fromCharCode(...salt)))
+  localStorage.setItem(SALT_RAW_KEY, btoa(String.fromCharCode(...salt)))
   return salt
 }
 

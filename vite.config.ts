@@ -2,12 +2,22 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import { resolve } from 'path'
+import { readFileSync } from 'fs'
 import workspaceApi from './vite-plugin-workspace-api'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
+// Load runtime config for build-time defines
+let runtimeConfig: Record<string, unknown> = {}
+try {
+  runtimeConfig = JSON.parse(readFileSync(resolve(projectRoot, 'runtime.config.json'), 'utf-8'))
+} catch { /* missing config is fine — defaults used */ }
+
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __APP_ENTROPY__: JSON.stringify(runtimeConfig.appEntropy || ''),
+  },
   plugins: [
     react(),
     tailwindcss(),

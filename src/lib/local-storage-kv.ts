@@ -4,12 +4,33 @@
  * - Production (GitHub Pages): Reads from static /data/*.json files
  * - Development (localhost): Uses localStorage for admin editing
  * 
+ * Sensitive keys (auth, sessions) are encrypted at rest via AES-256-GCM.
  * Admin panel only works on localhost. Export data to commit for deployment.
  */
 
 import { useState, useEffect, useCallback } from 'react'
 
 const STORAGE_PREFIX = 'founder-hub:'
+
+// Keys that are encrypted at rest in localStorage.
+// Crypto module is loaded lazily to avoid circular dependency.
+const SENSITIVE_KEYS = new Set([
+  'founder-hub-session',
+  'founder-hub-users',
+])
+
+// Lazy-loaded encryption functions (crypto.ts imports are deferred to break circular dep)
+let _encryptData: (<T>(data: T) => Promise<string>) | null = null
+let _decryptData: (<T>(enc: string) => Promise<T>) | null = null
+
+async function getEncryptFns() {
+  if (!_encryptData) {
+    const mod = await import('./crypto')
+    _encryptData = mod.encryptData
+    _decryptData = mod.decryptData
+  }
+  return { encrypt: _encryptData!, decrypt: _decryptData! as <T>(e: string) => Promise<T> }
+}
 
 // Map KV keys to static JSON file paths
 const STATIC_DATA_MAP: Record<string, string> = {
@@ -116,7 +137,14 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
       try {
         const item = localStorage.getItem(storageKey)
         if (item !== null) {
-          setValue(JSON.parse(item) as T)
+          // Decrypt sensitive keys stored as enc:... blobs
+          if (SENSITIVE_KEYS.has(key) && item.startsWith('enc:')) {
+            const { decrypt } = await getEncryptFns()
+            const decrypted = await decrypt<T>(item)
+            setValue(decrypted)
+          } else {
+            setValue(JSON.parse(item) as T)
+          }
         } else {
           // Try loading from static data as initial value
           const staticData = await fetchStaticData<T>(key)
@@ -138,6 +166,17 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === storageKey) {
+        if (!e.newValue) {
+          setValue(defaultValue)
+          return
+        }
+        // Decrypt cross-tab updates for sensitive keys
+        if (SENSITIVE_KEYS.has(key) && e.newValue.startsWith('enc:')) {
+          getEncryptFns().then(({ decrypt }) => {
+            decrypt<T>(e.newValue!).then(v => setValue(v)).catch(() => {})
+          })
+          return
+        }
         setValue(e.newValue ? JSON.parse(e.newValue) : defaultValue)
       }
     }
@@ -161,9 +200,25 @@ export function useKV<T>(key: string, defaultValue: T): [T, (value: T | ((prev: 
         const resolved = typeof newValue === 'function'
           ? (newValue as (prev: T) => T)(prev)
           : newValue
-        localStorage.setItem(storageKey, JSON.stringify(resolved))
-        // Notify other same-tab useKV instances
-        emitKVChange(storageKey, resolved)
+
+        if (SENSITIVE_KEYS.has(key)) {
+          // Encrypt async, then persist. State updates immediately for UI.
+          getEncryptFns().then(({ encrypt }) => {
+            encrypt(resolved).then(encrypted => {
+              localStorage.setItem(storageKey, encrypted)
+              emitKVChange(storageKey, resolved)
+            }).catch(() => {
+              // Fallback: plaintext (encryption not yet initialized)
+              localStorage.setItem(storageKey, JSON.stringify(resolved))
+              emitKVChange(storageKey, resolved)
+            })
+          })
+        } else {
+          localStorage.setItem(storageKey, JSON.stringify(resolved))
+          // Notify other same-tab useKV instances
+          emitKVChange(storageKey, resolved)
+        }
+
         return resolved
       })
     } catch (error) {
@@ -183,6 +238,11 @@ export const kv = {
       // Always check localStorage first (for auth data, preferences, etc.)
       const item = localStorage.getItem(STORAGE_PREFIX + key)
       if (item !== null) {
+        // Decrypt sensitive keys stored as enc:... blobs
+        if (SENSITIVE_KEYS.has(key) && item.startsWith('enc:')) {
+          const { decrypt } = await getEncryptFns()
+          return await decrypt<T>(item)
+        }
         return JSON.parse(item) as T
       }
       // Fall back to static data for content files
@@ -195,7 +255,17 @@ export const kv = {
 
   async set<T>(key: string, value: T): Promise<void> {
     try {
-      localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
+      if (SENSITIVE_KEYS.has(key)) {
+        if (value === null || value === undefined) {
+          localStorage.removeItem(STORAGE_PREFIX + key)
+          return
+        }
+        const { encrypt } = await getEncryptFns()
+        const encrypted = await encrypt(value)
+        localStorage.setItem(STORAGE_PREFIX + key, encrypted)
+      } else {
+        localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value))
+      }
     } catch (error) {
       console.error(`[kv.set] Error writing ${key}:`, error)
     }

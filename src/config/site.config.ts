@@ -12,16 +12,16 @@
 
 export const siteConfig = {
   // Basic Info
-  name: import.meta.env.VITE_SITE_NAME || 'Founder-Hub',
-  tagline: import.meta.env.VITE_SITE_TAGLINE || 'Professional Services',
-  domain: import.meta.env.VITE_SITE_DOMAIN || 'localhost',
+  name: import.meta.env.VITE_SITE_NAME || 'Devon Tyler Barber',
+  tagline: import.meta.env.VITE_SITE_TAGLINE || 'Founder & Technologist',
+  domain: import.meta.env.VITE_SITE_DOMAIN || 'devon-tyler.com',
   siteId: import.meta.env.VITE_SITE_ID || 'founder-hub',
   
   // Business Details
   business: {
-    legalName: import.meta.env.VITE_BUSINESS_LEGAL_NAME || '',
+    legalName: import.meta.env.VITE_BUSINESS_LEGAL_NAME || 'Evident Technologies LLC',
     phone: import.meta.env.VITE_BUSINESS_PHONE || '',
-    email: import.meta.env.VITE_BUSINESS_EMAIL || '',
+    email: import.meta.env.VITE_BUSINESS_EMAIL || 'hello@devon-tyler.com',
     address: {
       street: import.meta.env.VITE_ADDRESS_STREET || '',
       city: import.meta.env.VITE_ADDRESS_CITY || '',
@@ -61,7 +61,7 @@ export const seoConfig = {
   
   // Local Business Schema
   schema: {
-    type: import.meta.env.VITE_SCHEMA_TYPE || 'LocalBusiness',
+    type: import.meta.env.VITE_SCHEMA_TYPE || 'ProfessionalService',
     priceRange: import.meta.env.VITE_SCHEMA_PRICE_RANGE || '$$',
   },
   

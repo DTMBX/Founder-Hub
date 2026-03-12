@@ -53,10 +53,10 @@ export const aboutContent = {
   
   // Core values (displayed as badges)
   coreValues: [
-    'Clarity',
-    'Ownership', 
-    'Reliability',
-    'Results',
+    'Integrity',
+    'Stewardship', 
+    'Fortitude',
+    'Veracity',
   ],
 }
 
@@ -90,6 +90,16 @@ export const contactContent = {
       label: 'Investment',
       email: 'invest@devon-tyler.com',
       description: 'Funding opportunities & investor relations',
+    },
+    {
+      label: 'Legal & Court',
+      email: 'dTb33@pm.me',
+      description: 'Case inquiries & contingency review',
+    },
+    {
+      label: 'Home Improvement',
+      email: 'info@tillerstead.com',
+      description: 'Tile installation & home improvement estimates',
     },
   ],
 }

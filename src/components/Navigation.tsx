@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet'
-import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle, ShoppingBag, type IconProps } from '@phosphor-icons/react'
+import { House, FolderOpen, Scales, Newspaper, PaperPlaneRight, List, UserCircle, ShoppingBag, ShieldCheck, type IconProps } from '@phosphor-icons/react'
 import { Section } from '@/lib/types'
 import { useActiveSection } from '@/hooks/use-active-section'
 import { cn } from '@/lib/utils'
@@ -21,6 +21,7 @@ const sectionIcons: Record<string, React.ComponentType<IconProps>> = {
   offerings: ShoppingBag,
   services: ShoppingBag,
   about: UserCircle,
+  governance: ShieldCheck,
   court: Scales,
   proof: Newspaper,
   contact: PaperPlaneRight

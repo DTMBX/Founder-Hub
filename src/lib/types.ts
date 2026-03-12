@@ -510,6 +510,17 @@ export type AuditAction =
   | 'secret_deleted'
   | 'secret_rotated'
   | 'secret_accessed'
+  | 'secret_expired'
+  // Encryption / key lifecycle
+  | 'encryption_key_rotated'
+  | 'vault_reencrypted'
+  // Config & mode changes
+  | 'config_updated'
+  | 'feature_flag_changed'
+  | 'mode_bypass_used'
+  // Re-authentication
+  | 'reauth_success'
+  | 'reauth_failed'
 
 export interface AuditEvent {
   id: string
