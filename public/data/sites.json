@@ -12,12 +12,12 @@
     },
     {
       "id": "evident",
-      "name": "Evident",
-      "description": "Main evidence platform",
-      "repo": "DTMBX/EVIDENT",
+      "name": "Evident.icu",
+      "description": "Evident Technologies, LLC Main Holdings",
+      "repo": "https://github.com/DTMBX/Evident",
       "dataPath": "/static/data",
-      "localPath": "C:/web-dev/github-repos/Evident",
-      "type": "worktree",
+      "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\evident",
+      "type": "primary",
       "enabled": true,
       "satellites": [
         {
@@ -49,6 +49,17 @@
           "enabled": true
         }
       ]
+    },
+    {
+      "id": "site-1773340261143",
+      "name": "Tillerstead.com",
+      "description": "Tillerstead and TillerPro",
+      "repo": "https://github.com/DTMBX/Tillerstead",
+      "dataPath": "",
+      "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\tillerstead",
+      "type": "primary",
+      "enabled": true,
+      "satellites": []
     }
   ],
   "activeSiteId": "founder-hub"

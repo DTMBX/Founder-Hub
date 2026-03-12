@@ -2,15 +2,12 @@
   {
     "id": "evident-tech",
     "title": "Evident Technologies",
-    "summary": "AI-powered litigation support and evidence analysis platform for document-heavy legal workflows.",
-    "description": "Advanced legal-tech platform for document intelligence, evidence organization, and case workflow support. Features include OCR, automated metadata extraction, structured document review, and case management tools designed to help legal professionals process records faster and more accurately.",
+    "summary": "AI-powered litigation support and evidence analysis platform",
+    "description": "Advanced document intelligence system for legal professionals, featuring OCR, automated metadata extraction, and case management tools.",
     "tags": [
       "Legal Tech",
       "AI",
-      "Document Intelligence",
-      "Evidence Analysis",
-      "OCR",
-      "Case Management"
+      "Document Analysis"
     ],
     "techStack": [
       "TypeScript",
@@ -21,24 +18,16 @@
     ],
     "links": [
       {
-        "label": "Live Demo",
-        "url": "https://devon-tyler.com/",
+        "label": "Documentation",
+        "url": "#",
         "type": "docs"
-      },
-      {
-        "label": "GitHub Repository",
-        "url": "https://github.com/DTMBX/Founder-Hub",
-        "type": "other"
       }
     ],
     "order": 0,
     "enabled": true,
     "featured": true,
     "status": "active",
-    "createdAt": 1773339697603,
-    "updatedAt": 1773340136762,
-    "customization": {
-      "badgeText": "UNDER CONSTRUCTION"
-    }
+    "createdAt": 1773341920860,
+    "updatedAt": 1773341920860
   }
 ]
