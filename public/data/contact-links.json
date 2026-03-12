@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "id": "general",
+    "label": "General Inquiries",
+    "url": "mailto:hello@devon-tyler.com",
+    "icon": "envelope",
+    "description": "General questions about projects and services",
+    "order": 0
+  },
+  {
+    "id": "investment",
+    "label": "Investment & Partnerships",
+    "url": "mailto:invest@devon-tyler.com",
+    "icon": "chart-line",
+    "description": "Investment opportunities and partnership proposals",
+    "order": 1
+  },
+  {
+    "id": "legal",
+    "label": "Legal & Court Inquiries",
+    "url": "mailto:dTb33@pm.me",
+    "icon": "scales",
+    "description": "Case inquiries and contingency review",
+    "order": 2
+  },
+  {
+    "id": "tillerstead",
+    "label": "Home Improvement Services",
+    "url": "mailto:info@tillerstead.com",
+    "icon": "wrench",
+    "description": "NJ tile installation and home improvement estimates",
+    "order": 3
+  },
+  {
+    "id": "github",
+    "label": "GitHub",
+    "url": "https://github.com/DTMBX",
+    "icon": "github",
+    "description": "Open-source projects and contributions",
+    "order": 4
+  },
+  {
+    "id": "evident-main",
+    "label": "Evident Platform",
+    "url": "https://www.evident.icu",
+    "icon": "globe",
+    "description": "Evident Technologies main platform",
+    "order": 5
+  }
+]

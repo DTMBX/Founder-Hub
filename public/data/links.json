@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "id": "evident",
+    "label": "Evident Technologies",
+    "url": "https://www.evident.icu",
+    "icon": "scales",
+    "description": "AI-powered litigation support and evidence analysis",
+    "order": 0
+  },
+  {
+    "id": "tillerstead",
+    "label": "Tillerstead",
+    "url": "https://tillerstead.com",
+    "icon": "wrench",
+    "description": "Professional tile installation — South Jersey",
+    "order": 1
+  },
+  {
+    "id": "civics",
+    "label": "Civics Hierarchy",
+    "url": "https://civics.evident.icu",
+    "icon": "landmark",
+    "description": "Constitutional law reference and legal authority mapping",
+    "order": 2
+  },
+  {
+    "id": "library",
+    "label": "Document Library",
+    "url": "https://library.evident.icu",
+    "icon": "book",
+    "description": "DOJ evidence analysis and document processing",
+    "order": 3
+  },
+  {
+    "id": "ledger",
+    "label": "Essential Goods Ledger",
+    "url": "https://ledger.evident.icu",
+    "icon": "chart-bar",
+    "description": "Commodity pricing and cost-of-living indicators",
+    "order": 4
+  },
+  {
+    "id": "bible",
+    "label": "Geneva Bible Study",
+    "url": "https://bible.evident.icu",
+    "icon": "book-open",
+    "description": "Offline-capable Geneva Bible study tool",
+    "order": 5
+  },
+  {
+    "id": "consent",
+    "label": "Informed Consent Companion",
+    "url": "https://consent.evident.icu",
+    "icon": "heart",
+    "description": "Evidence-based maternity and newborn care information",
+    "order": 6
+  },
+  {
+    "id": "contractor",
+    "label": "Contractor Command Center",
+    "url": "https://contractor.evident.icu",
+    "icon": "hammer",
+    "description": "Project management and estimating for contractors",
+    "order": 7
+  },
+  {
+    "id": "github",
+    "label": "GitHub — DTMBX",
+    "url": "https://github.com/DTMBX",
+    "icon": "github",
+    "description": "All open-source repositories",
+    "order": 8
+  }
+]
