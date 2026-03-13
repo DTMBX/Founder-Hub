@@ -20,7 +20,7 @@ interface SidebarNavProps {
 
 export default function SidebarNav({ items, categories, activeTab, collapsed = false, onSelect }: SidebarNavProps) {
   return (
-    <ScrollArea className="flex-1 py-2">
+    <ScrollArea className="flex-1 min-h-0 py-2">
       <div className="px-2 space-y-4">
         {categories.map(category => {
           const categoryItems = items.filter(item => item.category === category)
