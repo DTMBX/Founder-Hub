@@ -81,6 +81,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
   return (
     <section 
       id="hero" 
+      aria-labelledby="hero-heading"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
       data-content-section="hero"
       data-kv-key="founder-hub-sections,founder-hub-settings"
@@ -89,6 +90,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
       {/* ── Flag Video Background ── */}
       <video
         ref={videoRef}
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover"
         style={{ zIndex: 0 }}
         autoPlay
@@ -165,6 +167,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
 
           {/* Headline */}
           <h1 
+            id="hero-heading"
             className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 text-white leading-[1.05]" 
             style={{ 
               letterSpacing: '-0.025em',

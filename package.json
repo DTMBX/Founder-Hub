@@ -29,6 +29,8 @@
         "hugo:build": "pwsh scripts/hugo-build.ps1",
         "hugo:serve": "pwsh scripts/hugo-build.ps1 -Serve",
         "hugo:clean": "pwsh scripts/hugo-build.ps1 -Clean",
+        "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
+        "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
         "prepare": "husky"
     },
     "dependencies": {
@@ -104,6 +106,7 @@
         "zod": "^4.3.6"
     },
     "devDependencies": {
+        "@axe-core/react": "^4.11.1",
         "@eslint/js": "^9.21.0",
         "@playwright/test": "^1.52.0",
         "@supabase/supabase-js": "^2.98.0",
@@ -119,11 +122,15 @@
         "globals": "^16.0.0",
         "husky": "^9.1.7",
         "jsdom": "^28.1.0",
+        "prettier": "^3.8.1",
+        "prettier-plugin-tailwindcss": "^0.7.2",
+        "rollup-plugin-visualizer": "^7.0.1",
         "tailwindcss": "^4.1.18",
         "typescript": "~5.9.3",
         "typescript-eslint": "^8.55.0",
         "vite": "^7.2.6",
-        "vitest": "^4.0.18"
+        "vitest": "^4.0.18",
+        "web-vitals": "^5.1.0"
     },
     "workspaces": {
         "packages": [

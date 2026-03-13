@@ -18,6 +18,25 @@ export default defineConfig({
     maxWorkers: 1,
     isolate: false,
     execArgv: ['--expose-gc'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/test/**',
+        'src/tests/**',
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+        'src/vite-end.d.ts',
+      ],
+      thresholds: {
+        branches: 40,
+        functions: 40,
+        lines: 50,
+        statements: 50,
+      },
+    },
   },
   resolve: {
     alias: {

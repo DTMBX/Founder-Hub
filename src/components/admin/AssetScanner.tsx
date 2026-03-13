@@ -179,7 +179,7 @@ export default function AssetScanner() {
                       {asset.format === 'mp4' ? (
                         <video src={asset.filePath} className="w-full h-full object-cover" muted />
                       ) : (
-                        <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-contain" />
+                        <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-contain" loading="lazy" />
                       )}
                     </div>
                     
@@ -290,7 +290,7 @@ function AssetEditor({ asset, onSave }: AssetEditorProps) {
               {asset.format === 'mp4' ? (
                 <video src={asset.filePath} className="w-full h-full object-cover" muted loop autoPlay />
               ) : (
-                <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-contain" />
+                <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-contain" loading="lazy" />
               )}
             </div>
           </div>

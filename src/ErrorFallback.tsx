@@ -8,6 +8,20 @@ export const ErrorFallback = ({ error, resetErrorBoundary }) => {
   // The parent UI will take care of showing a more helpful dialog.
   if (import.meta.env.DEV) throw error;
 
+  // Log crash to localStorage for admin dashboard visibility
+  try {
+    const key = 'founder-hub:crash-log';
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    existing.push({
+      message: error?.message,
+      stack: error?.stack?.slice(0, 500),
+      url: window.location.href,
+      timestamp: new Date().toISOString(),
+    });
+    // Keep last 20 crashes
+    localStorage.setItem(key, JSON.stringify(existing.slice(-20)));
+  } catch { /* storage full or unavailable */ }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">

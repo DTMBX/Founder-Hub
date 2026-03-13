@@ -104,7 +104,7 @@ export default function SMBSite({ data, onBack }: SMBSiteProps) {
                 <div key={svc.id} className="rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
                   {svc.imageUrl && (
                     <div className="aspect-video bg-gray-100">
-                      <img src={svc.imageUrl} alt={svc.name} className="w-full h-full object-cover" />
+                      <img src={svc.imageUrl} alt={svc.name} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   )}
                   <div className="p-5">
@@ -148,7 +148,7 @@ export default function SMBSite({ data, onBack }: SMBSiteProps) {
               {[...data.team].sort((a, b) => a.order - b.order).map((m) => (
                 <div key={m.id} className="text-center">
                   {m.photoUrl ? (
-                    <img src={m.photoUrl} alt={m.name} className="w-24 h-24 rounded-full mx-auto mb-3 object-cover" />
+                    <img src={m.photoUrl} alt={m.name} className="w-24 h-24 rounded-full mx-auto mb-3 object-cover" loading="lazy" />
                   ) : (
                     <div className="w-24 h-24 rounded-full mx-auto mb-3 bg-gray-100 flex items-center justify-center text-2xl font-bold text-gray-400">
                       {m.name.charAt(0)}
@@ -223,7 +223,7 @@ export default function SMBSite({ data, onBack }: SMBSiteProps) {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {[...data.galleryImages].sort((a, b) => a.order - b.order).map((img) => (
                 <div key={img.id} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                  <img src={img.url} alt={img.alt} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                  <img src={img.url} alt={img.alt} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -241,7 +241,7 @@ export default function SMBSite({ data, onBack }: SMBSiteProps) {
                 <article key={post.id} className="rounded-xl border border-gray-100 overflow-hidden shadow-sm">
                   {post.featuredImageUrl && (
                     <div className="aspect-video bg-gray-100">
-                      <img src={post.featuredImageUrl} alt={post.title} className="w-full h-full object-cover" />
+                      <img src={post.featuredImageUrl} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   )}
                   <div className="p-5">

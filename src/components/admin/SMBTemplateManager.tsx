@@ -362,7 +362,7 @@ export default function SMBTemplateManager({ siteId }: SMBTemplateManagerProps) 
                 <GlassCard key={m.id} className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
-                      {m.photoUrl ? <img src={m.photoUrl} alt={m.name} className="w-full h-full rounded-full object-cover" /> : (m.name?.charAt(0)?.toUpperCase() || '?')}
+                      {m.photoUrl ? <img src={m.photoUrl} alt={m.name} className="w-full h-full rounded-full object-cover" loading="lazy" /> : (m.name?.charAt(0)?.toUpperCase() || '?')}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold">{m.name}</h4>
@@ -610,7 +610,7 @@ export default function SMBTemplateManager({ siteId }: SMBTemplateManagerProps) 
             <div className="space-y-3">
               {[...data.galleryImages].sort((a, b) => a.order - b.order).map((img, i) => (
                 <div key={img.id} className="flex gap-3 items-start p-3 rounded border border-border/30">
-                  {img.url && <img src={img.url} alt={img.alt} className="w-16 h-16 rounded object-cover shrink-0" />}
+                  {img.url && <img src={img.url} alt={img.alt} className="w-16 h-16 rounded object-cover shrink-0" loading="lazy" />}
                   <div className="flex-1 grid grid-cols-3 gap-2">
                     <Input value={img.url} onChange={e => { const imgs = [...data.galleryImages]; imgs[i] = { ...img, url: e.target.value }; setData(prev => ({ ...prev, galleryImages: imgs })) }} placeholder="Image URL" />
                     <Input value={img.alt} onChange={e => { const imgs = [...data.galleryImages]; imgs[i] = { ...img, alt: e.target.value }; setData(prev => ({ ...prev, galleryImages: imgs })) }} placeholder="Alt text" />

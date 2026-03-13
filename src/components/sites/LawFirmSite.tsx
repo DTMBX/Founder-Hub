@@ -151,7 +151,7 @@ export default function LawFirmSite({ data, onBack }: LawFirmSiteProps) {
                   <div key={att.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     {att.photoUrl && (
                       <div className="aspect-[4/3] bg-gray-100">
-                        <img src={att.photoUrl} alt={att.name} className="w-full h-full object-cover" />
+                        <img src={att.photoUrl} alt={att.name} className="w-full h-full object-cover" loading="lazy" />
                       </div>
                     )}
                     <div className="p-5">
@@ -208,7 +208,7 @@ export default function LawFirmSite({ data, onBack }: LawFirmSiteProps) {
                 <article key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                   {post.featuredImageUrl && (
                     <div className="aspect-video bg-gray-100">
-                      <img src={post.featuredImageUrl} alt={post.title} className="w-full h-full object-cover" />
+                      <img src={post.featuredImageUrl} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
                     </div>
                   )}
                   <div className="p-5">

@@ -107,7 +107,7 @@ function App() {
 
   // Route loading fallback
   const routeFallback = (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center bg-background" role="status" aria-label="Loading">
       <div className="text-muted-foreground animate-pulse">Loading...</div>
     </div>
   )

@@ -228,6 +228,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
             variant="ghost"
             size="sm"
             onClick={() => setPathway('all')}
+            aria-label="Clear pathway filter"
             className="backdrop-blur-xl bg-card/90 border border-border/50 hover:border-accent/30 h-8 px-2 shadow-lg"
           >
             <X className="h-3.5 w-3.5" />
@@ -249,7 +250,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       </main>
 
       {/* Professional footer */}
-      <footer className="relative border-t border-border/30 bg-card/40 backdrop-blur-xl">
+      <footer aria-label="Site footer" className="relative border-t border-border/30 bg-card/40 backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="text-center md:text-left">
@@ -260,7 +261,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 {settings?.siteName || 'Devon Tyler Barber'}
               </p>
             </div>
-            <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+            <nav aria-label="Footer navigation" className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
               <button 
                 onClick={() => {
                   const el = document.getElementById('about')
@@ -303,7 +304,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               >
                 Contact
               </button>
-            </div>
+            </nav>
             <div className="text-center md:text-right">
               <a href={`mailto:${profile?.catchAllEmail || 'd@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
                 {profile?.catchAllEmail || 'd@devon-tyler.com'}

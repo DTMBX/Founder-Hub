@@ -340,7 +340,7 @@ export default function LawFirmShowcaseManager({ siteId }: LawFirmShowcaseManage
                 <GlassCard key={atty.id} className="p-4">
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent text-lg font-bold shrink-0">
-                      {atty.photoUrl ? <img src={atty.photoUrl} alt={atty.name} className="w-full h-full rounded-full object-cover" /> : (atty.name?.charAt(0)?.toUpperCase() || '?')}
+                      {atty.photoUrl ? <img src={atty.photoUrl} alt={atty.name} className="w-full h-full rounded-full object-cover" loading="lazy" /> : (atty.name?.charAt(0)?.toUpperCase() || '?')}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2"><h4 className="font-semibold">{atty.name || 'Unnamed'}</h4>{atty.featured && <Star className="h-3 w-3 text-amber-400" weight="fill" />}</div>

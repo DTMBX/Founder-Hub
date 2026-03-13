@@ -25,3 +25,6 @@ createRoot(document.getElementById('root')!).render(
     </MotionProvider>
   </ErrorBoundary>
 )
+
+// Report Core Web Vitals (async — zero impact on load)
+import('./lib/web-vitals').then(m => m.reportWebVitals())

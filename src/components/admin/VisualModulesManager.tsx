@@ -241,7 +241,7 @@ export default function VisualModulesManager() {
                         onClick={() => toggleFlagInGallery(asset.id)}
                       >
                         <div className="w-16 h-10 bg-muted rounded overflow-hidden shrink-0">
-                          <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-cover" />
+                          <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-cover" loading="lazy" />
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-medium">{asset.fileName}</p>

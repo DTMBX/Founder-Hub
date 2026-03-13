@@ -120,7 +120,7 @@ export default function Navigation({
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                aria-current={activeSection === link.id ? 'true' : undefined}
+                aria-current={activeSection === link.id ? 'page' : undefined}
                 className={cn(
                   'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
                   activeSection === link.id
@@ -164,7 +164,7 @@ export default function Navigation({
                     <button
                       key={link.id}
                       onClick={() => scrollToSection(link.id)}
-                      aria-current={isActive ? 'true' : undefined}
+                      aria-current={isActive ? 'page' : undefined}
                       className={cn(
                         'flex items-center gap-3 text-left px-4 py-3 rounded-lg transition-all duration-200',
                         isActive

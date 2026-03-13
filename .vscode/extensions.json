@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "csstools.postcss",
+    "editorconfig.editorconfig",
+    "formulahendry.auto-rename-tag",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "github.vscode-pull-request-github"
+  ],
+  "unwantedRecommendations": []
+}

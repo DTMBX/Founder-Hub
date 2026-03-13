@@ -147,7 +147,7 @@ export default function AssetUsagePolicyManager() {
               <Card key={asset.id} className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="w-24 h-16 bg-muted rounded overflow-hidden shrink-0">
-                    <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-cover" />
+                    <img src={asset.filePath} alt={asset.fileName} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                   
                   <div className="flex-1 space-y-3">

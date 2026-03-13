@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
 import { resolve } from 'path'
 import { readFileSync } from 'fs'
+import { visualizer } from 'rollup-plugin-visualizer'
 import workspaceApi from './vite-plugin-workspace-api'
 
 const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
@@ -22,6 +23,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
     workspaceApi(),
+    visualizer({
+      filename: 'dist/bundle-analysis.html',
+      gzipSize: true,
+      brotliSize: true,
+      open: false,
+    }),
   ],
   server: {
     port: 5175,
