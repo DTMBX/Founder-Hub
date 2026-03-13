@@ -167,18 +167,28 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   }
 
   const socialLinks = contactLinks?.filter(l => l.category === 'social') || []
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": settings?.siteName || "Devon Tyler Barber",
-    "alternateName": "Devon Tyler",
-    "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
-    "url": `https://${settings?.primaryDomain || 'devon-tyler.com'}`,
-    "image": settings?.socialPreviewImage || "/og-preview.png",
-    "sameAs": socialLinks.map(link => link.url).filter(Boolean),
-    "jobTitle": settings?.tagline || "One Nation under God",
-    "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
-  }
+  const siteUrl = `https://${settings?.primaryDomain || 'devon-tyler.com'}`
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": settings?.siteName || "Devon Tyler Barber",
+      "alternateName": "Devon Tyler",
+      "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
+      "url": siteUrl,
+      "image": settings?.socialPreviewImage || "/og-preview.png",
+      "sameAs": socialLinks.map(link => link.url).filter(Boolean),
+      "jobTitle": settings?.tagline || "One Nation under God",
+      "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": settings?.siteName || "Devon Tyler Barber",
+      "url": siteUrl,
+      "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
+    }
+  ]
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">

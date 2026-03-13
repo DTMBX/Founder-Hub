@@ -36,7 +36,9 @@ vi.stubGlobal('localStorage', mockLocalStorage)
 vi.stubGlobal('crypto', {
   subtle: {
     digest: mockDigest
-  }
+  },
+  randomUUID: () => `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`,
+  getRandomValues: (arr: Uint8Array) => { for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256); return arr },
 })
 
 // Now import the module after mocking

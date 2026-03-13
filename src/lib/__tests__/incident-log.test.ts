@@ -29,7 +29,9 @@ vi.stubGlobal('crypto', {
       }
       return hash.buffer
     })
-  }
+  },
+  randomUUID: () => `${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`,
+  getRandomValues: (arr: Uint8Array) => { for (let i = 0; i < arr.length; i++) arr[i] = Math.floor(Math.random() * 256); return arr },
 })
 
 // Import after mocking

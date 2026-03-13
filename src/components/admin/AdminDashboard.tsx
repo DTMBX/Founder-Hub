@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/lib/auth'
 import { useInitializeDocumentTypes } from '@/lib/initialize-document-types'
-import { downloadDataFiles, persistAllToFiles, isLocalhost } from '@/lib/local-storage-kv'
+import { downloadDataFiles, persistAllToFiles, isLocalhost, useStorageQuota } from '@/lib/local-storage-kv'
 import { publishToGitHub, hasGitHubToken, type PublishMode } from '@/lib/github-sync'
 import { useSite } from '@/lib/site-context'
 import { toast } from 'sonner'
@@ -33,6 +33,7 @@ import {
 import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
 import CommandPalette from './CommandPalette'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 import WorkspaceSiteSwitcher from './WorkspaceSiteSwitcher'
 import KeyboardShortcutsDialog from './KeyboardShortcutsDialog'
 import { useClientSites } from '@/hooks/use-client-sites'
@@ -213,6 +214,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
   // RBAC & Feature Flags
   const permissions = usePermissions()
   const { flags } = useFeatureFlags()
+  const storageQuota = useStorageQuota()
   
   // Phase A: Edit/Preview Integrity
   const historyState = useHistory()
@@ -533,6 +535,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
               </Button>
             </>
           )}
+          <ThemeToggle collapsed={sidebarCollapsed} />
           <Button 
             variant="ghost" 
             size="sm" 
@@ -585,6 +588,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             />
             {/* Mobile sidebar footer */}
             <div className="p-3 border-t border-border/50 space-y-1.5">
+              <ThemeToggle />
               <Button variant="ghost" size="sm" onClick={() => { onExit(); setMobileSidebarOpen(false) }} className="w-full gap-2 text-xs justify-start">
                 <House className="h-4 w-4 shrink-0" /> Public Site
               </Button>
@@ -703,6 +707,30 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
             {/* B26: Legacy auth migration banner */}
             {currentUser && (
               <MigrationBanner userEmail={currentUser.email} />
+            )}
+            {/* Storage quota warning */}
+            {(storageQuota.warning || storageQuota.critical) && (
+              <div
+                role="alert"
+                className={cn(
+                  'mb-6 flex items-center gap-3 rounded-lg border px-4 py-3 text-sm',
+                  storageQuota.critical
+                    ? 'border-red-500/40 bg-red-500/10 text-red-400'
+                    : 'border-amber-500/40 bg-amber-500/10 text-amber-400'
+                )}
+              >
+                <HardDrive className={cn('h-5 w-5 shrink-0', storageQuota.critical ? 'text-red-500' : 'text-amber-500')} weight="fill" />
+                <div className="min-w-0">
+                  <span className="font-semibold">
+                    {storageQuota.critical ? 'Storage Critical' : 'Storage Warning'}
+                  </span>
+                  <span className={cn('mx-1.5', storageQuota.critical ? 'text-red-500/60' : 'text-amber-500/60')}>&#x2022;</span>
+                  <span className={storageQuota.critical ? 'text-red-400/80' : 'text-amber-400/80'}>
+                    {Math.round(storageQuota.percentUsed * 100)}% of local storage used ({(storageQuota.usedBytes / 1024).toFixed(0)} KB / {(storageQuota.estimatedQuota / 1024 / 1024).toFixed(0)} MB).
+                    {storageQuota.critical ? ' Export or delete data immediately to prevent data loss.' : ' Consider exporting data soon.'}
+                  </span>
+                </div>
+              </div>
             )}
             <Suspense fallback={<ModuleLoader />}>
               {renderContent()}

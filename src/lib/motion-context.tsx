@@ -54,12 +54,8 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     return () => mediaQuery.removeEventListener('change', listener)
   }, [settings?.motionLevel])
 
-  // Dark theme — always on (matches site design intent)
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.add('dark')
-    root.setAttribute('data-appearance', 'dark')
-  }, [])
+  // Theme is now managed by ThemeToggle via useKV('founder-hub-theme')
+  // No need to force dark — the FOUC script in index.html reads stored preference
 
   // High-contrast mode
   useEffect(() => {

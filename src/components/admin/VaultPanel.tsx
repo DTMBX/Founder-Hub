@@ -10,6 +10,7 @@ import {
   retrieveSecret,
 } from '@/lib/secret-vault'
 import type { SecretType, SecretMetadata } from '@/lib/secret-vault'
+import type { UserRole } from '@/lib/types'
 import { ShieldCheck, Trash, ArrowsClockwise, Plus, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useReauthGate } from './ReauthDialog'
 
@@ -41,6 +42,7 @@ export default function VaultPanel() {
   const [newType, setNewType] = useState<SecretType>('api-key')
   const [newLabel, setNewLabel] = useState('')
   const [newValue, setNewValue] = useState('')
+  const [newAllowedRoles, setNewAllowedRoles] = useState<UserRole[]>([])
   const [saving, setSaving] = useState(false)
 
   // Rotate form
@@ -77,11 +79,12 @@ export default function VaultPanel() {
     setSaving(true)
     setError(null)
     try {
-      await storeSecret(newType, newLabel.trim(), newValue)
+      await storeSecret(newType, newLabel.trim(), newValue, { allowedRoles: newAllowedRoles.length > 0 ? newAllowedRoles : undefined })
       setShowAdd(false)
       setNewLabel('')
       setNewValue('')
       setNewType('api-key')
+      setNewAllowedRoles([])
       await logAudit(currentUser.id, currentUser.email, 'secret_stored', `Stored secret: ${newLabel.trim()} (${newType})`, 'vault', currentUser.id)
       await load()
     } catch {
@@ -195,6 +198,25 @@ export default function VaultPanel() {
             className="w-full px-3 py-2 rounded-md border bg-background text-sm"
             autoComplete="off"
           />
+          <div>
+            <p className="text-xs text-muted-foreground mb-1.5">Restrict access to roles (empty = owner only):</p>
+            <div className="flex flex-wrap gap-2">
+              {(['owner', 'admin', 'editor', 'support'] as UserRole[]).map(role => (
+                <label key={role} className="flex items-center gap-1.5 text-xs cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newAllowedRoles.includes(role)}
+                    onChange={e => {
+                      if (e.target.checked) setNewAllowedRoles(prev => [...prev, role])
+                      else setNewAllowedRoles(prev => prev.filter(r => r !== role))
+                    }}
+                    className="rounded border"
+                  />
+                  {role}
+                </label>
+              ))}
+            </div>
+          </div>
           <div className="flex gap-2 justify-end">
             <Button size="sm" variant="ghost" onClick={() => setShowAdd(false)}>Cancel</Button>
             <Button size="sm" onClick={handleAdd} disabled={saving}>
@@ -214,6 +236,13 @@ export default function VaultPanel() {
                   {TYPE_LABELS[s.metadata.type]} · Created {formatDate(s.metadata.createdAt)}
                   {s.metadata.accessCount > 0 && ` · ${s.metadata.accessCount} access${s.metadata.accessCount !== 1 ? 'es' : ''}`}
                 </p>
+                {s.metadata.allowedRoles && s.metadata.allowedRoles.length > 0 && (
+                  <div className="flex gap-1 mt-0.5">
+                    {s.metadata.allowedRoles.map(r => (
+                      <Badge key={r} variant="secondary" className="text-[9px] px-1 py-0">{r}</Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-1">
                 {isExpired(s.metadata) && <Badge variant="destructive" className="text-xs">Expired</Badge>}
