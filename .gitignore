@@ -19,6 +19,7 @@ dist *
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
@@ -53,3 +54,15 @@ hugo/.hugo_build.lock
 hugo/hugo_stats.json
 bin/hugo*
 test-results.txt
+
+# E2E / Playwright
+e2e-results/
+e2e-report/
+preview-report/
+
+# Coverage & Analysis
+coverage/
+dist/bundle-analysis.html
+
+# Lighthouse CI
+.lighthouseci/

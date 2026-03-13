@@ -1,3 +1,4 @@
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -28,3 +29,12 @@ createRoot(document.getElementById('root')!).render(
 
 // Report Core Web Vitals (async — zero impact on load)
 import('./lib/web-vitals').then(m => m.reportWebVitals())
+
+// Dev-only accessibility audit overlay via axe-core
+if (import.meta.env.DEV) {
+  import('@axe-core/react').then((axe) => {
+    import('react-dom').then((ReactDOM) => {
+      axe.default(React, ReactDOM, 1000)
+    })
+  })
+}

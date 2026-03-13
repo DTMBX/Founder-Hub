@@ -28,7 +28,7 @@ import {
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
   Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf, FloppyDisk,
-  HardDrive, Terminal, UsersThree, Vault
+  HardDrive, Terminal, UsersThree, Vault, Gauge
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
@@ -85,6 +85,7 @@ const PreviewPanel = lazy(() => import('./PreviewPanel'))
 const HistoryTimeline = lazy(() => import('./HistoryTimeline'))
 const WorkspaceManager = lazy(() => import('./WorkspaceManager'))
 const DevToolsPanel = lazy(() => import('./DevToolsPanel'))
+const PerformanceDashboard = lazy(() => import('./PerformanceDashboard'))
 const RecoveryPanel = lazy(() => import('./RecoveryPanel'))
 const UserManagement = lazy(() => import('./UserManagement'))
 const VaultPanel = lazy(() => import('./VaultPanel'))
@@ -168,6 +169,7 @@ const navItems: NavItem[] = [
   { id: 'vault', label: 'Secret Vault', icon: Vault, category: 'System & Security' },
   { id: 'audit', label: 'Audit Log', icon: ClockCounterClockwise, category: 'System & Security' },
   { id: 'leads', label: 'Leads', icon: UsersFour, category: 'System & Security' },
+  { id: 'performance', label: 'Performance', icon: Gauge, category: 'System & Security' },
   { id: 'devtools', label: 'Developer Tools', icon: Terminal, category: 'System & Security' },
 ]
 
@@ -426,6 +428,7 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'vault': return <VaultPanel />
       case 'audit': return <AuditLog />
       case 'leads': return <AdminLeadsViewer />
+      case 'performance': return <PerformanceDashboard />
       default: return <DashboardOverview onNavigate={guardedSetActiveTab} />
     }
   }

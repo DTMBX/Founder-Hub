@@ -5,3 +5,7 @@ node_modules
 *.min.css
 public/sw.js
 dist/bundle-analysis.html
+e2e-results
+e2e-report
+preview-report
+.lighthouseci

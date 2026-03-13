@@ -45,6 +45,10 @@ function EnvironmentSection() {
     setKvKeyCount(fhKeys)
   }, [])
 
+  // Quick vitals & crash summary
+  const vitalsCount = (() => { try { return JSON.parse(localStorage.getItem('founder-hub:web-vitals') || '[]').length } catch { return 0 } })()
+  const crashCount = (() => { try { return JSON.parse(localStorage.getItem('founder-hub:crash-log') || '[]').length } catch { return 0 } })()
+
   const rows = [
     ['Build Mode', import.meta.env.DEV ? 'Development' : 'Production'],
     ['Localhost', isLocalhost() ? 'Yes' : 'No'],
@@ -52,6 +56,8 @@ function EnvironmentSection() {
     ['Screen', `${screen.width}x${screen.height}`],
     ['localStorage Keys', `${localStorage.length} total, ${kvKeyCount} founder-hub`],
     ['Storage Used', storageUsed],
+    ['Web Vitals', `${vitalsCount} entries`],
+    ['Crash Log', crashCount > 0 ? `⚠ ${crashCount} crash${crashCount !== 1 ? 'es' : ''}` : '0 crashes'],
     ['File System API', 'showDirectoryPicker' in window ? 'Supported' : 'Not supported'],
     ['Service Worker', 'serviceWorker' in navigator ? (navigator.serviceWorker.controller ? 'Active' : 'Registered') : 'Not supported'],
   ]
