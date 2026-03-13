@@ -24,7 +24,7 @@ export async function registerServiceWorker(
   config: ServiceWorkerConfig = {}
 ): Promise<ServiceWorkerRegistration | null> {
   if (!isServiceWorkerSupported()) {
-    console.log('[PWA] Service workers not supported')
+    if (import.meta.env.DEV) console.log('[PWA] Service workers not supported')
     return null
   }
 
@@ -36,7 +36,7 @@ export async function registerServiceWorker(
     swRegistration = registration
     updateCallback = config.onUpdate ?? null
 
-    console.log('[PWA] Service worker registered:', registration.scope)
+    if (import.meta.env.DEV) console.log('[PWA] Service worker registered:', registration.scope)
 
     // Handle updates
     registration.addEventListener('updatefound', () => {
@@ -46,11 +46,11 @@ export async function registerServiceWorker(
       newWorker.addEventListener('statechange', () => {
         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
           // New content available
-          console.log('[PWA] Update available')
+          if (import.meta.env.DEV) console.log('[PWA] Update available')
           config.onUpdate?.(registration)
         } else if (newWorker.state === 'activated') {
           // Content cached for offline use
-          console.log('[PWA] Service worker activated')
+          if (import.meta.env.DEV) console.log('[PWA] Service worker activated')
           config.onSuccess?.(registration)
         }
       })
@@ -58,13 +58,13 @@ export async function registerServiceWorker(
 
     // Listen for controller changes
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      console.log('[PWA] Controller changed, reloading...')
+      if (import.meta.env.DEV) console.log('[PWA] Controller changed, reloading...')
       window.location.reload()
     })
 
     return registration
   } catch (error) {
-    console.error('[PWA] Service worker registration failed:', error)
+    if (import.meta.env.DEV) console.error('[PWA] Service worker registration failed:', error)
     config.onError?.(error as Error)
     return null
   }
@@ -80,10 +80,10 @@ export async function unregisterServiceWorker(): Promise<boolean> {
     const registrations = await navigator.serviceWorker.getRegistrations()
     await Promise.all(registrations.map((reg) => reg.unregister()))
     swRegistration = null
-    console.log('[PWA] Service workers unregistered')
+    if (import.meta.env.DEV) console.log('[PWA] Service workers unregistered')
     return true
   } catch (error) {
-    console.error('[PWA] Unregister failed:', error)
+    if (import.meta.env.DEV) console.error('[PWA] Unregister failed:', error)
     return false
   }
 }
@@ -100,7 +100,7 @@ export async function checkForUpdates(): Promise<boolean> {
     await swRegistration.update()
     return swRegistration.waiting !== null
   } catch (error) {
-    console.error('[PWA] Update check failed:', error)
+    if (import.meta.env.DEV) console.error('[PWA] Update check failed:', error)
     return false
   }
 }
@@ -166,7 +166,7 @@ export function isServiceWorkerSupported(): boolean {
  */
 export function postMessageToSW(message: { type: string; payload?: unknown }): void {
   if (!navigator.serviceWorker.controller) {
-    console.warn('[PWA] No active service worker to message')
+    if (import.meta.env.DEV) console.warn('[PWA] No active service worker to message')
     return
   }
 

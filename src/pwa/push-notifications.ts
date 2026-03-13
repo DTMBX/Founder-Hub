@@ -52,12 +52,12 @@ export function getPermissionStatus(): NotificationPermissionStatus {
  */
 export async function requestPermission(): Promise<NotificationPermissionStatus> {
   if (!('Notification' in window)) {
-    console.warn('[Push] Notifications not supported')
+    if (import.meta.env.DEV) console.warn('[Push] Notifications not supported')
     return 'denied'
   }
 
   const permission = await Notification.requestPermission()
-  console.log('[Push] Permission result:', permission)
+  if (import.meta.env.DEV) console.log('[Push] Permission result:', permission)
   return permission as NotificationPermissionStatus
 }
 
@@ -70,14 +70,14 @@ export async function subscribeToPush(
   vapidPublicKey = DEFAULT_VAPID_PUBLIC_KEY
 ): Promise<PushSubscriptionData | null> {
   if (!isPushSupported()) {
-    console.warn('[Push] Push not supported')
+    if (import.meta.env.DEV) console.warn('[Push] Push not supported')
     return null
   }
 
   // Check permission
   const permission = await requestPermission()
   if (permission !== 'granted') {
-    console.warn('[Push] Permission not granted')
+    if (import.meta.env.DEV) console.warn('[Push] Permission not granted')
     return null
   }
 
@@ -95,7 +95,7 @@ export async function subscribeToPush(
     }
 
     if (!subscription) {
-      console.warn('[Push] Could not create subscription')
+      if (import.meta.env.DEV) console.warn('[Push] Could not create subscription')
       return null
     }
 
@@ -104,10 +104,10 @@ export async function subscribeToPush(
     // Store locally
     localStorage.setItem(SUBSCRIPTION_KEY, JSON.stringify(subscriptionData))
 
-    console.log('[Push] Subscribed:', subscriptionData.endpoint)
+    if (import.meta.env.DEV) console.log('[Push] Subscribed:', subscriptionData.endpoint)
     return subscriptionData
   } catch (error) {
-    console.error('[Push] Subscription failed:', error)
+    if (import.meta.env.DEV) console.error('[Push] Subscription failed:', error)
     return null
   }
 }
@@ -123,13 +123,13 @@ export async function unsubscribeFromPush(): Promise<boolean> {
     if (subscription) {
       await subscription.unsubscribe()
       localStorage.removeItem(SUBSCRIPTION_KEY)
-      console.log('[Push] Unsubscribed')
+      if (import.meta.env.DEV) console.log('[Push] Unsubscribed')
       return true
     }
 
     return false
   } catch (error) {
-    console.error('[Push] Unsubscribe failed:', error)
+    if (import.meta.env.DEV) console.error('[Push] Unsubscribe failed:', error)
     return false
   }
 }

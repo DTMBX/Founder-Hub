@@ -194,7 +194,7 @@ export default function TwoFactorSetup() {
 
           <div className="space-y-4">
             <div className="flex flex-col items-center gap-4 p-4 border border-border rounded-lg">
-              <img src={qrCodeURL} alt="QR Code" className="w-64 h-64" />
+              <img src={qrCodeURL} alt="QR Code" className="w-64 h-64" width={256} height={256} />
               
               <div className="w-full space-y-2">
                 <Label className="text-xs text-muted-foreground">Manual Entry Key</Label>

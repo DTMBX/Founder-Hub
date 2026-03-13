@@ -5,7 +5,7 @@
  * The hero remains hand-authored and is NOT part of this renderer.
  */
 
-import { lazy, Suspense } from 'react'
+import { Component, lazy, Suspense, type ReactNode } from 'react'
 import type { LandingConfig, LandingSectionConfig } from './landing.config'
 import { filterSectionsByPathway } from './landing.config'
 import { ScrollReveal } from '../ui/scroll-reveal'
@@ -20,6 +20,34 @@ const CourtSection = lazy(() => import('../sections/CourtSection'))
 const ProofSection = lazy(() => import('../sections/ProofSection'))
 const ContactSection = lazy(() => import('../sections/ContactSection'))
 const GovernanceNarrativeSection = lazy(() => import('../sections/GovernanceNarrativeSection'))
+
+// ─── Section Error Boundary ─────────────────────────────────────
+
+class SectionErrorBoundary extends Component<
+  { sectionId: string; children: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false }
+
+  static getDerivedStateFromError() {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: Error) {
+    if (import.meta.env.DEV) console.error(`[Section:${this.props.sectionId}]`, error)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-[120px] flex items-center justify-center text-muted-foreground/50 text-sm my-8">
+          Section unavailable
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 // ─── Section Loading Fallback ───────────────────────────────────
 
@@ -59,77 +87,93 @@ function renderSection(
   switch (section.type) {
     case 'about':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <AboutSection pathway={pathway} {...(section.props || {})} />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <AboutSection pathway={pathway} {...(section.props || {})} />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'governance':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <GovernanceNarrativeSection {...(section.props || {})} />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <GovernanceNarrativeSection {...(section.props || {})} />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'projects':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <ProjectsSection 
-            investorMode={pathway === 'investors'} 
-            {...(section.props || {})} 
-          />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <ProjectsSection 
+              investorMode={pathway === 'investors'} 
+              {...(section.props || {})} 
+            />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'investor':
       // Only render investor section in investor pathway
       if (pathway !== 'investors') return null
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <InvestorSection {...(section.props || {})} />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <InvestorSection {...(section.props || {})} />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'offerings':
     case 'services':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <OfferingsSection 
-            tradeMode={pathway === 'marketplace'} 
-            {...(section.props || {})} 
-          />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <OfferingsSection 
+              tradeMode={pathway === 'marketplace'} 
+              {...(section.props || {})} 
+            />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'court':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <CourtSection 
-            investorMode={false}
-            onNavigateToCase={onNavigateToCase || (() => {})}
-            {...(section.props || {})}
-          />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <CourtSection 
+              investorMode={false}
+              onNavigateToCase={onNavigateToCase || (() => {})}
+              {...(section.props || {})}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'proof':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <ProofSection 
-            investorMode={pathway === 'investors'}
-            {...(section.props || {})}
-          />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <ProofSection 
+              investorMode={pathway === 'investors'}
+              {...(section.props || {})}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     case 'contact':
       return (
-        <Suspense key={section.id} fallback={<SectionSkeleton />}>
-          <ContactSection 
-            investorMode={pathway === 'investors'}
-            {...(section.props || {})}
-          />
-        </Suspense>
+        <SectionErrorBoundary key={section.id} sectionId={section.id}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <ContactSection 
+              investorMode={pathway === 'investors'}
+              {...(section.props || {})}
+            />
+          </Suspense>
+        </SectionErrorBoundary>
       )
     
     // Placeholder sections for future implementation

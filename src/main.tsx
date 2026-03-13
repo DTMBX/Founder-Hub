@@ -1,20 +1,18 @@
+// Validate env vars at startup — fails fast on misconfiguration
+import './config/env'
+// Initialize localStorage-based KV storage
+import './lib/local-storage-kv'
+import "./main.css"
+
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ErrorBoundary } from "react-error-boundary";
 
-// Validate env vars at startup — fails fast on misconfiguration
-import './config/env'
-
-// Initialize localStorage-based KV storage
-import './lib/local-storage-kv'
-
 import App from './App.tsx'
-import { ErrorFallback } from './ErrorFallback.tsx'
 import { Toaster } from './components/ui/sonner'
-import { SiteProvider } from './lib/site-context'
+import { ErrorFallback } from './ErrorFallback.tsx'
 import { MotionProvider } from './lib/motion-context'
-
-import "./main.css"
+import { SiteProvider } from './lib/site-context'
 
 createRoot(document.getElementById('root')!).render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>

@@ -93,6 +93,8 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
         aria-hidden="true"
         className="absolute inset-0 w-full h-full object-cover"
         style={{ zIndex: 0 }}
+        width={1920}
+        height={1080}
         autoPlay
         muted
         loop

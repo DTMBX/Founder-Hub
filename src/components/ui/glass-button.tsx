@@ -42,12 +42,14 @@ export interface GlassButtonProps
 }
 
 const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
-  ({ className, variant, size, intensity, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, intensity, asChild = false, disabled, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button'
     return (
       <Comp
         className={cn(glassButtonVariants({ variant, size, intensity, className }))}
         ref={ref}
+        disabled={disabled}
+        aria-disabled={disabled || undefined}
         {...props}
       />
     )
