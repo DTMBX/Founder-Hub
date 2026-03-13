@@ -12,16 +12,16 @@
     "id": "about",
     "type": "about",
     "title": "About",
-    "content": "Devon Tyler Barber",
+    "content": "",
     "order": 1,
     "enabled": true,
-    "investorRelevant": false
+    "investorRelevant": true
   },
   {
     "id": "projects",
     "type": "projects",
     "title": "Projects",
-    "content": "What I Am Working On",
+    "content": "",
     "order": 2,
     "enabled": true,
     "investorRelevant": true
@@ -30,7 +30,7 @@
     "id": "services",
     "type": "services",
     "title": "Services",
-    "content": "Services Offered",
+    "content": "",
     "order": 3,
     "enabled": true,
     "investorRelevant": true
@@ -39,16 +39,16 @@
     "id": "court",
     "type": "court",
     "title": "Court & Accountability",
-    "content": "Case Records",
+    "content": "",
     "order": 4,
     "enabled": true,
-    "investorRelevant": false
+    "investorRelevant": true
   },
   {
     "id": "proof",
     "type": "proof",
     "title": "Press & Proof",
-    "content": "Announcements and Press",
+    "content": "",
     "order": 5,
     "enabled": true,
     "investorRelevant": true
@@ -57,7 +57,7 @@
     "id": "contact",
     "type": "contact",
     "title": "Contact",
-    "content": "Inquiries and Contact Details",
+    "content": "",
     "order": 6,
     "enabled": true,
     "investorRelevant": true

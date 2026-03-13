@@ -25,5 +25,32 @@
     "status": "demo",
     "createdAt": "2026-03-12T18:21:38.144Z",
     "updatedAt": "2026-03-12T18:21:38.145Z"
+  },
+  {
+    "siteId": "0aa5a96b-2507-425f-b6a4-40ce003c9eea",
+    "type": "law-firm",
+    "name": "Law Firm Showcase",
+    "slug": "law-firm-showcase-2",
+    "status": "demo",
+    "createdAt": "2026-03-13T23:50:32.334Z",
+    "updatedAt": "2026-03-13T23:50:32.335Z"
+  },
+  {
+    "siteId": "ed40aee2-772e-4b58-8921-f401bd626b78",
+    "type": "small-business",
+    "name": "SMB Template",
+    "slug": "smb-template-2",
+    "status": "demo",
+    "createdAt": "2026-03-13T23:50:32.422Z",
+    "updatedAt": "2026-03-13T23:50:32.422Z"
+  },
+  {
+    "siteId": "fd299641-09e0-4e0e-9c09-7a81ebe25d4a",
+    "type": "agency",
+    "name": "Agency Framework",
+    "slug": "agency-framework-2",
+    "status": "demo",
+    "createdAt": "2026-03-13T23:50:32.491Z",
+    "updatedAt": "2026-03-13T23:50:32.491Z"
   }
 ]

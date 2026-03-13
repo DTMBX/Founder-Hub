@@ -3,167 +3,25 @@
     "id": "evident-tech",
     "title": "Evident Technologies",
     "summary": "AI-powered litigation support and evidence analysis platform",
-    "description": "Advanced document intelligence system for legal professionals, featuring OCR, automated metadata extraction, and case management tools. Serves as the umbrella platform for the entire ecosystem.",
-    "tags": ["Legal Tech", "AI", "Document Analysis"],
-    "techStack": ["TypeScript", "React", "Node.js", "OpenAI", "PostgreSQL"],
-    "links": [
-      { "label": "Live App", "url": "https://www.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/EVIDENT", "type": "repo" }
+    "description": "Advanced document intelligence system for legal professionals, featuring OCR, automated metadata extraction, and case management tools.",
+    "tags": [
+      "Legal Tech",
+      "AI",
+      "Document Analysis"
     ],
+    "techStack": [
+      "TypeScript",
+      "React",
+      "Node.js",
+      "OpenAI",
+      "PostgreSQL"
+    ],
+    "links": [],
     "order": 0,
     "enabled": true,
     "featured": true,
     "status": "active",
-    "customization": { "accentColor": "emerald", "badgeText": "Flagship" },
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "founder-hub",
-    "title": "Founder Hub",
-    "summary": "Personal operations hub, investor portal, and portfolio platform",
-    "description": "Full-featured founder dashboard with investor relations, court case management, service marketplace, multi-site management, and theme engine. Powers devon-tyler.com with a complete admin backend.",
-    "tags": ["SaaS", "Portfolio", "Admin"],
-    "techStack": ["TypeScript", "React", "Vite", "Tailwind CSS", "Radix UI"],
-    "links": [
-      { "label": "Live Site", "url": "https://devon-tyler.com", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/Founder-Hub", "type": "repo" }
-    ],
-    "order": 1,
-    "enabled": true,
-    "featured": true,
-    "status": "active",
-    "customization": { "accentColor": "blue", "badgeText": "This Site" },
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "tillerstead",
-    "title": "Tillerstead",
-    "summary": "Licensed NJ home improvement contractor — professional tile installation",
-    "description": "Business website for Tillerstead, a licensed NJ Home Improvement Contractor (HIC #13VH10808800) specializing in TCNA-compliant professional tile installation services across South Jersey. Active revenue-generating business.",
-    "tags": ["Business", "Home Improvement", "Revenue"],
-    "techStack": ["Jekyll", "HTML", "CSS", "GitHub Pages"],
-    "links": [
-      { "label": "Live Site", "url": "https://tillerstead.com", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/tillerstead", "type": "repo" }
-    ],
-    "order": 2,
-    "enabled": true,
-    "featured": true,
-    "status": "active",
-    "customization": { "accentColor": "amber", "badgeText": "Revenue Active" },
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "civics-hierarchy",
-    "title": "Civics Hierarchy",
-    "summary": "Constitutional law reference and legal authority mapping tool",
-    "description": "Interactive platform mapping the hierarchy of U.S. legal authority — from the Constitution through federal and state law. Designed to make civic education accessible and legally accurate.",
-    "tags": ["Civic Tech", "Education", "Legal"],
-    "techStack": ["TypeScript", "React", "Vite", "GitHub Actions"],
-    "links": [
-      { "label": "Live App", "url": "https://civics.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/civics-hierarchy", "type": "repo" }
-    ],
-    "order": 3,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "customization": { "accentColor": "teal" },
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "document-library",
-    "title": "Document Library",
-    "summary": "DOJ evidence analysis and document processing platform",
-    "description": "Searchable document library for public records research, evidence analysis, and legal document processing. Integrated with the Evident ecosystem for cross-referencing case materials.",
-    "tags": ["Legal Tech", "Document Management", "Research"],
-    "techStack": ["TypeScript", "React", "Vite", "GitHub Pages"],
-    "links": [
-      { "label": "Live App", "url": "https://library.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/epstein-library-evid", "type": "repo" }
-    ],
-    "order": 4,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "customization": { "accentColor": "rose" },
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "essential-goods",
-    "title": "Essential Goods Ledger",
-    "summary": "Commodity pricing and cost-of-living data tracker",
-    "description": "Real-time economic analysis tool tracking essential commodity prices and cost-of-living indicators. Built to make economic data transparent and actionable for everyday decision-making.",
-    "tags": ["FinTech", "Economics", "Data"],
-    "techStack": ["TypeScript", "React", "Vite", "GitHub Actions"],
-    "links": [
-      { "label": "Live App", "url": "https://ledger.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/essential-goods-ledg", "type": "repo" }
-    ],
-    "order": 5,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "geneva-bible",
-    "title": "Geneva Bible Study",
-    "summary": "Historical Bible study tool with Geneva Bible annotations",
-    "description": "Interactive scripture study platform featuring the Geneva Bible with original annotations, cross-references, and historical context. Purpose-built for serious biblical scholarship.",
-    "tags": ["Education", "Scripture", "History"],
-    "techStack": ["TypeScript", "React", "Vite", "GitHub Actions"],
-    "links": [
-      { "label": "Live App", "url": "https://bible.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/geneva-bible-study-t", "type": "repo" }
-    ],
-    "order": 6,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "informed-consent",
-    "title": "Informed Consent",
-    "summary": "Health advocacy and informed consent resource platform",
-    "description": "Comprehensive health information platform providing evidence-based resources for medical decision-making and informed consent documentation.",
-    "tags": ["Health Tech", "Advocacy", "Education"],
-    "techStack": ["TypeScript", "React", "Vite", "GitHub Actions"],
-    "links": [
-      { "label": "Live App", "url": "https://consent.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/informed-consent-com", "type": "repo" }
-    ],
-    "order": 7,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
-  },
-  {
-    "id": "contractor-cc",
-    "title": "Contractor Command Center",
-    "summary": "Construction project management and contractor operations tool",
-    "description": "Operations platform for construction professionals — project tracking, client management, and business administration tools designed for licensed contractors.",
-    "tags": ["Construction", "Operations", "Business"],
-    "techStack": ["TypeScript", "React", "Vite", "PWA"],
-    "links": [
-      { "label": "Live App", "url": "https://contractor.evident.icu", "type": "demo" },
-      { "label": "GitHub", "url": "https://github.com/DTMBX/contractor-command-c", "type": "repo" }
-    ],
-    "order": 8,
-    "enabled": true,
-    "featured": false,
-    "status": "active",
-    "createdAt": 1773341920860,
-    "updatedAt": 1773341920860
+    "createdAt": 1773445917429,
+    "updatedAt": 1773445943314
   }
 ]

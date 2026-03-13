@@ -2,20 +2,103 @@
   "pitchVideoUrl": "",
   "pitchVideoThumbnail": "",
   "metrics": [
-    { "id": "metric-apps", "label": "Live Applications", "value": "9", "order": 0, "trend": "up", "trendValue": "Growing" },
-    { "id": "metric-domains", "label": "Custom Domains", "value": "9", "order": 1, "trend": "up", "trendValue": "All SSL" },
-    { "id": "metric-revenue", "label": "Service Revenue", "value": "Active", "order": 2, "trend": "up", "trendValue": "Tillerstead + Web Dev" },
-    { "id": "metric-verticals", "label": "Verticals", "value": "7", "order": 3, "trend": "neutral" },
-    { "id": "metric-repos", "label": "Open Source Repos", "value": "9", "order": 4, "trend": "up", "trendValue": "Public" },
-    { "id": "metric-stack", "label": "Tech Stack Depth", "value": "15+", "order": 5, "trend": "up", "trendValue": "TypeScript · React · Vite · Node" }
+    {
+      "id": "metric-apps",
+      "label": "Live Applications",
+      "value": "9",
+      "order": 0,
+      "trend": "up",
+      "trendValue": "Growing"
+    },
+    {
+      "id": "metric-domains",
+      "label": "Custom Domains",
+      "value": "9",
+      "order": 1,
+      "trend": "up",
+      "trendValue": "All SSL"
+    },
+    {
+      "id": "metric-revenue",
+      "label": "Service Revenue",
+      "value": "Active",
+      "order": 2,
+      "trend": "up",
+      "trendValue": "Tillerstead + Web Dev"
+    },
+    {
+      "id": "metric-verticals",
+      "label": "Verticals",
+      "value": "7",
+      "order": 3,
+      "trend": "neutral"
+    },
+    {
+      "id": "metric-repos",
+      "label": "Open Source Repos",
+      "value": "9",
+      "order": 4,
+      "trend": "up",
+      "trendValue": "Public"
+    },
+    {
+      "id": "metric-stack",
+      "label": "Tech Stack Depth",
+      "value": "15+",
+      "order": 5,
+      "trend": "up",
+      "trendValue": "TypeScript · React · Vite · Node"
+    }
   ],
   "milestones": [
-    { "id": "ms-launch", "date": "2025-02", "title": "Founder Hub Launch", "description": "Operations hub and portfolio platform live at devon-tyler.com", "status": "completed", "order": 0 },
-    { "id": "ms-satellites", "date": "2025-04", "title": "Satellite Network Deployed", "description": "Six satellite apps live under evident.icu subdomains — legal, civic, economic, health, scripture, and construction tools", "status": "completed", "order": 1 },
-    { "id": "ms-ecosystem", "date": "2025-06", "title": "Full Ecosystem Operational", "description": "Nine web applications live across three domains and six subdomains, all with CI/CD pipelines", "status": "completed", "order": 2 },
-    { "id": "ms-offerings", "date": "2025-09", "title": "Web Development Services Launched", "description": "Productized web development offerings — custom business websites, landing pages, and care plans from $690–$4,990", "status": "completed", "order": 3 },
-    { "id": "ms-revenue", "date": "2026-Q2", "title": "Revenue Growth Phase", "description": "Scaling Tillerstead services and web development offerings to generate recurring revenue", "status": "in-progress", "order": 4 },
-    { "id": "ms-invest", "date": "2026-Q4", "title": "Investment Round", "description": "Opening formal investment opportunities for platform scaling and market expansion", "status": "upcoming", "order": 5 }
+    {
+      "id": "ms-launch",
+      "date": "2025-02",
+      "title": "Founder Hub Launch",
+      "description": "Operations hub and portfolio platform live at devon-tyler.com",
+      "status": "completed",
+      "order": 0
+    },
+    {
+      "id": "ms-satellites",
+      "date": "2025-04",
+      "title": "Satellite Network Deployed",
+      "description": "Six satellite apps live under evident.icu subdomains — legal, civic, economic, health, scripture, and construction tools",
+      "status": "completed",
+      "order": 1
+    },
+    {
+      "id": "ms-ecosystem",
+      "date": "2025-06",
+      "title": "Full Ecosystem Operational",
+      "description": "Nine web applications live across three domains and six subdomains, all with CI/CD pipelines",
+      "status": "completed",
+      "order": 2
+    },
+    {
+      "id": "ms-offerings",
+      "date": "2025-09",
+      "title": "Web Development Services Launched",
+      "description": "Productized web development offerings — custom business websites, landing pages, and care plans from $690–$4,990",
+      "status": "completed",
+      "order": 3
+    },
+    {
+      "id": "ms-revenue",
+      "date": "2026-Q2",
+      "title": "Revenue Growth Phase",
+      "description": "Scaling Tillerstead services and web development offerings to generate recurring revenue",
+      "status": "in-progress",
+      "order": 4
+    },
+    {
+      "id": "ms-invest",
+      "date": "2026-Q4",
+      "title": "Investment Round",
+      "description": "Opening formal investment opportunities for platform scaling and market expansion",
+      "status": "upcoming",
+      "order": 5
+    }
   ],
   "documents": [
     {
@@ -50,12 +133,42 @@
     }
   ],
   "faqs": [
-    { "id": "faq-ecosystem", "question": "What is the Evident ecosystem?", "answer": "A network of nine web applications built by Devon Tyler Barber, spanning legal tech, civic education, economic analysis, health advocacy, Bible study, construction tools, and home improvement services — all operating under the Evident Technologies umbrella.", "order": 0 },
-    { "id": "faq-deploy", "question": "How are the applications deployed?", "answer": "All applications are deployed via GitHub Pages with automated CI/CD pipelines, custom domains with SSL, and full source code available in public repositories.", "order": 1 },
-    { "id": "faq-revenue", "question": "What is the current revenue model?", "answer": "Revenue comes from two active streams: (1) Tillerstead — a licensed NJ Home Improvement Contractor (HIC #13VH10808800) generating revenue through TCNA-compliant professional tile installation services in South Jersey, and (2) productized web development services — custom business websites ($990–$4,990), single-page landings ($690–$1,290), and recurring website care plans ($99–$499/month).", "order": 2 },
-    { "id": "faq-moat", "question": "What is the competitive advantage?", "answer": "Full-stack execution by a single founder across 9 live applications with zero technical debt, automated CI/CD, custom domains with SSL, and open-source codebases. The ecosystem creates cross-referral opportunities between legal tech, civic tools, and service businesses — a network effect most solo founders can't replicate.", "order": 3 },
-    { "id": "faq-use-of-funds", "question": "How would investment capital be deployed?", "answer": "40% infrastructure scaling (dedicated hosting, databases, API services), 30% marketing and customer acquisition (SEO, paid ads, content), 20% service expansion (hiring subcontractors for Tillerstead, expanding web dev capacity), 10% legal and compliance.", "order": 4 },
-    { "id": "faq-invest", "question": "How can I partner with or invest in Evident?", "answer": "Contact iv@devon-tyler.com for investment inquiries or biz@devon-tyler.com for partnership discussions. We welcome both financial partners and strategic collaborators.", "order": 5 }
+    {
+      "id": "faq-ecosystem",
+      "question": "What is the Evident ecosystem?",
+      "answer": "A network of nine web applications built by Devon Tyler Barber, spanning legal tech, civic education, economic analysis, health advocacy, Bible study, construction tools, and home improvement services — all operating under the Evident Technologies umbrella.",
+      "order": 0
+    },
+    {
+      "id": "faq-deploy",
+      "question": "How are the applications deployed?",
+      "answer": "All applications are deployed via GitHub Pages with automated CI/CD pipelines, custom domains with SSL, and full source code available in public repositories.",
+      "order": 1
+    },
+    {
+      "id": "faq-revenue",
+      "question": "What is the current revenue model?",
+      "answer": "Revenue comes from two active streams: (1) Tillerstead — a licensed NJ Home Improvement Contractor (HIC #13VH10808800) generating revenue through TCNA-compliant professional tile installation services in South Jersey, and (2) productized web development services — custom business websites ($990–$4,990), single-page landings ($690–$1,290), and recurring website care plans ($99–$499/month).",
+      "order": 2
+    },
+    {
+      "id": "faq-moat",
+      "question": "What is the competitive advantage?",
+      "answer": "Full-stack execution by a single founder across 9 live applications with zero technical debt, automated CI/CD, custom domains with SSL, and open-source codebases. The ecosystem creates cross-referral opportunities between legal tech, civic tools, and service businesses — a network effect most solo founders can't replicate.",
+      "order": 3
+    },
+    {
+      "id": "faq-use-of-funds",
+      "question": "How would investment capital be deployed?",
+      "answer": "40% infrastructure scaling (dedicated hosting, databases, API services), 30% marketing and customer acquisition (SEO, paid ads, content), 20% service expansion (hiring subcontractors for Tillerstead, expanding web dev capacity), 10% legal and compliance.",
+      "order": 4
+    },
+    {
+      "id": "faq-invest",
+      "question": "How can I partner with or invest in Evident?",
+      "answer": "Contact iv@devon-tyler.com for investment inquiries or biz@devon-tyler.com for partnership discussions. We welcome both financial partners and strategic collaborators.",
+      "order": 5
+    }
   ],
   "investmentTiers": [
     {

@@ -1,6 +1,6 @@
 {
-  "mission": "Building lawful systems that strengthen homes, institutions, and the rule of law.",
-  "currentFocus": "Designing civic technology, contractor platforms, and lawful digital infrastructure that prioritize transparency, auditability, and structural integrity.",
+  "mission": "Building systems where technology, craftsmanship, transparency, and justice converge.",
+  "currentFocus": "Building civic technology, home improvement platforms, and legal infrastructure that increase transparency and empower communities.",
   "values": [
     "Integrity",
     "Stewardship",
@@ -9,19 +9,9 @@
   ],
   "updates": [
     {
-      "date": "2026-03",
-      "title": "Evident.icu — Launching Soon",
-      "content": "Evident.icu is in final configuration and will soon serve as the primary domain for the Evident eDiscovery Suite. The platform will be hosted under and operated by Evident Technologies LLC. Final DNS propagation is in progress, and full availability will be announced shortly."
-    },
-    {
-      "date": "2026-03",
-      "title": "Tillerstead.com — Platform Upgrade in Progress",
-      "content": "Tillerstead is currently undergoing structured improvements and feature expansion. We are refining the estimating tools, contractor workflows, and project systems to deliver a stronger, more reliable platform. Updates will be released in phases as development progresses."
-    },
-    {
-      "date": "2026-03",
-      "title": "Devon-Tyler.com — The Founder Platform Launch",
-      "content": "Evolving Founder Hub into a unified platform showcasing disciplined projects, lawful initiatives, and aligned investment opportunities."
+      "date": "2025-02",
+      "title": "Foundation Launch",
+      "content": "Establishing Founder Hub as a comprehensive platform showcasing projects, court accountability, and investment opportunities."
     }
   ]
 }
