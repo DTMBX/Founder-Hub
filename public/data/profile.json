@@ -2,25 +2,25 @@
   "ownerName": "Devon Tyler Barber",
   "title": "Founder & Innovator",
   "bio": "Builder of systems where technology, craftsmanship, transparency, and justice converge.",
-  "catchAllEmail": "dTb33@pm.me",
+  "catchAllEmail": "hi@devon-tyler.com",
   "professionalEmails": [
     {
       "label": "Legal & Court",
-      "email": "dTb33@pm.me",
-      "icon": "envelope",
+      "email": "law@devon-tyler.com",
+      "icon": "scales",
       "desc": "Case Inquiries / Contingency Review"
     },
     {
       "label": "Schedule a Call",
       "email": "info@tillerstead.com",
-      "icon": "envelope",
+      "icon": "handshake",
       "desc": "NJ HIC #13VH10808800"
     },
     {
       "label": "Web Development",
-      "email": "X@Devon-Tyler.com",
-      "icon": "envelope",
-      "desc": "Inquiries"
+      "email": "biz@devon-tyler.com",
+      "icon": "chart",
+      "desc": "Projects & Collaborations"
     }
   ],
   "domain": "devon-tyler.com"

@@ -2,7 +2,7 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Link } from '@/lib/types'
 import { GlassCard } from '@/components/ui/glass-card'
 import { GlassButton } from '@/components/ui/glass-button'
-import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight, Globe, LinkSimple } from '@phosphor-icons/react'
+import { EnvelopeSimple, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight, Globe, LinkSimple } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { contactContent } from '@/config/content.config'
 
@@ -61,7 +61,6 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
   const [profile] = useKV<SiteProfile | null>('founder-hub-profile', null)
 
   const emails = profile?.professionalEmails?.length ? profile.professionalEmails : DEFAULT_EMAILS
-  const contactLinks = links?.filter(l => l.category === 'contact').sort((a, b) => a.order - b.order) || []
   const socialLinks = links?.filter(l => l.category === 'social').sort((a, b) => a.order - b.order) || []
 
   const getSocialIcon = (icon?: string) => {
@@ -114,9 +113,9 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <GlassButton variant="glassPrimary" size="lg" asChild className="bg-emerald-600/20 border-emerald-500/40 hover:bg-emerald-600/30">
-                    <a href="mailto:invest@devon-tyler.com">
+                    <a href="mailto:iv@devon-tyler.com">
                       <EnvelopeSimple className="h-5 w-5 mr-2" />
-                      invest@devon-tyler.com
+                      iv@devon-tyler.com
                     </a>
                   </GlassButton>
                 </div>
@@ -174,26 +173,6 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
             })}
           </div>
         </motion.div>
-
-        {/* Additional contact links */}
-        {contactLinks.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="flex flex-wrap justify-center gap-3 mb-10"
-          >
-            {contactLinks.filter(link => link.url).map(link => (
-              <GlassButton key={link.id} variant="glass" size="lg" asChild>
-                <a href={link.url} target="_blank" rel="noopener noreferrer" className="gap-2">
-                  {link.icon === 'calendar' && <CalendarBlank className="h-5 w-5" />}
-                  {link.label}
-                </a>
-              </GlassButton>
-            ))}
-          </motion.div>
-        )}
 
         {/* Social links */}
         {socialLinks.length > 0 && (

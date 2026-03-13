@@ -199,8 +199,9 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
 
           {/* GitHub Token form */}
           {loginTab === 'github' ? (
-            <div>
+            <form onSubmit={(e) => { e.preventDefault(); handleGitHubTokenLogin(); }}>
               <CardContent className="space-y-4 pt-6">
+                <input type="text" name="username" autoComplete="username" value="DTMBX" readOnly tabIndex={-1} aria-hidden="true" className="sr-only" />
                 <p className="text-xs text-muted-foreground">
                   Sign in from anywhere using a GitHub Personal Access Token with repo access to <strong>DTMBX/Founder-Hub</strong>.
                 </p>
@@ -268,7 +269,7 @@ export default function AdminLogin({ onBack }: AdminLoginProps) {
                   Back to site
                 </Button>
               </CardFooter>
-            </div>
+            </form>
           ) : (
           /* Email/password form (existing) */
           <form onSubmit={handleSubmit}>

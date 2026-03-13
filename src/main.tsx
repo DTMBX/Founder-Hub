@@ -29,7 +29,16 @@ createRoot(document.getElementById('root')!).render(
 
 // Register service worker for offline support & PWA caching
 import('./pwa/register-sw').then(m => m.registerServiceWorker({
-  onUpdate: () => console.log('[PWA] New version available — refresh to update'),
+  onUpdate: () => {
+    // Show non-blocking update notification via Sonner toast
+    import('sonner').then(({ toast }) => {
+      toast('Update available', {
+        description: 'A new version is ready. Refresh to apply.',
+        action: { label: 'Refresh', onClick: () => window.location.reload() },
+        duration: 15000,
+      })
+    })
+  },
 }))
 
 // Report Core Web Vitals (async — zero impact on load)

@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Devon Tyler Barber — Founder & Technologist. Custom web development, civic technology platforms, and digital infrastructure built with clean code and full ownership." />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://api.stripe.com; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self';" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
@@ -37,6 +37,33 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lora:wght@400;500;600;700&display=swap">
     <link href="/src/main.css" rel="stylesheet" />
     <link rel="canonical" href="https://devon-tyler.com/" />
+    <link rel="preconnect" href="https://api.github.com" />
+    <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Devon Tyler Barber",
+        "alternateName": "Devon Tyler",
+        "url": "https://devon-tyler.com",
+        "image": "https://devon-tyler.com/og-preview.png",
+        "jobTitle": "Founder & Technologist",
+        "description": "Custom web development, civic technology platforms, and digital infrastructure. Clean code, full ownership, real results.",
+        "sameAs": [
+          "https://github.com/DTMBX",
+          "https://www.evident.icu"
+        ],
+        "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Devon Tyler Barber",
+        "url": "https://devon-tyler.com",
+        "description": "Custom web development, civic technology platforms, and digital infrastructure. Clean code, full ownership, real results."
+      }
+    ]
+    </script>
     <script>
       // Prevent FOUC — apply stored theme before first paint
       (function(){

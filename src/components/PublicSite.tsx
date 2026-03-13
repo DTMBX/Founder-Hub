@@ -220,7 +220,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
       {/* Pathway mode indicator — positioned below honor bar (56/64px) + nav (64px) + 8px gap */}
       {pathway !== 'all' && (
-        <div className="fixed top-[128px] md:top-[136px] right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+        <div className="fixed top-[128px] md:top-[136px] right-4 z-40 flex items-center gap-2 animate-in slide-in-from-right-4 duration-300" role="status" aria-live="polite">
           <Badge variant="secondary" className={`backdrop-blur-xl bg-card/90 border px-3 py-1.5 text-xs font-medium shadow-lg ${pathwayLabels[pathway]?.color}`}>
             {pathwayLabels[pathway]?.label}
           </Badge>
@@ -306,18 +306,23 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               </button>
             </nav>
             <div className="text-center md:text-right">
-              <a href={`mailto:${profile?.catchAllEmail || 'd@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
-                {profile?.catchAllEmail || 'd@devon-tyler.com'}
+              <a href={`mailto:${profile?.catchAllEmail || 'hi@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
+                {profile?.catchAllEmail || 'hi@devon-tyler.com'}
               </a>
-              <p className="text-[11px] text-muted-foreground/50 mt-1">
+              <p className="text-xs text-muted-foreground/50 mt-1">
                 &copy; {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.
               </p>
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-border/20 text-center">
-            <p className="text-[11px] text-muted-foreground/40 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xs text-muted-foreground/40 max-w-3xl mx-auto leading-relaxed">
               This site is for informational purposes only and does not constitute legal advice. Court documents referenced are public records obtained through lawful channels. All trademarks and third-party content belong to their respective owners.
             </p>
+            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground/40">
+              <a href="#privacy" className="hover:text-muted-foreground transition-colors">Privacy</a>
+              <span aria-hidden="true">&middot;</span>
+              <a href="#terms" className="hover:text-muted-foreground transition-colors">Terms</a>
+            </div>
           </div>
         </div>
       </footer>

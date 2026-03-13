@@ -15,6 +15,7 @@ const CheckoutResult = lazy(() => import('./components/CheckoutResult'))
 const SiteRouter = lazy(() => import('./components/sites/SiteRouter'))
 const OfferingPage = lazy(() => import('./marketing').then(m => ({ default: m.OfferingPage })))
 const StudioPreview = lazy(() => import('./components/dev/StudioPreview'))
+const LegalPage = lazy(() => import('./components/LegalPage'))
 
 type View =
   | 'public'
@@ -26,12 +27,14 @@ type View =
   | 'site-preview'
   | 'studio-preview'
   | 'offerings'
+  | 'legal'
 
 function App() {
   const [view, setView] = useState<View>('public')
   const [caseId, setCaseId] = useState<string>('')
   const [siteSlug, setSiteSlug] = useState<string>('')
   const [sitePreviewId, setSitePreviewId] = useState<string>('')
+  const [legalSlug, setLegalSlug] = useState<string>('')
   const { isAuthenticated, isLoading, needsFirstRunSetup } = useAuth()
   
   useInitializeSampleData()
@@ -81,6 +84,9 @@ function App() {
       setView('checkout-success')
     } else if (hash === 'checkout/cancel') {
       setView('checkout-cancel')
+    } else if (hash === 'privacy' || hash === 'terms') {
+      setLegalSlug(hash)
+      setView('legal')
     }
   }, [])
 
@@ -195,6 +201,14 @@ function App() {
     return (
       <Suspense fallback={routeFallback}>
         <StudioPreview />
+      </Suspense>
+    )
+  }
+
+  if (view === 'legal' && legalSlug) {
+    return (
+      <Suspense fallback={routeFallback}>
+        <LegalPage slug={legalSlug} onBack={handleBackToPublic} />
       </Suspense>
     )
   }

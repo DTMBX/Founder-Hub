@@ -225,7 +225,8 @@ async function cacheFirstWithNetwork(request, cacheName) {
 
   try {
     const response = await fetch(request)
-    if (response.ok) {
+    // Only cache complete (200) same-origin responses — skip 206 partial and opaque
+    if (response.ok && response.status === 200 && response.type !== 'opaque') {
       const cache = await caches.open(cacheName)
       cache.put(request, response.clone())
     }
@@ -238,7 +239,8 @@ async function cacheFirstWithNetwork(request, cacheName) {
 async function networkFirstWithCache(request, cacheName) {
   try {
     const response = await fetch(request)
-    if (response.ok) {
+    // Only cache complete (200) same-origin responses — skip 206 partial and opaque
+    if (response.ok && response.status === 200 && response.type !== 'opaque') {
       const cache = await caches.open(cacheName)
       cache.put(request, response.clone())
     }

@@ -202,6 +202,7 @@ export const ROUTE_PERMISSIONS: Record<string, UserRole> = {
   'provenance': 'admin',
   'incidents': 'admin',
   'audit-integrity': 'admin',
+  'performance': 'admin',
   
   // Owner routes - owner only
   'settings': 'owner',
@@ -346,6 +347,11 @@ export const ACTION_GUARDS: Record<string, ActionGuard> = {
     requiresConfirmation: true,
     confirmationType: 'typed',
     confirmationText: 'WIPE-ALL-DATA',
+    auditRequired: true,
+  },
+  'incident-manage': {
+    permission: 'cases:edit',
+    requiresConfirmation: false,
     auditRequired: true,
   },
 }

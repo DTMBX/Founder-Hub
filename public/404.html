@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redirecting…</title>
+  <script>
+    // GitHub Pages SPA redirect — converts path-based URLs to hash routes
+    // so that direct links like /admin or /checkout/success work correctly.
+    var path = window.location.pathname;
+    var hash = window.location.hash;
+    var search = window.location.search;
+    if (path && path !== '/' && path !== '/index.html') {
+      // Convert /admin → /#admin, /case/123 → /#case/123
+      var route = path.replace(/^\//, '');
+      window.location.replace('/' + search + '#' + route + (hash ? hash.slice(1) : ''));
+    } else {
+      window.location.replace('/' + search + hash);
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting&hellip;</p>
+</body>
+</html>
