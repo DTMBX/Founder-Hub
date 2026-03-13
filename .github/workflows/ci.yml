@@ -80,6 +80,9 @@ jobs:
           path: dist/
           retention-days: 7
 
+      - name: Check bundle size budget
+        run: npx size-limit
+
   # ─────────────────────────────────────────────────────────────────────────────
   # TEST JOB - Required for branch protection
   # ─────────────────────────────────────────────────────────────────────────────

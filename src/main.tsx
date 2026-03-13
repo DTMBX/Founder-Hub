@@ -27,6 +27,11 @@ createRoot(document.getElementById('root')!).render(
   </ErrorBoundary>
 )
 
+// Register service worker for offline support & PWA caching
+import('./pwa/register-sw').then(m => m.registerServiceWorker({
+  onUpdate: () => console.log('[PWA] New version available — refresh to update'),
+}))
+
 // Report Core Web Vitals (async — zero impact on load)
 import('./lib/web-vitals').then(m => m.reportWebVitals())
 
