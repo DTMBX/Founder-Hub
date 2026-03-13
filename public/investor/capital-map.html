@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capital Deployment Map — Devon Tyler Barber / Evident Technologies</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e5e5e5; line-height: 1.7; padding: 3rem 1.5rem; }
+    .page { max-width: 800px; margin: 0 auto; }
+    .header { border-bottom: 1px solid #333; padding-bottom: 2rem; margin-bottom: 2rem; }
+    .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+    .header .subtitle { color: #888; font-size: 0.95rem; }
+    .header .date { color: #666; font-size: 0.85rem; margin-top: 0.5rem; }
+    h2 { font-size: 1.25rem; font-weight: 600; margin: 2rem 0 0.75rem; color: #fff; }
+    p { margin-bottom: 1rem; color: #ccc; }
+    .total { background: linear-gradient(135deg, #0f2a1f, #0a0a0a); border: 1px solid #1a3a2a; border-radius: 16px; padding: 2rem; margin: 2rem 0; text-align: center; }
+    .total .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; color: #888; }
+    .total .value { font-size: 2.5rem; font-weight: 700; color: #34d399; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+    th { text-align: left; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: #888; padding: 0.75rem; border-bottom: 2px solid #333; }
+    td { padding: 0.75rem; border-bottom: 1px solid #1a1a1a; color: #ccc; }
+    td:last-child { text-align: right; font-weight: 600; color: #fff; }
+    .bar-row { display: flex; align-items: center; gap: 1rem; margin: 0.75rem 0; }
+    .bar-label { flex: 0 0 140px; font-size: 0.9rem; color: #ccc; }
+    .bar-track { flex: 1; height: 28px; background: #111; border-radius: 6px; overflow: hidden; border: 1px solid #222; }
+    .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 0.75rem; font-size: 0.8rem; font-weight: 600; color: #fff; }
+    .bar-pct { flex: 0 0 50px; text-align: right; font-weight: 600; color: #34d399; }
+    .note { background: #111; border: 1px solid #222; border-radius: 8px; padding: 1rem; margin: 1.5rem 0; }
+    .note-title { font-weight: 600; color: #fff; margin-bottom: 0.25rem; }
+    .note p { font-size: 0.9rem; margin-bottom: 0; }
+    .back { display: inline-block; margin-top: 2rem; color: #34d399; text-decoration: none; font-size: 0.9rem; }
+    .back:hover { text-decoration: underline; }
+    .footer { border-top: 1px solid #222; margin-top: 3rem; padding-top: 1.5rem; color: #666; font-size: 0.8rem; }
+    @media print { body { background: #fff; color: #111; } th { color: #333; } td { color: #111; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>Capital Deployment Map</h1>
+      <div class="subtitle">Devon Tyler Barber — Evident Technologies LLC</div>
+      <div class="date">Updated March 2026</div>
+    </div>
+
+    <div class="total">
+      <div class="label">Total Raise</div>
+      <div class="value">$50,000</div>
+    </div>
+
+    <h2>Allocation Overview</h2>
+
+    <div class="bar-row">
+      <div class="bar-label">Infrastructure</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 40%; background: #34d399;">$20,000</div></div>
+      <div class="bar-pct">40%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Marketing</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 30%; background: #60a5fa;">$15,000</div></div>
+      <div class="bar-pct">30%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Service Expansion</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 20%; background: #f59e0b;">$10,000</div></div>
+      <div class="bar-pct">20%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">Legal &amp; Compliance</div>
+      <div class="bar-track"><div class="bar-fill" style="width: 10%; background: #a78bfa;">$5,000</div></div>
+      <div class="bar-pct">10%</div>
+    </div>
+
+    <h2>Detailed Line Items</h2>
+
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Item</th><th>Amount</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Infrastructure</td><td>Dedicated hosting (VPS/cloud migration from GitHub Pages)</td><td>$8,000</td></tr>
+        <tr><td>Infrastructure</td><td>Database services (PostgreSQL, Redis)</td><td>$5,000</td></tr>
+        <tr><td>Infrastructure</td><td>API services (OpenAI, auth, email)</td><td>$4,000</td></tr>
+        <tr><td>Infrastructure</td><td>Monitoring &amp; security tools</td><td>$3,000</td></tr>
+        <tr><td>Marketing</td><td>SEO &amp; content marketing</td><td>$6,000</td></tr>
+        <tr><td>Marketing</td><td>Paid advertising (Google, LinkedIn)</td><td>$5,000</td></tr>
+        <tr><td>Marketing</td><td>Brand assets &amp; collateral</td><td>$4,000</td></tr>
+        <tr><td>Expansion</td><td>Tillerstead subcontractor onboarding</td><td>$5,000</td></tr>
+        <tr><td>Expansion</td><td>Freelance dev capacity for client projects</td><td>$5,000</td></tr>
+        <tr><td>Legal</td><td>IP protection, contracts, compliance</td><td>$5,000</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Expected Outcomes (12 Months)</h2>
+
+    <div class="note">
+      <div class="note-title">Infrastructure</div>
+      <p>Migrate from static GitHub Pages to dedicated hosting. Enables server-side features, databases, and real-time capabilities across all 9 apps.</p>
+    </div>
+    <div class="note">
+      <div class="note-title">Marketing</div>
+      <p>Generate 50+ qualified leads/month for web development services. Establish organic search presence for Tillerstead in South Jersey market.</p>
+    </div>
+    <div class="note">
+      <div class="note-title">Revenue Target</div>
+      <p>$8K–$15K monthly recurring revenue from web development care plans + Tillerstead project pipeline within 12 months of funding.</p>
+    </div>
+
+    <a class="back" href="/">&larr; Back to devon-tyler.com</a>
+
+    <div class="footer">
+      &copy; 2026 Devon Tyler Barber / Evident Technologies LLC. Confidential — for prospective investors only.
+    </div>
+  </div>
+</body>
+</html>

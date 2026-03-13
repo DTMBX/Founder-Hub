@@ -106,10 +106,10 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
                 Open to Investment
               </Badge>
               <a 
-                href="mailto:invest@devon-tyler.com" 
+                href="mailto:iv@devon-tyler.com" 
                 className="text-sm text-emerald-400 hover:text-emerald-300 underline underline-offset-4 decoration-emerald-500/40 hover:decoration-emerald-400 transition-colors"
               >
-                invest@devon-tyler.com
+                iv@devon-tyler.com
               </a>
             </div>
           )}

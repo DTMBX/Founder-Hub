@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pitch Deck — Devon Tyler Barber / Evident Technologies</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e5e5e5; line-height: 1.7; }
+    .slide { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 4rem 2rem; max-width: 900px; margin: 0 auto; border-bottom: 1px solid #222; }
+    .slide:last-child { border-bottom: none; }
+    .slide-num { font-size: 0.75rem; color: #555; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 1rem; }
+    h1 { font-size: 3rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.5rem; }
+    h2 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1rem; color: #fff; }
+    h3 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: #ddd; }
+    p { margin-bottom: 1rem; color: #bbb; font-size: 1.1rem; }
+    .accent { color: #34d399; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; }
+    .card h3 { margin-bottom: 0.5rem; }
+    .card p { font-size: 0.95rem; margin-bottom: 0; }
+    .big-num { font-size: 2.5rem; font-weight: 700; color: #34d399; }
+    .label { font-size: 0.85rem; color: #888; }
+    ul { padding-left: 1.5rem; margin: 1rem 0; }
+    li { margin-bottom: 0.5rem; color: #ccc; }
+    .highlight { background: linear-gradient(135deg, #0f2a1f, #0a0a0a); border: 1px solid #1a3a2a; border-radius: 16px; padding: 2rem; margin: 2rem 0; text-align: center; }
+    .footer { text-align: center; padding: 3rem; color: #555; font-size: 0.8rem; }
+    a { color: #34d399; }
+    .back { display: inline-block; margin-top: 2rem; color: #34d399; text-decoration: none; font-size: 0.9rem; }
+    .back:hover { text-decoration: underline; }
+    @media (max-width: 600px) { h1 { font-size: 2rem; } h2 { font-size: 1.5rem; } .slide { padding: 3rem 1.5rem; } }
+  </style>
+</head>
+<body>
+
+  <!-- Slide 1: Title -->
+  <div class="slide">
+    <div class="slide-num">Slide 1 of 12</div>
+    <h1>Evident Technologies</h1>
+    <p style="font-size: 1.3rem; color: #888;">A vertically integrated technology ecosystem</p>
+    <p class="accent" style="font-size: 1.1rem;">Devon Tyler Barber — Founder &amp; Technologist</p>
+    <p style="color: #555;">devon-tyler.com &middot; iv@devon-tyler.com &middot; March 2026</p>
+  </div>
+
+  <!-- Slide 2: Problem -->
+  <div class="slide">
+    <div class="slide-num">Slide 2 — The Problem</div>
+    <h2>Complex Systems Lack Accessible Tools</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Legal Tech</h3>
+        <p>Legal research tools are expensive, fragmented, and inaccessible to individuals representing themselves.</p>
+      </div>
+      <div class="card">
+        <h3>Civic Literacy</h3>
+        <p>Most Americans cannot describe the hierarchy of legal authority that governs them.</p>
+      </div>
+      <div class="card">
+        <h3>Small Business</h3>
+        <p>Custom websites cost $10K–$50K from agencies. Small businesses need professional sites at fair prices.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Solution -->
+  <div class="slide">
+    <div class="slide-num">Slide 3 — The Solution</div>
+    <h2>One Ecosystem, Nine Applications</h2>
+    <p>Each application solves a specific problem. Together, they create a self-reinforcing ecosystem with cross-vertical referrals and shared infrastructure.</p>
+    <div class="grid">
+      <div class="card"><h3>Evident</h3><p>AI-powered litigation support</p></div>
+      <div class="card"><h3>Founder Hub</h3><p>Operations &amp; investor portal</p></div>
+      <div class="card"><h3>Tillerstead</h3><p>Licensed NJ contractor site</p></div>
+      <div class="card"><h3>Civics Hierarchy</h3><p>Legal authority mapping</p></div>
+      <div class="card"><h3>Document Library</h3><p>DOJ evidence analysis</p></div>
+      <div class="card"><h3>Essential Goods</h3><p>Cost-of-living tracker</p></div>
+      <div class="card"><h3>Geneva Bible Study</h3><p>Historical scripture tool</p></div>
+      <div class="card"><h3>Informed Consent</h3><p>Health advocacy platform</p></div>
+      <div class="card"><h3>Contractor CC</h3><p>Project management for trades</p></div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Traction -->
+  <div class="slide">
+    <div class="slide-num">Slide 4 — Traction</div>
+    <h2>Built &amp; Shipped</h2>
+    <div class="grid">
+      <div class="card" style="text-align: center;"><div class="big-num">9</div><div class="label">Live Applications</div></div>
+      <div class="card" style="text-align: center;"><div class="big-num">9</div><div class="label">Custom Domains (SSL)</div></div>
+      <div class="card" style="text-align: center;"><div class="big-num">7</div><div class="label">Industry Verticals</div></div>
+      <div class="card" style="text-align: center;"><div class="big-num">2</div><div class="label">Revenue Streams</div></div>
+    </div>
+    <p>All built by a single founder with zero outside capital. Every app has automated CI/CD, public source code, and production uptime.</p>
+  </div>
+
+  <!-- Slide 5: Revenue -->
+  <div class="slide">
+    <div class="slide-num">Slide 5 — Revenue Model</div>
+    <h2>Two Active Revenue Streams</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Tillerstead Services</h3>
+        <p>Licensed NJ Home Improvement Contractor (HIC #13VH10808800). Professional tile installation in South Jersey. Per-project billing with repeat customer base.</p>
+      </div>
+      <div class="card">
+        <h3>Web Development</h3>
+        <p>Productized offerings: Custom business websites ($990–$4,990), landing pages ($690–$1,290), and recurring care plans ($99–$499/month).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Market -->
+  <div class="slide">
+    <div class="slide-num">Slide 6 — Market Opportunity</div>
+    <h2>Multi-Vertical Addressable Market</h2>
+    <ul>
+      <li><strong>Legal Tech:</strong> $28B market growing 8% annually — self-represented litigants need affordable tools</li>
+      <li><strong>SMB Web Development:</strong> 71% of small businesses have a website, but most need upgrades — $100B+ global market</li>
+      <li><strong>Home Improvement:</strong> $600B+ US industry — licensed contractors with digital presence win more bids</li>
+      <li><strong>Civic Tech:</strong> Growing post-2020, with federal and state transparency mandates creating new tool demand</li>
+    </ul>
+  </div>
+
+  <!-- Slide 7: Competitive Advantage -->
+  <div class="slide">
+    <div class="slide-num">Slide 7 — Competitive Advantage</div>
+    <h2>Why This Wins</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Full-Stack Solo Founder</h3>
+        <p>Zero coordination overhead. Ship speed of a startup with the output of a 5-person team.</p>
+      </div>
+      <div class="card">
+        <h3>Cross-Vertical Network</h3>
+        <p>Legal tech users discover civic tools. Contractor clients refer web dev. Each app feeds the ecosystem.</p>
+      </div>
+      <div class="card">
+        <h3>Open Source Credibility</h3>
+        <p>9 public repos demonstrate competence. Investors can audit the code before writing a check.</p>
+      </div>
+      <div class="card">
+        <h3>Low Burn Rate</h3>
+        <p>GitHub Pages hosting = $0/month for all 9 apps. Revenue goes to growth, not infrastructure.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Roadmap -->
+  <div class="slide">
+    <div class="slide-num">Slide 8 — Roadmap</div>
+    <h2>Execution Timeline</h2>
+    <ul>
+      <li><span class="accent">&#10003;</span> <strong>Feb 2025:</strong> Founder Hub launched at devon-tyler.com</li>
+      <li><span class="accent">&#10003;</span> <strong>Apr 2025:</strong> 6 satellite apps deployed under evident.icu subdomains</li>
+      <li><span class="accent">&#10003;</span> <strong>Jun 2025:</strong> Full 9-app ecosystem operational with CI/CD</li>
+      <li><span class="accent">&#10003;</span> <strong>Sep 2025:</strong> Web development services launched (3 tiers)</li>
+      <li>&#9711; <strong>Q2 2026:</strong> Revenue growth — scaling Tillerstead + web dev client base</li>
+      <li>&#9711; <strong>Q4 2026:</strong> Investment round — platform expansion and market penetration</li>
+    </ul>
+  </div>
+
+  <!-- Slide 9: Use of Funds -->
+  <div class="slide">
+    <div class="slide-num">Slide 9 — Use of Funds</div>
+    <h2>Capital Deployment</h2>
+    <div class="highlight">
+      <div class="label">Raising</div>
+      <div class="big-num">$50,000</div>
+    </div>
+    <div class="grid">
+      <div class="card" style="text-align: center;"><div class="big-num" style="font-size: 2rem;">40%</div><div class="label">Infrastructure</div><p style="font-size: 0.85rem;">Dedicated hosting, databases, API services</p></div>
+      <div class="card" style="text-align: center;"><div class="big-num" style="font-size: 2rem;">30%</div><div class="label">Marketing</div><p style="font-size: 0.85rem;">SEO, paid acquisition, content marketing</p></div>
+      <div class="card" style="text-align: center;"><div class="big-num" style="font-size: 2rem;">20%</div><div class="label">Expansion</div><p style="font-size: 0.85rem;">Subcontractors, web dev capacity</p></div>
+      <div class="card" style="text-align: center;"><div class="big-num" style="font-size: 2rem;">10%</div><div class="label">Legal</div><p style="font-size: 0.85rem;">Compliance, contracts, IP protection</p></div>
+    </div>
+  </div>
+
+  <!-- Slide 10: Investment Terms -->
+  <div class="slide">
+    <div class="slide-num">Slide 10 — Investment Terms</div>
+    <h2>Partnership Tiers</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Angel</h3>
+        <div class="big-num" style="font-size: 1.75rem;">$5K–$25K</div>
+        <p style="font-size: 0.85rem;">2–5% equity. Quarterly updates, early feature access, logo placement.</p>
+      </div>
+      <div class="card">
+        <h3>Growth Partner</h3>
+        <div class="big-num" style="font-size: 1.75rem;">$25K–$100K</div>
+        <p style="font-size: 0.85rem;">5–12% equity. Monthly strategy calls, advisory seat, revenue share on referrals.</p>
+      </div>
+      <div class="card">
+        <h3>Strategic Partner</h3>
+        <div class="big-num" style="font-size: 1.75rem;">$100K+</div>
+        <p style="font-size: 0.85rem;">12–25% equity. Board seat, joint ventures, white-label licensing, co-branding.</p>
+      </div>
+    </div>
+    <p>Expected ROI: <span class="accent">3–5x over 36 months</span></p>
+  </div>
+
+  <!-- Slide 11: Team -->
+  <div class="slide">
+    <div class="slide-num">Slide 11 — Team</div>
+    <h2>About the Founder</h2>
+    <h3>Devon Tyler Barber</h3>
+    <p>Full-stack developer and licensed contractor. Built 9 production web applications as a solo founder — TypeScript, React, Node.js, Vite, CI/CD, and cloud infrastructure.</p>
+    <ul>
+      <li>Licensed NJ Home Improvement Contractor (HIC #13VH10808800)</li>
+      <li>TCNA-certified tile installer</li>
+      <li>9 open-source repositories on GitHub</li>
+      <li>Self-taught technologist with multi-vertical execution track record</li>
+    </ul>
+  </div>
+
+  <!-- Slide 12: Contact -->
+  <div class="slide">
+    <div class="slide-num">Slide 12 — Next Steps</div>
+    <h2>Let's Talk</h2>
+    <div class="highlight">
+      <p style="font-size: 1.2rem; color: #fff; margin-bottom: 0.5rem;">Devon Tyler Barber</p>
+      <p><a href="mailto:iv@devon-tyler.com">iv@devon-tyler.com</a></p>
+      <p><a href="https://devon-tyler.com">devon-tyler.com</a></p>
+    </div>
+    <a class="back" href="/">&larr; Back to devon-tyler.com</a>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 Devon Tyler Barber / Evident Technologies LLC. Confidential — for prospective investors only.
+  </div>
+
+</body>
+</html>
