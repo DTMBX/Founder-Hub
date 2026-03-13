@@ -25,7 +25,15 @@ const GovernanceNarrativeSection = lazy(() => import('../sections/GovernanceNarr
 
 function SectionSkeleton() {
   return (
-    <div className="min-h-[200px] animate-pulse bg-muted/10 rounded-lg mx-auto max-w-7xl my-8" />
+    <div className="min-h-[420px] animate-pulse mx-auto max-w-7xl my-8 px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="h-10 w-64 bg-muted/10 rounded-lg" />
+      <div className="h-5 w-96 max-w-full bg-muted/8 rounded" />
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 mt-8">
+        <div className="h-48 bg-muted/10 rounded-xl" />
+        <div className="h-48 bg-muted/8 rounded-xl" />
+        <div className="h-48 bg-muted/6 rounded-xl hidden xl:block" />
+      </div>
+    </div>
   )
 }
 

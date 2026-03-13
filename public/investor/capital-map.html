@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Capital Deployment Map — Devon Tyler Barber / Evident Technologies</title>
+  <link rel="canonical" href="https://devon-tyler.com/investor/capital-map.html">
+  <meta name="description" content="Capital deployment breakdown for Evident Technologies — $50K raise across infrastructure, marketing, expansion, and legal.">
+  <meta property="og:title" content="Capital Deployment Map — Devon Tyler Barber">
+  <meta property="og:description" content="Detailed $50K capital allocation: 40% infrastructure, 30% marketing, 20% expansion, 10% legal.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://devon-tyler.com/investor/capital-map.html">
+  <meta property="og:image" content="https://devon-tyler.com/og/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="robots" content="noindex">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #e5e5e5; line-height: 1.7; padding: 3rem 1.5rem; }
@@ -51,23 +60,23 @@
     <h2>Allocation Overview</h2>
 
     <div class="bar-row">
-      <div class="bar-label">Infrastructure</div>
-      <div class="bar-track"><div class="bar-fill" style="width: 40%; background: #34d399;">$20,000</div></div>
+      <div class="bar-label" id="bar-infra">Infrastructure</div>
+      <div class="bar-track" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-labelledby="bar-infra"><div class="bar-fill" style="width: 40%; background: #34d399;">$20,000</div></div>
       <div class="bar-pct">40%</div>
     </div>
     <div class="bar-row">
-      <div class="bar-label">Marketing</div>
-      <div class="bar-track"><div class="bar-fill" style="width: 30%; background: #60a5fa;">$15,000</div></div>
+      <div class="bar-label" id="bar-mktg">Marketing</div>
+      <div class="bar-track" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" aria-labelledby="bar-mktg"><div class="bar-fill" style="width: 30%; background: #60a5fa;">$15,000</div></div>
       <div class="bar-pct">30%</div>
     </div>
     <div class="bar-row">
-      <div class="bar-label">Service Expansion</div>
-      <div class="bar-track"><div class="bar-fill" style="width: 20%; background: #f59e0b;">$10,000</div></div>
+      <div class="bar-label" id="bar-exp">Service Expansion</div>
+      <div class="bar-track" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" aria-labelledby="bar-exp"><div class="bar-fill" style="width: 20%; background: #f59e0b;">$10,000</div></div>
       <div class="bar-pct">20%</div>
     </div>
     <div class="bar-row">
-      <div class="bar-label">Legal &amp; Compliance</div>
-      <div class="bar-track"><div class="bar-fill" style="width: 10%; background: #a78bfa;">$5,000</div></div>
+      <div class="bar-label" id="bar-legal">Legal &amp; Compliance</div>
+      <div class="bar-track" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" aria-labelledby="bar-legal"><div class="bar-fill" style="width: 10%; background: #a78bfa;">$5,000</div></div>
       <div class="bar-pct">10%</div>
     </div>
 
@@ -75,7 +84,7 @@
 
     <table>
       <thead>
-        <tr><th>Category</th><th>Item</th><th>Amount</th></tr>
+        <tr><th scope="col">Category</th><th scope="col">Item</th><th scope="col">Amount</th></tr>
       </thead>
       <tbody>
         <tr><td>Infrastructure</td><td>Dedicated hosting (VPS/cloud migration from GitHub Pages)</td><td>$8,000</td></tr>
@@ -92,6 +101,7 @@
     </table>
 
     <h2>Expected Outcomes (12 Months)</h2>
+    <p style="font-size: 0.85rem; color: #888; font-style: italic;">Forward-looking projections — actual results may vary based on market conditions and execution.</p>
 
     <div class="note">
       <div class="note-title">Infrastructure</div>
