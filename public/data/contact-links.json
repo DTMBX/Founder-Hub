@@ -39,7 +39,7 @@
     "id": "github",
     "label": "GitHub",
     "url": "https://github.com/DTMBX",
-    "icon": "general",
+    "icon": "github",
     "category": "social",
     "description": "Open-source projects and contributions",
     "order": 4

@@ -2,7 +2,7 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Link } from '@/lib/types'
 import { GlassCard } from '@/components/ui/glass-card'
 import { GlassButton } from '@/components/ui/glass-button'
-import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight } from '@phosphor-icons/react'
+import { EnvelopeSimple, CalendarBlank, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight, Globe, LinkSimple } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { contactContent } from '@/config/content.config'
 
@@ -49,6 +49,11 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
   support: Headset,
   press: Newspaper,
   general: At,
+  github: GithubLogo,
+  linkedin: LinkedinLogo,
+  twitter: TwitterLogo,
+  globe: Globe,
+  link: LinkSimple,
 }
 
 export default function ContactSection({ investorMode }: ContactSectionProps) {
@@ -60,12 +65,10 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
   const socialLinks = links?.filter(l => l.category === 'social').sort((a, b) => a.order - b.order) || []
 
   const getSocialIcon = (icon?: string) => {
-    switch (icon) {
-      case 'github': return <GithubLogo className="h-5 w-5" weight="duotone" />
-      case 'linkedin': return <LinkedinLogo className="h-5 w-5" weight="duotone" />
-      case 'twitter': return <TwitterLogo className="h-5 w-5" weight="duotone" />
-      default: return null
-    }
+    if (!icon) return <Globe className="h-5 w-5" weight="duotone" />
+    const Icon = ICON_MAP[icon]
+    if (Icon) return <Icon className="h-5 w-5" weight="duotone" />
+    return <Globe className="h-5 w-5" weight="duotone" />
   }
 
   return (
@@ -181,7 +184,7 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-wrap justify-center gap-3 mb-10"
           >
-            {contactLinks.map(link => (
+            {contactLinks.filter(link => link.url).map(link => (
               <GlassButton key={link.id} variant="glass" size="lg" asChild>
                 <a href={link.url} target="_blank" rel="noopener noreferrer" className="gap-2">
                   {link.icon === 'calendar' && <CalendarBlank className="h-5 w-5" />}
@@ -201,13 +204,14 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
             transition={{ duration: 0.6, delay: 0.3 }}
           >
             <div className="flex justify-center gap-3 pt-8 border-t border-border/30">
-              {socialLinks.map(link => (
+              {socialLinks.filter(link => link.url).map(link => (
                 <a
                   key={link.id}
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-3 rounded-xl backdrop-blur-md bg-card/30 border border-border/40 hover:border-primary/40 hover:bg-primary/10 hover:shadow-lg transition-all duration-300"
+                  aria-label={link.label}
                 >
                   {getSocialIcon(link.icon)}
                 </a>

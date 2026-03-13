@@ -196,9 +196,9 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="space-y-10"
           >
-            {(heroMedia?.ctaPrimary || heroMedia?.ctaSecondary) && (
+            {(heroMedia?.ctaPrimary?.url || heroMedia?.ctaSecondary?.url) && (
               <div className={`flex flex-wrap gap-4 mb-4 ${textAlignment === 'center' ? 'justify-center' : 'justify-start'}`}>
-                {heroMedia.ctaPrimary && (
+                {heroMedia.ctaPrimary?.url && (
                   <GlassButton
                     variant="glassPrimary"
                     size="lg"
@@ -208,7 +208,7 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
                     {heroMedia.ctaPrimary.label}
                   </GlassButton>
                 )}
-                {heroMedia.ctaSecondary && (
+                {heroMedia.ctaSecondary?.url && (
                   <GlassButton
                     variant="glass"
                     size="lg"
