@@ -342,6 +342,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               <a href="#privacy" className="hover:text-muted-foreground transition-colors">Privacy</a>
               <span aria-hidden="true">&middot;</span>
               <a href="#terms" className="hover:text-muted-foreground transition-colors">Terms</a>
+              <span aria-hidden="true">&middot;</span>
+              <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Evident Platform</a>
+              <span aria-hidden="true">&middot;</span>
+              <a href="https://github.com/DTMBX" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">GitHub</a>
             </div>
           </div>
         </div>
