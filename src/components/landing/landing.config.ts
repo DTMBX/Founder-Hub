@@ -72,28 +72,10 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       marketplaceRelevant: false
     },
     { 
-      id: 'governance', 
-      type: 'governance', 
-      enabled: true, 
-      order: 2,
-      investorRelevant: true,
-      legalRelevant: false,
-      marketplaceRelevant: false
-    },
-    { 
       id: 'projects', 
       type: 'projects', 
       enabled: true, 
-      order: 3,
-      investorRelevant: true,
-      legalRelevant: false,
-      marketplaceRelevant: false
-    },
-    { 
-      id: 'investor', 
-      type: 'investor', 
-      enabled: true, 
-      order: 4,
+      order: 2,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: false
@@ -102,18 +84,36 @@ export const DEFAULT_LANDING_CONFIG: LandingConfig = {
       id: 'offerings', 
       type: 'offerings', 
       enabled: true, 
-      order: 5,
+      order: 3,
       investorRelevant: true,
       legalRelevant: false,
       marketplaceRelevant: true
     },
     { 
+      id: 'governance', 
+      type: 'governance', 
+      enabled: true, 
+      order: 4,
+      investorRelevant: true,
+      legalRelevant: true,
+      marketplaceRelevant: false
+    },
+    { 
       id: 'court', 
       type: 'court', 
       enabled: true, 
-      order: 6,
+      order: 5,
       investorRelevant: false,
       legalRelevant: true,
+      marketplaceRelevant: false
+    },
+    { 
+      id: 'investor', 
+      type: 'investor', 
+      enabled: true, 
+      order: 6,
+      investorRelevant: true,
+      legalRelevant: false,
       marketplaceRelevant: false
     },
     { 

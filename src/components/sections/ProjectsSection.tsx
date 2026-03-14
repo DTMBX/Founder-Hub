@@ -11,6 +11,107 @@ interface ProjectsSectionProps {
   investorMode: boolean
 }
 
+// ─── Evident Ecosystem — Default Portfolio ──────────────────────
+// Shown when no custom projects exist in KV. All apps are live.
+const ECOSYSTEM_DEFAULTS: Project[] = [
+  {
+    id: 'evident-platform',
+    title: 'Evident Platform',
+    summary: 'Flagship civic technology hub orchestrating eight satellite applications for accountability, transparency, and public empowerment.',
+    description: 'Central platform coordinating civic tech, legal tools, and accountability systems across the evident.icu ecosystem.',
+    tags: ['civic-tech', 'accountability', 'platform'],
+    techStack: ['React', 'TypeScript', 'Vite'],
+    links: [{ label: 'Live', url: 'https://www.evident.icu', type: 'demo' }],
+    order: 0, enabled: true, featured: true, status: 'active',
+    customization: { accentColor: 'emerald' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'civics-hierarchy',
+    title: 'Civics Hierarchy',
+    summary: 'Interactive exploration of government structure, civic responsibilities, and the chain of public authority.',
+    description: 'Interactive exploration of government structure and civic responsibilities.',
+    tags: ['civic-tech', 'education'],
+    techStack: ['React', 'TypeScript'],
+    links: [{ label: 'Live', url: 'https://civics.evident.icu', type: 'demo' }],
+    order: 1, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'blue' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'doj-document-library',
+    title: 'Document Library',
+    summary: 'Searchable archive of public records and legal documents for transparency and informed discourse.',
+    description: 'Searchable public records archive for legal transparency.',
+    tags: ['legal-tech', 'transparency'],
+    techStack: ['React', 'TypeScript'],
+    links: [{ label: 'Live', url: 'https://library.evident.icu', type: 'demo' }],
+    order: 2, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'amber' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'informed-consent',
+    title: 'Informed Consent',
+    summary: 'Platform for understanding, tracking, and asserting informed consent rights in healthcare and beyond.',
+    description: 'Informed consent tracking and rights platform.',
+    tags: ['health-tech', 'rights'],
+    techStack: ['React', 'TypeScript'],
+    links: [{ label: 'Live', url: 'https://consent.evident.icu', type: 'demo' }],
+    order: 3, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'rose' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'essential-goods-ledger',
+    title: 'Essential Goods Ledger',
+    summary: 'Accountability ledger tracking essential goods distribution with transparent, auditable records.',
+    description: 'Essential goods distribution tracking and accountability.',
+    tags: ['accountability', 'ledger'],
+    techStack: ['React', 'TypeScript'],
+    links: [{ label: 'Live', url: 'https://ledger.evident.icu', type: 'demo' }],
+    order: 4, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'teal' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'geneva-bible-study',
+    title: 'Geneva Bible Study',
+    summary: 'Interactive Bible study tool with Geneva translation annotations and contextual commentary.',
+    description: 'Bible study tool with Geneva translation annotations.',
+    tags: ['education', 'theology'],
+    techStack: ['React', 'TypeScript'],
+    links: [{ label: 'Live', url: 'https://bible.evident.icu', type: 'demo' }],
+    order: 5, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'amber' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'contractor-cc',
+    title: 'Contractor Command Center',
+    summary: 'Project management and accountability dashboard for home improvement contractors and clients.',
+    description: 'Contractor project management and accountability.',
+    tags: ['construction', 'management'],
+    techStack: ['React', 'TypeScript', 'PWA'],
+    links: [{ label: 'Live', url: 'https://contractor.evident.icu', type: 'demo' }],
+    order: 6, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'blue' },
+    createdAt: 0, updatedAt: 0,
+  },
+  {
+    id: 'tillerstead',
+    title: 'Tillerstead',
+    summary: 'Home improvement and land stewardship platform — tools, calculators, and planning resources for property owners.',
+    description: 'Home improvement and land stewardship platform.',
+    tags: ['home-improvement', 'stewardship'],
+    techStack: ['Jekyll', 'JavaScript'],
+    links: [{ label: 'Live', url: 'https://tillerstead.com', type: 'demo' }],
+    order: 7, enabled: true, featured: false, status: 'active',
+    customization: { accentColor: 'emerald' },
+    createdAt: 0, updatedAt: 0,
+  },
+]
+
 const accentClasses: Record<string, { card: string; text: string; badge: string; shadow: string }> = {
   emerald: {
     card: 'hover:border-emerald-500/30',
@@ -51,9 +152,8 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true })
   const prefersReducedMotion = useReducedMotion()
 
-  const enabledProjects = projects
-    ?.filter(p => p.enabled)
-    .sort((a, b) => a.order - b.order) || []
+  const kvProjects = projects?.filter(p => p.enabled).sort((a, b) => a.order - b.order) || []
+  const enabledProjects = kvProjects.length > 0 ? kvProjects : ECOSYSTEM_DEFAULTS
 
   const linkIcon = (type: string) => {
     switch (type) {
@@ -97,7 +197,7 @@ export default function ProjectsSection({ investorMode }: ProjectsSectionProps) 
           <p className="text-lg sm:text-xl text-muted-foreground mb-4 max-w-3xl leading-relaxed">
             {investorMode 
               ? 'Active projects seeking funding and partnership. Each initiative is designed for measurable impact and sustainable growth.'
-              : 'I am actively building an MMORPG and managing multiple client web services. My work spans transformative solutions at the intersection of technology, gaming, transparency, and justice—delivering scalable, professional services for individuals, businesses, and agencies.'
+              : 'Live applications across the Evident ecosystem — each deployed on its own domain with automated CI/CD, open-source code, and transparent governance.'
             }
           </p>
           {investorMode && (

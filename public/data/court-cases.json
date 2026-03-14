@@ -1,6 +1,6 @@
 [
   {
-    "id": "demo-case-001",
+    "id": "njta-v-barber-001",
     "title": "New Jersey Turnpike Authority v. Devon T. Barber",
     "docket": "ATL-DC-007956-25",
     "court": "Superior Court of New Jersey, Special Civil Part,",
@@ -18,62 +18,82 @@
     "visibility": "public",
     "featured": true,
     "featuredDocIds": [
-      "pdf-001",
-      "pdf-002",
-      "pdf-005"
+      "njta-doc-002",
+      "njta-doc-004",
+      "njta-doc-005",
+      "njta-doc-007"
     ],
     "sourceNotes": "Documents obtained via public records requests and court filings.",
-    "timeline": [],
-    "overview": "Federal and state civil rights claims arising from alleged constitutional violations during police encounter. Plaintiff seeks compensatory and punitive damages for unlawful detention, excessive force, and related claims. Discovery is ongoing with key evidence including body-worn camera footage and internal affairs investigations.",
+    "timeline": [
+      { "id": "t1", "date": "2025-08-19", "title": "Complaint and Summons Filed", "description": "NJTA files toll enforcement complaint in Special Civil Part." },
+      { "id": "t2", "date": "2025-09-03", "title": "Answer and First Appearance", "description": "Devon Barber files answer and first appearance pro se." },
+      { "id": "t3", "date": "2025-09-06", "title": "Motion to Dismiss Filed", "description": "Defendant files motion to dismiss the complaint." },
+      { "id": "t4", "date": "2025-09-15", "title": "NJTA Opposition to Motion to Dismiss", "description": "NJTA files opposition to defendant's motion to dismiss." },
+      { "id": "t5", "date": "2025-10-08", "title": "Counterclaim and Default Judgment Request", "description": "Defendant files counterclaim, proposed orders, and request to enter default judgment." },
+      { "id": "t6", "date": "2025-10-27", "title": "Court Order and Discovery", "description": "Court order entered. Discovery interrogatories and requests served." },
+      { "id": "t7", "date": "2025-11-05", "title": "NJTA Answers Counterclaim", "description": "NJTA files answer to counterclaim with affirmative defenses." },
+      { "id": "t8", "date": "2025-11-06", "title": "Fee Waiver Granted", "description": "Court grants fee waiver order." },
+      { "id": "t9", "date": "2025-11-26", "title": "Motions to Quash Discovery", "description": "Both sides file competing motions to quash discovery requests." },
+      { "id": "t10", "date": "2025-12-01", "title": "Discovery Dispute Briefing", "description": "Motions to compel, objections, and bench summary filed." },
+      { "id": "t11", "date": "2025-12-15", "title": "Order Granted in Error", "description": "Court enters order later identified as erroneous. Correspondence on the error follows." },
+      { "id": "t12", "date": "2026-01-10", "title": "Class Action and Mediation Motion", "description": "Defendant files motion proposing class action service and memorialization of mediation. Additional motions and opposition filed." }
+    ],
+    "overview": "Special Civil Part toll enforcement action filed by the New Jersey Turnpike Authority against Devon T. Barber. The case involves statutory authority challenges, administrative fee disputes, and procedural compliance questions. Defendant has filed a counterclaim and motion to dismiss. Active discovery disputes are ongoing with competing motions to quash and compel. ADA accommodation requests have been made. A motion proposing class action service and mediation has been filed.",
     "reviewNotes": {
-      "damagesInjuries": "Civil rights violation claims related to unlawful detention and use of force. Documented injuries include physical trauma and ongoing emotional distress.",
-      "keyEvidenceSources": "Body-worn camera footage (BWC), arrest reports, medical records, witness statements, internal affairs investigation documents.",
-      "deadlinesLimitations": "NJ Civil Rights Act 2-year statute of limitations. Notice of Tort Claim filed within statutory period. Discovery ongoing.",
-      "reliefSought": "Compensatory and punitive damages, attorney fees, declaratory relief, and injunctive relief regarding police policies and training.",
-      "notes": "Strong evidence package with BWC footage supporting plaintiff claims. Multiple corroborating witnesses. Defendant responses pending."
+      "damagesInjuries": "Toll enforcement dispute. NJTA claims unpaid tolls and administrative fees. Defendant challenges statutory authority, fee structure legality, and procedural compliance. Counterclaim filed seeking relief.",
+      "keyEvidenceSources": "NJTA toll records, complaint and summons filings, defendant's answer and counterclaim, court orders, discovery responses, ADA correspondence, NJ Constitution provisions.",
+      "deadlinesLimitations": "Special Civil Part matter. Discovery ongoing with competing motions to quash and compel. Scheduling notices issued for pending motions. ADA accommodations requested.",
+      "reliefSought": "Defendant seeks dismissal of complaint, entry of default judgment on counterclaim, fee waiver, class action certification, and mediation. NJTA seeks toll enforcement and administrative fees.",
+      "notes": "Pro se defendant with active counterclaim. Multiple procedural challenges filed. ADA accommodation requests on record. Discovery disputes reveal competing positions on document production. Court has entered at least one order identified as erroneous."
     },
     "contingencyChecklist": [
       {
         "id": "c1",
-        "label": "Liability clearly established",
+        "label": "Answer and counterclaim timely filed",
         "checked": true,
-        "notes": "BWC footage and witness statements support claims"
+        "notes": "Answer filed 2025-09-03, counterclaim filed 2025-10-08"
       },
       {
         "id": "c2",
-        "label": "Damages documented and quantifiable",
+        "label": "Motion to dismiss filed",
         "checked": true,
-        "notes": "Medical records and expert reports available"
+        "notes": "Filed 2025-09-06, NJTA opposition filed 2025-09-15"
       },
       {
         "id": "c3",
-        "label": "Statute of limitations satisfied",
+        "label": "Fee waiver obtained",
         "checked": true,
-        "notes": "NTC filed timely, complaint filed within SOL"
+        "notes": "Order granting fee waiver entered 2025-11-06"
       },
       {
         "id": "c4",
-        "label": "No major procedural defects",
+        "label": "Discovery served and responses pending",
         "checked": true,
-        "notes": "All filings proper and timely"
+        "notes": "Interrogatories and admissions served 2025-10-27"
       },
       {
         "id": "c5",
-        "label": "Collectible defendant",
+        "label": "ADA accommodations requested",
         "checked": true,
-        "notes": "Municipal defendant with insurance"
+        "notes": "ADA correspondence filed 2025-11-03, follow-up 2026-01-10"
       },
       {
         "id": "c6",
-        "label": "Strong settlement potential",
-        "checked": false,
-        "notes": "Early stages, discovery needed"
+        "label": "Class action and mediation proposal filed",
+        "checked": true,
+        "notes": "Motion filed 2026-01-10"
       },
       {
         "id": "c7",
-        "label": "Trial-ready evidence",
+        "label": "Discovery disputes resolved",
         "checked": false,
-        "notes": "Additional expert depositions pending"
+        "notes": "Competing motions to quash and compel still pending"
+      },
+      {
+        "id": "c8",
+        "label": "Erroneous order corrected",
+        "checked": false,
+        "notes": "Order granted in error 2025-12-15, correspondence sent, correction pending"
       }
     ],
     "lastUpdated": 1773342267638,

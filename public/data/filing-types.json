@@ -45,7 +45,7 @@
   },
   {
     "id": "reply",
-    "name": "Reply",
+    "name": "Answer/Reply",
     "sortOrder": 4,
     "defaultNamingToken": "RPL",
     "icon": "💬",

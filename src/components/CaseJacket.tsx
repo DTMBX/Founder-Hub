@@ -444,7 +444,7 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
           <div className="shrink-0 flex items-center gap-2">
             <GlassButton size="sm" variant="glass">
               <Eye size={16} />
-              Preview
+              {doc.fileUrl ? 'Preview' : 'Details'}
             </GlassButton>
           </div>
         </div>
@@ -590,14 +590,10 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
               <TimelinePanel case={selectedCase} />
             </TabsContent>
 
-            <TabsContent value="details" className="mt-4">
+            <TabsContent value="details" className="mt-4 space-y-4">
               <DetailsPanel case={selectedCase} />
-              <div className="mt-4">
-                <ReviewNotesPanel case={selectedCase} />
-              </div>
-              <div className="mt-4">
-                <ContingencyChecklistPanel case={selectedCase} />
-              </div>
+              <ReviewNotesPanel case={selectedCase} />
+              <ContingencyChecklistPanel case={selectedCase} />
             </TabsContent>
 
             <TabsContent value="analysis" className="mt-4 space-y-4">
@@ -616,15 +612,10 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
           </Tabs>
         </div>
       ) : (
-        <div className="max-w-[1600px] mx-auto p-6 grid grid-cols-[320px_1fr] gap-6">
+        <div className="max-w-[1600px] mx-auto p-6">
+          <div className="grid grid-cols-[320px_1fr] gap-6 items-start">
           <aside className="space-y-4">
             <DetailsPanel case={selectedCase} />
-            <TimelinePanel case={selectedCase} />
-            <ReviewNotesPanel case={selectedCase} />
-            <ContingencyChecklistPanel case={selectedCase} />
-            {caseAnalysis && (
-              <CaseAnalysisPanel analysis={caseAnalysis} case={selectedCase} />
-            )}
           </aside>
 
           <main className="space-y-4">
@@ -708,6 +699,22 @@ export default function CaseJacket({ caseId, onBack }: CaseJacketProps) {
               </div>
             </GlassCard>
           </main>
+          </div>
+
+          <div className="mt-6">
+            <TimelinePanel case={selectedCase} />
+          </div>
+
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ReviewNotesPanel case={selectedCase} />
+            <ContingencyChecklistPanel case={selectedCase} />
+          </div>
+
+          {caseAnalysis && (
+            <div className="mt-6">
+              <CaseAnalysisPanel analysis={caseAnalysis} case={selectedCase} />
+            </div>
+          )}
         </div>
       )}
 
@@ -1037,7 +1044,10 @@ function PDFPreviewSheet({ pdf, isOpen, onClose }: { pdf: PDFAsset | null; isOpe
 
   if (!pdf) return null
 
+  const hasFile = !!pdf.fileUrl
+
   const handleDownload = () => {
+    if (!hasFile) return
     window.open(pdf.fileUrl, '_blank')
     toast.success('Opening PDF in new tab')
   }
@@ -1079,10 +1089,16 @@ function PDFPreviewSheet({ pdf, isOpen, onClose }: { pdf: PDFAsset | null; isOpe
           </div>
 
           <div className="flex gap-2 mt-4">
-            <GlassButton onClick={handleDownload} className="flex-1">
-              <Download size={18} />
-              Open in New Tab
-            </GlassButton>
+            {hasFile ? (
+              <GlassButton onClick={handleDownload} className="flex-1">
+                <Download size={18} />
+                Open in New Tab
+              </GlassButton>
+            ) : (
+              <div className="flex-1 text-center py-2 px-4 rounded-lg bg-muted/50 border border-border text-sm text-muted-foreground">
+                Document on file — digital preview not yet available
+              </div>
+            )}
             {(pdf.visibility === 'unlisted' || pdf.visibility === 'public') && (
               <GlassButton onClick={handleCopyLink} variant="glass" className="flex-1">
                 <Copy size={18} />
@@ -1096,8 +1112,8 @@ function PDFPreviewSheet({ pdf, isOpen, onClose }: { pdf: PDFAsset | null; isOpe
           <div className="aspect-[8.5/11] bg-muted rounded-lg flex items-center justify-center border border-border">
             <div className="text-center text-muted-foreground">
               <FileText size={48} className="mx-auto mb-2" />
-              <p className="text-sm">PDF Preview</p>
-              <p className="text-xs mt-1">Click "Open in New Tab" to view full document</p>
+              <p className="text-sm font-medium">{hasFile ? 'PDF Preview' : 'Document Indexed'}</p>
+              <p className="text-xs mt-1">{hasFile ? 'Click "Open in New Tab" to view full document' : 'This filing is on record. Digital copy pending upload.'}</p>
             </div>
           </div>
 

@@ -2,7 +2,7 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Section, SiteSettings } from '@/lib/types'
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
 import { GlassButton } from '../ui/glass-button'
-import { ChartLineUp, Scales, UsersFour, Pause, Play, CaretDown, Storefront } from '@phosphor-icons/react'
+import { ChartLineUp, Scales, Storefront, Pause, Play, CaretDown, Globe } from '@phosphor-icons/react'
 import { useState, useRef, useEffect, useCallback } from 'react'
 
 // Direct Vite static imports — guaranteed to resolve in dev and production
@@ -11,9 +11,22 @@ import flagPosterSrc from '@/assets/images/us-flag-50.png'
 
 interface HeroSectionProps {
   onSelectPathway?: (pathway: 'investors' | 'legal' | 'about' | 'marketplace') => void
+  onScrollToSection?: (sectionId: string) => void
 }
 
-export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
+export default function HeroSection({ onSelectPathway, onScrollToSection }: HeroSectionProps) {
+  const scrollToSection = (sectionId: string) => {
+    if (onScrollToSection) {
+      onScrollToSection(sectionId)
+    } else {
+      const element = document.getElementById(sectionId)
+      if (element) {
+        const headerOffset = 72
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY
+        window.scrollTo({ top: elementPosition - headerOffset, behavior: 'smooth' })
+      }
+    }
+  }
   const [sections] = useKV<Section[]>('founder-hub-sections', [])
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
@@ -223,31 +236,31 @@ export default function HeroSection({ onSelectPathway }: HeroSectionProps) {
               </div>
             )}
 
-            {/* Quad Pathway Cards - 2x2 Grid */}
+            {/* Quad Navigation Cards - 2x2 Grid */}
             <div className={`grid grid-cols-2 gap-3 sm:gap-4 max-w-2xl ${textAlignment === 'center' ? 'mx-auto' : ''}`}>
               {[
-                { key: 'investors' as const, icon: ChartLineUp, label: 'Investor Brief', desc: 'Projects & Roadmap', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
-                { key: 'legal' as const, icon: Scales, label: 'Court Filings', desc: 'Cases & Documents', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
-                { key: 'marketplace' as const, icon: Storefront, label: 'Services', desc: 'Build • Launch • Support', accent: 'from-rose-500/20 to-rose-700/5', border: 'hover:border-rose-400/40' },
-                { key: 'about' as const, icon: UsersFour, label: 'About Devon', desc: 'Mission & Contact', accent: 'from-purple-500/20 to-purple-700/5', border: 'hover:border-purple-400/40' },
-              ].map((pathway, idx) => (
+                { key: 'about', icon: Globe, label: 'About Devon', desc: 'Founder & Technologist', accent: 'from-emerald-500/20 to-emerald-700/5', border: 'hover:border-emerald-400/40' },
+                { key: 'projects', icon: Storefront, label: 'What I Build', desc: '9 Live Applications', accent: 'from-cyan-500/20 to-cyan-700/5', border: 'hover:border-cyan-400/40' },
+                { key: 'court', icon: Scales, label: 'Court & Accountability', desc: 'Public Case Records', accent: 'from-amber-500/20 to-amber-700/5', border: 'hover:border-amber-400/40' },
+                { key: 'contact', icon: ChartLineUp, label: 'Invest & Connect', desc: 'Partnerships & Capital', accent: 'from-rose-500/20 to-rose-700/5', border: 'hover:border-rose-400/40' },
+              ].map((card, idx) => (
                 <motion.div
-                  key={pathway.key}
+                  key={card.key}
                   initial={prefersReducedMotion ? {} : { opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.5 + idx * 0.1 }}
                   className="flex-1"
                 >
                   <button
-                    onClick={() => onSelectPathway?.(pathway.key)}
-                    className={`w-full group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 ${pathway.border} transition-all duration-300 p-4 sm:p-6 hover:shadow-lg hover:-translate-y-1`}
+                    onClick={() => scrollToSection(card.key)}
+                    className={`w-full group relative overflow-hidden rounded-xl border border-white/15 bg-white/5 backdrop-blur-xl hover:bg-white/10 ${card.border} transition-all duration-300 p-4 sm:p-6 hover:shadow-lg hover:-translate-y-1`}
                   >
-                    <div className={`absolute inset-0 bg-gradient-to-br ${pathway.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                    <div className={`absolute inset-0 bg-gradient-to-br ${card.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                     <div className="relative z-10 flex flex-col items-center gap-2">
-                      <pathway.icon className="h-7 w-7 sm:h-9 sm:w-9 text-white/80 group-hover:text-white transition-colors" weight="duotone" />
+                      <card.icon className="h-7 w-7 sm:h-9 sm:w-9 text-white/80 group-hover:text-white transition-colors" weight="duotone" />
                       <div className="text-center">
-                        <div className="text-white font-semibold text-sm sm:text-base">{pathway.label}</div>
-                        <div className="text-white/60 text-[10px] sm:text-xs mt-0.5">{pathway.desc}</div>
+                        <div className="text-white font-semibold text-sm sm:text-base">{card.label}</div>
+                        <div className="text-white/60 text-[10px] sm:text-xs mt-0.5">{card.desc}</div>
                       </div>
                     </div>
                   </button>

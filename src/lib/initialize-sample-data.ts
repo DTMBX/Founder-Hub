@@ -224,7 +224,7 @@ export function useInitializeSampleData() {
       ]
 
       const sampleCase: Case = {
-        id: 'demo-case-001',
+        id: 'njta-v-barber-001',
         title: 'Sample v. Municipality',
         docket: 'L-1234-23',
         court: 'Superior Court of New Jersey, Law Division',
@@ -297,7 +297,7 @@ export function useInitializeSampleData() {
       const samplePDFs: PDFAsset[] = [
         {
           id: 'pdf-001',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Verified Complaint',
           description: 'Initial complaint alleging civil rights violations under NJ CRA and 42 U.S.C. § 1983',
           fileUrl: '#',
@@ -323,7 +323,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-002',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Certification of Plaintiff',
           description: 'Sworn certification detailing events and injuries',
           fileUrl: '#',
@@ -349,7 +349,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-003',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Answer and Affirmative Defenses',
           description: 'Defendant municipality\'s responsive pleading',
           fileUrl: '#',
@@ -375,7 +375,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-004',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Case Management Order',
           description: 'Court order establishing discovery deadlines and trial date',
           fileUrl: '#',
@@ -401,7 +401,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-005',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Notice of OPRA Production',
           description: 'Notice of production of body-worn camera footage and internal affairs documents',
           fileUrl: '#',
@@ -427,7 +427,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-006',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Motion to Compel Discovery',
           description: 'Plaintiff motion seeking additional discovery responses',
           fileUrl: '#',
@@ -453,7 +453,7 @@ export function useInitializeSampleData() {
         },
         {
           id: 'pdf-007',
-          caseId: 'demo-case-001',
+          caseId: 'njta-v-barber-001',
           title: 'Expert Report - Use of Force',
           description: 'Police practices expert report analyzing incident',
           fileUrl: '#',

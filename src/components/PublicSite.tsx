@@ -63,9 +63,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         { id: 'about', type: 'about', title: 'About', content: '', order: 1, enabled: true, investorRelevant: false },
         { id: 'projects', type: 'projects', title: 'Projects', content: '', order: 2, enabled: true, investorRelevant: true },
         { id: 'services', type: 'services', title: 'Services', content: '', order: 3, enabled: true, investorRelevant: true },
-        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 4, enabled: true, investorRelevant: false },
-        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 5, enabled: true, investorRelevant: true },
-        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 6, enabled: true, investorRelevant: true },
+        { id: 'governance', type: 'governance', title: 'Governance', content: '', order: 4, enabled: true, investorRelevant: true },
+        { id: 'court', type: 'court', title: 'Court & Accountability', content: '', order: 5, enabled: true, investorRelevant: false },
+        { id: 'proof', type: 'proof', title: 'Press & Proof', content: '', order: 7, enabled: true, investorRelevant: true },
+        { id: 'contact', type: 'contact', title: 'Contact', content: '', order: 8, enabled: true, investorRelevant: true },
       ]
       setSections(defaultSections)
     }
@@ -96,6 +97,15 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         window.scrollTo({ top: offsetPosition, behavior: 'smooth' })
       }
     }, 100)
+  }
+
+  const handleScrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      const headerOffset = 72
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY
+      window.scrollTo({ top: elementPosition - headerOffset, behavior: 'smooth' })
+    }
   }
 
   // Hide proof section from nav + layout when no proof links exist
@@ -143,10 +153,10 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     if (!hasProofContent) enabled = enabled.filter(s => s.type !== 'proof')
     if (pathway === 'all') return enabled
     if (pathway === 'investors') {
-      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'services' || s.type === 'offerings' || s.type === 'proof' || s.type === 'contact')
+      return enabled.filter(s => s.type === 'hero' || s.type === 'projects' || s.type === 'services' || s.type === 'offerings' || s.type === 'governance' || s.type === 'proof' || s.type === 'contact')
     }
     if (pathway === 'legal') {
-      return enabled.filter(s => s.type === 'hero' || s.type === 'court' || s.type === 'contact')
+      return enabled.filter(s => s.type === 'hero' || s.type === 'governance' || s.type === 'court' || s.type === 'contact')
     }
     if (pathway === 'about') {
       return enabled.filter(s => s.type === 'hero' || s.type === 'about' || s.type === 'contact')
@@ -240,6 +250,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         {/* Hero - Hand-authored, not part of config system */}
         <HeroSection 
           onSelectPathway={handleSelectPathway}
+          onScrollToSection={handleScrollToSection}
         />
         
         {/* Config-driven sections below the hero */}
@@ -280,12 +291,15 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               >
                 Projects
               </button>
-              <a 
-                href={`mailto:${profile?.professionalEmails?.find((e) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
-                className="hover:text-emerald-400 transition-colors"
+              <button 
+                onClick={() => {
+                  const el = document.getElementById('services')
+                  if (el) el.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="hover:text-foreground transition-colors"
               >
-                Invest
-              </a>
+                Services
+              </button>
               <button 
                 onClick={() => {
                   const el = document.getElementById('court')
@@ -295,6 +309,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               >
                 Court
               </button>
+              <a 
+                href={`mailto:${profile?.professionalEmails?.find((e) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
+                className="hover:text-emerald-400 transition-colors"
+              >
+                Invest
+              </a>
               <button 
                 onClick={() => {
                   const el = document.getElementById('contact')
