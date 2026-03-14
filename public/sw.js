@@ -13,7 +13,7 @@
  * - Images: Cache-first with network update
  */
 
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v2'
 const STATIC_CACHE = `founder-hub-static-${CACHE_VERSION}`
 const DATA_CACHE = `founder-hub-data-${CACHE_VERSION}`
 
@@ -30,6 +30,7 @@ const CACHEABLE_DATA_PATTERNS = [
   /\/api\/clients/,
   /\/api\/projects/,
   /\/api\/subscriptions/,
+  /\/data\/.*\.json$/,
 ]
 
 // ─── Install Event ─────────────────────────────────────────
