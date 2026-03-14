@@ -7,8 +7,8 @@
     "icon": "📋",
     "color": "#ef4444",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "certification",
@@ -18,8 +18,8 @@
     "icon": "✍️",
     "color": "#3b82f6",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "motion",
@@ -29,8 +29,8 @@
     "icon": "⚖️",
     "color": "#f59e0b",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "opposition",
@@ -40,19 +40,19 @@
     "icon": "🔄",
     "color": "#8b5cf6",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "reply",
-    "name": "Answer/Reply",
+    "name": "Reply",
     "sortOrder": 4,
     "defaultNamingToken": "RPL",
     "icon": "💬",
     "color": "#06b6d4",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "order",
@@ -62,8 +62,8 @@
     "icon": "⚡",
     "color": "#10b981",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "notice",
@@ -73,8 +73,8 @@
     "icon": "📢",
     "color": "#84cc16",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "exhibit",
@@ -84,8 +84,8 @@
     "icon": "📎",
     "color": "#ec4899",
     "defaultVisibility": "private",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "transcript",
@@ -95,8 +95,8 @@
     "icon": "📝",
     "color": "#f97316",
     "defaultVisibility": "private",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   },
   {
     "id": "opra",
@@ -106,7 +106,7 @@
     "icon": "🗂️",
     "color": "#14b8a6",
     "defaultVisibility": "unlisted",
-    "createdAt": 1773497202329,
-    "updatedAt": 1773497202329
+    "createdAt": 1773513979959,
+    "updatedAt": 1773513979959
   }
 ]

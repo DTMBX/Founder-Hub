@@ -21,26 +21,8 @@
     "id": "projects",
     "type": "projects",
     "title": "Projects",
-    "content": "What I Build",
-    "order": 2,
-    "enabled": true,
-    "investorRelevant": true
-  },
-  {
-    "id": "services",
-    "type": "services",
-    "title": "Services",
     "content": "",
-    "order": 3,
-    "enabled": true,
-    "investorRelevant": true
-  },
-  {
-    "id": "governance",
-    "type": "governance",
-    "title": "Governance",
-    "content": "Transparency & Trust",
-    "order": 4,
+    "order": 2,
     "enabled": true,
     "investorRelevant": true
   },
@@ -48,8 +30,8 @@
     "id": "court",
     "type": "court",
     "title": "Court & Accountability",
-    "content": "Case Records",
-    "order": 5,
+    "content": "",
+    "order": 3,
     "enabled": true,
     "investorRelevant": false
   },
@@ -57,8 +39,8 @@
     "id": "proof",
     "type": "proof",
     "title": "Press & Proof",
-    "content": "Announcements and Press",
-    "order": 6,
+    "content": "",
+    "order": 4,
     "enabled": true,
     "investorRelevant": true
   },
@@ -66,8 +48,8 @@
     "id": "contact",
     "type": "contact",
     "title": "Contact",
-    "content": "Inquiries and Contact Details",
-    "order": 7,
+    "content": "",
+    "order": 5,
     "enabled": true,
     "investorRelevant": true
   }

@@ -25,18 +25,78 @@
     ],
     "sourceNotes": "Documents obtained via public records requests and court filings.",
     "timeline": [
-      { "id": "t1", "date": "2025-08-19", "title": "Complaint and Summons Filed", "description": "NJTA files toll enforcement complaint in Special Civil Part." },
-      { "id": "t2", "date": "2025-09-03", "title": "Answer and First Appearance", "description": "Devon Barber files answer and first appearance pro se." },
-      { "id": "t3", "date": "2025-09-06", "title": "Motion to Dismiss Filed", "description": "Defendant files motion to dismiss the complaint." },
-      { "id": "t4", "date": "2025-09-15", "title": "NJTA Opposition to Motion to Dismiss", "description": "NJTA files opposition to defendant's motion to dismiss." },
-      { "id": "t5", "date": "2025-10-08", "title": "Counterclaim and Default Judgment Request", "description": "Defendant files counterclaim, proposed orders, and request to enter default judgment." },
-      { "id": "t6", "date": "2025-10-27", "title": "Court Order and Discovery", "description": "Court order entered. Discovery interrogatories and requests served." },
-      { "id": "t7", "date": "2025-11-05", "title": "NJTA Answers Counterclaim", "description": "NJTA files answer to counterclaim with affirmative defenses." },
-      { "id": "t8", "date": "2025-11-06", "title": "Fee Waiver Granted", "description": "Court grants fee waiver order." },
-      { "id": "t9", "date": "2025-11-26", "title": "Motions to Quash Discovery", "description": "Both sides file competing motions to quash discovery requests." },
-      { "id": "t10", "date": "2025-12-01", "title": "Discovery Dispute Briefing", "description": "Motions to compel, objections, and bench summary filed." },
-      { "id": "t11", "date": "2025-12-15", "title": "Order Granted in Error", "description": "Court enters order later identified as erroneous. Correspondence on the error follows." },
-      { "id": "t12", "date": "2026-01-10", "title": "Class Action and Mediation Motion", "description": "Defendant files motion proposing class action service and memorialization of mediation. Additional motions and opposition filed." }
+      {
+        "id": "t1",
+        "date": "2025-08-19",
+        "title": "Complaint and Summons Filed",
+        "description": "NJTA files toll enforcement complaint in Special Civil Part."
+      },
+      {
+        "id": "t2",
+        "date": "2025-09-03",
+        "title": "Answer and First Appearance",
+        "description": "Devon Barber files answer and first appearance pro se."
+      },
+      {
+        "id": "t3",
+        "date": "2025-09-06",
+        "title": "Motion to Dismiss Filed",
+        "description": "Defendant files motion to dismiss the complaint."
+      },
+      {
+        "id": "t4",
+        "date": "2025-09-15",
+        "title": "NJTA Opposition to Motion to Dismiss",
+        "description": "NJTA files opposition to defendant's motion to dismiss."
+      },
+      {
+        "id": "t5",
+        "date": "2025-10-08",
+        "title": "Counterclaim and Default Judgment Request",
+        "description": "Defendant files counterclaim, proposed orders, and request to enter default judgment."
+      },
+      {
+        "id": "t6",
+        "date": "2025-10-27",
+        "title": "Court Order and Discovery",
+        "description": "Court order entered. Discovery interrogatories and requests served."
+      },
+      {
+        "id": "t7",
+        "date": "2025-11-05",
+        "title": "NJTA Answers Counterclaim",
+        "description": "NJTA files answer to counterclaim with affirmative defenses."
+      },
+      {
+        "id": "t8",
+        "date": "2025-11-06",
+        "title": "Fee Waiver Granted",
+        "description": "Court grants fee waiver order."
+      },
+      {
+        "id": "t9",
+        "date": "2025-11-26",
+        "title": "Motions to Quash Discovery",
+        "description": "Both sides file competing motions to quash discovery requests."
+      },
+      {
+        "id": "t10",
+        "date": "2025-12-01",
+        "title": "Discovery Dispute Briefing",
+        "description": "Motions to compel, objections, and bench summary filed."
+      },
+      {
+        "id": "t11",
+        "date": "2025-12-15",
+        "title": "Order Granted in Error",
+        "description": "Court enters order later identified as erroneous. Correspondence on the error follows."
+      },
+      {
+        "id": "t12",
+        "date": "2026-01-10",
+        "title": "Class Action and Mediation Motion",
+        "description": "Defendant files motion proposing class action service and memorialization of mediation. Additional motions and opposition filed."
+      }
     ],
     "overview": "Special Civil Part toll enforcement action filed by the New Jersey Turnpike Authority against Devon T. Barber. The case involves statutory authority challenges, administrative fee disputes, and procedural compliance questions. Defendant has filed a counterclaim and motion to dismiss. Active discovery disputes are ongoing with competing motions to quash and compel. ADA accommodation requests have been made. A motion proposing class action service and mediation has been filed.",
     "reviewNotes": {
