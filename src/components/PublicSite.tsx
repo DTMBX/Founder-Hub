@@ -339,9 +339,9 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               This site is for informational purposes only and does not constitute legal advice. Court documents referenced are public records obtained through lawful channels. All trademarks and third-party content belong to their respective owners.
             </p>
             <div className="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground/40">
-              <a href="#privacy" className="hover:text-muted-foreground transition-colors">Privacy</a>
+              <a href="/privacy.html" className="hover:text-muted-foreground transition-colors">Privacy</a>
               <span aria-hidden="true">&middot;</span>
-              <a href="#terms" className="hover:text-muted-foreground transition-colors">Terms</a>
+              <a href="/terms.html" className="hover:text-muted-foreground transition-colors">Terms</a>
               <span aria-hidden="true">&middot;</span>
               <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Evident Platform</a>
               <span aria-hidden="true">&middot;</span>
