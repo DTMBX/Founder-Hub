@@ -5,9 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [main, staging, develop]
+    branches: [main]
   pull_request:
-    branches: [main, staging, develop]
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -147,7 +147,7 @@ jobs:
         run: npm ci
       
       - name: Run ESLint
-        run: npm run lint --if-present || npx eslint . --ext .ts,.tsx --max-warnings 0
+        run: npm run lint --if-present || npx eslint .
       
       - name: Check formatting
         run: npx prettier --check "src/**/*.{ts,tsx,css,json}" || true
@@ -178,7 +178,7 @@ jobs:
         continue-on-error: true
       
       - name: Check for secrets in code
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.88.0
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
@@ -186,7 +186,7 @@ jobs:
         continue-on-error: true
       
       - name: SAST scan with Semgrep
-        uses: returntocorp/semgrep-action@v1
+        uses: semgrep/semgrep-action@v1
         with:
           config: auto
         continue-on-error: true

@@ -11,14 +11,14 @@ name: B13 Verify
 
 on:
   push:
-    branches: [main, staging, develop, 'feature/b13*']
+    branches: [main]
     paths:
       - 'ops/backup/**'
       - 'governance/security/**'
       - 'scripts/security/**'
       - 'docs/security/**'
   pull_request:
-    branches: [main, staging, develop]
+    branches: [main]
     paths:
       - 'ops/backup/**'
       - 'governance/security/**'

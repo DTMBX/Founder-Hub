@@ -4,10 +4,6 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - main
-      - staging
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
@@ -28,7 +24,7 @@ on:
 
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   NODE_VERSION: "20"
@@ -50,10 +46,6 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
             ENV="${{ inputs.environment }}"
-          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            ENV="production"
-          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
-            ENV="staging"
           elif [ "${{ github.event_name }}" == "pull_request" ]; then
             ENV="preview"
           else

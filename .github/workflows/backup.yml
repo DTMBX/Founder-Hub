@@ -181,8 +181,9 @@ jobs:
           
           # Encrypt archive
           if [ -z "$BACKUP_ENCRYPTION_KEY" ]; then
-            echo "⚠️ BACKUP_ENCRYPTION_KEY not set, using derived key"
-            BACKUP_ENCRYPTION_KEY=$(echo -n "backup-${{ github.repository }}-${{ github.run_id }}" | sha256sum | cut -d' ' -f1)
+            echo "❌ BACKUP_ENCRYPTION_KEY secret is not set. Cannot create secure backup."
+            echo "   Set the BACKUP_ENCRYPTION_KEY secret in repository settings."
+            exit 1
           fi
           
           openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -salt \

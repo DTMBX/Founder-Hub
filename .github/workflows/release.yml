@@ -9,7 +9,7 @@ name: Create Greenline Release
 on:
   # Triggered after successful production deployment
   workflow_run:
-    workflows: ["Deploy with Approval"]
+    workflows: ["Pages"]
     types:
       - completed
     branches:
