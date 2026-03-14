@@ -13,7 +13,7 @@
  * - Images: Cache-first with network update
  */
 
-const CACHE_VERSION = 'v2'
+const CACHE_VERSION = 'v3'
 const STATIC_CACHE = `founder-hub-static-${CACHE_VERSION}`
 const DATA_CACHE = `founder-hub-data-${CACHE_VERSION}`
 
@@ -26,10 +26,6 @@ const STATIC_ASSETS = [
 
 // Data endpoints to cache for offline (patterns)
 const CACHEABLE_DATA_PATTERNS = [
-  /\/api\/leads/,
-  /\/api\/clients/,
-  /\/api\/projects/,
-  /\/api\/subscriptions/,
   /\/data\/.*\.json$/,
 ]
 

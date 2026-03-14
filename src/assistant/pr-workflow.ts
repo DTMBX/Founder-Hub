@@ -392,7 +392,7 @@ export class PRWorkflowService {
     const logger = getAuditLogger()
     logger.logBranchCreated(name, baseBranch)
 
-    console.log(`[PR Workflow] Created branch: ${name} from ${baseBranch}`)
+    if (import.meta.env.DEV) console.log(`[PR Workflow] Created branch: ${name} from ${baseBranch}`)
   }
 
   /**
@@ -404,7 +404,7 @@ export class PRWorkflowService {
   ): Promise<'passed' | 'failed' | 'pending'> {
     // Simulate check execution
     // In real implementation, this would run actual CI checks
-    console.log(`[PR Workflow] Running check: ${check}`)
+    if (import.meta.env.DEV) console.log(`[PR Workflow] Running check: ${check}`)
 
     // Simulate async check
     await new Promise((resolve) => setTimeout(resolve, 100))

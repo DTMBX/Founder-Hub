@@ -392,7 +392,7 @@ export async function requestBackgroundSync(tag = 'sync-offline-actions'): Promi
 
     if ('sync' in registration) {
       await (registration as unknown as { sync: { register: (tag: string) => Promise<void> } }).sync.register(tag)
-      console.log('[Offline] Background sync registered:', tag)
+      if (import.meta.env.DEV) console.log('[Offline] Background sync registered:', tag)
       return true
     }
   } catch (error) {

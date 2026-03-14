@@ -307,12 +307,12 @@ export class WeeklyUpdateService {
   async processWeeklyUpdates(): Promise<WeeklyUpdateResult[]> {
     const config = await this.getConfig()
     if (!config.enabled) {
-      console.log('[WeeklyUpdate] Disabled in config')
+      if (import.meta.env.DEV) console.log('[WeeklyUpdate] Disabled in config')
       return []
     }
 
     const projects = await this.projectService.getProjectsForWeeklyUpdate()
-    console.log(`[WeeklyUpdate] Processing ${projects.length} projects`)
+    if (import.meta.env.DEV) console.log(`[WeeklyUpdate] Processing ${projects.length} projects`)
 
     const results: WeeklyUpdateResult[] = []
     for (const project of projects) {

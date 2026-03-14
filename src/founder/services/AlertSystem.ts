@@ -507,7 +507,7 @@ export class ConsoleNotificationChannel implements NotificationChannel {
 
   async send(alert: Alert): Promise<boolean> {
     const emoji = alert.severity === 'critical' ? '🚨' : alert.severity === 'warning' ? '⚠️' : 'ℹ️';
-    console.log(`${emoji} [${alert.category.toUpperCase()}] ${alert.title}: ${alert.message}`);
+    if (import.meta.env.DEV) console.log(`${emoji} [${alert.category.toUpperCase()}] ${alert.title}: ${alert.message}`);
     return true;
   }
 

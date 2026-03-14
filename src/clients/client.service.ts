@@ -83,7 +83,7 @@ export class ClientService {
     allIds.unshift(client.id)
     await this.adapter.set(KEYS.CLIENTS_INDEX, allIds)
 
-    console.log(`[Client Created] ${client.email}`, client.id)
+    if (import.meta.env.DEV) console.log(`[Client Created] ${client.email}`, client.id)
     return client
   }
 

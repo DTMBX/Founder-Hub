@@ -124,7 +124,7 @@ export class AuditLogger {
     this.events = [...this.events, event]
 
     // Console log for debugging (also redacted)
-    console.log(`[Audit] ${type}`, JSON.stringify(redacted, null, 2))
+    if (import.meta.env.DEV) console.log(`[Audit] ${type}`, JSON.stringify(redacted, null, 2))
 
     return event
   }

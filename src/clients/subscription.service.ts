@@ -129,7 +129,7 @@ export class SubscriptionService {
     // Map site to subscription
     await this.adapter.set(KEYS.SITE_SUBSCRIPTION(input.siteId), subscription.id)
 
-    console.log(`[Subscription Created] ${subscription.siteName}`, subscription.id)
+    if (import.meta.env.DEV) console.log(`[Subscription Created] ${subscription.siteName}`, subscription.id)
     return subscription
   }
 

@@ -101,7 +101,7 @@ const staticDataCache: Record<string, any> = {}
 
 // Bump this version whenever static JSON data changes to invalidate stale localStorage.
 // This ensures production visitors get fresh data instead of cached old values.
-const STATIC_DATA_VERSION = 3
+const STATIC_DATA_VERSION = 4
 
 const DATA_VERSION_KEY = 'founder-hub:__data_version__'
 

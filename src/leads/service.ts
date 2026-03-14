@@ -236,15 +236,15 @@ export class WebhookNotificationAdapter implements LeadNotificationAdapter {
 
 export class ConsoleNotificationAdapter implements LeadNotificationAdapter {
   async onLeadCaptured(lead: Lead): Promise<void> {
-    console.log('[Lead Captured]', lead.email, lead)
+    if (import.meta.env.DEV) console.log('[Lead Captured]', lead.email, lead)
   }
   
   async onStatusChange(lead: Lead, previousStatus: LeadStatus): Promise<void> {
-    console.log('[Lead Status Changed]', lead.email, previousStatus, '->', lead.status)
+    if (import.meta.env.DEV) console.log('[Lead Status Changed]', lead.email, previousStatus, '->', lead.status)
   }
   
   async onDepositReceived(lead: Lead, amount: number): Promise<void> {
-    console.log('[Deposit Received]', lead.email, amount)
+    if (import.meta.env.DEV) console.log('[Deposit Received]', lead.email, amount)
   }
 }
 

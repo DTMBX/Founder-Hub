@@ -11,10 +11,6 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
-  // Auth — must NEVER leak into a production bundle
-  VITE_ADMIN_EMAIL: z.string().email().optional(),
-  VITE_ADMIN_PASSWORD: z.string().min(12, 'Admin password must be ≥12 chars').optional(),
-
   // Site identity
   VITE_SITE_NAME: z.string().min(1).optional(),
   VITE_SITE_DOMAIN: z.string().min(1).optional(),
@@ -40,9 +36,11 @@ type EnvConfig = z.infer<typeof envSchema>
 /** Parsed and validated env. Throws at import time if invalid values are set. */
 export const env: EnvConfig = (() => {
   // Collect only VITE_ vars that are actually defined
+  // Skip sensitive keys that should never appear in client bundles
+  const SENSITIVE_KEYS = new Set(['VITE_ADMIN_PASSWORD', 'VITE_ADMIN_EMAIL'])
   const raw: Record<string, string> = {}
   for (const [key, value] of Object.entries(import.meta.env)) {
-    if (key.startsWith('VITE_') && typeof value === 'string' && value !== '') {
+    if (key.startsWith('VITE_') && typeof value === 'string' && value !== '' && !SENSITIVE_KEYS.has(key)) {
       raw[key] = value
     }
   }

@@ -2,22 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://devon-tyler.com/</loc>
+    <lastmod>2026-03-14</lastmod>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://devon-tyler.com/#projects</loc>
+    <lastmod>2026-03-14</lastmod>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://devon-tyler.com/#about</loc>
+    <lastmod>2026-03-14</lastmod>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
     <loc>https://devon-tyler.com/#contact</loc>
+    <lastmod>2026-03-14</lastmod>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/privacy.html</loc>
+    <lastmod>2026-03-14</lastmod>
+    <priority>0.4</priority>
+    <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/terms.html</loc>
+    <lastmod>2026-03-14</lastmod>
+    <priority>0.4</priority>
+    <changefreq>yearly</changefreq>
   </url>
 </urlset>

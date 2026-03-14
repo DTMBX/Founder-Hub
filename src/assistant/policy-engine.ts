@@ -212,7 +212,7 @@ export class PolicyEngine {
 
     // Log evaluation
     this.evaluationLog.push(evaluation)
-    console.log(
+    if (import.meta.env.DEV) console.log(
       `[Policy] ${action} -> ${rule.decision} (${rule.reason})`
     )
 

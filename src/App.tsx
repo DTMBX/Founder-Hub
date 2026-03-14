@@ -28,6 +28,7 @@ type View =
   | 'studio-preview'
   | 'offerings'
   | 'legal'
+  | 'not-found'
 
 function App() {
   const [view, setView] = useState<View>('public')
@@ -87,6 +88,9 @@ function App() {
     } else if (hash === 'privacy' || hash === 'terms') {
       setLegalSlug(hash)
       setView('legal')
+    } else if (hash && hash !== 'projects' && hash !== 'about' && hash !== 'contact' && hash !== 'proof-of-work') {
+      // Unrecognized hash route — show 404
+      setView('not-found')
     }
   }, [])
 
@@ -210,6 +214,21 @@ function App() {
       <Suspense fallback={routeFallback}>
         <LegalPage slug={legalSlug} onBack={handleBackToPublic} />
       </Suspense>
+    )
+  }
+
+  if (view === 'not-found') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground gap-4">
+        <h1 className="text-6xl font-bold text-muted-foreground">404</h1>
+        <p className="text-lg text-muted-foreground">Page not found</p>
+        <button
+          onClick={handleBackToPublic}
+          className="mt-4 px-6 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          Go Home
+        </button>
+      </div>
     )
   }
 

@@ -210,7 +210,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       </a>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/<\//g, '<\\/') }}
       />
       <ScrollProgress />
       <HonorFlagBar 

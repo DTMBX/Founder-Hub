@@ -68,6 +68,12 @@ export default defineConfig({
           ],
           // Vendor: Icons
           'vendor-icons': ['@phosphor-icons/react'],
+          // Vendor: Heavy libraries (lazy-loaded views)
+          'vendor-3d': ['three'],
+          'vendor-charts': ['recharts', 'd3'],
+          'vendor-editor': ['@monaco-editor/react'],
+          'vendor-terminal': ['@xterm/xterm'],
+          'vendor-markdown': ['marked'],
         }
       }
     }

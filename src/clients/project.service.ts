@@ -121,7 +121,7 @@ export class ProjectService {
     clientProjectIds.unshift(project.id)
     await this.adapter.set(KEYS.CLIENT_PROJECTS(input.clientId), clientProjectIds)
 
-    console.log(`[Project Created] ${project.name}`, project.id)
+    if (import.meta.env.DEV) console.log(`[Project Created] ${project.name}`, project.id)
     return project
   }
 
