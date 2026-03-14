@@ -101,7 +101,7 @@ const staticDataCache: Record<string, any> = {}
 
 // Bump this version whenever static JSON data changes to invalidate stale localStorage.
 // This ensures production visitors get fresh data instead of cached old values.
-const STATIC_DATA_VERSION = 2
+const STATIC_DATA_VERSION = 3
 
 const DATA_VERSION_KEY = 'founder-hub:__data_version__'
 
@@ -112,6 +112,10 @@ function checkDataVersion() {
       // Purge all content keys so they reload from static JSON
       for (const key of Object.keys(STATIC_DATA_MAP)) {
         localStorage.removeItem(STORAGE_PREFIX + key)
+      }
+      // Also clear the in-memory cache so fetchStaticData re-fetches
+      for (const key of Object.keys(staticDataCache)) {
+        delete staticDataCache[key]
       }
       localStorage.setItem(DATA_VERSION_KEY, String(STATIC_DATA_VERSION))
     }
