@@ -134,7 +134,7 @@ export default function GovernanceNarrativeSection() {
                   available for review.
                 </p>
                 <a
-                  href="https://evident.icu/governance"
+                  href="https://xtx396.com/governance"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg border border-purple-500/30 bg-purple-500/10 px-5 py-2.5 text-sm font-medium text-purple-300 transition-all duration-200 hover:bg-purple-500/20 hover:border-purple-400/50"

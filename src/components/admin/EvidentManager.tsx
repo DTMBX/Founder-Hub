@@ -47,7 +47,7 @@ interface EvidentConfig {
 const EVIDENT_CONFIG_KEY = 'founder-hub-evident-config'
 
 const defaultConfig: EvidentConfig = {
-  domain: 'evident.icu',
+  domain: 'xtx396.com',
   enforceHttps: true,
   lastDeploy: null,
   lastBuildStatus: null,
@@ -131,7 +131,7 @@ export default function EvidentManager() {
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Evident Platform</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Multi-app deployment management for evident.icu — Eleventy landing site + 6 satellite apps.
+          Multi-app deployment management for xtx396.com — Eleventy landing site + 6 satellite apps.
         </p>
       </div>
 
@@ -144,7 +144,7 @@ export default function EvidentManager() {
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4 text-emerald-400" weight="duotone" />
                 <span className="font-mono text-sm font-semibold">
-                  {config?.domain || 'evident.icu'}
+                  {config?.domain || 'xtx396.com'}
                 </span>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function EvidentManager() {
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              onClick={() => copyToClipboard(`https://${config?.domain || 'evident.icu'}`, 'domain')}
+              onClick={() => copyToClipboard(`https://${config?.domain || 'xtx396.com'}`, 'domain')}
             >
               {copied === 'domain' ? (
                 <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
@@ -234,7 +234,7 @@ export default function EvidentManager() {
           <div>
             <h3 className="text-base font-semibold">Satellite Apps</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {satellites.length} Vite/React apps deployed under /apps/ on evident.icu
+              {satellites.length} Vite/React apps deployed under /apps/ on xtx396.com
             </p>
           </div>
           <Badge variant="outline" className="gap-1 text-xs">
@@ -390,11 +390,11 @@ export default function EvidentManager() {
           <Button
             variant="outline"
             className="h-auto py-3 px-4 flex flex-col items-start gap-1 text-left"
-            onClick={() => openExternal(`https://${config?.domain || 'evident.icu'}`)}
+            onClick={() => openExternal(`https://${config?.domain || 'xtx396.com'}`)}
           >
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-emerald-400" weight="duotone" />
-              <span className="text-sm font-medium">Visit evident.icu</span>
+              <span className="text-sm font-medium">Visit xtx396.com</span>
             </div>
             <span className="text-[10px] text-muted-foreground">Production site</span>
           </Button>

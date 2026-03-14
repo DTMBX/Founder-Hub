@@ -49,7 +49,7 @@ const LEGAL_PAGES: Record<string, LegalPageData> = {
       { type: 'list', items: [
         'GitHub (github.com) — Source code hosting and site deployment.',
         'Stripe (stripe.com) — If you engage a paid service, payment processing is handled entirely by Stripe. We do not store credit card numbers or financial account details.',
-        'Evident Platform (evident.icu) — Our affiliated ecosystem of applications. Each application maintains its own privacy practices.',
+        'Evident Platform (xtx396.com) — Our affiliated ecosystem of applications. Each application maintains its own privacy practices.',
       ]},
       { type: 'paragraph', text: 'We are not responsible for the privacy practices of third-party services. We encourage you to review their policies.' },
 
