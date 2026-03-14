@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /*#admin
+Disallow: /*#checkout
 
 Sitemap: https://devon-tyler.com/sitemap.xml

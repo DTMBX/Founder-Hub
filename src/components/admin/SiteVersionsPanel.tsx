@@ -37,6 +37,8 @@ import { getSiteVersioningService } from '@/lib/site-versioning'
 
 interface SiteVersionsPanelProps {
   siteId: string
+  /** User ID for version attribution */
+  userId?: string
   /** Currently active version ID */
   currentVersionId?: string
   /** Live/deployed version ID */
@@ -47,6 +49,7 @@ interface SiteVersionsPanelProps {
 
 export function SiteVersionsPanel({
   siteId,
+  userId,
   currentVersionId,
   liveVersionId,
   onVersionChange,
@@ -84,7 +87,7 @@ export function SiteVersionsPanel({
       const service = getSiteVersioningService()
       const version = await service.createVersion(
         siteId,
-        'admin', // TODO: Get actual user ID
+        userId ?? 'admin',
         newVersionLabel || undefined,
         newVersionNotes || undefined,
       )

@@ -132,7 +132,7 @@ export default function HonorFlagBar({
   }
 
   const handleImageError = (src: string) => {
-    console.warn(`Failed to load flag image: ${src}`)
+    if (import.meta.env.DEV) console.warn(`Failed to load flag image: ${src}`)
   }
 
   const barHeight = isMobile ? HONOR_BAR_HEIGHT_MOBILE : HONOR_BAR_HEIGHT_DESKTOP

@@ -212,16 +212,20 @@ export default function AgencySite({ data, onBack }: AgencySiteProps) {
           {!c.notificationEmail && (
             <div className="max-w-md mx-auto">
               <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <input type="text" placeholder="Your name" className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" required />
-                <input type="email" placeholder="Email" className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" required />
-                <select className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                <label htmlFor="agency-name" className="sr-only">Your name</label>
+                <input id="agency-name" type="text" placeholder="Your name" className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" required />
+                <label htmlFor="agency-email" className="sr-only">Email</label>
+                <input id="agency-email" type="email" placeholder="Email" className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" required />
+                <label htmlFor="agency-project-type" className="sr-only">Project type</label>
+                <select id="agency-project-type" className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
                   <option value="">Project type</option>
                   <option value="law-firm">Law Firm Website</option>
                   <option value="small-business">Small Business Website</option>
                   <option value="landing-page">Landing Page</option>
                   <option value="custom">Custom Project</option>
                 </select>
-                <textarea placeholder="Project details" rows={3} className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" />
+                <label htmlFor="agency-details" className="sr-only">Project details</label>
+                <textarea id="agency-details" placeholder="Project details" rows={3} className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500" />
                 <button type="submit" className="w-full py-3 rounded-lg bg-white text-gray-900 font-semibold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
                   Send Inquiry <ArrowRight className="h-4 w-4" />
                 </button>

@@ -268,11 +268,19 @@ export default function SMBSite({ data, onBack }: SMBSiteProps) {
             </div>
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div className="grid sm:grid-cols-2 gap-4">
-                <input type="text" placeholder="Your name" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
-                <input type="email" placeholder="Email address" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+                <div>
+                  <label htmlFor="smb-name" className="sr-only">Your name</label>
+                  <input id="smb-name" type="text" placeholder="Your name" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+                </div>
+                <div>
+                  <label htmlFor="smb-email" className="sr-only">Email address</label>
+                  <input id="smb-email" type="email" placeholder="Email address" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+                </div>
               </div>
-              <input type="tel" placeholder="Phone (optional)" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-              <textarea placeholder="How can we help you?" rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
+              <label htmlFor="smb-phone" className="sr-only">Phone</label>
+              <input id="smb-phone" type="tel" placeholder="Phone (optional)" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+              <label htmlFor="smb-message" className="sr-only">Message</label>
+              <textarea id="smb-message" placeholder="How can we help you?" rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" required />
               <button type="submit" className="w-full py-3 rounded-lg text-white font-semibold text-sm" style={{ backgroundColor: primary }}>
                 Send Message
               </button>
