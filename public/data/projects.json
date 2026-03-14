@@ -16,12 +16,18 @@
       "OpenAI",
       "PostgreSQL"
     ],
-    "links": [],
+    "links": [
+      {
+        "label": "Documentation",
+        "url": "#",
+        "type": "docs"
+      }
+    ],
     "order": 0,
     "enabled": true,
     "featured": true,
     "status": "active",
-    "createdAt": 1773445917429,
-    "updatedAt": 1773445943314
+    "createdAt": 1773497103633,
+    "updatedAt": 1773497103633
   }
 ]
