@@ -15,6 +15,15 @@
     "content": "",
     "order": 1,
     "enabled": true,
+    "investorRelevant": false
+  },
+  {
+    "id": "projects",
+    "type": "projects",
+    "title": "Projects",
+    "content": "",
+    "order": 3,
+    "enabled": true,
     "investorRelevant": true
   },
   {
@@ -27,20 +36,11 @@
     "investorRelevant": true
   },
   {
-    "id": "proof",
-    "type": "proof",
-    "title": "Press & Proof",
+    "id": "services",
+    "type": "services",
+    "title": "Services",
     "content": "",
     "order": 4,
-    "enabled": true,
-    "investorRelevant": true
-  },
-  {
-    "id": "projects",
-    "type": "projects",
-    "title": "Projects",
-    "content": "",
-    "order": 3,
     "enabled": true,
     "investorRelevant": true
   },
@@ -50,6 +50,15 @@
     "title": "Court & Accountability",
     "content": "",
     "order": 5,
+    "enabled": true,
+    "investorRelevant": false
+  },
+  {
+    "id": "proof",
+    "type": "proof",
+    "title": "Press & Proof",
+    "content": "",
+    "order": 6,
     "enabled": true,
     "investorRelevant": true
   }
