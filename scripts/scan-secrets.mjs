@@ -61,6 +61,7 @@ const EXCLUDED_PATHS = [
   'build',
   '.husky',
   'scripts/scan-secrets.mjs',  // This file
+  'workers/github-token-proxy.ts', // PEM header parsing — false positive
   '.env.example',
   'README.md',
   'CHANGELOG.md',

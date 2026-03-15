@@ -156,7 +156,7 @@ async function getInstallationRepos(
     return tokenResponse
   }
 
-  const tokenData = await tokenResponse.json()
+  const tokenData = await tokenResponse.json() as { token: string }
 
   // Then fetch repos with the token
   const response = await fetch('https://api.github.com/installation/repositories', {

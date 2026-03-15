@@ -9,28 +9,29 @@
  * - Redaction tool
  */
 
-import { useState, useCallback, useRef } from 'react'
-import { usePageMeta } from '@/hooks/use-page-meta'
-import { GlassCard } from '@/components/ui/glass-card'
 import {
   ArrowLeft,
-  FileText,
-  MagnifyingGlass,
-  ShieldCheck,
-  Eye,
-  EyeSlash,
-  Upload,
-  ClockCounterClockwise,
-  Hash,
-  FilePdf,
-  FileDoc,
-  FileImage,
   CheckCircle,
   CircleNotch,
-  Warning,
+  ClockCounterClockwise,
+  Eye,
+  EyeSlash,
+  FileDoc,
+  FileImage,
+  FilePdf,
+  FileText,
+  Hash,
   LinkSimple,
+  MagnifyingGlass,
+  ShieldCheck,
+  Upload,
+  Warning,
 } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence,motion } from 'framer-motion'
+import { useCallback, useRef,useState } from 'react'
+
+import { GlassCard } from '@/components/ui/glass-card'
+import { usePageMeta } from '@/hooks/use-page-meta'
 
 interface EvidentDemoPageProps {
   onBack: () => void

@@ -4,12 +4,13 @@
  * status badges, and ImageObject structured data.
  */
 
+import { ArrowRight, CheckCircle, CircleNotch, Clock, Images, MapPin, Star } from '@phosphor-icons/react'
+import { AnimatePresence,motion } from 'framer-motion'
 import { useState } from 'react'
-import { PORTFOLIO_PROJECTS, PORTFOLIO_CATEGORIES, type PortfolioProject } from '@/data/portfolio'
-import { GlassCard } from '@/components/ui/glass-card'
+
 import { Badge } from '@/components/ui/badge'
-import { Images, ArrowRight, CheckCircle, CircleNotch, Clock, MapPin, Star } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { GlassCard } from '@/components/ui/glass-card'
+import { PORTFOLIO_CATEGORIES, PORTFOLIO_PROJECTS, type PortfolioProject } from '@/data/portfolio'
 
 interface PortfolioGalleryProps {
   className?: string

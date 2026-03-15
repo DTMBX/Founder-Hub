@@ -43,20 +43,20 @@ const PAGES: SearchItem[] = [
 const PROJECT_ITEMS: SearchItem[] = projects.map(p => ({
   id: `project-${p.id}`,
   label: p.name,
-  description: p.description,
+  description: p.summary,
   category: 'project' as const,
   href: `#project/${p.id}`,
-  keywords: [p.category, ...(p.tags || [])],
+  keywords: [p.category],
 }))
 
 /** Blog posts */
 const BLOG_ITEMS: SearchItem[] = POSTS.map(p => ({
   id: `blog-${p.id}`,
   label: p.title,
-  description: p.excerpt,
+  description: p.summary,
   category: 'blog' as const,
   href: `#blog/${p.id}`,
-  keywords: [p.category, p.author],
+  keywords: [p.category],
 }))
 
 /** Quick actions */

@@ -5,17 +5,18 @@
  * Groups results by category, keyboard-navigable, ARIA combobox pattern.
  */
 
-import { useCallback, useEffect, useState } from 'react'
-import { Command } from 'cmdk'
-import { SEARCH_INDEX, CATEGORY_LABELS, type SearchItem } from '@/lib/search-index'
 import {
-  MagnifyingGlass,
+  ArrowElbowDownLeft,
+  Article,
   FileText,
   Folder,
-  Article,
   Lightning,
-  ArrowElbowDownLeft,
+  MagnifyingGlass,
 } from '@phosphor-icons/react'
+import { Command } from 'cmdk'
+import { useCallback, useEffect, useState } from 'react'
+
+import { CATEGORY_LABELS, SEARCH_INDEX, type SearchItem } from '@/lib/search-index'
 
 const CATEGORY_ICONS: Record<SearchItem['category'], typeof FileText> = {
   page: FileText,
