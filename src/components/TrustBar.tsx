@@ -30,7 +30,7 @@ const TRUST_ITEMS = [
     icon: Globe,
     label: '9 Live Domains',
     detail: 'Public, verifiable infrastructure',
-    href: '#health',
+    href: '#system-status',
   },
   {
     icon: GithubLogo,

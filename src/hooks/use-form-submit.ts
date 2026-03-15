@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 
-export type FormSource = 'tillerstead' | 'evident' | 'general'
+export type FormSource = 'tillerstead' | 'evident' | 'investor' | 'general'
 export type FormStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 const CONTACT_ENDPOINT = import.meta.env.VITE_CONTACT_API_URL as string | undefined

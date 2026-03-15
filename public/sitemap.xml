@@ -79,6 +79,12 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
+    <loc>https://devon-tyler.com/#system-status</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.5</priority>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
     <loc>https://devon-tyler.com/privacy.html</loc>
     <lastmod>2026-03-15</lastmod>
     <priority>0.3</priority>

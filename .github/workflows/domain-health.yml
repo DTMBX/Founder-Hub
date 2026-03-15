@@ -1,0 +1,89 @@
+# Domain Health Check — Automated Monitoring
+# Runs every 6 hours; pings all 9 ecosystem domains and the health
+# worker endpoint. Fails the workflow if any domain is unreachable,
+# providing a persistent audit trail in GitHub Actions.
+
+name: Domain Health Check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HEALTH_API: https://health.devon-tyler.com/api/health
+
+jobs:
+  check-domains:
+    name: Ping All Domains
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check ecosystem domains
+        id: domains
+        run: |
+          DOMAINS=(
+            "https://devon-tyler.com"
+            "https://www.xtx396.com"
+            "https://tillerstead.com"
+            "https://civics.xtx396.com"
+            "https://library.xtx396.com"
+            "https://ledger.xtx396.com"
+            "https://bible.xtx396.com"
+            "https://consent.xtx396.com"
+            "https://contractor.xtx396.com"
+          )
+
+          FAILED=0
+          RESULTS="[]"
+
+          for url in "${DOMAINS[@]}"; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -L "$url" 2>/dev/null || echo "000")
+            LATENCY=$(curl -s -o /dev/null -w "%{time_total}" --max-time 10 -L "$url" 2>/dev/null || echo "0")
+
+            if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+              HEALTH="healthy"
+            elif [ "$STATUS" = "000" ]; then
+              HEALTH="down"
+              FAILED=$((FAILED + 1))
+            else
+              HEALTH="degraded"
+            fi
+
+            RESULTS=$(echo "$RESULTS" | jq --arg url "$url" --arg status "$STATUS" --arg health "$HEALTH" --arg latency "$LATENCY" '. + [{"url": $url, "status": ($status | tonumber), "health": $health, "latencySeconds": ($latency | tonumber)}]')
+            echo "$HEALTH  $STATUS  ${LATENCY}s  $url"
+          done
+
+          echo "failed=$FAILED" >> "$GITHUB_OUTPUT"
+
+          # Write report artifact
+          REPORT=$(jq -n \
+            --argjson checks "$RESULTS" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson failed "$FAILED" \
+            '{timestamp: $timestamp, failed: $failed, total: ($checks | length), checks: $checks}')
+          echo "$REPORT" > domain-health-report.json
+
+      - name: Upload health report
+        uses: actions/upload-artifact@v4
+        with:
+          name: domain-health-${{ github.run_number }}
+          path: domain-health-report.json
+          retention-days: 30
+
+      - name: Call health worker
+        run: |
+          RESPONSE=$(curl -s --max-time 15 "$HEALTH_API" 2>/dev/null || echo '{"status":"unreachable"}')
+          echo "$RESPONSE" | jq .
+          WORKER_STATUS=$(echo "$RESPONSE" | jq -r '.status // "unreachable"')
+          echo "Health worker status: $WORKER_STATUS"
+
+      - name: Fail if domains are down
+        if: steps.domains.outputs.failed != '0'
+        run: |
+          echo "::error::${{ steps.domains.outputs.failed }} domain(s) unreachable"
+          exit 1

@@ -10,6 +10,7 @@
  * Inboxes:
  *   tillerstead  → TILLERSTEAD_EMAIL (Tillerstead project inquiries)
  *   evident      → EVIDENT_EMAIL (Evident licensing inquiries)
+ *   investor     → INVESTOR_EMAIL (Investor inquiries)
  *   general      → FOUNDER_EMAIL (General contact)
  *
  * Deploy: wrangler deploy workers/contact-form.ts
@@ -24,6 +25,7 @@ export interface Env {
   SUBMISSIONS_KV: KVNamespace
   TILLERSTEAD_EMAIL: string
   EVIDENT_EMAIL: string
+  INVESTOR_EMAIL: string
   FOUNDER_EMAIL: string
   FROM_EMAIL: string
   FROM_NAME: string
@@ -31,7 +33,8 @@ export interface Env {
 }
 
 interface ContactPayload {
-  source: 'tillerstead' | 'evident' | 'general'
+  source: 'tillerstead' | 'evident' | 'investor' | 'general'
+  formType?: string // Alias for source (accepted from frontend)
   name: string
   email: string
   // Optional fields depending on source
@@ -41,6 +44,8 @@ interface ContactPayload {
   description?: string
   organization?: string
   interest?: string
+  companyName?: string
+  useCase?: string
   message?: string
   // Bot detection fields
   _honeypot?: string
@@ -55,16 +60,25 @@ interface FormResponse {
 
 const MAX_PER_HOUR = 5
 const MIN_SUBMIT_TIME_MS = 3000 // Forms filled in <3s are bots
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': 'https://devon-tyler.com',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+function getCorsOrigin(request: Request): string {
+  const origin = request.headers.get('Origin') ?? ''
+  const allowed = ['https://devon-tyler.com', 'https://www.xtx396.com', 'https://tillerstead.com']
+  return allowed.includes(origin) ? origin : allowed[0]
 }
 
-function jsonResponse(data: FormResponse, status = 200): Response {
+function corsHeaders(request: Request) {
+  return {
+    'Access-Control-Allow-Origin': getCorsOrigin(request),
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+}
+
+function jsonResponse(data: FormResponse, status = 200, request?: Request): Response {
+  const cors = request ? corsHeaders(request) : { 'Access-Control-Allow-Origin': 'https://devon-tyler.com', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, Authorization' }
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+    headers: { 'Content-Type': 'application/json', ...cors },
   })
 }
 
@@ -96,6 +110,7 @@ function getRecipientEmail(source: string, env: Env): string {
   switch (source) {
     case 'tillerstead': return env.TILLERSTEAD_EMAIL
     case 'evident': return env.EVIDENT_EMAIL
+    case 'investor': return env.INVESTOR_EMAIL
     default: return env.FOUNDER_EMAIL
   }
 }
@@ -104,6 +119,7 @@ function getSourceLabel(source: string): string {
   switch (source) {
     case 'tillerstead': return 'Tillerstead Project Inquiry'
     case 'evident': return 'Evident Licensing Inquiry'
+    case 'investor': return 'Investor Inquiry'
     default: return 'General Contact'
   }
 }
@@ -117,10 +133,12 @@ function buildEmailBody(payload: ContactPayload): string {
   ]
 
   if (payload.organization) lines.push(`Organization: ${payload.organization}`)
+  if (payload.companyName) lines.push(`Company: ${payload.companyName}`)
   if (payload.address) lines.push(`Address: ${payload.address}`)
   if (payload.project_type) lines.push(`Project Type: ${payload.project_type}`)
   if (payload.budget) lines.push(`Budget Range: ${payload.budget}`)
   if (payload.interest) lines.push(`Interest: ${payload.interest}`)
+  if (payload.useCase) lines.push(`\nUse Case:\n${payload.useCase}`)
   if (payload.description) lines.push(`\nDescription:\n${payload.description}`)
   if (payload.message) lines.push(`\nMessage:\n${payload.message}`)
 
@@ -178,7 +196,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     // CORS preflight
     if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: CORS_HEADERS })
+      return new Response(null, { status: 204, headers: corsHeaders(request) })
     }
 
     const url = new URL(request.url)
@@ -187,11 +205,11 @@ export default {
     if (url.pathname === '/api/submissions' && request.method === 'GET') {
       // Bearer token auth
       if (!env.ADMIN_TOKEN) {
-        return jsonResponse({ ok: false, message: 'Admin endpoint not configured.' }, 503)
+        return jsonResponse({ ok: false, message: 'Admin endpoint not configured.' }, 503, request)
       }
       const auth = request.headers.get('Authorization')
       if (!auth || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
-        return jsonResponse({ ok: false, message: 'Unauthorized.' }, 401)
+        return jsonResponse({ ok: false, message: 'Unauthorized.' }, 401, request)
       }
 
       // List submissions from KV (prefix scan)
@@ -213,7 +231,7 @@ export default {
         })
 
       return new Response(JSON.stringify({ ok: true, submissions: sorted }), {
-        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders(request) },
       })
     }
 
@@ -226,38 +244,48 @@ export default {
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
     const allowed = await checkRateLimit(ip, env.RATE_LIMIT_KV)
     if (!allowed) {
-      return jsonResponse({ ok: false, message: 'Rate limit exceeded. Please try again later.' }, 429)
+      return jsonResponse({ ok: false, message: 'Rate limit exceeded. Please try again later.' }, 429, request)
     }
 
     let payload: ContactPayload
     try {
       payload = await request.json() as ContactPayload
     } catch {
-      return jsonResponse({ ok: false, message: 'Invalid request body.' }, 400)
+      return jsonResponse({ ok: false, message: 'Invalid request body.' }, 400, request)
+    }
+
+    // Normalize formType alias → source
+    const FORM_TYPE_MAP: Record<string, ContactPayload['source']> = {
+      'tillerstead-inquiry': 'tillerstead',
+      'evident-licensing': 'evident',
+      'investor': 'investor',
+      'general': 'general',
+    }
+    if (payload.formType && !payload.source) {
+      payload.source = FORM_TYPE_MAP[payload.formType] ?? 'general'
     }
 
     // Honeypot check — if the hidden field has a value, it's a bot
     if (payload._honeypot) {
-      // Return success to not tip off bots, but do nothing
-      return jsonResponse({ ok: true, message: 'Submission received.' })
+      return jsonResponse({ ok: true, message: 'Submission received.' }, 200, request)
     }
 
     // Timing-based bot detection — human forms take >3 seconds
     if (payload._loaded_at) {
       const elapsed = Date.now() - payload._loaded_at
       if (elapsed < MIN_SUBMIT_TIME_MS) {
-        return jsonResponse({ ok: true, message: 'Submission received.' })
+        return jsonResponse({ ok: true, message: 'Submission received.' }, 200, request)
       }
     }
 
     // Validate required fields
     if (!payload.name?.trim() || !payload.email?.trim() || !payload.source) {
-      return jsonResponse({ ok: false, message: 'Name, email, and source are required.' }, 400)
+      return jsonResponse({ ok: false, message: 'Name, email, and source are required.' }, 400, request)
     }
 
     // Basic email format validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
-      return jsonResponse({ ok: false, message: 'Invalid email address.' }, 400)
+      return jsonResponse({ ok: false, message: 'Invalid email address.' }, 400, request)
     }
 
     // Store submission in KV for durability
@@ -285,6 +313,6 @@ export default {
     const confirmBody = buildConfirmationBody(payload)
     await sendEmail(payload.email, confirmSubject, confirmBody, env)
 
-    return jsonResponse({ ok: true, message: 'Submission received. We will follow up within 2 business days.', id: submissionId })
+    return jsonResponse({ ok: true, message: 'Submission received. We will follow up within 2 business days.', id: submissionId }, 200, request)
   },
 }
