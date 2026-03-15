@@ -33,7 +33,7 @@ const PAGES: SearchItem[] = [
   { id: 'intelligence', label: 'Ecosystem Intelligence', description: 'Metrics and health monitoring', category: 'page', href: '#intelligence', keywords: ['intelligence', 'metrics', 'health'] },
   { id: 'data', label: 'Public Data API', description: 'Machine-readable ecosystem data', category: 'page', href: '#data', keywords: ['api', 'data', 'json'] },
   { id: 'developers', label: 'Developer Portal', description: 'API documentation and integration guides', category: 'page', href: '#developers', keywords: ['developer', 'api', 'docs', 'integration'] },
-  { id: 'health', label: 'System Status', description: 'Real-time operational status of all services', category: 'page', href: '#health', keywords: ['status', 'health', 'uptime', 'monitoring'] },
+  { id: 'health', label: 'System Status', description: 'Real-time operational status of all services', category: 'page', href: '#system-status', keywords: ['status', 'health', 'uptime', 'monitoring'] },
   { id: 'privacy', label: 'Privacy Policy', description: 'Data practices and privacy rights', category: 'page', href: '#privacy', keywords: ['privacy', 'gdpr', 'ccpa'] },
   { id: 'terms', label: 'Terms of Service', description: 'Legal terms and conditions', category: 'page', href: '#terms', keywords: ['terms', 'legal', 'tos'] },
   { id: 'cookie-policy', label: 'Cookie Policy', description: 'Cookie and localStorage usage', category: 'page', href: '#cookie-policy', keywords: ['cookie', 'storage'] },

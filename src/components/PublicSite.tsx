@@ -197,6 +197,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         "jobTitle": "Entrepreneur & Licensed NJ Contractor",
         "knowsAbout": ["E-Discovery", "Civic Technology", "Home Improvement", "Legal Transparency", "Software Development"],
         "worksFor": { "@id": `${siteUrl}/#organization` },
+        "hasCredential": {
+          "@type": "EducationalOccupationalCredential",
+          "name": "NJ Home Improvement Contractor License",
+          "credentialCategory": "license",
+          "url": `${siteUrl}/downloads/devon-tyler-barber-overview.pdf`,
+        },
       },
       {
         "@type": "Organization",
@@ -323,7 +329,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 <a href="#blog" className="hover:text-foreground transition-colors">Blog</a>
                 <a href="#services" className="hover:text-foreground transition-colors">Services</a>
                 <a href="#accountability" className="hover:text-foreground transition-colors">Accountability</a>
-                <a href="#health" className="hover:text-foreground transition-colors">System Status</a>
+                <a href="#system-status" className="hover:text-foreground transition-colors">System Status</a>
               </nav>
             </div>
 

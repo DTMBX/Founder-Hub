@@ -34,6 +34,7 @@ const BlogPage = lazy(() => import('./components/pages/BlogPage'))
 const BlogPostPage = lazy(() => import('./components/pages/BlogPostPage'))
 const EvidentDemoPage = lazy(() => import('./components/pages/EvidentDemoPage'))
 const HealthPage = lazy(() => import('./components/pages/HealthPage'))
+const SystemStatusPage = lazy(() => import('./components/pages/SystemStatusPage'))
 
 type View =
   | 'public'
@@ -62,6 +63,7 @@ type View =
   | 'blog-post'
   | 'evident-demo'
   | 'health'
+  | 'system-status'
   | 'not-found'
 
 function App() {
@@ -156,6 +158,8 @@ function App() {
       setView('evident-demo')
     } else if (hash === 'health') {
       setView('health')
+    } else if (hash === 'system-status') {
+      setView('system-status')
     } else if (hash === 'blog') {
       setView('blog')
     } else if (hash.startsWith('blog/')) {
@@ -456,6 +460,14 @@ function App() {
     return (
       <Suspense fallback={routeFallback}>
         <HealthPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'system-status') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <SystemStatusPage onBack={handleBackToPublic} />
       </Suspense>
     )
   }

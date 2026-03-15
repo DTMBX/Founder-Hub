@@ -28,7 +28,7 @@ import {
   UserCircle, LinkSimple, IdentificationBadge, FlagBanner, Export, GithubLogo, ShoppingBag, TrendUp, TreeStructure, Globe,
   Buildings, Storefront, Kanban, UsersFour, CircleNotch, List, X, Rocket,
   Warning, Link, DeviceMobile, Scroll, MagicWand, Star, StarHalf, FloppyDisk,
-  HardDrive, Terminal, UsersThree, Vault, Gauge
+  HardDrive, Terminal, UsersThree, Vault, Gauge, Envelope, NotePencil
 } from '@phosphor-icons/react'
 import SitePicker from './SitePicker'
 import SidebarNav from './SidebarNav'
@@ -89,6 +89,8 @@ const PerformanceDashboard = lazy(() => import('./PerformanceDashboard'))
 const RecoveryPanel = lazy(() => import('./RecoveryPanel'))
 const UserManagement = lazy(() => import('./UserManagement'))
 const VaultPanel = lazy(() => import('./VaultPanel'))
+const BlogManager = lazy(() => import('./BlogManager'))
+const FormSubmissionsViewer = lazy(() => import('./FormSubmissionsViewer'))
 
 // Mobile Quick Actions (lazy-loaded for code splitting)
 const MobileQuickActions = lazy(() => import('./MobileQuickActions'))
@@ -127,6 +129,7 @@ const navItems: NavItem[] = [
   { id: 'hero-media', label: 'Hero Media', icon: VideoCamera, category: 'Site Management' },
   { id: 'visual-modules', label: 'Visual Modules', icon: Sparkle, category: 'Site Management' },
   { id: 'honor-flag-bar', label: 'Honor Flag Bar', icon: FlagBanner, category: 'Site Management' },
+  { id: 'blog', label: 'Blog Posts', icon: NotePencil, category: 'Site Management' },
   // Investor Relations
   { id: 'investor', label: 'Investor Portal', icon: TrendUp, category: 'Investor Relations' },
   { id: 'offerings', label: 'Offerings Catalog', icon: ShoppingBag, category: 'Investor Relations' },
@@ -152,6 +155,7 @@ const navItems: NavItem[] = [
   { id: 'staging', label: 'Staging Review', icon: Stack, category: 'Assets & Media' },
   { id: 'assets', label: 'Asset Scanner', icon: Image, category: 'Assets & Media' },
   { id: 'asset-policy', label: 'Usage Policy', icon: Flag, category: 'Assets & Media' },
+  { id: 'submissions', label: 'Form Submissions', icon: Envelope, category: 'Assets & Media' },
   // System & Security
   { id: 'governance', label: 'Content Governance', icon: ShieldCheck, category: 'System & Security' },
   { id: 'style-editor', label: 'Style Editor', icon: MagicWand, category: 'System & Security' },
@@ -427,6 +431,8 @@ export default function AdminDashboard({ onExit }: AdminDashboardProps) {
       case 'users': return <UserManagement />
       case 'vault': return <VaultPanel />
       case 'audit': return <AuditLog />
+      case 'blog': return <BlogManager />
+      case 'submissions': return <FormSubmissionsViewer />
       case 'leads': return <AdminLeadsViewer />
       case 'performance': return <PerformanceDashboard />
       default: return <DashboardOverview onNavigate={guardedSetActiveTab} />

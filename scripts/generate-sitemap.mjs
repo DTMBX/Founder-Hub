@@ -43,6 +43,7 @@ const staticRoutes = [
   { loc: '/#intelligence',    priority: '0.7', changefreq: 'weekly' },
   { loc: '/#evident-site',    priority: '0.8', changefreq: 'monthly' },
   { loc: '/#blog',            priority: '0.7', changefreq: 'weekly' },
+  { loc: '/#system-status',   priority: '0.5', changefreq: 'daily' },
   { loc: '/privacy.html',     priority: '0.3', changefreq: 'yearly' },
   { loc: '/terms.html',       priority: '0.3', changefreq: 'yearly' },
 ]

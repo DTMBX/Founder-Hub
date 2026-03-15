@@ -27,6 +27,7 @@ export interface Env {
   FOUNDER_EMAIL: string
   FROM_EMAIL: string
   FROM_NAME: string
+  ADMIN_TOKEN?: string
 }
 
 interface ContactPayload {
@@ -182,6 +183,41 @@ export default {
 
     const url = new URL(request.url)
 
+    // ─── GET /api/submissions — admin-only list endpoint ───
+    if (url.pathname === '/api/submissions' && request.method === 'GET') {
+      // Bearer token auth
+      if (!env.ADMIN_TOKEN) {
+        return jsonResponse({ ok: false, message: 'Admin endpoint not configured.' }, 503)
+      }
+      const auth = request.headers.get('Authorization')
+      if (!auth || auth !== `Bearer ${env.ADMIN_TOKEN}`) {
+        return jsonResponse({ ok: false, message: 'Unauthorized.' }, 401)
+      }
+
+      // List submissions from KV (prefix scan)
+      const list = await env.SUBMISSIONS_KV.list({ prefix: 'sub_', limit: 100 })
+      const submissions = await Promise.all(
+        list.keys.map(async (key: { name: string }) => {
+          const val = await env.SUBMISSIONS_KV.get(key.name, 'json')
+          return val
+        }),
+      )
+
+      // Sort descending by submitted_at
+      type Submission = Record<string, string>
+      const sorted = (submissions.filter(Boolean) as Submission[])
+        .sort((a: Submission, b: Submission) => {
+          const aTime = new Date(a.submitted_at).getTime()
+          const bTime = new Date(b.submitted_at).getTime()
+          return bTime - aTime
+        })
+
+      return new Response(JSON.stringify({ ok: true, submissions: sorted }), {
+        headers: { 'Content-Type': 'application/json', ...CORS_HEADERS },
+      })
+    }
+
+    // ─── POST /api/contact — form submission handler ───
     if (url.pathname !== '/api/contact' || request.method !== 'POST') {
       return new Response('Not found', { status: 404 })
     }

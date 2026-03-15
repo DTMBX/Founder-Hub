@@ -50,6 +50,7 @@ const ROUTES = [
   { slug: 'data', title: 'Public Data API', subtitle: 'Machine-readable ecosystem data for developers and integrators.' },
   { slug: 'developers', title: 'Developer Portal', subtitle: 'API documentation, endpoints, and integration guides.' },
   { slug: 'evident-demo', title: 'Evident Platform Demo', subtitle: 'Interactive demonstration of e-discovery capabilities.' },
+  { slug: 'system-status', title: 'System Status', subtitle: 'Real-time operational status and uptime for the Evident ecosystem.' },
 ]
 
 function escapeXml(str) {

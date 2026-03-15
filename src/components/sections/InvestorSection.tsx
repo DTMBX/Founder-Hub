@@ -499,7 +499,7 @@ export default function InvestorSection() {
           {(data?.investorEmail || data?.investorPhone) && (
             <div className="mt-12 pt-8 border-t border-border/30">
               <p className="text-sm text-muted-foreground mb-3">Direct Investor Contact</p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap items-center gap-4">
                 {data.investorEmail && (
                   <a 
                     href={`mailto:${data.investorEmail}`}
@@ -518,6 +518,14 @@ export default function InvestorSection() {
                     {data.investorPhone}
                   </a>
                 )}
+                <a
+                  href="/downloads/devon-tyler-barber-overview.pdf"
+                  download
+                  className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors ml-auto"
+                >
+                  <Download className="h-4 w-4" />
+                  Download One-Pager (PDF)
+                </a>
               </div>
             </div>
           )}

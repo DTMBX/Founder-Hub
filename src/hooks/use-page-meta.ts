@@ -33,7 +33,7 @@ function resolveOgImage(path?: string): string {
   const routeSlugs = [
     'home', 'evident', 'evident-site', 'tillerstead', 'accountability',
     'projects-index', 'blog', 'invest', 'activity', 'intelligence',
-    'data', 'developers', 'evident-demo', 'health',
+    'data', 'developers', 'evident-demo', 'health', 'system-status',
   ]
   if (routeSlugs.includes(slug)) {
     return `${BASE_URL}/og/${slug}.png`

@@ -1,4 +1,4 @@
-import { ArrowLeft, ChartLineUp, Code, Envelope,Handshake } from '@phosphor-icons/react'
+import { ArrowLeft, ChartLineUp, Code, Download, Envelope,Handshake } from '@phosphor-icons/react'
 import { motion, useReducedMotion } from 'framer-motion'
 
 import { Button } from '@/components/ui/button'
@@ -110,6 +110,12 @@ export default function InvestPage({ onBack }: InvestPageProps) {
               <Button asChild size="lg" className="shrink-0">
                 <a href="mailto:iv@devon-tyler.com">
                   Contact Devon
+                </a>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="shrink-0">
+                <a href="/downloads/devon-tyler-barber-overview.pdf" download className="gap-2">
+                  <Download className="h-4 w-4" />
+                  One-Pager PDF
                 </a>
               </Button>
             </div>

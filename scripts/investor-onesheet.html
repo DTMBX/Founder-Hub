@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Devon Tyler Barber — Overview</title>
+<style>
+  @page { size: letter; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #1a1a1a;
+    background: #fff;
+    width: 8.5in;
+    min-height: 11in;
+    padding: 0.65in 0.7in;
+    line-height: 1.45;
+    font-size: 10.5pt;
+  }
+
+  /* ── Header ── */
+  .header {
+    border-bottom: 2px solid #111;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #000;
+  }
+  .header .subtitle {
+    font-size: 10pt;
+    color: #555;
+    margin-top: 2px;
+  }
+
+  /* ── Two-column layout ── */
+  .columns { display: flex; gap: 28px; }
+  .col-left { flex: 1.1; }
+  .col-right { flex: 0.9; }
+
+  /* ── Section headings ── */
+  h2 {
+    font-size: 10pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 3px;
+    margin-bottom: 8px;
+    margin-top: 18px;
+  }
+  h2:first-child { margin-top: 0; }
+
+  /* ── Bio ── */
+  .bio { font-size: 10pt; color: #333; }
+
+  /* ── Credentials list ── */
+  .cred-list { list-style: none; padding: 0; }
+  .cred-list li {
+    font-size: 9.5pt;
+    padding: 3px 0;
+    border-bottom: 1px dotted #e0e0e0;
+    color: #333;
+  }
+  .cred-list li:last-child { border-bottom: none; }
+  .cred-list .label {
+    font-weight: 600;
+    color: #111;
+    display: inline-block;
+    min-width: 100px;
+  }
+
+  /* ── Metrics grid ── */
+  .metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .metric-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 10px;
+    text-align: center;
+  }
+  .metric-card .value {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #000;
+  }
+  .metric-card .label {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #777;
+    margin-top: 2px;
+  }
+
+  /* ── Milestones ── */
+  .timeline { list-style: none; padding: 0; }
+  .timeline li {
+    font-size: 9pt;
+    padding: 3px 0;
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px dotted #e8e8e8;
+  }
+  .timeline li:last-child { border-bottom: none; }
+  .timeline .date {
+    font-weight: 600;
+    color: #555;
+    min-width: 55px;
+    flex-shrink: 0;
+  }
+  .timeline .desc { color: #333; }
+
+  /* ── Entities ── */
+  .entity {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  .entity .name {
+    font-weight: 700;
+    font-size: 10pt;
+    color: #000;
+  }
+  .entity .domain {
+    font-size: 8.5pt;
+    color: #666;
+    font-family: monospace;
+  }
+  .entity .scope {
+    font-size: 9pt;
+    color: #444;
+    margin-top: 2px;
+  }
+
+  /* ── Footer / Contact ── */
+  .contact-bar {
+    margin-top: 20px;
+    padding-top: 12px;
+    border-top: 2px solid #111;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9pt;
+    color: #555;
+  }
+  .contact-bar a {
+    color: #111;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { padding: 0.65in 0.7in; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Devon Tyler Barber</h1>
+  <div class="subtitle">Entrepreneur · Licensed NJ Contractor · Technologist</div>
+</div>
+
+<div class="columns">
+  <div class="col-left">
+    <h2>About</h2>
+    <p class="bio">
+      Founder of Evident Technologies LLC and Tillerstead LLC. Building
+      civic-technology, e-discovery, and home-improvement platforms that
+      prioritize transparency, auditability, and public accountability.
+      Operates a 9-satellite web ecosystem serving legal professionals,
+      homeowners, and civic-minded communities across New Jersey and
+      nationally.
+    </p>
+
+    <h2>Credentials</h2>
+    <ul class="cred-list">
+      <li><span class="label">NJ HIC License</span> #13VH10808800 — Active</li>
+      <li><span class="label">Entities</span> 2 active NJ LLCs</li>
+      <li><span class="label">Domains</span> 12 registered &amp; operational</li>
+      <li><span class="label">Repositories</span> 14 public GitHub repos</li>
+      <li><span class="label">Infrastructure</span> 9 live satellite applications</li>
+      <li><span class="label">Tech Stack</span> React, TypeScript, Cloudflare Workers, Supabase</li>
+    </ul>
+
+    <h2>Entities</h2>
+    <div class="entity">
+      <div class="name">Evident Technologies LLC</div>
+      <div class="domain">xtx396.com</div>
+      <div class="scope">E-discovery, forensic evidence processing, civic technology platforms</div>
+    </div>
+    <div class="entity">
+      <div class="name">Tillerstead LLC</div>
+      <div class="domain">tillerstead.com</div>
+      <div class="scope">Licensed NJ residential contracting — tile, renovation, roofing (9 counties)</div>
+    </div>
+    <div class="entity">
+      <div class="name">Founder Hub</div>
+      <div class="domain">devon-tyler.com</div>
+      <div class="scope">Unified portfolio, investor materials, blog, and ecosystem dashboard</div>
+    </div>
+  </div>
+
+  <div class="col-right">
+    <h2>Key Metrics</h2>
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="value">9</div>
+        <div class="label">Live Satellites</div>
+      </div>
+      <div class="metric-card">
+        <div class="value">12</div>
+        <div class="label">Domains</div>
+      </div>
+      <div class="metric-card">
+        <div class="value">14</div>
+        <div class="label">Public Repos</div>
+      </div>
+      <div class="metric-card">
+        <div class="value">Active</div>
+        <div class="label">NJ HIC License</div>
+      </div>
+    </div>
+
+    <h2>Milestones</h2>
+    <ul class="timeline">
+      <li>
+        <span class="date">2024 Q2</span>
+        <span class="desc">Evident Technologies LLC &amp; Tillerstead LLC formed</span>
+      </li>
+      <li>
+        <span class="date">2024 Q4</span>
+        <span class="desc">NJ HIC license secured; contracting operations begin</span>
+      </li>
+      <li>
+        <span class="date">2025 Q2</span>
+        <span class="desc">Core platform built — React SPA, CI/CD, Workers</span>
+      </li>
+      <li>
+        <span class="date">2025 Q4</span>
+        <span class="desc">8 satellite apps deployed across xtx396.com subdomains</span>
+      </li>
+      <li>
+        <span class="date">2026 Q1</span>
+        <span class="desc">Founder Hub launched — portfolio, blog, investor materials</span>
+      </li>
+      <li>
+        <span class="date">2026 Q4</span>
+        <span class="desc">Target: Revenue operations from Tillerstead &amp; Evident licensing</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="contact-bar">
+  <span><a href="mailto:hi@devon-tyler.com">hi@devon-tyler.com</a></span>
+  <span><a href="https://devon-tyler.com">devon-tyler.com</a></span>
+  <span><a href="https://github.com/DTMBX">github.com/DTMBX</a></span>
+  <span>South Jersey, NJ</span>
+</div>
+
+</body>
+</html>

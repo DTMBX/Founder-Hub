@@ -12,9 +12,10 @@ import {
   Globe, Rocket, ShieldCheck, FolderOpen, Tray,
   ArrowRight, TrendUp, Clock, UserCircle, Article,
   Scales, CloudArrowUp, Warning, CheckCircle, Circle,
-  CaretDown, CaretUp, Lightbulb, Keyboard
+  CaretDown, CaretUp, Lightbulb, Keyboard, ShoppingBag, Envelope
 } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+import { POSTS } from '@/data/posts'
 
 interface DashboardOverviewProps {
   onNavigate: (tabId: string) => void
@@ -93,6 +94,12 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
   const [sections] = useKV<unknown[] | null>('founder-hub-sections', null)
   const [gitConfigured, setGitConfigured] = useState(false)
 
+  // Read real counts for stat cards
+  const [blogPosts] = useKV<unknown[] | null>('founder-hub-blog-posts', null)
+  const [projects] = useKV<unknown[] | null>('founder-hub-projects', null)
+  const [offerings] = useKV<unknown[] | null>('founder-hub-offerings', null)
+  const [submissionStates] = useKV<Record<string, { status: string }> | null>('founder-hub-submission-states', null)
+
   // Check GitHub token on mount
   useMemo(() => {
     hasGitHubToken().then(setGitConfigured)
@@ -147,6 +154,16 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
   }, [])
 
   const siteName = activeSatellite?.name || activeSite?.name || 'your site'
+
+  // Compute real counts
+  const sectionCount = sections?.length ?? 0
+  const blogPostCount = Math.max(POSTS.length, blogPosts?.length ?? 0)
+  const projectCount = projects?.length ?? 0
+  const offeringCount = offerings?.length ?? 0
+  const submissionCount = submissionStates ? Object.keys(submissionStates).length : 0
+  const unreadSubmissions = submissionStates
+    ? Object.values(submissionStates).filter(s => s.status === 'unread').length
+    : 0
 
   return (
     <div className="space-y-8">
@@ -241,24 +258,37 @@ export default function DashboardOverview({ onNavigate }: DashboardOverviewProps
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <StatCard
           icon={Article}
-          label="Content"
-          value="—"
+          label="Sections"
+          value={sectionCount}
           onClick={() => onNavigate('content')}
+        />
+        <StatCard
+          icon={Article}
+          label="Blog Posts"
+          value={blogPostCount}
+          onClick={() => onNavigate('blog')}
         />
         <StatCard
           icon={FolderOpen}
           label="Projects"
-          value="—"
+          value={projectCount}
           onClick={() => onNavigate('projects')}
         />
         <StatCard
-          icon={Tray}
-          label="Inbox"
-          value="—"
-          onClick={() => onNavigate('inbox')}
+          icon={ShoppingBag}
+          label="Offerings"
+          value={offeringCount}
+          onClick={() => onNavigate('offerings')}
+        />
+        <StatCard
+          icon={Envelope}
+          label="Submissions"
+          value={submissionCount}
+          trend={unreadSubmissions > 0 ? `${unreadSubmissions} unread` : undefined}
+          onClick={() => onNavigate('submissions')}
         />
         <StatCard
           icon={Scales}
