@@ -27,6 +27,15 @@ const STATIC_ASSETS = [
 // Data endpoints to cache for offline (patterns)
 const CACHEABLE_DATA_PATTERNS = [
   /\/data\/.*\.json$/,
+  /\/api\/.*\.json$/,
+]
+
+// JSON API endpoints — stale-while-revalidate (serve cache, refresh in background)
+const SWR_PATTERNS = [
+  /\/api\/live-activity\.json$/,
+  /\/api\/ecosystem\.json$/,
+  /\/api\/projects\.json$/,
+  /\/api\/organizations\.json$/,
 ]
 
 // ─── Install Event ─────────────────────────────────────────
@@ -84,6 +93,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip chrome-extension, ws, etc.
   if (!url.protocol.startsWith('http')) return
+
+  // JSON API endpoints: stale-while-revalidate
+  if (isSWRRequest(url)) {
+    event.respondWith(staleWhileRevalidate(request, DATA_CACHE))
+    return
+  }
 
   // Data requests: Network-first with cache fallback
   if (isDataRequest(url)) {
@@ -211,6 +226,10 @@ function isDataRequest(url) {
   return CACHEABLE_DATA_PATTERNS.some((pattern) => pattern.test(url.pathname))
 }
 
+function isSWRRequest(url) {
+  return SWR_PATTERNS.some((pattern) => pattern.test(url.pathname))
+}
+
 function isStaticAsset(url) {
   const ext = url.pathname.split('.').pop()?.toLowerCase()
   return ['js', 'css', 'png', 'jpg', 'jpeg', 'svg', 'woff', 'woff2', 'ico'].includes(ext)
@@ -250,6 +269,29 @@ async function networkFirstWithCache(request, cacheName) {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+}
+
+/**
+ * Stale-while-revalidate: serve the cached response immediately,
+ * then fetch a fresh copy in the background and update the cache.
+ */
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName)
+  const cached = await cache.match(request)
+
+  const fetchPromise = fetch(request)
+    .then((response) => {
+      if (response.ok && response.status === 200 && response.type !== 'opaque') {
+        cache.put(request, response.clone())
+      }
+      return response
+    })
+    .catch(() => cached || new Response(JSON.stringify({ error: 'offline' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    }))
+
+  return cached || fetchPromise
 }
 
 async function cacheData(key, data) {

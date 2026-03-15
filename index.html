@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Devon Tyler Barber — Founder & Technologist. Custom web development, civic technology platforms, and digital infrastructure built with clean code and full ownership." />
+    <meta name="description" content="Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools." />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://api.stripe.com; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
@@ -18,9 +18,10 @@
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/svg+xml" href="/favicon-32x32.svg">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" as="image" href="/src/assets/images/us-flag-50.png" fetchpriority="high" />
     
-    <meta property="og:title" content="Devon Tyler Barber | Founder & Technologist" />
-    <meta property="og:description" content="Custom web development, civic technology platforms, and digital infrastructure. Clean code, full ownership, real results." />
+    <meta property="og:title" content="Devon Tyler Barber | Entrepreneur & Technologist" />
+    <meta property="og:description" content="Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools." />
     <meta property="og:image" content="https://devon-tyler.com/og-preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -28,11 +29,11 @@
     <meta property="og:url" content="https://devon-tyler.com" />
     
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Devon Tyler Barber | Founder & Technologist" />
-    <meta name="twitter:description" content="Custom web development, civic technology platforms, and digital infrastructure. Clean code, full ownership, real results." />
+    <meta name="twitter:title" content="Devon Tyler Barber | Entrepreneur & Technologist" />
+    <meta name="twitter:description" content="Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools." />
     <meta name="twitter:image" content="https://devon-tyler.com/og-preview.png" />
     
-    <title>Devon Tyler Barber | Founder & Technologist</title>
+    <title>Devon Tyler Barber | Entrepreneur & Technologist</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lora:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
@@ -42,6 +43,62 @@
     <link rel="preconnect" href="https://api.github.com" />
     <script src="/theme-init.js"></script>
     <script src="/cache-bust.js"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Person",
+          "@id": "https://devon-tyler.com/#person",
+          "name": "Devon Tyler Barber",
+          "alternateName": "Devon Tyler",
+          "jobTitle": "Entrepreneur & Licensed NJ Contractor",
+          "description": "Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools.",
+          "url": "https://devon-tyler.com",
+          "image": "https://devon-tyler.com/og-preview.png",
+          "sameAs": [
+            "https://github.com/DTMBX",
+            "https://www.xtx396.com",
+            "https://tillerstead.com"
+          ],
+          "knowsAbout": ["E-Discovery", "Civic Technology", "Home Improvement", "Legal Transparency", "Software Development"],
+          "worksFor": { "@id": "https://devon-tyler.com/#organization" }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://devon-tyler.com/#organization",
+          "name": "Evident Technologies LLC",
+          "url": "https://www.xtx396.com",
+          "logo": "https://www.xtx396.com/og-preview.png",
+          "founder": { "@id": "https://devon-tyler.com/#person" },
+          "description": "E-discovery and civic technology company building transparency and accountability platforms.",
+          "sameAs": [
+            "https://github.com/DTMBX"
+          ]
+        },
+        {
+          "@type": "HomeAndConstructionBusiness",
+          "@id": "https://devon-tyler.com/#tillerstead",
+          "name": "Tillerstead LLC",
+          "url": "https://tillerstead.com",
+          "founder": { "@id": "https://devon-tyler.com/#person" },
+          "description": "Licensed NJ home improvement contractor — TCNA-compliant tile installation and residential renovation in South Jersey.",
+          "areaServed": {
+            "@type": "State",
+            "name": "New Jersey"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://devon-tyler.com/#website",
+          "name": "Devon Tyler Barber",
+          "url": "https://devon-tyler.com",
+          "description": "Personal portfolio and business hub for Devon Tyler Barber — Evident Technologies LLC and Tillerstead LLC.",
+          "publisher": { "@id": "https://devon-tyler.com/#person" }
+        }
+      ]
+    }
+    </script>
 </head>
 
 <body>

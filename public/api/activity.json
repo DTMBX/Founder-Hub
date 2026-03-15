@@ -1,0 +1,294 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-03-15T20:17:45.861Z",
+  "events": [
+    {
+      "id": "update-evident-platform",
+      "type": "repo",
+      "projectId": "evident-platform",
+      "title": "Evident Platform updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1773532800000,
+      "link": "https://github.com/DTMBX/EVIDENT"
+    },
+    {
+      "id": "update-founder-hub",
+      "type": "repo",
+      "projectId": "founder-hub",
+      "title": "Founder Hub updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1773532800000,
+      "link": "https://github.com/DTMBX/Founder-Hub"
+    },
+    {
+      "id": "commit-tillerstead-1773511164000",
+      "type": "repo",
+      "projectId": "tillerstead",
+      "title": "Tillerstead — latest commit",
+      "description": "Repository updated (Python).",
+      "timestamp": 1773511164000,
+      "link": "https://github.com/DTMBX/tillerstead"
+    },
+    {
+      "id": "commit-essential-goods-ledger-1773100687000",
+      "type": "repo",
+      "projectId": "essential-goods-ledger",
+      "title": "Essential Goods Ledger — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773100687000,
+      "link": "https://github.com/DTMBX/essential-goods-ledg"
+    },
+    {
+      "id": "commit-civics-hierarchy-1773051163000",
+      "type": "repo",
+      "projectId": "civics-hierarchy",
+      "title": "Civics Hierarchy — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773051163000,
+      "link": "https://github.com/DTMBX/civics-hierarchy"
+    },
+    {
+      "id": "commit-doj-document-library-1773043151000",
+      "type": "repo",
+      "projectId": "doj-document-library",
+      "title": "DOJ Document Library — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773043151000,
+      "link": "https://github.com/DTMBX/epstein-library-evid"
+    },
+    {
+      "id": "commit-geneva-bible-study-1773037534000",
+      "type": "repo",
+      "projectId": "geneva-bible-study",
+      "title": "Geneva Bible Study — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773037534000,
+      "link": "https://github.com/DTMBX/geneva-bible-study-t"
+    },
+    {
+      "id": "commit-informed-consent-1773018806000",
+      "type": "repo",
+      "projectId": "informed-consent",
+      "title": "Informed Consent Companion — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773018806000,
+      "link": "https://github.com/DTMBX/informed-consent-com"
+    },
+    {
+      "id": "commit-contractor-command-center-1773015465000",
+      "type": "repo",
+      "projectId": "contractor-command-center",
+      "title": "Contractor Command Center — latest commit",
+      "description": "Repository updated (TypeScript).",
+      "timestamp": 1773015465000,
+      "link": "https://github.com/DTMBX/contractor-command-c"
+    },
+    {
+      "id": "update-civics-hierarchy",
+      "type": "repo",
+      "projectId": "civics-hierarchy",
+      "title": "Civics Hierarchy updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772928000000,
+      "link": "https://github.com/DTMBX/civics-hierarchy"
+    },
+    {
+      "id": "update-doj-document-library",
+      "type": "repo",
+      "projectId": "doj-document-library",
+      "title": "DOJ Document Library updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772928000000,
+      "link": "https://github.com/DTMBX/epstein-library-evid"
+    },
+    {
+      "id": "update-informed-consent",
+      "type": "repo",
+      "projectId": "informed-consent",
+      "title": "Informed Consent Companion updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772928000000,
+      "link": "https://github.com/DTMBX/informed-consent-com"
+    },
+    {
+      "id": "update-essential-goods-ledger",
+      "type": "repo",
+      "projectId": "essential-goods-ledger",
+      "title": "Essential Goods Ledger updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772928000000,
+      "link": "https://github.com/DTMBX/essential-goods-ledg"
+    },
+    {
+      "id": "update-geneva-bible-study",
+      "type": "repo",
+      "projectId": "geneva-bible-study",
+      "title": "Geneva Bible Study updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772928000000,
+      "link": "https://github.com/DTMBX/geneva-bible-study-t"
+    },
+    {
+      "id": "update-tillerstead",
+      "type": "repo",
+      "projectId": "tillerstead",
+      "title": "Tillerstead updated",
+      "description": "Project registry updated with latest changes.",
+      "timestamp": 1772841600000,
+      "link": "https://github.com/DTMBX/tillerstead"
+    },
+    {
+      "id": "launch-civics-hierarchy",
+      "type": "repo",
+      "projectId": "civics-hierarchy",
+      "title": "Civics Hierarchy launched",
+      "description": "Constitutional law reference — navigable views mapping the hierarchy of legal authority.",
+      "timestamp": 1748736000000,
+      "link": "https://civics.xtx396.com"
+    },
+    {
+      "id": "domain-civics-hierarchy",
+      "type": "domain",
+      "projectId": "civics-hierarchy",
+      "title": "civics.xtx396.com domain active",
+      "description": "Domain civics.xtx396.com serving Civics Hierarchy.",
+      "timestamp": 1748736000000,
+      "link": "https://civics.xtx396.com"
+    },
+    {
+      "id": "launch-doj-document-library",
+      "type": "repo",
+      "projectId": "doj-document-library",
+      "title": "DOJ Document Library launched",
+      "description": "DOJ Epstein case documents — e-discovery demo and public-service archive powered by Evident processing engines.",
+      "timestamp": 1748736000000,
+      "link": "https://library.xtx396.com"
+    },
+    {
+      "id": "domain-doj-document-library",
+      "type": "domain",
+      "projectId": "doj-document-library",
+      "title": "library.xtx396.com domain active",
+      "description": "Domain library.xtx396.com serving DOJ Document Library.",
+      "timestamp": 1748736000000,
+      "link": "https://library.xtx396.com"
+    },
+    {
+      "id": "launch-informed-consent",
+      "type": "repo",
+      "projectId": "informed-consent",
+      "title": "Informed Consent Companion launched",
+      "description": "Evidence-based maternity and newborn care information with sourced claims and consent tracking.",
+      "timestamp": 1748736000000,
+      "link": "https://consent.xtx396.com"
+    },
+    {
+      "id": "domain-informed-consent",
+      "type": "domain",
+      "projectId": "informed-consent",
+      "title": "consent.xtx396.com domain active",
+      "description": "Domain consent.xtx396.com serving Informed Consent Companion.",
+      "timestamp": 1748736000000,
+      "link": "https://consent.xtx396.com"
+    },
+    {
+      "id": "launch-essential-goods-ledger",
+      "type": "repo",
+      "projectId": "essential-goods-ledger",
+      "title": "Essential Goods Ledger launched",
+      "description": "Economic analysis — commodity pricing, supply chain metrics, and cost-of-living indicators.",
+      "timestamp": 1748736000000,
+      "link": "https://ledger.xtx396.com"
+    },
+    {
+      "id": "domain-essential-goods-ledger",
+      "type": "domain",
+      "projectId": "essential-goods-ledger",
+      "title": "ledger.xtx396.com domain active",
+      "description": "Domain ledger.xtx396.com serving Essential Goods Ledger.",
+      "timestamp": 1748736000000,
+      "link": "https://ledger.xtx396.com"
+    },
+    {
+      "id": "launch-geneva-bible-study",
+      "type": "repo",
+      "projectId": "geneva-bible-study",
+      "title": "Geneva Bible Study launched",
+      "description": "Offline-capable Scripture study — full-text search, marginal notes, and reading plans.",
+      "timestamp": 1748736000000,
+      "link": "https://bible.xtx396.com"
+    },
+    {
+      "id": "domain-geneva-bible-study",
+      "type": "domain",
+      "projectId": "geneva-bible-study",
+      "title": "bible.xtx396.com domain active",
+      "description": "Domain bible.xtx396.com serving Geneva Bible Study.",
+      "timestamp": 1748736000000,
+      "link": "https://bible.xtx396.com"
+    },
+    {
+      "id": "launch-tillerstead",
+      "type": "repo",
+      "projectId": "tillerstead",
+      "title": "Tillerstead launched",
+      "description": "Home improvement and land stewardship platform — tools, calculators, and planning resources for property owners.",
+      "timestamp": 1740787200000,
+      "link": "https://tillerstead.com"
+    },
+    {
+      "id": "domain-tillerstead",
+      "type": "domain",
+      "projectId": "tillerstead",
+      "title": "tillerstead.com domain active",
+      "description": "Domain tillerstead.com serving Tillerstead.",
+      "timestamp": 1740787200000,
+      "link": "https://tillerstead.com"
+    },
+    {
+      "id": "launch-founder-hub",
+      "type": "repo",
+      "projectId": "founder-hub",
+      "title": "Founder Hub launched",
+      "description": "Operations hub, portfolio, and accountability platform by Devon Tyler Barber.",
+      "timestamp": 1738368000000,
+      "link": "https://devon-tyler.com"
+    },
+    {
+      "id": "domain-founder-hub",
+      "type": "domain",
+      "projectId": "founder-hub",
+      "title": "devon-tyler.com domain active",
+      "description": "Domain devon-tyler.com serving Founder Hub.",
+      "timestamp": 1738368000000,
+      "link": "https://devon-tyler.com"
+    },
+    {
+      "id": "docs-evident-platform",
+      "type": "documentation",
+      "projectId": "evident-platform",
+      "title": "Evident Platform documentation published",
+      "description": "Documentation available at https://www.xtx396.com/docs/",
+      "timestamp": 1736985600000,
+      "link": "https://www.xtx396.com/docs/"
+    },
+    {
+      "id": "launch-evident-platform",
+      "type": "repo",
+      "projectId": "evident-platform",
+      "title": "Evident Platform launched",
+      "description": "Evidence processing platform — PDFs, video, audio, digital media with audit trails and chain of custody.",
+      "timestamp": 1736899200000,
+      "link": "https://www.xtx396.com"
+    },
+    {
+      "id": "domain-evident-platform",
+      "type": "domain",
+      "projectId": "evident-platform",
+      "title": "xtx396.com domain active",
+      "description": "Domain xtx396.com serving Evident Platform.",
+      "timestamp": 1736899200000,
+      "link": "https://www.xtx396.com"
+    }
+  ]
+}

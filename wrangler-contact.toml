@@ -1,0 +1,19 @@
+# Contact Form Worker — deployed as a separate Cloudflare Worker
+name = "founder-hub-contact"
+main = "workers/contact-form.ts"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = ""          # Fill in after `wrangler kv namespace create RATE_LIMIT_KV`
+
+[[kv_namespaces]]
+binding = "SUBMISSIONS_KV"
+id = ""          # Fill in after `wrangler kv namespace create SUBMISSIONS_KV`
+
+[vars]
+FROM_EMAIL = "noreply@devon-tyler.com"
+FROM_NAME = "Devon Tyler"
+TILLERSTEAD_EMAIL = "inquiries@tillerstead.com"
+EVIDENT_EMAIL = "licensing@xtx396.com"
+FOUNDER_EMAIL = "hi@devon-tyler.com"

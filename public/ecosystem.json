@@ -1,0 +1,316 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-03-15T20:17:45.695Z",
+  "person": {
+    "id": "devon-tyler-barber",
+    "name": "Devon Tyler Barber",
+    "url": "https://devon-tyler.com",
+    "role": "Entrepreneur & Technologist"
+  },
+  "organizations": [
+    {
+      "name": "Evident Technologies LLC",
+      "type": "Organization",
+      "industry": "Civic Technology & Legal Technology",
+      "website": "https://www.xtx396.com",
+      "relationshipToFounder": "founder"
+    },
+    {
+      "name": "Tillerstead LLC",
+      "type": "HomeAndConstructionBusiness",
+      "industry": "Home Improvement & Land Stewardship",
+      "website": "https://tillerstead.com",
+      "relationshipToFounder": "founder"
+    }
+  ],
+  "projects": [
+    {
+      "id": "evident-platform",
+      "name": "Evident Platform",
+      "tagline": "Evidence processing platform — PDFs, video, audio, digital media with audit trails and chain of custody.",
+      "description": "The Evident Platform is the e-discovery and evidence processing hub for the xtx396.com ecosystem. It provides ingestion, OCR, chain-of-custody tracking, and audit trails across PDFs, video, audio, and digital media. Six satellite applications extend its capabilities into specific civic domains.",
+      "category": "civic-tech",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/EVIDENT",
+      "domain": "xtx396.com",
+      "documentation": "https://www.xtx396.com/docs/",
+      "created": "2025-01-15",
+      "updated": "2026-03-15"
+    },
+    {
+      "id": "tillerstead",
+      "name": "Tillerstead",
+      "tagline": "Home improvement and land stewardship platform — tools, calculators, and planning resources for property owners.",
+      "description": "Tillerstead is a resource hub for property owners managing home improvement projects and land stewardship. It includes ROI calculators, material estimators, and planning guides for fencing, grading, and structural improvements, all designed for self-reliant homeowners.",
+      "category": "home-improvement",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/tillerstead",
+      "domain": "tillerstead.com",
+      "created": "2025-03-01",
+      "updated": "2026-03-07"
+    },
+    {
+      "id": "founder-hub",
+      "name": "Founder Hub",
+      "tagline": "Operations hub, portfolio, and accountability platform by Devon Tyler Barber.",
+      "description": "Founder Hub is the operational headquarters for all Evident Technologies ventures. It hosts the public portfolio, accountability records, investor communications, and administrative tools that keep every project transparent and auditable.",
+      "category": "software-platform",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/Founder-Hub",
+      "domain": "devon-tyler.com",
+      "created": "2025-02-01",
+      "updated": "2026-03-15"
+    },
+    {
+      "id": "civics-hierarchy",
+      "name": "Civics Hierarchy",
+      "tagline": "Constitutional law reference — navigable views mapping the hierarchy of legal authority.",
+      "description": "Civics Hierarchy visualizes the structure of local, state, and federal government in an interactive tree. Users can explore branches of authority, understand the purpose of each agency, and trace the chain of command from the Constitution to their local school board.",
+      "category": "civic-tech",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/civics-hierarchy",
+      "domain": "civics.xtx396.com",
+      "created": "2025-06-01",
+      "updated": "2026-03-08"
+    },
+    {
+      "id": "doj-document-library",
+      "name": "DOJ Document Library",
+      "tagline": "DOJ Epstein case documents — e-discovery demo and public-service archive powered by Evident processing engines.",
+      "description": "The DOJ Document Library indexes publicly released Epstein case documents from the U.S. Department of Justice — court filings, depositions, flight logs, and FOIA responses — into a searchable, verifiable interface. It serves as both a genuine public-service resource and a live production demo of Evident\\",
+      "category": "civic-tech",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/epstein-library-evid",
+      "domain": "library.xtx396.com",
+      "created": "2025-06-01",
+      "updated": "2026-03-08"
+    },
+    {
+      "id": "informed-consent",
+      "name": "Informed Consent Companion",
+      "tagline": "Evidence-based maternity and newborn care information with sourced claims and consent tracking.",
+      "description": "Informed Consent Companion provides evidence-based maternity and newborn care information with fully sourced claims. It helps individuals understand their rights before signing medical or institutional agreements, tracks what was disclosed, and gives users a personal audit trail of every consent granted or revoked.",
+      "category": "civic-tech",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/informed-consent-com",
+      "domain": "consent.xtx396.com",
+      "created": "2025-06-01",
+      "updated": "2026-03-08"
+    },
+    {
+      "id": "essential-goods-ledger",
+      "name": "Essential Goods Ledger",
+      "tagline": "Economic analysis — commodity pricing, supply chain metrics, and cost-of-living indicators.",
+      "description": "The Essential Goods Ledger provides economic analysis across commodity pricing, supply chain metrics, and cost-of-living indicators. Each data point is timestamped and linked to its source, making it possible to track pricing trends, distribution patterns, and resource allocation transparently.",
+      "category": "civic-tech",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/essential-goods-ledg",
+      "domain": "ledger.xtx396.com",
+      "created": "2025-06-01",
+      "updated": "2026-03-08"
+    },
+    {
+      "id": "geneva-bible-study",
+      "name": "Geneva Bible Study",
+      "tagline": "Offline-capable Scripture study — full-text search, marginal notes, and reading plans.",
+      "description": "Geneva Bible Study presents the Geneva Bible text alongside margin annotations and historical commentary. Users can search by book, chapter, or keyword, compare translations, and read the original reformer notes that shaped English-speaking constitutional thought. Built as an offline-capable PWA for study anywhere.",
+      "category": "software-platform",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/geneva-bible-study-t",
+      "domain": "bible.xtx396.com",
+      "created": "2025-06-01",
+      "updated": "2026-03-08"
+    },
+    {
+      "id": "contractor-command-center",
+      "name": "Contractor Command Center",
+      "tagline": "Project management and estimating tools for construction contractors.",
+      "description": "Contractor Command Center gives homeowners and contractors a shared workspace to track job progress, manage line-item estimates, log change orders, and store before/after photos. Built as a PWA for offline-capable use on job sites.",
+      "category": "home-improvement",
+      "status": "live",
+      "repo": "https://github.com/DTMBX/contractor-command-c"
+    }
+  ],
+  "relationships": [
+    {
+      "source": "devon-tyler-barber",
+      "target": "evident-technologies-llc",
+      "relationship": "founder"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "tillerstead-llc",
+      "relationship": "founder"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "evident-platform",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "evident-platform",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "evident-platform",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "evident-platform",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "tillerstead",
+      "relationship": "creator"
+    },
+    {
+      "source": "tillerstead-llc",
+      "target": "tillerstead",
+      "relationship": "developer"
+    },
+    {
+      "source": "tillerstead-llc",
+      "target": "tillerstead",
+      "relationship": "publisher"
+    },
+    {
+      "source": "tillerstead-llc",
+      "target": "tillerstead",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "founder-hub",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "founder-hub",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "founder-hub",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "founder-hub",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "civics-hierarchy",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "civics-hierarchy",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "civics-hierarchy",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "civics-hierarchy",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "doj-document-library",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "doj-document-library",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "doj-document-library",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "doj-document-library",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "informed-consent",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "informed-consent",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "informed-consent",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "informed-consent",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "essential-goods-ledger",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "essential-goods-ledger",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "essential-goods-ledger",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "essential-goods-ledger",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "geneva-bible-study",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "geneva-bible-study",
+      "relationship": "developer"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "geneva-bible-study",
+      "relationship": "publisher"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "geneva-bible-study",
+      "relationship": "operator"
+    },
+    {
+      "source": "devon-tyler-barber",
+      "target": "contractor-command-center",
+      "relationship": "creator"
+    },
+    {
+      "source": "evident-technologies-llc",
+      "target": "contractor-command-center",
+      "relationship": "developer"
+    }
+  ]
+}

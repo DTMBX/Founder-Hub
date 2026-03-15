@@ -2,38 +2,164 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://devon-tyler.com/</loc>
-    <lastmod>2026-03-14</lastmod>
+    <lastmod>2026-03-15</lastmod>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://devon-tyler.com/#projects</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://devon-tyler.com/#evident</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#tillerstead</loc>
+    <lastmod>2026-03-15</lastmod>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://devon-tyler.com/#about</loc>
-    <lastmod>2026-03-14</lastmod>
+    <lastmod>2026-03-15</lastmod>
     <priority>0.8</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://devon-tyler.com/#contact</loc>
-    <lastmod>2026-03-14</lastmod>
+    <loc>https://devon-tyler.com/#projects-index</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#accountability</loc>
+    <lastmod>2026-03-15</lastmod>
     <priority>0.7</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
+    <loc>https://devon-tyler.com/#invest</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#data</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#developers</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#activity</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#intelligence</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#evident-site</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#blog</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://devon-tyler.com/privacy.html</loc>
-    <lastmod>2026-03-14</lastmod>
-    <priority>0.4</priority>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.3</priority>
     <changefreq>yearly</changefreq>
   </url>
   <url>
     <loc>https://devon-tyler.com/terms.html</loc>
-    <lastmod>2026-03-14</lastmod>
-    <priority>0.4</priority>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.3</priority>
     <changefreq>yearly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/evident-platform</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/tillerstead</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/founder-hub</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/civics-hierarchy</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/doj-document-library</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/informed-consent</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/essential-goods-ledger</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/geneva-bible-study</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#project/contractor-command-center</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#blog/evident-ediscovery-platform</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.5</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#blog/doj-document-library-launch</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.5</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://devon-tyler.com/#blog/tillerstead-contractor-platform</loc>
+    <lastmod>2026-03-15</lastmod>
+    <priority>0.5</priority>
+    <changefreq>weekly</changefreq>
   </url>
 </urlset>

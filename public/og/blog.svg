@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="4" fill="#3b82f6"/>
+  <text x="80" y="120" fill="#3b82f6" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="600" letter-spacing="2">DEVON TYLER BARBER</text>
+  <line x1="80" y1="145" x2="280" y2="145" stroke="#3b82f6" stroke-width="2" opacity="0.4"/>
+    <text x="80" y="290" fill="white" font-family="Inter, system-ui, sans-serif" font-size="48" font-weight="700">Blog</text>
+  <text x="80" y="370" fill="#94a3b8" font-family="Inter, system-ui, sans-serif" font-size="20" font-weight="400">Updates from the Evident Technologies ecosystem.</text>
+  <text x="80" y="570" fill="#475569" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="400">devon-tyler.com</text>
+  <circle cx="1120" cy="560" r="24" fill="none" stroke="#3b82f6" stroke-width="2" opacity="0.3"/>
+  <text x="1110" y="567" fill="#3b82f6" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" opacity="0.5">DT</text>
+</svg>

@@ -1,0 +1,13 @@
+name = "founder-hub-webhooks"
+main = "workers/github-webhook.ts"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "ACTIVITY_KV"
+id = ""          # Fill in after `wrangler kv namespace create ACTIVITY_KV`
+
+# ─────────────────────────────────────────────────────────────
+# Contact Form Worker
+# Deploy separately: wrangler deploy -c wrangler-contact.toml
+# ─────────────────────────────────────────────────────────────
+# See wrangler-contact.toml for the contact form worker config.

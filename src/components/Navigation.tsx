@@ -27,6 +27,14 @@ const sectionIcons: Record<string, React.ComponentType<IconProps>> = {
   contact: PaperPlaneRight
 }
 
+/** Consistent nav labels matching the hero CTA grid */
+const NAV_LABELS: Record<string, string> = {
+  about: 'About Devon',
+  projects: 'What I Build',
+  court: 'Court & Accountability',
+  contact: 'Invest & Connect',
+}
+
 export default function Navigation({ 
   sections, 
   onAdminClick,
@@ -77,7 +85,7 @@ export default function Navigation({
     .filter(s => s.type !== 'hero')
     .map(section => {
       const Icon = sectionIcons[section.type]
-      return { label: section.title, id: section.type, icon: Icon }
+      return { label: NAV_LABELS[section.type] || section.title, id: section.type, icon: Icon }
     })
 
   return (
@@ -103,40 +111,44 @@ export default function Navigation({
           pathwayAccent === 'purple' && 'bg-gradient-to-r from-transparent via-purple-500/60 to-transparent'
         )} />
       )}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px]">
         <div className="flex items-center justify-between h-16">
           <button
             onClick={() => scrollToSection('hero')}
             className={cn(
               'text-base font-bold tracking-tight transition-colors font-mono',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-sm',
               isScrolled ? 'text-foreground hover:text-foreground/80' : 'text-foreground/90 hover:text-foreground'
             )}
           >
             Devon Tyler
           </button>
 
-          <div className="hidden md:flex items-center gap-0.5">
+          {/* Desktop nav links */}
+          <ul className="hidden md:flex items-center gap-0.5 list-none" role="list">
             {navLinks.map(link => (
-              <button
-                key={link.id}
-                onClick={() => scrollToSection(link.id)}
-                aria-current={activeSection === link.id ? 'page' : undefined}
-                className={cn(
-                  'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
-                  activeSection === link.id
-                    ? 'text-foreground bg-foreground/15' 
-                    : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
-                )}
-              >
-                {link.label}
-                {activeSection === link.id && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-foreground/80" />
-                )}
-              </button>
+              <li key={link.id}>
+                <button
+                  onClick={() => scrollToSection(link.id)}
+                  aria-current={activeSection === link.id ? 'page' : undefined}
+                  className={cn(
+                    'relative px-3.5 py-2 text-sm font-medium transition-all duration-200 rounded-lg',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                    activeSection === link.id
+                      ? 'text-foreground bg-foreground/15' 
+                      : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10'
+                  )}
+                >
+                  {link.label}
+                  {activeSection === link.id && (
+                    <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-foreground/80" aria-hidden="true" />
+                  )}
+                </button>
+              </li>
             ))}
 
             {onAdminClick && (
-              <div className="ml-3 pl-3 border-l border-border">
+              <li className="ml-3 pl-3 border-l border-border">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -145,41 +157,43 @@ export default function Navigation({
                 >
                   Admin
                 </Button>
-              </div>
+              </li>
             )}
-          </div>
+          </ul>
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon" className="text-foreground/90 hover:bg-foreground/10" aria-label="Open navigation menu" aria-expanded={mobileOpen}>
-                <List className="h-5 w-5" />
+                <List className="h-5 w-5" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] bg-background/95 backdrop-blur-xl border-l border-border/50">
-              <div className="flex flex-col gap-1 mt-8">
+              <ul className="flex flex-col gap-1 mt-8 list-none" role="list">
                 {navLinks.map(link => {
                   const Icon = link.icon
                   const isActive = activeSection === link.id
                   return (
-                    <button
-                      key={link.id}
-                      onClick={() => scrollToSection(link.id)}
-                      aria-current={isActive ? 'page' : undefined}
-                      className={cn(
-                        'flex items-center gap-3 text-left px-4 py-3 rounded-lg transition-all duration-200',
-                        isActive
-                          ? 'bg-accent/15 text-foreground font-medium'
-                          : 'hover:bg-accent/5 text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      {Icon && <Icon className="h-5 w-5" weight={isActive ? 'fill' : 'regular'} />}
-                      <span>{link.label}</span>
-                    </button>
+                    <li key={link.id}>
+                      <button
+                        onClick={() => scrollToSection(link.id)}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={cn(
+                          'flex items-center gap-3 w-full text-left px-4 py-3 rounded-lg transition-all duration-200',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                          isActive
+                            ? 'bg-accent/15 text-foreground font-medium'
+                            : 'hover:bg-accent/5 text-muted-foreground hover:text-foreground'
+                        )}
+                      >
+                        {Icon && <Icon className="h-5 w-5" weight={isActive ? 'fill' : 'regular'} aria-hidden="true" />}
+                        <span>{link.label}</span>
+                      </button>
+                    </li>
                   )
                 })}
 
                 {onAdminClick && (
-                  <div className="mt-4 pt-4 border-t border-border/50">
+                  <li className="mt-4 pt-4 border-t border-border/50">
                     <Button
                       variant="outline"
                       onClick={onAdminClick}
@@ -188,9 +202,9 @@ export default function Navigation({
                     >
                       Admin Portal
                     </Button>
-                  </div>
+                  </li>
                 )}
-              </div>
+              </ul>
             </SheetContent>
           </Sheet>
         </div>

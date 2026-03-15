@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2026-03-15T20:17:45.695Z",
+  "satellites": [
+    {
+      "id": "civics-hierarchy",
+      "name": "Civics Hierarchy",
+      "tagline": "Constitutional law reference — navigable views mapping the hierarchy of legal authority.",
+      "status": "live",
+      "url": "https://civics.xtx396.com",
+      "repo": "https://github.com/DTMBX/civics-hierarchy"
+    },
+    {
+      "id": "doj-document-library",
+      "name": "DOJ Document Library",
+      "tagline": "DOJ Epstein case documents — e-discovery demo and public-service archive powered by Evident processing engines.",
+      "status": "live",
+      "url": "https://library.xtx396.com",
+      "repo": "https://github.com/DTMBX/epstein-library-evid"
+    },
+    {
+      "id": "informed-consent",
+      "name": "Informed Consent Companion",
+      "tagline": "Evidence-based maternity and newborn care information with sourced claims and consent tracking.",
+      "status": "live",
+      "url": "https://consent.xtx396.com",
+      "repo": "https://github.com/DTMBX/informed-consent-com"
+    },
+    {
+      "id": "essential-goods-ledger",
+      "name": "Essential Goods Ledger",
+      "tagline": "Economic analysis — commodity pricing, supply chain metrics, and cost-of-living indicators.",
+      "status": "live",
+      "url": "https://ledger.xtx396.com",
+      "repo": "https://github.com/DTMBX/essential-goods-ledg"
+    },
+    {
+      "id": "geneva-bible-study",
+      "name": "Geneva Bible Study",
+      "tagline": "Offline-capable Scripture study — full-text search, marginal notes, and reading plans.",
+      "status": "live",
+      "url": "https://bible.xtx396.com",
+      "repo": "https://github.com/DTMBX/geneva-bible-study-t"
+    }
+  ]
+}

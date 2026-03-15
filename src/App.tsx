@@ -1,5 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import PublicSite from './components/PublicSite'
+import { EcosystemHeader } from './components/EcosystemHeader'
+import { SearchModal } from './components/SearchModal'
 import { useAuth } from './lib/auth'
 import { useInitializeSampleData } from './lib/initialize-sample-data'
 
@@ -16,6 +18,22 @@ const SiteRouter = lazy(() => import('./components/sites/SiteRouter'))
 const OfferingPage = lazy(() => import('./marketing').then(m => ({ default: m.OfferingPage })))
 const StudioPreview = lazy(() => import('./components/dev/StudioPreview'))
 const LegalPage = lazy(() => import('./components/LegalPage'))
+const AboutPage = lazy(() => import('./components/pages/AboutPage'))
+const ProjectsIndexPage = lazy(() => import('./components/pages/ProjectsIndexPage'))
+const ProjectPage = lazy(() => import('./components/pages/ProjectPage'))
+const AccountabilityPage = lazy(() => import('./components/pages/AccountabilityPage'))
+const InvestPage = lazy(() => import('./components/pages/InvestPage'))
+const EvidentPage = lazy(() => import('./components/pages/EvidentPage'))
+const TillersteadPage = lazy(() => import('./components/pages/TillersteadPage'))
+const DataPage = lazy(() => import('./components/pages/DataPage'))
+const DeveloperPage = lazy(() => import('./components/pages/DeveloperPage'))
+const ActivityPage = lazy(() => import('./components/pages/ActivityPage'))
+const IntelligencePage = lazy(() => import('./components/pages/IntelligencePage'))
+const EvidentSitePage = lazy(() => import('./components/pages/EvidentSitePage'))
+const BlogPage = lazy(() => import('./components/pages/BlogPage'))
+const BlogPostPage = lazy(() => import('./components/pages/BlogPostPage'))
+const EvidentDemoPage = lazy(() => import('./components/pages/EvidentDemoPage'))
+const HealthPage = lazy(() => import('./components/pages/HealthPage'))
 
 type View =
   | 'public'
@@ -28,11 +46,29 @@ type View =
   | 'studio-preview'
   | 'offerings'
   | 'legal'
+  | 'about'
+  | 'projects-index'
+  | 'project-detail'
+  | 'accountability'
+  | 'invest'
+  | 'evident'
+  | 'tillerstead'
+  | 'data'
+  | 'developers'
+  | 'activity'
+  | 'intelligence'
+  | 'evident-site'
+  | 'blog'
+  | 'blog-post'
+  | 'evident-demo'
+  | 'health'
   | 'not-found'
 
 function App() {
   const [view, setView] = useState<View>('public')
   const [caseId, setCaseId] = useState<string>('')
+  const [projectId, setProjectId] = useState<string>('')
+  const [postId, setPostId] = useState<string>('')
   const [siteSlug, setSiteSlug] = useState<string>('')
   const [sitePreviewId, setSitePreviewId] = useState<string>('')
   const [legalSlug, setLegalSlug] = useState<string>('')
@@ -40,7 +76,7 @@ function App() {
   
   useInitializeSampleData()
 
-  useEffect(() => {
+  const resolveHash = () => {
     const hash = window.location.hash.slice(1)
     const pathname = window.location.pathname
     
@@ -85,13 +121,61 @@ function App() {
       setView('checkout-success')
     } else if (hash === 'checkout/cancel') {
       setView('checkout-cancel')
-    } else if (hash === 'privacy' || hash === 'terms') {
+    } else if (hash === 'privacy' || hash === 'terms' || hash === 'cookie-policy') {
       setLegalSlug(hash)
       setView('legal')
-    } else if (hash && hash !== 'projects' && hash !== 'about' && hash !== 'contact' && hash !== 'proof-of-work') {
+    } else if (hash === 'about') {
+      setView('about')
+    } else if (hash === 'projects-index') {
+      setView('projects-index')
+    } else if (hash.startsWith('project/')) {
+      const id = hash.slice(8)
+      if (id) {
+        setProjectId(id)
+        setView('project-detail')
+      }
+    } else if (hash === 'accountability') {
+      setView('accountability')
+    } else if (hash === 'invest') {
+      setView('invest')
+    } else if (hash === 'evident') {
+      setView('evident')
+    } else if (hash === 'tillerstead') {
+      setView('tillerstead')
+    } else if (hash === 'data') {
+      setView('data')
+    } else if (hash === 'developers') {
+      setView('developers')
+    } else if (hash === 'activity') {
+      setView('activity')
+    } else if (hash === 'intelligence') {
+      setView('intelligence')
+    } else if (hash === 'evident-site') {
+      setView('evident-site')
+    } else if (hash === 'evident-demo') {
+      setView('evident-demo')
+    } else if (hash === 'health') {
+      setView('health')
+    } else if (hash === 'blog') {
+      setView('blog')
+    } else if (hash.startsWith('blog/')) {
+      const id = hash.slice(5)
+      if (id) {
+        setPostId(id)
+        setView('blog-post')
+      }
+    } else if (hash && hash !== 'projects' && hash !== 'contact' && hash !== 'proof-of-work') {
       // Unrecognized hash route — show 404
       setView('not-found')
+    } else {
+      setView('public')
     }
+  }
+
+  useEffect(() => {
+    resolveHash()
+    window.addEventListener('hashchange', resolveHash)
+    return () => window.removeEventListener('hashchange', resolveHash)
   }, [])
 
   const handleNavigateToCase = (id: string) => {
@@ -113,6 +197,53 @@ function App() {
   const handleNavigateToOfferings = () => {
     setView('offerings')
     window.location.hash = 'offerings'
+  }
+
+  const handleNavigateToAbout = () => {
+    setView('about')
+    window.location.hash = 'about'
+  }
+
+  const handleNavigateToProjectsIndex = () => {
+    setView('projects-index')
+    window.location.hash = 'projects-index'
+  }
+
+  const handleNavigateToProject = (id: string) => {
+    setProjectId(id)
+    setView('project-detail')
+    window.location.hash = `project/${id}`
+  }
+
+  const handleNavigateToAccountability = () => {
+    setView('accountability')
+    window.location.hash = 'accountability'
+  }
+
+  const handleNavigateToInvest = () => {
+    setView('invest')
+    window.location.hash = 'invest'
+  }
+
+  const handleNavigateToEvident = () => {
+    setView('evident')
+    window.location.hash = 'evident'
+  }
+
+  const handleNavigateToTillerstead = () => {
+    setView('tillerstead')
+    window.location.hash = 'tillerstead'
+  }
+
+  const handleNavigateToBlog = () => {
+    setView('blog')
+    window.location.hash = 'blog'
+  }
+
+  const handleNavigateToBlogPost = (id: string) => {
+    setPostId(id)
+    setView('blog-post')
+    window.location.hash = `blog/${id}`
   }
 
   // Route loading fallback
@@ -217,6 +348,134 @@ function App() {
     )
   }
 
+  if (view === 'about') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <AboutPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'projects-index') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <ProjectsIndexPage onBack={handleBackToPublic} onNavigateToProject={handleNavigateToProject} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'project-detail' && projectId) {
+    return (
+      <Suspense fallback={routeFallback}>
+        <ProjectPage projectId={projectId} onBack={handleNavigateToProjectsIndex} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'accountability') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <AccountabilityPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'invest') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <InvestPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'evident') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <EvidentPage onBack={handleBackToPublic} onNavigateToProject={handleNavigateToProject} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'tillerstead') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <TillersteadPage onBack={handleBackToPublic} onNavigateToProject={handleNavigateToProject} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'data') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <DataPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'developers') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <DeveloperPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'activity') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <ActivityPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'intelligence') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <IntelligencePage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'evident-site') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <EvidentSitePage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'evident-demo') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <EvidentDemoPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'health') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <HealthPage onBack={handleBackToPublic} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'blog') {
+    return (
+      <Suspense fallback={routeFallback}>
+        <BlogPage onBack={handleBackToPublic} onNavigateToPost={handleNavigateToBlogPost} />
+      </Suspense>
+    )
+  }
+
+  if (view === 'blog-post' && postId) {
+    return (
+      <Suspense fallback={routeFallback}>
+        <BlogPostPage postId={postId} onBack={handleNavigateToBlog} />
+      </Suspense>
+    )
+  }
+
   if (view === 'not-found') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground gap-4">
@@ -234,6 +493,8 @@ function App() {
 
   return (
     <>
+      <EcosystemHeader />
+      <SearchModal />
       <PublicSite onAdminClick={handleNavigateToAdmin} onNavigateToCase={handleNavigateToCase} />
       <Suspense fallback={null}><DevCustomizer /></Suspense>
     </>

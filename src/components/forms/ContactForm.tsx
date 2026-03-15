@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
 import { contactConfig, type ContactField } from '@/config/site.config'
+import { useFormSubmit, type FormSource } from '@/hooks/use-form-submit'
 import { cn } from '@/lib/utils'
 
 interface ContactFormProps {
@@ -22,6 +23,7 @@ interface ContactFormProps {
   customFields?: ContactField[]
   submitLabel?: string
   compact?: boolean
+  source?: FormSource
 }
 
 export function ContactForm({
@@ -30,13 +32,15 @@ export function ContactForm({
   customFields,
   submitLabel = 'Send Message',
   compact = false,
+  source = 'general',
 }: ContactFormProps) {
   const fields = customFields || contactConfig.fields
   const [formData, setFormData] = useState<Record<string, string | boolean>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [honeypot, setHoneypot] = useState('') // Spam trap
+  const { status, errorMessage, submit, reset } = useFormSubmit(source)
+  const isSubmitting = status === 'submitting'
+  const submitted = status === 'success'
   
   const validateField = (field: ContactField, value: string | boolean): string | null => {
     if (field.required && !value) {
@@ -68,13 +72,12 @@ export function ContactForm({
     return null
   }
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     // Honeypot check - if filled, it's a bot
     if (honeypot) {
       console.log('[ContactForm] Honeypot triggered, ignoring submission')
-      setSubmitted(true)
       return
     }
     
@@ -92,33 +95,10 @@ export function ContactForm({
       return
     }
     
-    setIsSubmitting(true)
     setErrors({})
-    
-    try {
-      // Submit to configured endpoint
-      const response = await fetch(contactConfig.submitEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          _site: window.location.hostname,
-          _timestamp: new Date().toISOString(),
-        }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Submission failed')
-      }
-      
-      setSubmitted(true)
-      onSuccess?.()
-    } catch (error) {
-      console.error('[ContactForm] Submit error:', error)
-      setErrors({ _form: 'Unable to send message. Please try again or contact us directly.' })
-    } finally {
-      setIsSubmitting(false)
-    }
+    const fd = new FormData(e.currentTarget)
+    await submit(fd)
+    onSuccess?.()
   }
   
   const updateField = (name: string, value: string | boolean) => {
@@ -138,6 +118,7 @@ export function ContactForm({
         <div className="text-4xl mb-4">✓</div>
         <h3 className="text-xl font-semibold mb-2">Message Sent</h3>
         <p className="text-muted-foreground">{contactConfig.successMessage}</p>
+        <button onClick={reset} className="mt-4 text-sm text-primary hover:text-primary/80 underline">Send another message</button>
       </GlassCard>
     )
   }
@@ -248,8 +229,8 @@ export function ContactForm({
           </div>
         ))}
         
-        {errors._form && (
-          <p className="text-sm text-red-500 text-center">{errors._form}</p>
+        {(errors._form || errorMessage) && (
+          <p className="text-sm text-red-500 text-center">{errors._form || errorMessage}</p>
         )}
         
         <Button

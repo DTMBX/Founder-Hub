@@ -177,6 +177,29 @@ const LEGAL_PAGES: Record<string, LegalPageData> = {
       ]},
     ],
   },
+  'cookie-policy': {
+    title: 'Cookie Policy',
+    effectiveDate: 'June 8, 2026',
+    content: [
+      { type: 'paragraph', text: 'This Cookie Policy explains how devon-tyler.com (the "Site"), operated by Devon Tyler Barber through Evident Technologies LLC and Tillerstead LLC, uses cookies and similar technologies.' },
+
+      { type: 'heading', text: '1. We Do Not Use Cookies' },
+      { type: 'paragraph', text: 'The Site does not set any cookies — first-party or third-party. No tracking, analytics, advertising, session, or authentication cookies are used.' },
+      { type: 'paragraph', text: 'Because we do not use cookies, no cookie consent banner is required.' },
+
+      { type: 'heading', text: '2. Local Storage' },
+      { type: 'paragraph', text: 'The Site uses your browser\'s localStorage API to save user preferences such as theme settings. localStorage data is stored only on your device, never transmitted to any server, and is not accessible to other websites.' },
+
+      { type: 'heading', text: '3. Third-Party Cookies' },
+      { type: 'paragraph', text: 'We do not embed any third-party services that set cookies. No Google Analytics, Meta Pixel, social media tracking, or third-party iframes are used.' },
+
+      { type: 'heading', text: '4. Infrastructure-Level Cookies' },
+      { type: 'paragraph', text: 'Our hosting providers (GitHub Pages, Cloudflare) may set technical cookies at the infrastructure level for security purposes. These are outside our control and are governed by their respective privacy policies.' },
+
+      { type: 'heading', text: '5. Contact' },
+      { type: 'paragraph', text: 'For questions about this Cookie Policy, contact law@devon-tyler.com.' },
+    ],
+  },
 }
 
 interface LegalPageProps {

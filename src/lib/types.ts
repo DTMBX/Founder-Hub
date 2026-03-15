@@ -114,6 +114,16 @@ export interface Project {
   }
   createdAt: number
   updatedAt: number
+  /** Primary programming language */
+  repoLanguage?: string
+  /** GitHub stars count */
+  repoStars?: number
+  /** Owning entity name */
+  owner?: string
+  /** Primary domain (without protocol) */
+  domain?: string
+  /** URL to project documentation */
+  documentationUrl?: string
 }
 
 export interface ProjectLink {

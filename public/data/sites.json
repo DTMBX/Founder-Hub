@@ -12,8 +12,8 @@
     },
     {
       "id": "evident",
-      "name": "Evident.icu — Launching Soon",
-      "description": "Evident.icu is currently undergoing final DNS configuration and will serve as the official domain for the Evident eDiscovery Suite. The platform is maintained and operated by Evident Technologies LLC. Activation is expected shortly following global DNS propagation.",
+      "name": "Evident — E-Discovery & Evidence Processing Platform",
+      "description": "Evident Technologies e-discovery suite — evidence processing, chain of custody, audit trails, and six satellite applications across civic technology, economic analysis, and public records.",
       "repo": "https://github.com/DTMBX/Evident",
       "dataPath": "/static/data",
       "localPath": "C:\\Users\\Devon Tyler\\Desktop\\Ventures\\evident",
@@ -29,7 +29,7 @@
         },
         {
           "id": "epstein-library",
-          "name": "Epstein Library",
+          "name": "DOJ Document Library",
           "path": "apps/epstein-library-evid",
           "dataPath": "/public/data",
           "enabled": true
@@ -45,6 +45,20 @@
           "id": "geneva-bible",
           "name": "Geneva Bible Study",
           "path": "apps/geneva-bible-study-t",
+          "dataPath": "/public/data",
+          "enabled": true
+        },
+        {
+          "id": "informed-consent",
+          "name": "Informed Consent Companion",
+          "path": "apps/informed-consent-com",
+          "dataPath": "/public/data",
+          "enabled": true
+        },
+        {
+          "id": "contractor-command",
+          "name": "Contractor Command Center",
+          "path": "apps/contractor-command-c",
           "dataPath": "/public/data",
           "enabled": true
         }

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — Devon Tyler Barber</title>
-  <meta name="description" content="Privacy Policy for devon-tyler.com operated by Devon Tyler Barber through Evident Technologies LLC.">
+  <meta name="description" content="Privacy Policy for devon-tyler.com operated by Devon Tyler Barber through Evident Technologies LLC and Tillerstead LLC.">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="canonical" href="https://devon-tyler.com/privacy.html">
   <style>
@@ -34,95 +34,145 @@
   </header>
   <main>
     <h1>Privacy Policy</h1>
-    <p class="effective">Effective Date: March 14, 2026</p>
-    <p>Devon Tyler Barber, operating through Evident Technologies LLC ("we," "us," or "our"), operates the website devon-tyler.com (the "Site"). This Privacy Policy describes how we collect, use, and protect information when you visit or interact with the Site.</p>
+    <p class="effective">Effective Date: June 8, 2026</p>
+    <p>Devon Tyler Barber, operating through Evident Technologies LLC and Tillerstead LLC ("we," "us," or "our"), operates the website devon-tyler.com (the "Site"). This Privacy Policy describes how we collect, use, store, and protect information when you visit or interact with the Site and its associated services.</p>
 
     <hr>
     <h2>1. Information We Collect</h2>
-    <p>We are committed to minimal data collection. The Site is a static, client-side web application. We do not operate server-side databases, user accounts, or authentication systems for public visitors.</p>
 
     <h3>1.1 Information You Provide</h3>
     <ul>
-      <li><strong>Contact Information:</strong> If you contact us via email (<a href="mailto:hi@devon-tyler.com">hi@devon-tyler.com</a> or <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>), we receive and store the information you voluntarily provide, including your name, email address, and message content.</li>
-      <li><strong>Service Inquiries:</strong> If you submit a service inquiry or investment interest through the Site, we collect the information you provide in that communication.</li>
+      <li><strong>Contact &amp; Inquiry Forms:</strong> If you submit a contact form, service inquiry, or licensing request through the Site, we collect the information you provide — including your name, email address, company name, phone number, and message content. Submissions are processed by our form handler and stored as described in Section 4.</li>
+      <li><strong>Direct Email:</strong> If you contact us via email (<a href="mailto:hi@devon-tyler.com">hi@devon-tyler.com</a> or <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>), we receive and store the information you voluntarily provide.</li>
+      <li><strong>Investment Interest:</strong> If you submit an investment interest or partnership inquiry, we collect the information you provide in that communication.</li>
     </ul>
 
     <h3>1.2 Information Collected Automatically</h3>
     <ul>
+      <li><strong>IP Addresses:</strong> When you submit a form through the Site, your IP address is collected for rate-limiting purposes. IP addresses are hashed before storage and are not stored in plain text. Hashed IP rate-limit records are retained for one hour and then automatically deleted.</li>
       <li><strong>Local Storage:</strong> The Site uses your browser's localStorage to save user preferences (theme, display settings). This data never leaves your device and is not transmitted to any server.</li>
-      <li><strong>No Cookies:</strong> We do not use cookies, session tokens, or any browser-based tracking mechanism.</li>
+      <li><strong>No Cookies:</strong> We do not use cookies, session tokens, or browser-based tracking mechanisms. See our <a href="/cookie-policy.html">Cookie Policy</a> for details.</li>
       <li><strong>No Analytics:</strong> We do not use Google Analytics, Meta Pixel, or any third-party analytics or tracking service.</li>
-      <li><strong>No Server Logs:</strong> As a static site hosted on GitHub Pages, standard CDN access logs may exist at the infrastructure level (GitHub's privacy policy governs those). We do not access, process, or store such logs.</li>
+      <li><strong>Infrastructure Logs:</strong> As a site hosted on GitHub Pages and served via Cloudflare, standard CDN access logs may exist at the infrastructure level. We do not access, process, or store such logs. GitHub's and Cloudflare's respective privacy policies govern those records.</li>
     </ul>
+
+    <h3>1.3 Webhook Events</h3>
+    <p>The Site processes GitHub webhook events (such as repository push events and deployment statuses) to display platform activity data. These events contain repository names, commit metadata, and deployment statuses — all of which are public information from public repositories. No personal information from third parties is collected through webhooks.</p>
 
     <hr>
     <h2>2. How We Use Information</h2>
-    <p>Information you voluntarily provide is used solely to:</p>
+    <p>Information you provide is used solely to:</p>
     <ul>
       <li>Respond to your inquiries or communications.</li>
+      <li>Route your inquiry to the appropriate department (Tillerstead for contracting, Evident for licensing, general for other inquiries).</li>
+      <li>Send you a confirmation email acknowledging receipt of your submission.</li>
       <li>Discuss potential services, partnerships, or investment opportunities.</li>
+      <li>Detect and prevent spam or abuse of form submission endpoints.</li>
       <li>Fulfill legal obligations if required by law or court order.</li>
     </ul>
     <p>We do not sell, rent, lease, or share your personal information with third parties for marketing purposes.</p>
 
     <hr>
-    <h2>3. Third-Party Services</h2>
-    <p>The Site may contain links to external services, each governed by its own privacy policy:</p>
+    <h2>3. Third-Party Services &amp; Processors</h2>
+    <p>We use the following third-party services to operate the Site. Each processes data only as necessary to provide its specific function:</p>
     <ul>
-      <li><strong>GitHub</strong> (github.com) — Source code hosting and site deployment.</li>
-      <li><strong>Stripe</strong> (stripe.com) — If you engage a paid service, payment processing is handled entirely by Stripe. We do not store credit card numbers or financial account details.</li>
-      <li><strong>Evident Platform</strong> (xtx396.com) — Our affiliated ecosystem of applications. Each application maintains its own privacy practices.</li>
+      <li><strong>GitHub</strong> (github.com) — Source code hosting and site deployment via GitHub Pages. <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener noreferrer">GitHub Privacy Statement</a>.</li>
+      <li><strong>Cloudflare</strong> (cloudflare.com) — Form submission processing and rate limiting via Cloudflare Workers, with key-value storage (Cloudflare KV) for form submission records and rate-limit counters. <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener noreferrer">Cloudflare Privacy Policy</a>.</li>
+      <li><strong>Supabase</strong> (supabase.com) — Optional server-side database for project and content data (admin use only; not used for public visitor data). <a href="https://supabase.com/privacy" rel="noopener noreferrer">Supabase Privacy Policy</a>.</li>
+      <li><strong>MailChannels</strong> (mailchannels.com) — Transactional email delivery for form submission notifications and confirmations. MailChannels processes only the email addresses and message content necessary to deliver these emails.</li>
+      <li><strong>Stripe</strong> (stripe.com) — If you engage a paid service, payment processing is handled entirely by Stripe. We do not store credit card numbers or financial account details. <a href="https://stripe.com/privacy" rel="noopener noreferrer">Stripe Privacy Policy</a>.</li>
     </ul>
-    <p>We are not responsible for the privacy practices of third-party services. We encourage you to review their policies.</p>
+    <p>We have no data-sharing agreements with these processors beyond what is required for their specific functions. We are not responsible for the independent privacy practices of third-party services.</p>
 
     <hr>
-    <h2>4. Court Documents &amp; Public Records</h2>
+    <h2>4. Data Storage &amp; Retention</h2>
+    <p>We store the minimum data necessary for each function:</p>
+    <ul>
+      <li><strong>Form Submissions:</strong> Stored in Cloudflare KV with a retention period of one year, after which they are automatically deleted. Each submission is assigned a unique identifier.</li>
+      <li><strong>Rate-Limit Records:</strong> IP-based rate-limit counters are stored in Cloudflare KV with a one-hour TTL and are automatically deleted after expiry.</li>
+      <li><strong>Admin Data:</strong> Project content and blog posts may be stored in Supabase for administrative purposes. This data is not derived from visitor interactions.</li>
+      <li><strong>Email Correspondence:</strong> Retained in standard email systems for as long as necessary to resolve your inquiry and for reasonable record-keeping purposes.</li>
+    </ul>
+
+    <hr>
+    <h2>5. Court Documents &amp; Public Records</h2>
     <p>The Site references court filings and legal documents that are public records obtained through lawful channels, including court electronic filing systems and public records requests. Personal information appearing in these documents (names, docket numbers, court details) is already part of the public record. We do not publish sealed, expunged, or confidential court records.</p>
 
     <hr>
-    <h2>5. Data Security</h2>
-    <p>We implement reasonable measures to protect the integrity and security of the Site, including:</p>
+    <h2>6. Data Security</h2>
+    <p>We implement reasonable measures to protect the integrity and security of the Site and your data, including:</p>
     <ul>
       <li>HTTPS encryption on all connections.</li>
       <li>Content Security Policy (CSP) headers.</li>
-      <li>No server-side storage of user data.</li>
+      <li>IP address hashing (never stored in plain text).</li>
+      <li>Rate limiting on form submission endpoints.</li>
+      <li>Honeypot-based spam detection (no CAPTCHAs required).</li>
       <li>Subresource Integrity (SRI) where applicable.</li>
     </ul>
     <p>No method of electronic transmission or storage is 100% secure. While we strive to protect information, we cannot guarantee absolute security.</p>
 
     <hr>
-    <h2>6. Children's Privacy</h2>
+    <h2>7. Children's Privacy</h2>
     <p>The Site is not directed to individuals under the age of 13. We do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us and we will promptly delete it.</p>
 
     <hr>
-    <h2>7. Your Rights</h2>
-    <p>Because we collect minimal data, most privacy rights are satisfied by design. If you have communicated with us via email and wish to:</p>
+    <h2>8. Your Rights</h2>
+    <p>Depending on your jurisdiction, you may have the following rights regarding your personal data:</p>
+
+    <h3>8.1 All Users</h3>
     <ul>
-      <li>Request a copy of information we hold about you,</li>
-      <li>Request deletion of your correspondence,</li>
-      <li>Opt out of any future communications,</li>
+      <li>Request a copy of the information we hold about you.</li>
+      <li>Request correction of inaccurate information.</li>
+      <li>Request deletion of your data.</li>
+      <li>Opt out of any future communications.</li>
     </ul>
-    <p>please contact us at <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>. We will respond within 30 days.</p>
+    <p>Contact <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a> for any data rights request. We will respond within 30 days.</p>
+
+    <h3>8.2 New Jersey Residents (NJDPA)</h3>
+    <p>Under the New Jersey Data Privacy Act (NJDPA), effective January 15, 2025, New Jersey residents have the right to access, correct, delete, and obtain a copy of their personal data, as well as the right to opt out of the sale of personal data. We do not sell personal data. For any NJDPA request, contact <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>.</p>
+
+    <h3>8.3 California Residents (CCPA/CPRA)</h3>
+    <p>Under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA), California residents have the right to:</p>
+    <ul>
+      <li>Know what personal information is collected, used, and disclosed.</li>
+      <li>Delete personal information held about them.</li>
+      <li>Opt out of the sale or sharing of personal information.</li>
+      <li>Non-discrimination for exercising privacy rights.</li>
+    </ul>
+    <p>We do not sell or share personal information as defined by the CCPA/CPRA. To exercise any right, contact <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>.</p>
+
+    <h3>8.4 European Economic Area Residents (GDPR)</h3>
+    <p>If you are located in the EEA, UK, or Switzerland, the General Data Protection Regulation (GDPR) grants you:</p>
+    <ul>
+      <li>Right of access to your personal data.</li>
+      <li>Right to rectification of inaccurate data.</li>
+      <li>Right to erasure ("right to be forgotten").</li>
+      <li>Right to restriction of processing.</li>
+      <li>Right to data portability.</li>
+      <li>Right to object to processing.</li>
+    </ul>
+    <p>Our lawful basis for processing form submissions is legitimate interest (responding to your inquiry). For any GDPR request, contact <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>.</p>
 
     <hr>
-    <h2>8. New Jersey Residents</h2>
-    <p>Under the New Jersey Data Privacy Act (NJDPA), effective January 15, 2025, New Jersey residents have the right to access, correct, delete, and obtain a copy of their personal data, as well as the right to opt out of the sale of personal data. Because we do not collect, sell, or share personal data through this Site, these rights are satisfied by default. For any inquiries, contact <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a>.</p>
+    <h2>9. International Data Transfers</h2>
+    <p>Your data may be processed in the United States. By submitting information through the Site, you consent to the transfer and processing of your data in the United States. Our processors (Cloudflare, Supabase, GitHub) maintain appropriate safeguards for international data transfers, including Standard Contractual Clauses where applicable.</p>
 
     <hr>
-    <h2>9. Changes to This Policy</h2>
+    <h2>10. Changes to This Policy</h2>
     <p>We may update this Privacy Policy from time to time. Changes will be posted on this page with a revised effective date. Your continued use of the Site after changes constitutes acceptance of the updated policy.</p>
 
     <hr>
-    <h2>10. Contact</h2>
-    <p>For privacy inquiries or requests:</p>
+    <h2>11. Contact</h2>
+    <p>For privacy inquiries or data rights requests:</p>
     <ul>
-      <li><strong>Email:</strong> <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a></li>
+      <li><strong>Privacy &amp; Legal:</strong> <a href="mailto:law@devon-tyler.com">law@devon-tyler.com</a></li>
       <li><strong>General:</strong> <a href="mailto:hi@devon-tyler.com">hi@devon-tyler.com</a></li>
       <li><strong>Entity:</strong> Evident Technologies LLC</li>
+      <li><strong>Related Policies:</strong> <a href="/terms.html">Terms &amp; Conditions</a> &middot; <a href="/cookie-policy.html">Cookie Policy</a></li>
     </ul>
   </main>
   <footer>
-    <a href="/">devon-tyler.com</a> &middot; <a href="/terms.html">Terms</a> &middot; &copy; 2026 Devon Tyler Barber
+    <a href="/">devon-tyler.com</a> &middot; <a href="/terms.html">Terms</a> &middot; <a href="/cookie-policy.html">Cookie Policy</a> &middot; &copy; 2026 Devon Tyler Barber
   </footer>
 </body>
 </html>

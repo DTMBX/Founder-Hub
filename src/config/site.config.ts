@@ -13,7 +13,7 @@
 export const siteConfig = {
   // Basic Info
   name: import.meta.env.VITE_SITE_NAME || 'Devon Tyler Barber',
-  tagline: import.meta.env.VITE_SITE_TAGLINE || 'Founder & Technologist',
+  tagline: import.meta.env.VITE_SITE_TAGLINE || 'Entrepreneur & Technologist',
   domain: import.meta.env.VITE_SITE_DOMAIN || 'devon-tyler.com',
   siteId: import.meta.env.VITE_SITE_ID || 'founder-hub',
   

@@ -3,6 +3,8 @@ import { useKV, kv } from '@/lib/local-storage-kv'
 import Navigation from './Navigation'
 import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
+import FeaturedProjects from './sections/FeaturedProjects'
+import { ActivityFeedCard } from './ActivityFeed'
 import { LandingSections, DEFAULT_LANDING_CONFIG } from './landing'
 import type { LandingConfig, LandingSectionConfig } from './landing'
 import { ScrollProgress } from './ui/scroll-progress'
@@ -24,7 +26,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
   const [settings] = useKV<SiteSettings>('founder-hub-settings', {
     siteName: 'Devon Tyler Barber',
     tagline: 'One Nation under God',
-    description: 'Founder & Technologist building civic tech, home improvement platforms, and accountability tools.',
+    description: 'Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools.',
     primaryDomain: 'devon-tyler.com',
     domainRedirects: [],
     analyticsEnabled: true,
@@ -108,8 +110,8 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
     }
   }
 
-  // Hide proof section from nav + layout when no proof links exist
-  const hasProofContent = (proofLinks?.filter(l => l.category === 'proof').length ?? 0) > 0
+  // Proof section is now registry-driven (always has content)
+  const hasProofContent = true
 
   // Build LandingConfig from KV sections
   const landingConfig = useMemo<LandingConfig>(() => {
@@ -178,27 +180,48 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
   const socialLinks = contactLinks?.filter(l => l.category === 'social') || []
   const siteUrl = `https://${settings?.primaryDomain || 'devon-tyler.com'}`
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": settings?.siteName || "Devon Tyler Barber",
-      "alternateName": "Devon Tyler",
-      "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
-      "url": siteUrl,
-      "image": settings?.socialPreviewImage || "/og-preview.png",
-      "sameAs": socialLinks.map(link => link.url).filter(Boolean),
-      "jobTitle": settings?.tagline || "One Nation under God",
-      "knowsAbout": ["Technology", "Innovation", "Legal Transparency", "Home Improvement", "Software Development"]
-    },
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": settings?.siteName || "Devon Tyler Barber",
-      "url": siteUrl,
-      "description": settings?.description || "Founder & Technologist building civic tech, home improvement platforms, and accountability tools.",
-    }
-  ]
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": `${siteUrl}/#person`,
+        "name": settings?.siteName || "Devon Tyler Barber",
+        "alternateName": "Devon Tyler",
+        "description": settings?.description || "Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools.",
+        "url": siteUrl,
+        "image": settings?.socialPreviewImage || "/og-preview.png",
+        "sameAs": socialLinks.map(link => link.url).filter(Boolean),
+        "jobTitle": "Entrepreneur & Licensed NJ Contractor",
+        "knowsAbout": ["E-Discovery", "Civic Technology", "Home Improvement", "Legal Transparency", "Software Development"],
+        "worksFor": { "@id": `${siteUrl}/#organization` },
+      },
+      {
+        "@type": "Organization",
+        "@id": `${siteUrl}/#organization`,
+        "name": "Evident Technologies LLC",
+        "url": "https://www.xtx396.com",
+        "founder": { "@id": `${siteUrl}/#person` },
+        "description": "E-discovery and civic technology company building transparency and accountability platforms.",
+      },
+      {
+        "@type": "HomeAndConstructionBusiness",
+        "@id": `${siteUrl}/#tillerstead`,
+        "name": "Tillerstead LLC",
+        "url": "https://tillerstead.com",
+        "founder": { "@id": `${siteUrl}/#person` },
+        "description": "Licensed NJ home improvement contractor \u2014 TCNA-compliant tile installation and residential renovation in South Jersey.",
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        "name": settings?.siteName || "Devon Tyler Barber",
+        "url": siteUrl,
+        "description": settings?.description || "Entrepreneur and technologist building civic technology, home improvement platforms, and accountability tools.",
+        "publisher": { "@id": `${siteUrl}/#person` },
+      },
+    ]
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground antialiased">
@@ -253,6 +276,12 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
           onScrollToSection={handleScrollToSection}
         />
         
+        {/* Featured projects credibility section */}
+        <FeaturedProjects />
+        
+        {/* Ecosystem activity feed */}
+        <ActivityFeedCard limit={8} />
+        
         {/* Config-driven sections below the hero */}
         <LandingSections 
           config={landingConfig}
@@ -262,7 +291,7 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
 
       {/* Professional footer */}
       <footer aria-label="Site footer" className="relative border-t border-border/30 bg-card/40 backdrop-blur-xl">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px] py-12">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="text-center md:text-left">
               <p className="font-mono text-sm font-bold tracking-tight text-foreground">
@@ -272,58 +301,55 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
                 {settings?.siteName || 'Devon Tyler Barber'}
               </p>
             </div>
-            <nav aria-label="Footer navigation" className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('about')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hover:text-foreground transition-colors"
-              >
-                About
-              </button>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('projects')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hover:text-foreground transition-colors"
-              >
-                Projects
-              </button>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('services')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hover:text-foreground transition-colors"
-              >
-                Services
-              </button>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('court')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="hover:text-foreground transition-colors"
-              >
-                Court
-              </button>
+            <nav aria-label="Footer navigation" className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap">
               <a 
-                href={`mailto:${profile?.professionalEmails?.find((e) => e.label?.toLowerCase().includes('invest'))?.email || 'iv@devon-tyler.com'}`}
-                className="hover:text-emerald-400 transition-colors"
-              >
-                Invest
-              </a>
-              <button 
-                onClick={() => {
-                  const el = document.getElementById('contact')
-                  if (el) el.scrollIntoView({ behavior: 'smooth' })
-                }}
+                href="#evident"
                 className="hover:text-foreground transition-colors"
               >
-                Contact
-              </button>
+                Evident E-Discovery
+              </a>
+              <a 
+                href="#tillerstead"
+                className="hover:text-foreground transition-colors"
+              >
+                Tillerstead
+              </a>
+              <a 
+                href="#about"
+                className="hover:text-foreground transition-colors"
+              >
+                About Devon
+              </a>
+              <a 
+                href="#projects-index"
+                className="hover:text-foreground transition-colors"
+              >
+                What I Build
+              </a>
+              <a 
+                href="#accountability"
+                className="hover:text-foreground transition-colors"
+              >
+                Court &amp; Accountability
+              </a>
+              <a 
+                href="#invest"
+                className="hover:text-foreground transition-colors"
+              >
+                Invest &amp; Connect
+              </a>
+              <a 
+                href="#data"
+                className="hover:text-foreground transition-colors"
+              >
+                Data
+              </a>
+              <a 
+                href="#developers"
+                className="hover:text-foreground transition-colors"
+              >
+                Developers
+              </a>
             </nav>
             <div className="text-center md:text-right">
               <a href={`mailto:${profile?.catchAllEmail || 'hi@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
@@ -343,7 +369,9 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
               <span aria-hidden="true">&middot;</span>
               <a href="/terms.html" className="hover:text-muted-foreground transition-colors">Terms</a>
               <span aria-hidden="true">&middot;</span>
-              <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">Evident Platform</a>
+              <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">xtx396.com</a>
+              <span aria-hidden="true">&middot;</span>
+              <a href="https://tillerstead.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">tillerstead.com</a>
               <span aria-hidden="true">&middot;</span>
               <a href="https://github.com/DTMBX" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">GitHub</a>
             </div>

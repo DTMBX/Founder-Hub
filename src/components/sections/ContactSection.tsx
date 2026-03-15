@@ -2,9 +2,11 @@ import { useKV } from '@/lib/local-storage-kv'
 import { Link } from '@/lib/types'
 import { GlassCard } from '@/components/ui/glass-card'
 import { GlassButton } from '@/components/ui/glass-button'
-import { EnvelopeSimple, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight, Globe, LinkSimple } from '@phosphor-icons/react'
+import { EnvelopeSimple, GithubLogo, LinkedinLogo, TwitterLogo, Scales, ChartLineUp, Handshake, ShieldCheck, Headset, Newspaper, At, ArrowRight, Globe, LinkSimple, PaperPlaneTilt, CircleNotch, ChatCircleDots } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { contactContent } from '@/config/content.config'
+import { useFormSubmit } from '@/hooks/use-form-submit'
+import { useState } from 'react'
 
 interface ContactSectionProps {
   investorMode: boolean
@@ -59,6 +61,8 @@ const ICON_MAP: Record<string, React.ComponentType<any>> = {
 export default function ContactSection({ investorMode }: ContactSectionProps) {
   const [links] = useKV<Link[]>('founder-hub-contact-links', [])
   const [profile] = useKV<SiteProfile | null>('founder-hub-profile', null)
+  const [showForm, setShowForm] = useState(false)
+  const { status: formStatus, errorMessage, submit: submitForm, reset: resetForm } = useFormSubmit('general')
 
   const emails = profile?.professionalEmails?.length ? profile.professionalEmails : DEFAULT_EMAILS
   const socialLinks = links?.filter(l => l.category === 'social').sort((a, b) => a.order - b.order) || []
@@ -172,6 +176,142 @@ export default function ContactSection({ investorMode }: ContactSectionProps) {
               )
             })}
           </div>
+        </motion.div>
+
+        {/* Quick Contact Form */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-10"
+        >
+          {!showForm ? (
+            <div className="text-center">
+              <button
+                onClick={() => setShowForm(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all duration-300"
+              >
+                <ChatCircleDots className="h-5 w-5" weight="duotone" />
+                Send a message directly
+              </button>
+            </div>
+          ) : (
+            <GlassCard intensity="high" className="max-w-xl mx-auto">
+              <div className="p-6 sm:p-8">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <PaperPlaneTilt className="h-5 w-5 text-primary" weight="duotone" />
+                  Send a Message
+                </h3>
+
+                {formStatus === 'success' ? (
+                  <div className="text-center py-6">
+                    <div className="text-4xl mb-3">✓</div>
+                    <p className="text-lg font-medium mb-1">Message sent</p>
+                    <p className="text-sm text-muted-foreground mb-4">Response within 24–48 hours.</p>
+                    <button onClick={() => { resetForm(); setShowForm(false) }} className="text-sm text-primary hover:text-primary/80 underline">Close</button>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      submitForm(new FormData(e.currentTarget))
+                    }}
+                    className="space-y-4"
+                  >
+                    {/* Honeypot */}
+                    <div className="hidden" aria-hidden="true">
+                      <input type="text" name="company_url" tabIndex={-1} autoComplete="off" />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="contact-name" className="block text-sm font-medium mb-1.5">Name <span className="text-red-500">*</span></label>
+                        <input
+                          id="contact-name"
+                          name="name"
+                          type="text"
+                          required
+                          className="w-full rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          placeholder="Your name"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="contact-email" className="block text-sm font-medium mb-1.5">Email <span className="text-red-500">*</span></label>
+                        <input
+                          id="contact-email"
+                          name="email"
+                          type="email"
+                          required
+                          className="w-full rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          placeholder="you@example.com"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="contact-subject" className="block text-sm font-medium mb-1.5">Subject</label>
+                      <input
+                        id="contact-subject"
+                        name="subject"
+                        type="text"
+                        className="w-full rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+                        placeholder="What's this about?"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="contact-message" className="block text-sm font-medium mb-1.5">Message <span className="text-red-500">*</span></label>
+                      <textarea
+                        id="contact-message"
+                        name="message"
+                        required
+                        rows={4}
+                        className="w-full rounded-lg border border-border/50 bg-background/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y"
+                        placeholder="Your message..."
+                      />
+                    </div>
+
+                    {errorMessage && (
+                      <p className="text-sm text-red-500">{errorMessage}</p>
+                    )}
+
+                    <div className="flex items-center justify-between gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowForm(false)}
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={formStatus === 'submitting'}
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 transition-colors text-sm font-medium"
+                      >
+                        {formStatus === 'submitting' ? (
+                          <>
+                            <CircleNotch className="h-4 w-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          <>
+                            <PaperPlaneTilt className="h-4 w-4" />
+                            Send Message
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground/60 text-center">
+                      By submitting, you agree to our{' '}
+                      <a href="#privacy" className="underline hover:text-muted-foreground">privacy policy</a>.
+                    </p>
+                  </form>
+                )}
+              </div>
+            </GlassCard>
+          )}
         </motion.div>
 
         {/* Social links */}

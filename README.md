@@ -1,5 +1,8 @@
 # Founder-Hub
 
+[![Pages](https://github.com/DTMBX/Founder-Hub/actions/workflows/pages.yml/badge.svg)](https://github.com/DTMBX/Founder-Hub/actions/workflows/pages.yml)
+[![CI](https://github.com/DTMBX/Founder-Hub/actions/workflows/ci.yml/badge.svg)](https://github.com/DTMBX/Founder-Hub/actions/workflows/ci.yml)
+
 Operations hub, portfolio, and accountability platform by Devon Tyler Barber.
 
 ## Features
