@@ -4,6 +4,8 @@ import Navigation from './Navigation'
 import HonorFlagBar from './HonorFlagBar'
 import HeroSection from './sections/HeroSection'
 import FeaturedProjects from './sections/FeaturedProjects'
+import TrustBar from './TrustBar'
+import LatestPosts from './LatestPosts'
 import { ActivityFeedCard } from './ActivityFeed'
 import { LandingSections, DEFAULT_LANDING_CONFIG } from './landing'
 import type { LandingConfig, LandingSectionConfig } from './landing'
@@ -278,10 +280,16 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
         
         {/* Featured projects credibility section */}
         <FeaturedProjects />
-        
+
+        {/* Verified credentials strip */}
+        <TrustBar />
+
         {/* Ecosystem activity feed */}
         <ActivityFeedCard limit={8} />
-        
+
+        {/* Latest blog posts */}
+        <LatestPosts />
+
         {/* Config-driven sections below the hero */}
         <LandingSections 
           config={landingConfig}
@@ -292,89 +300,65 @@ export default function PublicSite({ onAdminClick, onNavigateToCase }: PublicSit
       {/* Professional footer */}
       <footer aria-label="Site footer" className="relative border-t border-border/30 bg-card/40 backdrop-blur-xl">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1200px] py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-            <div className="text-center md:text-left">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-10">
+            {/* Brand */}
+            <div className="col-span-2 sm:col-span-1">
               <p className="font-mono text-sm font-bold tracking-tight text-foreground">
                 {profile?.domain || settings?.primaryDomain || 'devon-tyler.com'}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                 {settings?.siteName || 'Devon Tyler Barber'}
               </p>
-            </div>
-            <nav aria-label="Footer navigation" className="flex items-center justify-center gap-6 text-xs text-muted-foreground flex-wrap">
-              <a 
-                href="#evident"
-                className="hover:text-foreground transition-colors"
-              >
-                Evident E-Discovery
-              </a>
-              <a 
-                href="#tillerstead"
-                className="hover:text-foreground transition-colors"
-              >
-                Tillerstead
-              </a>
-              <a 
-                href="#about"
-                className="hover:text-foreground transition-colors"
-              >
-                About Devon
-              </a>
-              <a 
-                href="#projects-index"
-                className="hover:text-foreground transition-colors"
-              >
-                What I Build
-              </a>
-              <a 
-                href="#accountability"
-                className="hover:text-foreground transition-colors"
-              >
-                Court &amp; Accountability
-              </a>
-              <a 
-                href="#invest"
-                className="hover:text-foreground transition-colors"
-              >
-                Invest &amp; Connect
-              </a>
-              <a 
-                href="#data"
-                className="hover:text-foreground transition-colors"
-              >
-                Data
-              </a>
-              <a 
-                href="#developers"
-                className="hover:text-foreground transition-colors"
-              >
-                Developers
-              </a>
-            </nav>
-            <div className="text-center md:text-right">
-              <a href={`mailto:${profile?.catchAllEmail || 'hi@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono">
+              <a href={`mailto:${profile?.catchAllEmail || 'hi@devon-tyler.com'}`} className="text-xs text-muted-foreground hover:text-primary transition-colors font-mono mt-2 inline-block">
                 {profile?.catchAllEmail || 'hi@devon-tyler.com'}
               </a>
-              <p className="text-xs text-muted-foreground/50 mt-1">
-                &copy; {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.
-              </p>
+            </div>
+
+            {/* Navigation */}
+            <div>
+              <p className="text-xs font-semibold text-foreground/80 mb-3 uppercase tracking-wider">Navigate</p>
+              <nav aria-label="Footer navigation" className="flex flex-col gap-2 text-xs text-muted-foreground">
+                <a href="#about" className="hover:text-foreground transition-colors">About</a>
+                <a href="#projects-index" className="hover:text-foreground transition-colors">Projects</a>
+                <a href="#blog" className="hover:text-foreground transition-colors">Blog</a>
+                <a href="#services" className="hover:text-foreground transition-colors">Services</a>
+                <a href="#accountability" className="hover:text-foreground transition-colors">Accountability</a>
+                <a href="#health" className="hover:text-foreground transition-colors">System Status</a>
+              </nav>
+            </div>
+
+            {/* Ecosystem */}
+            <div>
+              <p className="text-xs font-semibold text-foreground/80 mb-3 uppercase tracking-wider">Ecosystem</p>
+              <nav aria-label="Ecosystem links" className="flex flex-col gap-2 text-xs text-muted-foreground">
+                <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Evident Technologies</a>
+                <a href="https://tillerstead.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Tillerstead</a>
+                <a href="https://library.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Document Library</a>
+                <a href="https://civics.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Civics Hierarchy</a>
+                <a href="https://consent.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Informed Consent</a>
+                <a href="https://ledger.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Essential Goods</a>
+              </nav>
+            </div>
+
+            {/* Legal & Dev */}
+            <div>
+              <p className="text-xs font-semibold text-foreground/80 mb-3 uppercase tracking-wider">Legal</p>
+              <nav aria-label="Legal links" className="flex flex-col gap-2 text-xs text-muted-foreground">
+                <a href="/privacy.html" className="hover:text-foreground transition-colors">Privacy Policy</a>
+                <a href="/terms.html" className="hover:text-foreground transition-colors">Terms of Use</a>
+                <a href="https://github.com/DTMBX" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">GitHub</a>
+                <a href="#developers" className="hover:text-foreground transition-colors">Developers</a>
+              </nav>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-border/20 text-center">
-            <p className="text-xs text-muted-foreground/40 max-w-3xl mx-auto leading-relaxed">
-              This site is for informational purposes only and does not constitute legal advice. Court documents referenced are public records obtained through lawful channels. All trademarks and third-party content belong to their respective owners.
+
+          <div className="pt-6 border-t border-border/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-muted-foreground/50">
+              &copy; {new Date().getFullYear()} {settings?.siteName || 'Devon Tyler Barber'}. All rights reserved.
             </p>
-            <div className="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground/40">
-              <a href="/privacy.html" className="hover:text-muted-foreground transition-colors">Privacy</a>
-              <span aria-hidden="true">&middot;</span>
-              <a href="/terms.html" className="hover:text-muted-foreground transition-colors">Terms</a>
-              <span aria-hidden="true">&middot;</span>
-              <a href="https://www.xtx396.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">xtx396.com</a>
-              <span aria-hidden="true">&middot;</span>
-              <a href="https://tillerstead.com" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">tillerstead.com</a>
-              <span aria-hidden="true">&middot;</span>
-              <a href="https://github.com/DTMBX" target="_blank" rel="noopener noreferrer" className="hover:text-muted-foreground transition-colors">GitHub</a>
-            </div>
+            <p className="text-[11px] text-muted-foreground/30 max-w-xl text-center sm:text-right leading-relaxed">
+              This site is for informational purposes only and does not constitute legal advice. Court documents referenced are public records obtained through lawful channels.
+            </p>
           </div>
         </div>
       </footer>

@@ -73,7 +73,65 @@ function formatPrice(cents: number, currency: string = 'USD'): string {
 }
 
 export default function OfferingsSection({ investorMode, tradeMode }: OfferingsSectionProps) {
-  const [offerings] = useKV<Offering[]>('founder-hub-offerings', [])
+  const [offerings] = useKV<Offering[]>('founder-hub-offerings', [
+    {
+      id: 'evident-ediscovery',
+      title: 'Evident E-Discovery Consulting',
+      slug: 'evident-ediscovery',
+      summary: 'Forensic evidence processing, document review infrastructure, and chain-of-custody system design for legal teams and investigators.',
+      description: 'Evident Technologies builds and operates forensic evidence platforms. We offer consulting engagements covering e-discovery pipeline design, document ingestion architecture, audit-trail implementation, and expert review of existing systems. All work products are reproducible and court-defensible.',
+      category: 'service',
+      pricingType: 'contact',
+      priceTiers: [],
+      tags: ['e-discovery', 'forensic', 'legal-tech', 'consulting'],
+      deliverables: ['Architecture assessment report', 'Chain-of-custody audit', 'Pipeline design document', 'Implementation roadmap'],
+      turnaround: '2–4 weeks for initial assessment',
+      featured: true,
+      order: 1,
+      visibility: 'public',
+      contactCTA: 'Request Consultation',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+    {
+      id: 'tillerstead-renovation',
+      title: 'Tillerstead Residential Services',
+      slug: 'tillerstead-renovation',
+      summary: 'Licensed NJ home improvement contracting — kitchen, bath, tile, roofing, and general renovation across 9 South Jersey counties.',
+      description: 'Tillerstead LLC (NJ HIC #13VH10808800) provides residential renovation services in Atlantic, Burlington, Camden, Cape May, Cumberland, Gloucester, Mercer, Ocean, and Salem counties. Digital project tracking, transparent pricing, and TCNA-compliant tile installation.',
+      category: 'service',
+      pricingType: 'contact',
+      priceTiers: [],
+      tags: ['contracting', 'renovation', 'south-jersey', 'tile', 'roofing'],
+      deliverables: ['Detailed project estimate', 'Material specification sheet', 'Digital progress dashboard access', 'Inspection documentation'],
+      turnaround: 'Free estimate within 5 business days',
+      featured: true,
+      order: 2,
+      visibility: 'public',
+      contactCTA: 'Request Estimate',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+    {
+      id: 'civic-tech-whitelabel',
+      title: 'Civic Technology White-Label',
+      slug: 'civic-tech-whitelabel',
+      summary: 'Deploy a branded civic technology or transparency platform built on the Evident ecosystem — document libraries, accountability trackers, and public-records portals.',
+      description: 'License the Evident satellite architecture for your jurisdiction or organization. Includes customizable document library, public-records search, accountability dashboards, and audit infrastructure. Deployed on your domain with your brand.',
+      category: 'whitelabel',
+      pricingType: 'contact',
+      priceTiers: [],
+      tags: ['civic-tech', 'whitelabel', 'transparency', 'government'],
+      deliverables: ['Branded platform deployment', 'Custom domain configuration', 'Admin training', '90-day support period'],
+      turnaround: '4–8 weeks to launch',
+      featured: false,
+      order: 3,
+      visibility: 'public',
+      contactCTA: 'Discuss Licensing',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+  ])
   const [ref, isVisible] = useIntersectionObserver({ threshold: 0.1, freezeOnceVisible: true })
   const prefersReducedMotion = useReducedMotion()
   const [selectedCategory, setSelectedCategory] = useState<OfferingCategory | 'all'>('all')

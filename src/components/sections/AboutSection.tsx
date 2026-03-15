@@ -20,9 +20,29 @@ export default function AboutSection({ pathway }: AboutSectionProps) {
     values: ['Integrity', 'Stewardship', 'Fortitude', 'Veracity'],
     updates: [
       {
+        date: '2024-Q2',
+        title: 'LLC Formations',
+        content: 'Evident Technologies LLC and Tillerstead LLC formed in New Jersey. NJ HIC license secured for residential contracting.'
+      },
+      {
+        date: '2025-01',
+        title: 'Platform Development',
+        content: 'Core infrastructure built — React SPA, CI/CD with GitHub Actions, Cloudflare Workers for contact and webhook handling.'
+      },
+      {
         date: '2025-06',
         title: 'Evident Ecosystem Launch',
         content: 'Eight satellite apps deployed — civic tech, legal tools, and accountability platforms now live across xtx396.com subdomains.'
+      },
+      {
+        date: '2026-Q1',
+        title: 'Founder Hub Live',
+        content: 'devon-tyler.com launched as Founder Hub — unified portfolio, investor materials, blog, search, and health monitoring across the full venture ecosystem.'
+      },
+      {
+        date: '2026-Q2',
+        title: 'Tillerstead Field Operations',
+        content: 'First residential projects underway in South Jersey. Digital project tracking and transparent estimating pipeline operational.'
       }
     ]
   })

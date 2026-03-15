@@ -31,11 +31,29 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const defaultInvestorData: InvestorData = {
-  metrics: [],
-  milestones: [],
+  metrics: [
+    { id: 'satellites', label: 'Live Satellites', value: '9', trend: 'up', trendValue: '+3 this quarter', order: 1 },
+    { id: 'domain-portfolio', label: 'Domains Owned', value: '12', trend: 'up', trendValue: '+2 YTD', order: 2 },
+    { id: 'repos', label: 'Public Repos', value: '14', trend: 'up', trendValue: 'Active', order: 3 },
+    { id: 'hic-license', label: 'NJ HIC License', value: 'Active', trend: 'neutral', trendValue: '13VH10808800', order: 4 },
+  ],
+  milestones: [
+    { id: 'ms-llc-evident', date: '2024-Q2', title: 'Evident Technologies LLC formed', description: 'New Jersey LLC registered for legal-technology operations.', status: 'completed', order: 1 },
+    { id: 'ms-llc-tillerstead', date: '2024-Q3', title: 'Tillerstead LLC formed', description: 'Licensed NJ home improvement contractor entity established.', status: 'completed', order: 2 },
+    { id: 'ms-ecosystem', date: '2025-Q2', title: 'Evident Ecosystem launched', description: 'Eight satellite applications deployed across xtx396.com subdomains.', status: 'completed', order: 3 },
+    { id: 'ms-founder-hub', date: '2026-Q1', title: 'Founder Hub consolidated', description: 'Unified portfolio site with public accountability, real-time dashboards, and investor visibility.', status: 'completed', order: 4 },
+    { id: 'ms-tillerstead-rev', date: '2026-Q2', title: 'Tillerstead revenue pipeline', description: 'First contracted residential renovation projects in South Jersey.', status: 'in-progress', order: 5 },
+    { id: 'ms-evident-saas', date: '2026-Q4', title: 'Evident SaaS beta', description: 'Cloud-hosted e-discovery platform for small law firms and compliance teams.', status: 'upcoming', order: 6 },
+  ],
+  faqs: [
+    { id: 'faq-structure', question: 'What is the corporate structure?', answer: 'Two operating LLCs — Evident Technologies (legal tech) and Tillerstead (construction) — both New Jersey entities with the founder as sole member and managing principal.', order: 1 },
+    { id: 'faq-revenue', question: 'What are the revenue models?', answer: 'Tillerstead generates project-based revenue from residential renovation contracts. Evident is pre-revenue, building toward a SaaS e-discovery product for small law firms with per-seat licensing.', order: 2 },
+    { id: 'faq-funding', question: 'Is there outside funding?', answer: 'Both entities are currently self-funded (bootstrapped). The founder is open to strategic investment conversations, particularly for accelerating the Evident SaaS product.', order: 3 },
+    { id: 'faq-tech-stack', question: 'What is the tech stack?', answer: 'React 19, TypeScript, Vite 7, Tailwind CSS v4, Cloudflare Workers, Supabase, GitHub Pages. All repositories are public with full audit history.', order: 4 },
+  ],
   documents: [],
-  faqs: [],
-  investmentTiers: []
+  investmentTiers: [],
+  investorEmail: 'devon@devon-tyler.com',
 }
 
 function formatCurrency(cents: number, currency: string = 'USD'): string {
